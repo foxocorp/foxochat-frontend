@@ -1,32 +1,32 @@
 <template>
-  <div class="login-container">
-    <div class="login-form">
-      <div class="login-form-header">
-        <div class="login-form-title">
+  <div class="register-container">
+    <div class="register-form">
+      <div class="register-form-header">
+        <div class="register-form-title">
           <div class="form">
-            <div class="login-title">Sign up</div>
-            <div class="form-login">
-              <div class="login">
-                <label class="login-label">Username</label>
+            <div class="register-title">Sign up</div>
+            <div class="form-register">
+              <div class="register">
+                <label class="register-label">Username</label>
                 <input
                     type="text"
-                    class="login-input"
+                    class="register-input"
                     placeholder="Enter your username"
                     v-model="username"
                     required
                 />
-                <label class="login-label">Email</label>
+                <label class="register-label">Email</label>
                 <input
                     type="email"
-                    class="login-input"
+                    class="register-input"
                     placeholder="your.email@domain.com"
                     v-model="email"
                     required
                 />
-                <label class="login-label">Password</label>
+                <label class="register-label">Password</label>
                 <input
                     type="password"
-                    class="login-input"
+                    class="register-input"
                     placeholder="Choose a secure password"
                     v-model="password"
                     required
@@ -34,7 +34,7 @@
               </div>
             </div>
           </div>
-          <div class="login-button">
+          <div class="register-button">
             <form @submit.prevent="handleRegister">
               <button type="submit" class="button">
                 <span>Register</span>
@@ -43,19 +43,19 @@
             </form>
           </div>
           <div class="divider"></div>
-          <div class="form-login-buttons">
+          <div class="form-register-buttons">
             <button
                 v-for="(button, index) in socialButtons"
                 :key="index"
-                class="form-login-button"
+                class="form-register-button"
                 @click="button.action"
             >
-              <img :src="button.icon" :alt="`${button.label} login`" />
+              <img :src="button.icon" :alt="`${button.label} register`" />
             </button>
           </div>
           <div class="divider"></div>
-          <div class="another-login-buttons">
-            <button @click="goToLogin" class="reset-password-button">
+          <div class="another-register-buttons">
+            <button @click="goToRegister" class="reset-password-button">
                 Already have an account?
               <img src="/svg/already-have-account.svg" alt="already have account" />
             </button>
@@ -96,9 +96,9 @@ export default {
       }
     };
 
-    const goToLogin = () => {
+    const goToRegister = () => {
       console.log(1)
-      router.push('/auth/login');
+      router.push('/auth/register');
     };
 
     return {
@@ -106,7 +106,7 @@ export default {
       email,
       password,
       handleRegister,
-      goToLogin,
+      goToRegister,
       socialButtons: [
         { icon: '/svg/google.svg', label: 'Google', action: () => alert('Google') },
         { icon: '/svg/discord.svg', label: 'Discord', action: () => alert('Discord') },
@@ -121,7 +121,7 @@ export default {
 </script>
 
 <style scoped>
-.login-container {
+.register-container {
   position: relative;
   min-height: 100vh;
   display: flex;
@@ -130,8 +130,8 @@ export default {
   overflow-y: auto;
 }
 
-.login-container::before,
-.login-container::after {
+.register-container::before,
+.register-container::after {
   content: "";
   position: fixed;
   width: 500px;
@@ -142,17 +142,17 @@ export default {
   z-index: 0;
 }
 
-.login-container::before {
+.register-container::before {
   bottom: -200px;
   left: -200px;
 }
 
-.login-container::after {
+.register-container::after {
   top: -200px;
   right: -200px;
 }
 
-.login-form {
+.register-form {
   position: relative;
   z-index: 1;
   display: flex;
@@ -162,12 +162,12 @@ export default {
   max-width: 100%;
 }
 
-.login-form-header {
+.register-form-header {
   width: 100%;
   max-width: 400px;
 }
 
-.login-form-title {
+.register-form-title {
   text-align: left;
 }
 
@@ -176,7 +176,7 @@ export default {
   height: 161px;
 }
 
-.login-title {
+.register-title {
   font: 800 40px var(--font-family);
   color: #ececec;
 }
@@ -194,31 +194,31 @@ input {
   color: rgba(96, 96, 96, 0.7);
 }
 
-.form-login {
+.form-register {
   display: flex;
   flex-direction: column;
   margin-top: 30px;
 }
 
-.login {
+.register {
   display: flex;
   flex-direction: column;
 }
 
-.login-label {
+.register-label {
   font: 500 18px var(--font-family);
   color: #ececec;
   margin-bottom: 5px;
 }
 
-.login-input {
+.register-input {
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.login-button {
+.register-button {
   display: flex;
   margin-top: 195px;
 }
@@ -249,13 +249,13 @@ input {
   background: rgba(96, 96, 96, 0.5);
 }
 
-.form-login-buttons {
+.form-register-buttons {
   display: flex;
   gap: 12px;
   margin-top: 20px;
 }
 
-.form-login-button {
+.form-register-button {
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(96, 96, 96, 0.5);
@@ -271,22 +271,22 @@ input {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.form-login-button img {
+.form-register-button img {
   width: 25px;
   height: 25px;
 }
 
-.form-login-button:hover {
+.form-register-button:hover {
   background-color: rgba(11, 11, 11, 0.8);
   transform: scale(1.05);
 }
 
-.form-login-button:active {
+.form-register-button:active {
   background-color: rgba(66, 66, 66, 0.9);
   transform: scale(0.95);
 }
 
-.another-login-buttons {
+.another-register-buttons {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
