@@ -177,7 +177,7 @@ export default {
 
 .login-title {
   font: 800 40px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
 }
 
 input {
@@ -206,7 +206,7 @@ input {
 
 .login-label {
   font: 500 18px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   margin-bottom: 5px;
 }
 
@@ -229,7 +229,7 @@ input {
   padding: 13px 14px;
   width: 368px;
   height: 48px;
-  background: #ececec;
+  background: var(--secondary-color);
   font: 600 20px var(--font-family);
   color: #000;
   border: none;
@@ -263,7 +263,7 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fff;
+  color: var(--secondary-color);
   padding: 0;
   cursor: pointer;
   font-size: 16px;
@@ -295,7 +295,7 @@ input {
 .create-account-button,
 .reset-password-button {
   font: 500 15px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   border: 1px solid rgba(96, 96, 96, 0.5);
   border-radius: 4px;
   padding: 0 16px;

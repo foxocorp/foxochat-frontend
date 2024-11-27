@@ -178,7 +178,7 @@ export default {
 
 .register-title {
   font: 800 40px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
 }
 
 input {
@@ -207,7 +207,7 @@ input {
 
 .register-label {
   font: 500 18px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   margin-bottom: 5px;
 }
 
@@ -230,7 +230,7 @@ input {
   padding: 13px 14px;
   width: 368px;
   height: 48px;
-  background: #ececec;
+  background: var(--secondary-color);
   font: 600 20px var(--font-family);
   color: #000;
   border: none;
@@ -295,7 +295,7 @@ input {
 
 .reset-password-button {
   font: 500 15px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   border: 1px solid rgba(96, 96, 96, 0.5);
   border-radius: 4px;
   padding: 0 16px;
