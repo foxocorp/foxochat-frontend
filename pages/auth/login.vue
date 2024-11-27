@@ -29,7 +29,7 @@
           <div class="login-button">
             <form @submit.prevent="handleLogin">
               <button type="submit" class="button">
-                <span>Confirm</span>
+                <span>Log in</span>
                 <img src="/svg/arrow-left.svg" alt="arrow left">
               </button>
             </form>
@@ -196,7 +196,7 @@ input {
 .form-login {
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .login {

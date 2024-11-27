@@ -197,7 +197,7 @@ input {
 .form-register {
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .register {
