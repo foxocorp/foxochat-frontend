@@ -21,7 +21,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: 'https://api.foxogram.su',
+      apiBase: 'https://api-dev.foxogram.su/',
     },
   },
 
