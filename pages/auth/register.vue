@@ -236,6 +236,16 @@ input {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: rgba(236, 236, 236, 0.7);
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.95);
 }
 
 .button svg {
@@ -307,6 +317,7 @@ input {
   gap: 10px;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.7);
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .reset-password-button button {
