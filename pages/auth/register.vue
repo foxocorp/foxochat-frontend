@@ -11,7 +11,7 @@
                 <input
                     type="text"
                     class="register-input"
-                    placeholder="Enter your username"
+                    placeholder="floof_fox"
                     v-model="username"
                     required
                 />
@@ -27,7 +27,7 @@
                 <input
                     type="password"
                     class="register-input"
-                    placeholder="Choose a secure password"
+                    placeholder="your floof password :3"
                     v-model="password"
                     required
                 />
