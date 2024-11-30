@@ -29,13 +29,13 @@ export default {
 }
 
 .logo {
-  width: 150px;
+  width: 120px;
   margin-bottom: 50px;
 }
 
 .loading {
   position: absolute;
-  bottom: 30px;
+  bottom: 100px;
   width: 100%;
   display: flex;
   justify-content: center;

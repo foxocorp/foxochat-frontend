@@ -1,3 +1,6 @@
 :root {
     --font-family: "Inter", sans-serif;
+    --primary-color: none;
+    --secondary-color: #ECECEC;
+    --background-color: #000000;
 }

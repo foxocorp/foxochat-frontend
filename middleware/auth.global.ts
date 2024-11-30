@@ -1,19 +1,25 @@
 import { useAuthStore } from '~/store/useAuthStore';
 import { getAuthToken } from '~/utils/auth';
 
-export default defineNuxtRouteMiddleware((to, from) => {
-    const authStore = useAuthStore();
-    const token = getAuthToken();
+export default defineNuxtRouteMiddleware((to) => {
+    const publicRoutes = ['/auth/login', '/auth/register', '/'];
 
-    if (!token && (to.path === '/auth/login' || to.path === '/auth/register')) {
+    if (publicRoutes.includes(to.path)) {
         return;
     }
 
-    if (!token && to.path !== '/auth/login') {
+    if (!to.matched.length) {
+        return;
+    }
+
+    const token = getAuthToken();
+    const authStore = useAuthStore();
+
+    if (!token) {
         return navigateTo('/auth/login');
     }
 
-    if (token) {
+    if (token && !authStore.isAuthenticated) {
         authStore.login(token);
     }
 });

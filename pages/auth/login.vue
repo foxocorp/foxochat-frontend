@@ -29,7 +29,7 @@
           <div class="login-button">
             <form @submit.prevent="handleLogin">
               <button type="submit" class="button">
-                <span>Confirm</span>
+                <span>Log in</span>
                 <img src="/svg/arrow-left.svg" alt="arrow left">
               </button>
             </form>
@@ -177,7 +177,7 @@ export default {
 
 .login-title {
   font: 800 40px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
 }
 
 input {
@@ -196,7 +196,7 @@ input {
 .form-login {
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .login {
@@ -206,7 +206,7 @@ input {
 
 .login-label {
   font: 500 18px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   margin-bottom: 5px;
 }
 
@@ -229,12 +229,22 @@ input {
   padding: 13px 14px;
   width: 368px;
   height: 48px;
-  background: #ececec;
+  background: var(--secondary-color);
   font: 600 20px var(--font-family);
   color: #000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: rgba(236, 236, 236, 0.7);
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.95);
 }
 
 .button svg {
@@ -263,7 +273,7 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fff;
+  color: var(--secondary-color);
   padding: 0;
   cursor: pointer;
   font-size: 16px;
@@ -295,7 +305,7 @@ input {
 .create-account-button,
 .reset-password-button {
   font: 500 15px var(--font-family);
-  color: #ececec;
+  color: var(--secondary-color);
   border: 1px solid rgba(96, 96, 96, 0.5);
   border-radius: 4px;
   padding: 0 16px;
@@ -307,6 +317,7 @@ input {
   gap: 10px;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.7);
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .create-account-button img,
