@@ -1,0 +1,16 @@
+---
+name: Deploy Foxogram frontend
+
+on:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+  build:
+    runs-on: cloud
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'dev' && 'development' || 'development' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Foxogram frontend
+        run: docker compose -f docker-compose-${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'dev' && 'dev' || 'dev' }}.yml up -d --build
