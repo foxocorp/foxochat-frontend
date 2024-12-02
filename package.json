@@ -1,22 +1,23 @@
 {
-  "name": "nuxt-app",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "nuxt build --prerender",
-    "dev": "nuxt dev --port=3001",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "dependencies": {
-    "@nuxt/fonts": "^0.10.2",
-    "nuxt": "^3.14.1592",
-    "pinia": "^2.2.6",
-    "vue": "latest",
-    "vue-router": "latest"
-  },
-  "devDependencies": {
-    "@pinia/nuxt": "^0.7.0"
-  }
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"preact": "^10.22.1",
+		"preact-iso": "^2.8.1"
+	},
+	"devDependencies": {
+		"@preact/preset-vite": "^2.9.0",
+		"eslint": "^8.57.1",
+		"eslint-config-preact": "^1.5.0",
+		"typescript": "^5.7.2",
+		"vite": "^5.3.3"
+	},
+	"eslintConfig": {
+		"extends": "preact"
+	}
 }

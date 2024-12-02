@@ -1,75 +1,15 @@
-# Nuxt Minimal Starter
+# `create-preact`
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+<h2 align="center">
+  <img height="256" width="256" src="./src/assets/preact.svg">
+</h2>
 
-## Setup
+<h3 align="center">Get started using Preact and Vite!</h3>
 
-Make sure to install dependencies:
+## Getting Started
 
-```bash
-# npm
-npm install
+-   `npm run dev` - Starts a dev server at http://localhost:5173/
 
-# pnpm
-pnpm install
+-   `npm run build` - Builds for production, emitting to `dist/`
 
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+-   `npm run preview` - Starts a server at http://localhost:4173/ to test production build locally
