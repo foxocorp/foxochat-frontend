@@ -6,7 +6,7 @@ WORKDIR /workspace
 COPY package.json ./package.json
 
 # Cache depedencies.
-RUN npm install
+RUN npm ci
 
 # Copy sources.
 COPY . ./
