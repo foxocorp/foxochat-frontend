@@ -1,5 +1,7 @@
 import "preact/debug";
 
+import "@fontsource/inter";
+
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
 

@@ -1,6 +1,8 @@
+import "./TextField.css";
+
 export function TextField({ label, type }) {
 	return (
-		<div>
+		<div className="textField">
 			<input placeholder={label} type={type} />
 		</div>
 	);
