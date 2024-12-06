@@ -1,0 +1,172 @@
+.logIn-container {
+	position: relative;
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow-y: auto;
+	color: var(--primary-color);
+}
+
+.logIn-container::before,
+.logIn-container::after {
+	content: "";
+	position: fixed;
+	width: 500px;
+	height: 500px;
+	background: rgba(74, 137, 255, 0.8);
+	border-radius: 50%;
+	filter: blur(200px);
+	z-index: 0;
+}
+
+.logIn-container::before {
+	bottom: -200px;
+	left: -200px;
+}
+
+.logIn-container::after {
+	top: -200px;
+	right: -200px;
+}
+
+.logIn-form {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+}
+
+.logIn-form-header {
+	width: 100%;
+	max-width: 400px;
+}
+
+.logIn-form-title {
+	text-align: left;
+}
+
+.form {
+	width: 368px;
+	height: 161px;
+}
+
+.logIn-title {
+	font: 800 40px var(--font-family);
+	color: var(--primary-color);
+}
+
+input {
+	border: 1px solid rgba(96, 96, 96, 0.5) !important;
+	background: rgba(0, 0, 0, 0.7);
+	border-radius: 5px;
+	padding: 13px 14px;
+	height: 25px;
+}
+
+.input-error {
+	border: 1px solid rgba(165, 63, 63, 0.5) !important;
+}
+
+.logIn-input {
+	transition: border 0.3s ease-in-out !important;
+}
+
+::placeholder {
+	font: 400 16px var(--font-family);
+	color: rgba(96, 96, 96, 0.7);
+}
+
+.form-logIn {
+	display: flex;
+	flex-direction: column;
+	margin-top: 15px;
+}
+
+.logIn {
+	display: flex;
+	flex-direction: column;
+}
+
+.logIn-label {
+	font: 500 18px var(--font-family);
+	color: var(--primary-color);
+	margin-bottom: 5px;
+}
+
+.logIn-input {
+	padding: 10px;
+	margin-bottom: 15px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.required {
+	font: 500 18px var(--font-family);
+	color: #a53f3f;
+	margin-left: 5px;
+}
+
+.logIn-button {
+	display: flex;
+	margin-top: 90px;
+}
+
+.divider {
+	padding: 1px;
+	width: 366px;
+	margin-top: 20px;
+	background: rgba(96, 96, 96, 0.5);
+}
+
+.form-logIn-buttons {
+	display: flex;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.another-logIn-buttons {
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.create-account-button,
+.reset-password-button {
+	font: 500 15px var(--font-family);
+	color: var(--secondary-color);
+	border: 1px solid rgba(96, 96, 96, 0.5);
+	border-radius: 4px;
+	padding: 0 16px;
+	width: 368px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	cursor: pointer;
+	background-color: rgba(0, 0, 0, 0.7);
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.create-account-button img,
+.reset-password-button img {
+	width: 20px;
+	height: 20px;
+}
+
+.create-account-button:hover,
+.reset-password-button:hover {
+	background-color: rgba(11, 11, 11, 0.8);
+	transform: scale(1.05);
+}
+
+.create-account-button:active,
+.reset-password-button:active {
+	background-color: rgba(66, 66, 66, 0.9);
+	transform: scale(0.95);
+}
