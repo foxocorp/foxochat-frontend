@@ -23,7 +23,7 @@
 	transform: scale(1.05);
 }
 
-.button-primary	 {
+.button-primary	{
 	background: var(--primary-color);
 	font: 600 20px var(--font-family);
 	color: #080808;

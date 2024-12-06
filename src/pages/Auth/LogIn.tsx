@@ -116,7 +116,7 @@ const logIn = () => {
 						<div className={styles.divider}></div>
 						<AuthenticationActionButtons buttons={socialButtons}/>
 						<div className={styles.divider}></div>
-						<div className={styles["another-logIn-buttons"]}>
+						<div className={styles["social-buttons"]}>
 							<Button variant="secondary" onClick={goToResetPassword}>
 								Reset your password
 								<img src="/src/assets/svg/reset-password.svg" alt="reset password"/>

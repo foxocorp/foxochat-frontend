@@ -188,7 +188,7 @@ input {
 	transform: scale(0.95);
 }
 
-.another-signUp-buttons {
+.social-buttons {
 	margin-top: 20px;
 	display: flex;
 	flex-direction: column;

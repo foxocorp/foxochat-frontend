@@ -158,7 +158,7 @@ const SignUp = () => {
 						<div className={styles.divider}></div>
 						<AuthenticationActionButtons buttons={socialButtons}/>
 						<div className={styles.divider}></div>
-						<div className={styles["another-signUp-buttons"]}>
+						<div className={styles["social-buttons"]}>
 							<button onClick={goToLogin} className={styles["reset-password-button"]}>
 								Already have an account?
 								<img
