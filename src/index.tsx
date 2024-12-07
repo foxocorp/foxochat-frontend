@@ -18,7 +18,7 @@ export function App() {
 				<Router>
 					<Route path="/" component={Home} />
 					<Route path="/auth/login" component={LogIn} />
-					<Route path="/auth/signin" component={SignIn} />
+					<Route path="/auth/register" component={SignIn} />
 					<Route default component={NotFound} />
 				</Router>
 			</main>

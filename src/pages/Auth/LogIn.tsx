@@ -1,11 +1,12 @@
-import {useState} from "preact/hooks";
-import {Button} from "@components/base/buttons/Button";
-import {AuthenticationActionButtons} from "@components/base/buttons/AuthenticationActionButtons";
-import {api} from "../../services/api/authenticationService";
-import {useAuthStore} from "../../store/authenticationStore";
-import {useLocation} from "preact-iso";
+import { useState } from "preact/hooks";
+import { Button } from "@components/base/buttons/Button";
+import { AuthenticationActionButtons } from "@components/base/buttons/AuthenticationActionButtons";
+import { api } from "../../services/api/authenticationService";
+import { useAuthStore } from "../../store/authenticationStore";
+import { useLocation } from "preact-iso";
 import Loading from "@components/LoadingApp";
 import styles from "./LogIn.module.css";
+import { getSocialButtons } from "../../utils/socialButtons";
 
 const logIn = () => {
 	const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ const logIn = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const authStore = useAuthStore();
 	const location = useLocation();
+	const buttons = getSocialButtons();
 
 	const handleLogIn = async (e: Event) => {
 		e.preventDefault();
@@ -60,17 +62,8 @@ const logIn = () => {
 	};
 
 	const goToCreateAccount = () => {
-		location.route("/auth/signin");
+		location.route("/auth/register");
 	};
-
-	const socialButtons = [
-		{icon: "/src/assets/svg/google.svg", label: "Google", action: () => alert("Google")},
-		{icon: "/src/assets/svg/discord.svg", label: "Discord", action: () => alert("Discord")},
-		{icon: "/src/assets/svg/telegram.svg", label: "Telegram", action: () => alert("Telegram")},
-		{icon: "/src/assets/svg/github.svg", label: "GitHub", action: () => alert("GitHub")},
-		{icon: "/src/assets/svg/meta.svg", label: "Meta", action: () => alert("Meta")},
-		{icon: "/src/assets/svg/apple.svg", label: "Apple", action: () => alert("Apple")},
-	];
 
 	return (
 		<div className={styles["logIn-container"]}>
@@ -114,7 +107,7 @@ const logIn = () => {
 							</form>
 						</div>
 						<div className={styles.divider}></div>
-						<AuthenticationActionButtons buttons={socialButtons}/>
+						<AuthenticationActionButtons buttons={buttons}/>
 						<div className={styles.divider}></div>
 						<div className={styles["social-buttons"]}>
 							<Button variant="secondary" onClick={goToResetPassword}>

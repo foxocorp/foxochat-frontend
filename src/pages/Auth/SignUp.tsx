@@ -1,13 +1,14 @@
-import {useLocation} from "preact-iso";
-import {useState} from "preact/hooks";
+import { useLocation } from "preact-iso";
+import { useState } from "preact/hooks";
 
-import {api} from "../../services/api/authenticationService";
-import {useAuthStore} from "../../store/authenticationStore";
+import { api } from "../../services/api/authenticationService";
+import { useAuthStore } from "../../store/authenticationStore";
 
-import {Button} from "@components/base/buttons/Button"
-import {Modal} from "@components/modal/modal";
+import { Button } from "@components/base/buttons/Button"
+import { Modal } from "@components/modal/modal";
 import styles from "./SignUp.module.css";
-import {AuthenticationActionButtons} from "@components/base/buttons/AuthenticationActionButtons";
+import { AuthenticationActionButtons } from "@components/base/buttons/AuthenticationActionButtons";
+import { getSocialButtons } from "../../utils/socialButtons";
 
 const SignUp = () => {
 	const [username, setUsername] = useState("");
@@ -21,6 +22,7 @@ const SignUp = () => {
 
 	const authStore = useAuthStore();
 	const location = useLocation();
+	const buttons = getSocialButtons();
 
 	const handleSignUp = async (e: Event) => {
 		e.preventDefault();
@@ -68,15 +70,6 @@ const SignUp = () => {
 	const goToLogin = () => {
 		location.route("/auth/login");
 	};
-
-	const socialButtons = [
-		{icon: "/src/assets/svg/google.svg", label: "Google", action: () => alert("Google")},
-		{icon: "/src/assets/svg/discord.svg", label: "Discord", action: () => alert("Discord")},
-		{icon: "/src/assets/svg/telegram.svg", label: "Telegram", action: () => alert("Telegram")},
-		{icon: "/src/assets/svg/github.svg", label: "GitHub", action: () => alert("GitHub")},
-		{icon: "/src/assets/svg/meta.svg", label: "Meta", action: () => alert("Meta")},
-		{icon: "/src/assets/svg/apple.svg", label: "Apple", action: () => alert("Apple")},
-	];
 
 	return (
 		<div className={styles["signUp-container"]}>
@@ -156,7 +149,7 @@ const SignUp = () => {
 							</form>
 						</div>
 						<div className={styles.divider}></div>
-						<AuthenticationActionButtons buttons={socialButtons}/>
+						<AuthenticationActionButtons buttons={buttons}/>
 						<div className={styles.divider}></div>
 						<div className={styles["social-buttons"]}>
 							<button onClick={goToLogin} className={styles["reset-password-button"]}>
