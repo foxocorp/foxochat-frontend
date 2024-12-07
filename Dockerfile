@@ -4,10 +4,9 @@ WORKDIR /workspace
 
 # Copy package manifest.
 COPY package.json ./package.json
-COPY package-lock.json ./package-lock.json
 
 # Cache depedencies.
-RUN npm ci
+RUN npm install
 
 # Copy sources.
 COPY . ./
