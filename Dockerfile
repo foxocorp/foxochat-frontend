@@ -20,7 +20,7 @@ FROM busybox:stable
 RUN <<EOF cat >> /var/www/httpd.conf
 H:/var/www/html
 I:index.html
-E404:404.html
+E404:index.html
 EOF
 
 # Copy resulted build.
