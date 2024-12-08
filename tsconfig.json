@@ -12,5 +12,5 @@
 			"@components/*": ["./src/components/*"]
 		}
 	},
-	"include": ["node_modules/vite/client.d.ts", "**/*"]
+	"include": ["node_modules/vite/client.d.ts", "**/*", "src/types.d.ts"]
 }
