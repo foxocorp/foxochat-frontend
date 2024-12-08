@@ -14,28 +14,15 @@
 		"styled-components": "^6.1.13"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.16.0",
 		"@preact/preset-vite": "^2.9.0",
 		"@tsconfig/strictest": "^2.0.5",
 		"@tsconfig/vite-react": "^3.4.0",
 		"eslint": "^8.57.1",
-		"eslint-config-preact": "^1.5.0",
+		"eslint-plugin-react": "^7.37.2",
+		"globals": "^15.13.0",
 		"typescript": "^5.7.2",
+		"typescript-eslint": "^8.17.0",
 		"vite": "^5.3.3"
-	},
-	"eslintConfig": {
-		"extends": "preact",
-		"rules": {
-			"semi": "error",
-			"no-multi-spaces": "error",
-			"object-curly-spacing": "error",
-			"quotes": [
-				"error",
-				"double"
-			],
-			"comma-dangle": [
-				"error",
-				"always-multiline"
-			]
-		}
 	}
 }

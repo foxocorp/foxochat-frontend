@@ -1,4 +1,4 @@
-import "preact/debug";
+import "preact/debug"; // disable in production
 
 import "@fontsource/inter";
 import "./style.css";
