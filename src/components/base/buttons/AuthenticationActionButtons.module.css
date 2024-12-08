@@ -1,0 +1,36 @@
+.form-login-buttons {
+	display: flex;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.form-login-button {
+	border-radius: 5px;
+	background-color: rgba(0, 0, 0, 0.7);
+	border: 1px solid rgba(96, 96, 96, 0.5);
+	width: 51px;
+	height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--secondary-color);
+	padding: 0;
+	cursor: pointer;
+	font-size: 16px;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.form-login-button img {
+	width: 25px;
+	height: 25px;
+}
+
+.form-login-button:hover {
+	background-color: rgba(11, 11, 11, 0.8);
+	transform: scale(1.05);
+}
+
+.form-login-button:active {
+	background-color: rgba(66, 66, 66, 0.9);
+	transform: scale(0.95);
+}

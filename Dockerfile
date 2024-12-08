@@ -20,11 +20,11 @@ FROM busybox:stable
 RUN <<EOF cat >> /var/www/httpd.conf
 H:/var/www/html
 I:index.html
-E404:404.html
+E404:index.html
 EOF
 
 # Copy resulted build.
-COPY --from=builder /workspace/.output/public /var/www/html
+COPY --from=builder /workspace/dist /var/www/html
 
 ENTRYPOINT [ "/bin/httpd" ]
 CMD [ "-f", "-p80", "-c/var/www/httpd.conf" ]

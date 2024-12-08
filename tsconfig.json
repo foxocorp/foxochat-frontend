@@ -1,4 +1,16 @@
 {
-  // https://nuxt.com/docs/guide/concepts/typescript
-  "extends": "./.nuxt/tsconfig.json"
+	"extends": [
+		"@tsconfig/strictest/tsconfig.json",
+		"@tsconfig/vite-react/tsconfig.json"
+	],
+	"compilerOptions": {
+		/* Preact Config */
+		"jsxImportSource": "preact",
+		"paths": {
+			"react": ["./node_modules/preact/compat/"],
+			"react-dom": ["./node_modules/preact/compat/"],
+			"@components/*": ["./src/components/*"]
+		}
+	},
+	"include": ["node_modules/vite/client.d.ts", "**/*"]
 }
