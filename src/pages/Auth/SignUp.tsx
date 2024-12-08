@@ -24,45 +24,67 @@ const SignUp = () => {
 	const location = useLocation();
 	const buttons = getSocialButtons();
 
+	const validateInputs = (): boolean => {
+		let isValid = true;
+
+		if (!username.trim()) {
+			setUsernameError(true);
+			isValid = false;
+		} else {
+			setUsernameError(false);
+		}
+
+		if (!email.trim()) {
+			setEmailError(true);
+			isValid = false;
+		} else {
+			setEmailError(false);
+		}
+
+		if (!password.trim()) {
+			setPasswordError(true);
+			isValid = false;
+		} else {
+			setPasswordError(false);
+		}
+
+		return isValid;
+	};
+
 	const handleSignUp = async (e: Event) => {
 		e.preventDefault();
 
-		setUsernameError(username === "");
-		setEmailError(email === "");
-		setPasswordError(password === "");
-
-		if (username === "" || email === "" || password === "") return;
+		if (!validateInputs()) return;
 
 		try {
 			const response = await api.register(username, email, password);
-			if (response && response.accessToken) {
+			if (response?.accessToken) {
 				authStore.login(response.accessToken);
+				alert("Successful registration");
 				location.route("/");
+
 			} else {
-				setModalMessage("Data hui");
-				setIsModalOpen(true);
+				alert("Invalid registration data. Please try again");
 			}
 		} catch (error) {
-			console.error(error);
-			setModalMessage("Code is invalid!\nYou can press button bellow to send new code.");
-			setIsModalOpen(true);
+			console.error("Error during registration:", error);
+			alert("An error occurred. Please try again later");
 		}
 	};
-
 	const handleUsernameInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value;
+		const value = (e.target as HTMLInputElement).value.trim();
 		setUsername(value);
 		setUsernameError(value === "" && usernameError);
 	};
 
 	const handleEmailInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value;
+		const value = (e.target as HTMLInputElement).value.trim();
 		setEmail(value);
 		setEmailError(value === "" && emailError);
 	};
 
 	const handlePasswordInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value;
+		const value = (e.target as HTMLInputElement).value.trim();
 		setPassword(value);
 		setPasswordError(value === "" && passwordError);
 	};
@@ -94,10 +116,10 @@ const SignUp = () => {
 			<div className={styles["signUp-form"]}>
 				<div className={styles["signUp-form-header"]}>
 					<div className={styles["signUp-form-title"]}>
-						<div className={styles.form}>
+						<div className={styles["form"]}>
 							<div className={styles["signUp-title"]}>Sign up</div>
 							<div className={styles["form-signUp"]}>
-								<div className={styles.signUp}>
+								<div className={styles["signUp"]}>
 									<label className={styles["signUp-label"]}>
 										Username<span className={styles["required"]}>*</span>
 									</label>
@@ -142,15 +164,15 @@ const SignUp = () => {
 						</div>
 						<div className={styles["signUp-button"]}>
 							<form onSubmit={handleSignUp}>
-								<button type="submit" className={styles.button}>
+								<button type="submit" className={styles["button"]}>
 									<span>Register</span>
 									<img src="/src/assets/svg/arrow-left.svg" alt="arrow left"/>
 								</button>
 							</form>
 						</div>
-						<div className={styles.divider}></div>
+						<div className={styles["divider"]}></div>
 						<AuthenticationActionButtons buttons={buttons}/>
-						<div className={styles.divider}></div>
+						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
 							<button onClick={goToLogin} className={styles["reset-password-button"]}>
 								Already have an account?

@@ -21,25 +21,27 @@ const logIn = () => {
 	const handleLogIn = async (e: Event) => {
 		e.preventDefault();
 
-		setEmailError(email === "");
-		setPasswordError(password === "");
+		setEmailError(false);
+		setPasswordError(false);
 
-		if (email === "" || password === "") return;
+		if (!email) setEmailError(true);
+		if (!password) setPasswordError(true);
+		if (!email || !password) return;
 
 		setIsLoading(true);
 
 		try {
 			const response = await api.login(email, password);
-			if (response && response.accessToken) {
-				const token = response.accessToken;
-				authStore.login(token);
-				alert("Успешный вход");
+			if (response?.accessToken) {
+				authStore.login(response.accessToken);
+				alert("Successful login");
 			} else {
-				alert("Ошибка");
+				alert("Login error. Try again");
 			}
 		} catch (error) {
-			console.error(error);
-			alert("Ошибка 2");
+			console.error("Error during login:", error);
+			const errorMessage = error instanceof Error ? error.message : "Unknown error";
+			alert(`Error: ${errorMessage}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -71,10 +73,10 @@ const logIn = () => {
 			<div className={styles["logIn-form"]}>
 				<div className={styles["logIn-form-header"]}>
 					<div className={styles["logIn-form-title"]}>
-						<div className={styles.form}>
+						<div className={styles["form"]}>
 							<div className={styles["logIn-title"]}>Log in</div>
 							<div className={styles["form-logIn"]}>
-								<div className={styles.logIn}>
+								<div className={styles["logIn"]}>
 									<label className={styles["logIn-label"]}>Email<span
 										className={styles["required"]}>*</span></label>
 									<input
@@ -106,9 +108,9 @@ const logIn = () => {
 								</Button>
 							</form>
 						</div>
-						<div className={styles.divider}></div>
+						<div className={styles["divider"]}></div>
 						<AuthenticationActionButtons buttons={buttons}/>
-						<div className={styles.divider}></div>
+						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
 							<Button variant="secondary" onClick={goToResetPassword}>
 								Reset your password
