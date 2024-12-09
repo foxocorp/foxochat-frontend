@@ -8,8 +8,8 @@ import { LocationProvider, Router, Route } from "preact-iso";
 
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/_404.jsx";
-import LogIn from "./pages/Auth/Login.tsx";
-import SignIn from "./pages/Auth/Register.tsx";
+import Login from "./pages/Auth/Login.tsx";
+import Register from "./pages/Auth/Register.tsx";
 
 export function App() {
 	return (
@@ -17,8 +17,8 @@ export function App() {
 			<main>
 				<Router>
 					<Route path="/" component={Home} />
-					<Route path="/auth/login" component={LogIn} />
-					<Route path="/auth/register" component={SignIn} />
+					<Route path="/auth/login" component={Login} />
+					<Route path="/auth/register" component={Register} />
 					<Route default component={NotFound} />
 				</Router>
 			</main>

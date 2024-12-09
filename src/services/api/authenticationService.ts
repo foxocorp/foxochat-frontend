@@ -1,43 +1,48 @@
-const getAuthToken = () => localStorage.getItem('authToken');
+import {
+    RESTPostAPIAuthLoginBody,
+    RESTPostAPIAuthLoginResult,
+    RESTPostAPIAuthRegisterBody,
+    RESTPostAPIAuthRegisterResult,
+} from "@foxogram/api-types";
 
-const getApiBase = () => 'https://api.dev.foxogram.su';
+const getAuthToken = () => localStorage.getItem("authToken");
 
-const Request = async (url, method, body = null, isAuthRequired = false) => {
-	const token = isAuthRequired ? getAuthToken() : null;
-	const headers = {
-		'Content-Type': 'application/json',
-		...(token && { 'Authorization': `Bearer ${token}` }),
-	};
+const getApiBase = () => "https://api.dev.foxogram.su";
 
-	const response = await fetch(url, {
-		method,
-		headers,
-		body: body ? JSON.stringify(body) : null,
-	});
+async function Request<T>(url: string, method: string, body: unknown = null, isAuthRequired = false): Promise<T> {
+    const token = isAuthRequired ? getAuthToken() : null;
+    const headers = {
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }),
+    };
 
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || 'Something went wrong');
-	}
+    const response = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null,
+    });
 
-	return await response.json();
-};
+    if (!response.ok) {
+        throw new Error(response.statusText || "Something went wrong");
+    }
+
+    return await response.json() as T;
+}
 
 export const api = {
-	async register(username, email, password) {
-		const url = `${getApiBase()}/auth/register`;
-		return await Request(url, 'POST', { username, email, password });
-	},
+    async register(body: RESTPostAPIAuthRegisterBody): Promise<RESTPostAPIAuthRegisterResult> {
+        const url = `${getApiBase()}/auth/register`;
+        return await Request(url, "POST", body);
+    },
 
-	async login(email, password) {
-		const url = `${getApiBase()}/auth/login`;
-		const data = await Request(url, 'POST', { email, password });
+    async login(body: RESTPostAPIAuthLoginBody): Promise<RESTPostAPIAuthLoginResult> {
+        const url = `${getApiBase()}/auth/login`;
+        const data: RESTPostAPIAuthLoginResult = await Request(url, "POST", body);
 
-		if (data.token) {
-			localStorage.setItem('authToken', data.token);
-		}
+        if (data.accessToken) {
+            localStorage.setItem("authToken", data.accessToken);
+        }
 
-		return data;
-	},
-
+        return data;
+    },
 };

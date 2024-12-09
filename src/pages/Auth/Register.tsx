@@ -4,11 +4,11 @@ import { useState } from "preact/hooks";
 import { api } from "../../services/api/authenticationService";
 import { useAuthStore } from "../../store/authenticationStore";
 
-import { Button } from "@components/base/buttons/Button"
-import { Modal } from "@components/modal/modal";
-import styles from "./SignUp.module.css";
-import { AuthenticationActionButtons } from "@components/base/buttons/AuthenticationActionButtons";
-import { getSocialButtons } from "../../utils/socialButtons";
+import styles from "./Register.module.css";
+
+import arrowLeftIcon from "../../assets/svg/arrow-left.svg";
+import alreadyHaveAccountIcon from "../../assets/svg/already-have-account.svg";
+import { Button } from "@components/base";
 
 const Register = () => {
 	const [username, setUsername] = useState("");
@@ -17,12 +17,9 @@ const Register = () => {
 	const [usernameError, setUsernameError] = useState(false);
 	const [emailError, setEmailError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [modalMessage, setModalMessage] = useState("");
 
 	const authStore = useAuthStore();
 	const location = useLocation();
-	const buttons = getSocialButtons();
 
 	const validateInputs = (): boolean => {
 		let isValid = true;
@@ -51,14 +48,14 @@ const Register = () => {
 		return isValid;
 	};
 
-	const handleSignUp = async (e: Event) => {
+	const handleRegister = async (e: Event) => {
 		e.preventDefault();
 
 		if (!validateInputs()) return;
 
 		try {
-			const response = await api.register(username, email, password);
-			if (response?.accessToken) {
+			const response = await api.register({ username, email, password });
+			if (response.accessToken) {
 				authStore.login(response.accessToken);
 				alert("Successful registration");
 				location.route("/");
@@ -94,7 +91,7 @@ const Register = () => {
 	};
 
 	return (
-		<div className={styles["signUp-container"]}>
+		<div className={styles["register-container"]}>
 			{/*{isModalOpen && (*/}
 			{/*	<Modal*/}
 			{/*		title="Oops!"*/}
@@ -113,19 +110,19 @@ const Register = () => {
 			{/*		]}*/}
 			{/*	/>*/}
 			{/*)}*/}
-			<div className={styles["signUp-form"]}>
-				<div className={styles["signUp-form-header"]}>
-					<div className={styles["signUp-form-title"]}>
+			<div className={styles["register-form"]}>
+				<div className={styles["register-form-header"]}>
+					<div className={styles["register-form-title"]}>
 						<div className={styles["form"]}>
-							<div className={styles["signUp-title"]}>Sign up</div>
-							<div className={styles["form-signUp"]}>
-								<div className={styles["signUp"]}>
-									<label className={styles["signUp-label"]}>
+							<div className={styles["register-title"]}>Sign up</div>
+							<div className={styles["form-register"]}>
+								<div className={styles["register"]}>
+									<label className={styles["register-label"]}>
 										Username<span className={styles["required"]}>*</span>
 									</label>
 									<input
 										type="text"
-										className={`${styles["signUp-input"]} ${
+										className={`${styles["register-input"]} ${
 											usernameError ? styles["input-error"] : ""
 										}`}
 										placeholder="floof_fox"
@@ -133,12 +130,12 @@ const Register = () => {
 										onInput={handleUsernameInput}
 										required
 									/>
-									<label className={styles["signUp-label"]}>
+									<label className={styles["register-label"]}>
 										Email<span className={styles["required"]}>*</span>
 									</label>
 									<input
 										type="email"
-										className={`${styles["signUp-input"]} ${
+										className={`${styles["register-input"]} ${
 											emailError ? styles["input-error"] : ""
 										}`}
 										placeholder="floofer@coof.fox"
@@ -146,12 +143,12 @@ const Register = () => {
 										onInput={handleEmailInput}
 										required
 									/>
-									<label className={styles["signUp-label"]}>
+									<label className={styles["register-label"]}>
 										Password<span className={styles["required"]}>*</span>
 									</label>
 									<input
 										type="password"
-										className={`${styles["signUp-input"]} ${
+										className={`${styles["register-input"]} ${
 											passwordError ? styles["input-error"] : ""
 										}`}
 										placeholder="your floof password :3"
@@ -162,25 +159,16 @@ const Register = () => {
 								</div>
 							</div>
 						</div>
-						<div className={styles["signUp-button"]}>
-							<form onSubmit={handleSignUp}>
-								<button type="submit" className={styles["button"]}>
-									<span>Register</span>
-									<img src="/src/assets/svg/arrow-left.svg" alt="arrow left"/>
-								</button>
-							</form>
+						<div className={styles["register-button"]}>
+							<Button variant="primary" onClick={handleRegister} icon={arrowLeftIcon}>
+								Register
+							</Button>
 						</div>
 						<div className={styles["divider"]}></div>
-						<AuthenticationActionButtons buttons={buttons}/>
-						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
-							<button onClick={goToLogin} className={styles["reset-password-button"]}>
+							<Button variant="secondary" onClick={goToLogin} icon={alreadyHaveAccountIcon}>
 								Already have an account?
-								<img
-									src="/src/assets/svg/already-have-account.svg"
-									alt="already have account"
-								/>
-							</button>
+							</Button>
 						</div>
 					</div>
 				</div>
