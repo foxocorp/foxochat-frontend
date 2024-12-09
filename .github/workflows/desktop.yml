@@ -1,4 +1,4 @@
-name: 'publish'
+name: 'Build Foxogram Desktop'
 
 on:
   push:
@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm' # Set this to npm, yarn or pnpm.
+          cache-dependency-path: ./package.json
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
