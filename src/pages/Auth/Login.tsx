@@ -8,7 +8,7 @@ import Loading from "@components/LoadingApp";
 import styles from "./LogIn.module.css";
 import { getSocialButtons } from "../../utils/socialButtons";
 
-const logIn = () => {
+const login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [emailError, setEmailError] = useState(false);
@@ -76,7 +76,7 @@ const logIn = () => {
 						<div className={styles["form"]}>
 							<div className={styles["logIn-title"]}>Log in</div>
 							<div className={styles["form-logIn"]}>
-								<div className={styles["logIn"]}>
+								<div className={styles["login"]}>
 									<label className={styles["logIn-label"]}>Email<span
 										className={styles["required"]}>*</span></label>
 									<input
@@ -128,4 +128,4 @@ const logIn = () => {
 	);
 };
 
-export default logIn;
+export default login;

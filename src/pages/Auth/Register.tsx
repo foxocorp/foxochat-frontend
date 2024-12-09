@@ -10,7 +10,7 @@ import styles from "./SignUp.module.css";
 import { AuthenticationActionButtons } from "@components/base/buttons/AuthenticationActionButtons";
 import { getSocialButtons } from "../../utils/socialButtons";
 
-const SignUp = () => {
+const Register = () => {
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -189,4 +189,4 @@ const SignUp = () => {
 	);
 };
 
-export default SignUp;
+export default Register;
