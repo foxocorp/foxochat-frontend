@@ -5,6 +5,7 @@
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
+		"tauri": "tauri",
 		"dev-desktop": "tauri dev",
 		"build-desktop": "tauri build"
 	},
