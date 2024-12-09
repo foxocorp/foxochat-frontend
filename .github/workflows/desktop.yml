@@ -51,7 +51,7 @@ jobs:
 
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-        run: npm i # change this to npm or pnpm depending on which one you use.
+        run: npm install && npm install -D @tauri-apps/cli@latest # change this to npm or pnpm depending on which one you use.
 
       - uses: tauri-apps/tauri-action@v0
         env:
