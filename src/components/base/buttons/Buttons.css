@@ -11,8 +11,7 @@
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;
-	background: var(--secondary-color);
-	transition: background-color 0.3s ease, transform 0.2s ease;
+	transition: opacity 0.3s ease;
 }
 
 .button-primary:hover,
@@ -22,7 +21,7 @@
 	opacity: 0.7;
 }
 
-.button-primary	{
+.button-primary {
 	background: var(--primary-color);
 	font-weight: 600;
 	font-size: 20px;
@@ -49,7 +48,6 @@
 	font-size: 15px;
 	color: #ececec;
 }
-
 
 .button-icon {
 	width: 20px;
