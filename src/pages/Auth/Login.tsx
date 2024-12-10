@@ -1,13 +1,13 @@
 import { useState } from "preact/hooks";
 import { Button } from "@components/base/buttons/Button";
-import { api } from "../../services/api/authenticationService";
-import { useAuthStore } from "../../store/authenticationStore";
+import { api } from "@services/api/authenticationService.ts";
+import { useAuthStore } from "@store/authenticationStore.ts";
 import { useLocation } from "preact-iso";
 import Loading from "@components/LoadingApp";
 import styles from "./Login.module.css";
-import arrowLeftIcon from "../../assets/svg/arrow-left.svg";
-import resetPasswordIcon from "../../assets/svg/reset-password.svg";
-import newUserIcon from "../../assets/svg/new-user.svg";
+import arrowLeftIcon from "@icons/arrow-left.svg";
+import resetPasswordIcon from "@icons/reset-password.svg";
+import newUserIcon from "@icons/new-user.svg";
 
 const Login = () => {
 	const [email, setEmail] = useState("");

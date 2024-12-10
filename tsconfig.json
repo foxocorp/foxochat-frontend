@@ -9,7 +9,10 @@
 		"paths": {
 			"react": ["./node_modules/preact/compat/"],
 			"react-dom": ["./node_modules/preact/compat/"],
-			"@components/*": ["./src/components/*"]
+			"@components/*": ["./src/components/*"],
+			"@icons/*": ["./src/assets/svg/*"],
+			"@services/*": ["./src/services/*"],
+			"@store/*": ["./src/store/*"]
 		}
 	},
 	"include": ["node_modules/vite/client.d.ts", "**/*", "src/types.d.ts"]

@@ -1,13 +1,13 @@
 import { useLocation } from "preact-iso";
 import { useState } from "preact/hooks";
 
-import { api } from "../../services/api/authenticationService";
-import { useAuthStore } from "../../store/authenticationStore";
+import { api } from "@services/api/authenticationService.ts";
+import { useAuthStore } from "@store/authenticationStore.ts";
 
 import styles from "./Register.module.css";
 
-import arrowLeftIcon from "../../assets/svg/arrow-left.svg";
-import alreadyHaveAccountIcon from "../../assets/svg/already-have-account.svg";
+import arrowLeftIcon from "@icons/arrow-left.svg";
+import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
 import { Button } from "@components/base";
 
 const Register = () => {
