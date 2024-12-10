@@ -97,7 +97,7 @@
     align-items: flex-start;
 }
 
-.resendText {
+.resend-text {
     font-weight: 200;
     font-size: 14px;
     cursor: pointer;
@@ -110,6 +110,6 @@
     text-decoration-skip-ink: none;
 }
 
-.resendLink:hover {
+.resend-link:hover {
     color: #b6b6b6;
 }

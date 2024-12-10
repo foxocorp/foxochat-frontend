@@ -117,9 +117,9 @@ export const EmailConfirmationModal = ({
                         disabled={isLoading || code.some((digit) => !digit)}>
                         {isLoading ? "Checking..." : "Confirm"}
                     </Button>
-                    <p className={styles["resendText"]}>
+                    <p className={styles["resend-text"]}>
                         Didn’t receive code?{" "}
-                        <span onClick={onResendCode} className={`${styles["resendLink"]} ${styles["underline"]}`}>
+                        <span onClick={onResendCode} className={`${styles["resend-link"]} ${styles["underline"]}`}>
                             Send again
                         </span>
                     </p>
