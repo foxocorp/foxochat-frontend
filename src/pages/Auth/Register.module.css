@@ -119,36 +119,6 @@ input {
 	margin-top: 180px;
 }
 
-.button {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 13px 14px;
-	width: 368px;
-	height: 48px;
-	background: var(--primary-color);
-	font-weight: 600;
-	font-size: 20px;
-	color: #000;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.button:hover {
-	background-color: rgba(236, 236, 236, 0.7);
-	transform: scale(1.05);
-}
-
-.button:active {
-	transform: scale(0.95);
-}
-
-.button svg {
-	margin-left: 10px;
-}
-
 .divider {
 	padding: 1px;
 	width: 366px;
@@ -185,12 +155,10 @@ input {
 
 .form-register-button:hover {
 	background-color: rgba(11, 11, 11, 0.8);
-	transform: scale(1.05);
 }
 
 .form-register-button:active {
 	background-color: rgba(66, 66, 66, 0.9);
-	transform: scale(0.95);
 }
 
 .social-buttons {
@@ -237,10 +205,8 @@ input {
 
 .reset-password-button:hover {
 	background-color: rgba(11, 11, 11, 0.8);
-	transform: scale(1.05);
 }
 
 .reset-password-button:active {
 	background-color: rgba(66, 66, 66, 0.9);
-	transform: scale(0.95);
 }
