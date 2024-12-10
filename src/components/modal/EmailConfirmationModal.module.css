@@ -42,7 +42,8 @@
 }
 
 .title {
-    font: 800 30px var(--font-family);
+    font-weight: 800;
+    font-size: 30px;
     color: var(--primary-color);
     text-align: left;
     margin-bottom: 5px;

@@ -55,7 +55,8 @@
 }
 
 .login-title {
-	font: 800 40px var(--font-family);
+	font-weight: 800;
+	font-size: 40px;
 	color: var(--primary-color);
 }
 
@@ -76,7 +77,8 @@ input {
 }
 
 ::placeholder {
-	font: 400 16px var(--font-family);
+	font-weight: 400;
+	font-size: 16px;
 	color: rgba(96, 96, 96, 0.7);
 }
 
@@ -92,7 +94,8 @@ input {
 }
 
 .login-label {
-	font: 500 18px var(--font-family);
+	font-weight: 500;
+	font-size: 18px;
 	color: var(--primary-color);
 	margin-bottom: 5px;
 }
@@ -105,7 +108,8 @@ input {
 }
 
 .required {
-	font: 500 18px var(--font-family);
+	font-weight: 500;
+	font-size: 18px;
 	color: #a53f3f;
 	margin-left: 5px;
 }
@@ -137,7 +141,8 @@ input {
 
 .create-account-button,
 .reset-password-button {
-	font: 500 15px var(--font-family);
+	font-weight: 500;
+	font-size: 15px;
 	color: var(--secondary-color);
 	border: 1px solid rgba(96, 96, 96, 0.5);
 	border-radius: 4px;

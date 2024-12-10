@@ -43,14 +43,16 @@
 }
 
 .title {
-	font: 800 30px var(--font-family);
+	font-weight: 800;
+	font-size: 30px;
 	color: #ececec;
 	text-align: left;
 	margin-bottom: 5px;
 }
 
 .description {
-	font: 100 15px var(--font-family) !important;
+	font-weight: 100;
+	font-size: 15px;
 	color: rgba(236, 236, 236, 0.5);
 	text-align: left;
 	margin-bottom: 30px;
