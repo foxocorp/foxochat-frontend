@@ -1,8 +1,7 @@
 name: 'Build Foxogram Desktop'
 
 on:
-  push:
-    branches: ["main", "dev"]
+  workflow_dispatch:
 
 jobs:
   publish-tauri:
