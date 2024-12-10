@@ -11,7 +11,14 @@ interface EmailConfirmationModalProps {
     isLoading?: boolean;
 }
 
-export const EmailConfirmationModal = ({ isOpen, email, onClose, onVerify, onResendCode, isLoading = false, }: EmailConfirmationModalProps) => {
+export const EmailConfirmationModal = ({
+                                           isOpen,
+                                           email,
+                                           onClose,
+                                           onVerify,
+                                           onResendCode,
+                                           isLoading = false,
+                                       }: EmailConfirmationModalProps) => {
     const [code, setCode] = useState<string[]>(Array(6).fill(""));
 
     useEffect(() => {
@@ -35,7 +42,9 @@ export const EmailConfirmationModal = ({ isOpen, email, onClose, onVerify, onRes
                 updatedCode[index] = value;
                 if (index < 5 && value) {
                     const nextInput = inputElement.nextElementSibling as HTMLInputElement | null;
-                    if (nextInput) nextInput.focus();
+                    if (nextInput) {
+                        nextInput.focus();
+                    }
                 }
                 return updatedCode;
             });
@@ -46,30 +55,31 @@ export const EmailConfirmationModal = ({ isOpen, email, onClose, onVerify, onRes
 
     const handleBackspace = (e: KeyboardEvent, index: number) => {
         const inputElement = e.currentTarget as HTMLInputElement;
-        if (e.key === "Backspace" && !code[index] && index > 0) {
-            const previousInput = inputElement.previousElementSibling as HTMLInputElement | null;
-            if (previousInput) {
-                previousInput.focus();
-            }
-        } else if (e.key === "Backspace" && code[index]) {
-            setCode((prev) => {
-                const updatedCode = [...prev];
-                updatedCode[index] = "";
-                if (index > 0) {
-                    const previousInput = inputElement.previousElementSibling as HTMLInputElement | null;
-                    if (previousInput) previousInput.focus();
+        if (e.key === "Backspace") {
+            if (!code[index] && index > 0) {
+                setCode((prev) => {
+                    const updatedCode = [...prev];
+                    updatedCode[index - 1] = "";
+                    return updatedCode;
+                });
+                const previousInput = inputElement.previousElementSibling as HTMLInputElement | null;
+                if (previousInput) {
+                    previousInput.focus();
                 }
-                return updatedCode;
-            });
+            } else if (code[index]) {
+                setCode((prev) => {
+                    const updatedCode = [...prev];
+                    updatedCode[index] = "";
+                    return updatedCode;
+                });
+            }
         }
     };
 
     const handleFocus = (e: FocusEvent) => {
         const inputElement = e.currentTarget as HTMLInputElement;
-        const length = inputElement.value.length;
-        inputElement.setSelectionRange(length, length);
+        inputElement.setSelectionRange(1, 1);
     };
-
 
     const handleVerify = async () => {
         const fullCode = code.join("");
@@ -84,7 +94,7 @@ export const EmailConfirmationModal = ({ isOpen, email, onClose, onVerify, onRes
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
             <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
                 <h2 className={styles["title"]}>Check your email</h2>
-                <p className={styles["description"]}><strong>{email}</strong></p>
+                <p className={styles["description"]}>{email}</p>
                 <div className={styles["codeInputContainer"]}>
                     {code.map((digit, index) => (
                         <input
@@ -95,13 +105,13 @@ export const EmailConfirmationModal = ({ isOpen, email, onClose, onVerify, onRes
                             maxLength={1}
                             onInput={(e) => handleCodeChange(e, index)}
                             onKeyDown={(e) => handleBackspace(e, index)}
-                            onFocus={ handleFocus }/>
+                            onFocus={handleFocus} />
                     ))}
                 </div>
 
                 <div className={styles["actions"]}>
                     <Button
-                        onClick={ handleVerify }
+                        onClick={handleVerify}
                         variant="primary"
                         width={315}
                         disabled={isLoading || code.some((digit) => !digit)}>
