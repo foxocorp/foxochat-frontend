@@ -28,8 +28,6 @@ const Login = () => {
 		if (!password) setPasswordError(true);
 		if (!email || !password) return;
 
-		setIsLoading(true);
-
 		try {
 			const response = await api.login({ email, password });
 			if (response.accessToken) {
