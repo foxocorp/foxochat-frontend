@@ -3,6 +3,8 @@ import {
     RESTPostAPIAuthLoginResult,
     RESTPostAPIAuthRegisterBody,
     RESTPostAPIAuthRegisterResult,
+    RESTPostAPIAuthVerifyEmailResult,
+    RESTPostAPIAuthResendEmailResult
 } from "@foxogram/api-types";
 
 const getAuthToken = () => localStorage.getItem("authToken");
@@ -45,4 +47,15 @@ export const api = {
 
         return data;
     },
+
+    async verifyEmail(code: string): Promise<RESTPostAPIAuthVerifyEmailResult> {
+        const url = `${getApiBase()}/auth/email/verify`;
+        const body = { code };
+        return await Request(url, "POST", body, true);
+    },
+
+    async resendEmail(): Promise<RESTPostAPIAuthResendEmailResult> {
+        const url = `${getApiBase()}/auth/email/resend`;
+        return await Request(url, "POST", null, true);
+    }
 };
