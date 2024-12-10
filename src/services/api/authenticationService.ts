@@ -1,4 +1,5 @@
 import {
+    APIException,
     RESTPostAPIAuthLoginBody,
     RESTPostAPIAuthLoginResult,
     RESTPostAPIAuthRegisterBody,
@@ -25,7 +26,8 @@ async function Request<T>(url: string, method: string, body: unknown = null, isA
     });
 
     if (!response.ok) {
-        throw new Error(response.statusText || "Something went wrong");
+        const error: APIException = await response.json();
+        throw new Error(error.message || "Something went wrong");
     }
 
     return await response.json() as T;
