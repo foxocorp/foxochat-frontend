@@ -102,7 +102,8 @@ const Text = styled.div`
     margin-left: 10px;
 
     h1 {
-        font: 900 120px var(--font-family);
+		font-weight: 900;
+		font-size: 120px;
         color: #f24a4a;
         margin: 0 0 -19px 0;
 
@@ -112,12 +113,14 @@ const Text = styled.div`
     }
 
     p {
-        font: 400 23px var(--font-family);
+		font-weight: 400;
+		font-size: 23px;
         color: #fff;
         margin: 20px 0;
 
         .uri {
-            font: 700 23px var(--font-family);
+			font-weight: 700;
+			font-size: 23px;
             color: #f24a4a;
 
             @media (max-width: 768px) {
@@ -143,7 +146,8 @@ const Buttons = styled.div`
     gap: 10px;
 
     .btn {
-        font: 400 16px var(--font-family);
+		font-weight: 400;
+		font-size: 16px;
         color: #ececec;
         border-radius: 5px;
         padding: 11px 18px;

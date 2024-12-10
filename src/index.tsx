@@ -1,6 +1,10 @@
 import "preact/debug"; // disable in production
 
 import "@fontsource/inter";
+import "@fontsource/inter/900.css";
+import "@fontsource/inter/800.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/500.css";
 import "./style.css";
 
 import { render } from "preact";
@@ -8,8 +12,8 @@ import { LocationProvider, Router, Route } from "preact-iso";
 
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/_404.jsx";
-import LogIn from "./pages/Auth/LogIn";
-import SignIn from "./pages/Auth/SignUp";
+import Login from "./pages/Auth/Login.tsx";
+import Register from "./pages/Auth/Register.tsx";
 
 export function App() {
 	return (
@@ -17,8 +21,8 @@ export function App() {
 			<main>
 				<Router>
 					<Route path="/" component={Home} />
-					<Route path="/auth/login" component={LogIn} />
-					<Route path="/auth/register" component={SignIn} />
+					<Route path="/auth/login" component={Login} />
+					<Route path="/auth/register" component={Register} />
 					<Route default component={NotFound} />
 				</Router>
 			</main>
@@ -26,4 +30,4 @@ export function App() {
 	);
 }
 
-render(<App />, document.getElementById("app"));
+render(<App />, document.getElementById("app")!);

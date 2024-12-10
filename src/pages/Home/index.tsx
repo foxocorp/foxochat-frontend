@@ -1,7 +1,12 @@
 import foxogramLogo from '../../assets/foxogram-logo.svg';
 import './style.css';
+import { useLocation } from "preact-iso";
 
 export function Home() {
+	const location = useLocation();
+
+	location.route("/auth/login");
+
 	return (
 		<div class="home">
 			<a href="https://preactjs.com" target="_blank">

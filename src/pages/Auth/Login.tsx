@@ -1,14 +1,15 @@
 import { useState } from "preact/hooks";
 import { Button } from "@components/base/buttons/Button";
-import { AuthenticationActionButtons } from "@components/base/buttons/AuthenticationActionButtons";
-import { api } from "../../services/api/authenticationService";
-import { useAuthStore } from "../../store/authenticationStore";
+import { api } from "@services/api/authenticationService.ts";
+import { useAuthStore } from "@store/authenticationStore.ts";
 import { useLocation } from "preact-iso";
 import Loading from "@components/LoadingApp";
-import styles from "./LogIn.module.css";
-import { getSocialButtons } from "../../utils/socialButtons";
+import styles from "./Login.module.css";
+import arrowLeftIcon from "@icons/arrow-left.svg";
+import resetPasswordIcon from "@icons/reset-password.svg";
+import newUserIcon from "@icons/new-user.svg";
 
-const logIn = () => {
+const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [emailError, setEmailError] = useState(false);
@@ -16,9 +17,8 @@ const logIn = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const authStore = useAuthStore();
 	const location = useLocation();
-	const buttons = getSocialButtons();
 
-	const handleLogIn = async (e: Event) => {
+	const handleLogin = async (e: Event): Promise<void> => {
 		e.preventDefault();
 
 		setEmailError(false);
@@ -28,11 +28,9 @@ const logIn = () => {
 		if (!password) setPasswordError(true);
 		if (!email || !password) return;
 
-		setIsLoading(true);
-
 		try {
-			const response = await api.login(email, password);
-			if (response?.accessToken) {
+			const response = await api.login({ email, password });
+			if (response.accessToken) {
 				authStore.login(response.accessToken);
 				alert("Successful login");
 			} else {
@@ -47,13 +45,13 @@ const logIn = () => {
 		}
 	};
 
-	const handleEmailInput = (e: Event) => {
+	const handleEmailInput = (e: Event): void => {
 		const value = (e.target as HTMLInputElement).value;
 		setEmail(value);
 		setEmailError(value === "" && emailError);
 	};
 
-	const handlePasswordInput = (e: Event) => {
+	const handlePasswordInput = (e: Event): void => {
 		const value = (e.target as HTMLInputElement).value;
 		setPassword(value);
 		setPasswordError(value === "" && passwordError);
@@ -68,30 +66,30 @@ const logIn = () => {
 	};
 
 	return (
-		<div className={styles["logIn-container"]}>
+		<div className={styles["login-container"]}>
 			{isLoading && <Loading/>}
-			<div className={styles["logIn-form"]}>
-				<div className={styles["logIn-form-header"]}>
-					<div className={styles["logIn-form-title"]}>
+			<div className={styles["login-form"]}>
+				<div className={styles["login-form-header"]}>
+					<div className={styles["login-form-title"]}>
 						<div className={styles["form"]}>
-							<div className={styles["logIn-title"]}>Log in</div>
-							<div className={styles["form-logIn"]}>
-								<div className={styles["logIn"]}>
-									<label className={styles["logIn-label"]}>Email<span
+							<div className={styles["login-title"]}>Log in</div>
+							<div className={styles["form-login"]}>
+								<div className={styles["login"]}>
+									<label className={styles["login-label"]}>Email<span
 										className={styles["required"]}>*</span></label>
 									<input
 										type="email"
-										className={`${styles["logIn-input"]} ${emailError ? styles["input-error"] : ""}`}
+										className={`${styles["login-input"]} ${emailError ? styles["input-error"] : ""}`}
 										placeholder="floofer@coof.fox"
 										value={email}
 										onInput={handleEmailInput}
 										required
 									/>
-									<label className={styles["logIn-label"]}>Password<span
+									<label className={styles["login-label"]}>Password<span
 										className={styles["required"]}>*</span></label>
 									<input
 										type="password"
-										className={`${styles["logIn-input"]} ${passwordError ? styles["input-error"] : ""}`}
+										className={`${styles["login-input"]} ${passwordError ? styles["input-error"] : ""}`}
 										placeholder="your floof password :3"
 										value={password}
 										onInput={handlePasswordInput}
@@ -100,25 +98,18 @@ const logIn = () => {
 								</div>
 							</div>
 						</div>
-						<div className={styles["logIn-button"]}>
-							<form onSubmit={handleLogIn}>
-								<Button variant="primary">
-									Log in
-									<img src="/src/assets/svg/arrow-left.svg" alt="arrow left"/>
-								</Button>
-							</form>
+						<div className={styles["login-button"]}>
+							<Button variant="primary" onClick={handleLogin} icon={arrowLeftIcon}>
+								Log in
+							</Button>
 						</div>
 						<div className={styles["divider"]}></div>
-						<AuthenticationActionButtons buttons={buttons}/>
-						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={goToResetPassword}>
+							<Button variant="secondary" onClick={goToResetPassword} icon={resetPasswordIcon}>
 								Reset your password
-								<img src="/src/assets/svg/reset-password.svg" alt="reset password"/>
 							</Button>
-							<Button variant="secondary" onClick={goToCreateAccount}>
+							<Button variant="secondary" onClick={goToCreateAccount} icon={newUserIcon}>
 								Create new account
-								<img src="/src/assets/svg/new-user.svg" alt="create new account"/>
 							</Button>
 						</div>
 					</div>
@@ -128,4 +119,4 @@ const logIn = () => {
 	);
 };
 
-export default logIn;
+export default Login;

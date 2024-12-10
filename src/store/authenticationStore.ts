@@ -12,17 +12,17 @@ class AuthenticationStore {
 	login(token: string) {
 		this.token = token;
 		this.isAuthenticated = true;
-		this.saveTokenToCookie(token);
+		this.saveTokenToLocalStorage(token);
 	}
 
 	logout() {
 		this.token = null;
 		this.isAuthenticated = false;
-		this.clearTokenFromCookie();
+		this.clearTokenFromLocalStorage();
 	}
 
 	checkAuth() {
-		const token = this.getTokenFromCookie();
+		const token = this.getTokenFromLocalStorage();
 		if (token) {
 			this.token = token;
 			this.isAuthenticated = true;
@@ -31,16 +31,16 @@ class AuthenticationStore {
 		}
 	}
 
-	private getTokenFromCookie() {
-		return document.cookie.replace(/(?:(?:^|.*;\s*)authToken\s*\=\s*([^;]*).*$)|^.*$/, '$1') || null;
+	private getTokenFromLocalStorage() {
+		return localStorage.getItem('authToken');
 	}
 
-	private saveTokenToCookie(token: string) {
-		document.cookie = `authToken=${token}; path=/;`;
+	private saveTokenToLocalStorage(token: string) {
+		localStorage.setItem('authToken', token);
 	}
 
-	private clearTokenFromCookie() {
-		document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+	private clearTokenFromLocalStorage() {
+		localStorage.removeItem('authToken');
 	}
 }
 
