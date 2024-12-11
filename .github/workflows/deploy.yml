@@ -1,5 +1,5 @@
 ---
-name: Deploy Foxogram frontend
+name: Deploy Frontend
 
 on:
   push:
