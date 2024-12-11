@@ -88,6 +88,16 @@ export const EmailConfirmationModal = ({
         }
     };
 
+    const handlePaste = (event: ClipboardEvent) => {
+        event.preventDefault();
+        const pastedText = event.clipboardData?.getData("text") || "";
+
+        const sanitizedCode = pastedText.replace(/\D/g, "").slice(0, 6).split("");
+        const paddedCode = [...sanitizedCode, ...Array(6 - sanitizedCode.length).fill("")];
+
+        setCode(paddedCode);
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -104,6 +114,7 @@ export const EmailConfirmationModal = ({
                             value={digit}
                             maxLength={1}
                             onInput={(e) => handleCodeChange(e, index)}
+                            onPaste={handlePaste}
                             onKeyDown={(e) => handleBackspace(e, index)}
                             onFocus={handleFocus} />
                     ))}
