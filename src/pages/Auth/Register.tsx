@@ -9,6 +9,7 @@ import styles from "./Register.module.css";
 import arrowLeftIcon from "@icons/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
 import { Button } from "@components/base";
+import { EmailConfirmationModal } from "@components/modal/EmailConfirmationModal.tsx";
 
 const Register = () => {
 	const [username, setUsername] = useState("");
@@ -17,6 +18,7 @@ const Register = () => {
 	const [usernameError, setUsernameError] = useState(false);
 	const [emailError, setEmailError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const authStore = useAuthStore();
 	const location = useLocation();
@@ -53,21 +55,34 @@ const Register = () => {
 
 		if (!validateInputs()) return;
 
-		try {
-			const response = await api.register({ username, email, password });
-			if (response.accessToken) {
-				authStore.login(response.accessToken);
-				alert("Successful registration");
-				location.route("/");
+		const { accessToken } = await api.register({ username, email, password });
 
-			} else {
-				alert("Invalid registration data. Please try again");
-			}
-		} catch (error) {
-			console.error("Error during registration:", error);
-			alert("An error occurred. Please try again later");
+		if (accessToken) {
+			authStore.login(accessToken);
+			setIsModalOpen(true);
+		} else {
+			alert("invalid data");
 		}
 	};
+
+	const handleVerifyEmail = async (code: string) => {
+		try {
+			await api.verifyEmail(code);
+			setIsModalOpen(false);
+			location.route("/");
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const handleResendEmail = async () => {
+		try {
+			await api.resendEmail();
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	const handleUsernameInput = (e: Event) => {
 		const value = (e.target as HTMLInputElement).value.trim();
 		setUsername(value);
@@ -92,24 +107,15 @@ const Register = () => {
 
 	return (
 		<div className={styles["register-container"]}>
-			{/*{isModalOpen && (*/}
-			{/*	<Modal*/}
-			{/*		title="Oops!"*/}
-			{/*		description={modalMessage}*/}
-			{/*		onClose={() => setIsModalOpen(false)}*/}
-			{/*		actionButtons={[*/}
-			{/*			<Button*/}
-			{/*				key="close"*/}
-			{/*				onClick={() => setIsModalOpen(false)}*/}
-			{/*				width={400}*/}
-			{/*				variant="primary"*/}
-			{/*				icon="/src/assets/svg/arrow-left.svg"*/}
-			{/*			>*/}
-			{/*				Send again*/}
-			{/*			</Button>,*/}
-			{/*		]}*/}
-			{/*	/>*/}
-			{/*)}*/}
+			{isModalOpen && (
+				<EmailConfirmationModal
+					isOpen={isModalOpen}
+					email={email}
+					onClose={() => setIsModalOpen(false)}
+					onVerify={handleVerifyEmail}
+					onResendCode={handleResendEmail}
+				/>
+			)}
 			<div className={styles["register-form"]}>
 				<div className={styles["register-form-header"]}>
 					<div className={styles["register-form-title"]}>
