@@ -1,6 +1,7 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import styles from "./EmailConfirmationModal.module.css";
 import { Button } from "@components/base/buttons/Button";
+import TimerIcon from "@icons/timer.svg";
 
 interface EmailConfirmationModalProps {
     isOpen: boolean;
@@ -20,6 +21,8 @@ export const EmailConfirmationModal = ({
                                            isLoading = false,
                                        }: EmailConfirmationModalProps) => {
     const [code, setCode] = useState<string[]>(Array(6).fill(""));
+    const [isResendDisabled, setIsResendDisabled] = useState<boolean>(true);
+    const [timer, setTimer] = useState<number>(60);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -31,6 +34,36 @@ export const EmailConfirmationModal = ({
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsResendDisabled(true);
+            setTimer(60);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setTimeout>;
+        if (isResendDisabled) {
+            interval = setInterval(() => {
+                setTimer(prev => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        setIsResendDisabled(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isResendDisabled]);
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
 
     const handleCodeChange = (e: Event, index: number) => {
         const inputElement = e.currentTarget as HTMLInputElement;
@@ -98,6 +131,12 @@ export const EmailConfirmationModal = ({
         setCode(paddedCode);
     };
 
+    const handleResendCode = async () => {
+        setIsResendDisabled(true);
+        setTimer(60);
+        await onResendCode();
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -116,7 +155,8 @@ export const EmailConfirmationModal = ({
                             onInput={(e) => handleCodeChange(e, index)}
                             onPaste={handlePaste}
                             onKeyDown={(e) => handleBackspace(e, index)}
-                            onFocus={handleFocus} />
+                            onFocus={handleFocus}
+                        />
                     ))}
                 </div>
 
@@ -124,16 +164,26 @@ export const EmailConfirmationModal = ({
                     <Button
                         onClick={handleVerify}
                         variant="primary"
-                        width={315}
-                        disabled={isLoading || code.some((digit) => !digit)}>
+                        width={318}
+                        disabled={isLoading || code.some((digit) => !digit)}
+                    >
                         {isLoading ? "Checking..." : "Confirm"}
                     </Button>
-                    <p className={styles["resend-text"]}>
-                        Didn’t receive code?{" "}
-                        <span onClick={onResendCode} className={`${styles["resend-link"]} ${styles["underline"]}`}>
-                            Send again
-                        </span>
-                    </p>
+                    <div className={styles["resend-text"]}>
+                        {isResendDisabled ? (
+                            <>
+                                <span>Time until you can resend code</span>
+                                <div className={styles["timer-container"]}>
+                                    <span className={styles["timer"]}>{formatTime(timer)}</span>
+                                    <img className={styles["timer-icon"]} src={TimerIcon} alt="Timer" />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <span>Didn’t receive code? <a onClick={handleResendCode} className={styles["resend-link"]}>Send again</a></span>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
