@@ -84,25 +84,21 @@ const Register = () => {
 	};
 
 	const handleUsernameInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value.trim();
+		const value = (e.target as HTMLInputElement).value;
 		setUsername(value);
 		setUsernameError(value === "" && usernameError);
 	};
 
 	const handleEmailInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value.trim();
+		const value = (e.target as HTMLInputElement).value;
 		setEmail(value);
 		setEmailError(value === "" && emailError);
 	};
 
 	const handlePasswordInput = (e: Event) => {
-		const value = (e.target as HTMLInputElement).value.trim();
+		const value = (e.target as HTMLInputElement).value;
 		setPassword(value);
 		setPasswordError(value === "" && passwordError);
-	};
-
-	const goToLogin = () => {
-		location.route("/auth/login");
 	};
 
 	return (
@@ -172,7 +168,7 @@ const Register = () => {
 						</div>
 						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={goToLogin} icon={alreadyHaveAccountIcon}>
+							<Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
 								Already have an account?
 							</Button>
 						</div>

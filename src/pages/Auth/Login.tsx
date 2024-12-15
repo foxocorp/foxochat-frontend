@@ -57,14 +57,6 @@ const Login = () => {
 		setPasswordError(value === "" && passwordError);
 	};
 
-	const goToResetPassword = () => {
-		location.route("/auth/reset-password");
-	};
-
-	const goToCreateAccount = () => {
-		location.route("/auth/register");
-	};
-
 	return (
 		<div className={styles["login-container"]}>
 			{isLoading && <Loading/>}
@@ -105,10 +97,10 @@ const Login = () => {
 						</div>
 						<div className={styles["divider"]}></div>
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={goToResetPassword} icon={resetPasswordIcon}>
+							<Button variant="secondary" onClick={() => location.route("/auth/reset-password")} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>
-							<Button variant="secondary" onClick={goToCreateAccount} icon={newUserIcon}>
+							<Button variant="secondary" onClick={() => location.route("/auth/register")} icon={newUserIcon}>
 								Create new account
 							</Button>
 						</div>
