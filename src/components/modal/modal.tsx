@@ -1,7 +1,7 @@
 import { useEffect } from "preact/hooks";
 import styles from "./Modal.module.css";
 import { Button } from "@components/base/buttons/Button";
-import { JSX } from "react";
+import { JSX } from "preact";
 
 interface ModalProps {
     title: string;
@@ -19,12 +19,12 @@ export const Modal = ({ title, description, onClose, actionButtons = [], icon }:
             }
         };
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        return () => { window.removeEventListener("keydown", handleKeyDown); };
     }, [onClose]);
 
     return (
         <div className={`${styles["overlay"]} ${styles["visible"]}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation() }}>
                 <h2 className={styles["title"]}>{title}</h2>
                 <div className={styles["description"]}>
                     <span>{description}</span>
