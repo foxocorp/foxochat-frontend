@@ -74,8 +74,6 @@ input {
 
 .register-input {
 	transition: border 0.3s ease-in-out !important;
-	font-weight: 400;
-	font-size: 16px;
 }
 
 ::placeholder {
