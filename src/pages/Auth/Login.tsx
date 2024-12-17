@@ -59,7 +59,7 @@ const Login = () => {
 
 	return (
 		<div className={styles["login-container"]}>
-			{isLoading && <Loading/>}
+			{isLoading && <Loading />}
 			<div className={styles["login-form"]}>
 				<div className={styles["login-form-header"]}>
 					<div className={styles["login-form-title"]}>
@@ -95,12 +95,12 @@ const Login = () => {
 								Log in
 							</Button>
 						</div>
-						<div className={styles["divider"]}></div>
+						<div className={styles["divider"]} />
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={() => location.route("/auth/reset-password")} icon={resetPasswordIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/reset-password") }} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>
-							<Button variant="secondary" onClick={() => location.route("/auth/register")} icon={newUserIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/register") }} icon={newUserIcon}>
 								Create new account
 							</Button>
 						</div>

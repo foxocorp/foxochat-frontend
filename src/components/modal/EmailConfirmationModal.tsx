@@ -43,10 +43,10 @@ export const EmailConfirmationModal = ({
     }, [isOpen]);
 
     useEffect(() => {
-        let interval: ReturnType<typeof setTimeout>;
+        let interval: ReturnType<typeof setInterval>;
         if (isResendDisabled) {
             interval = setInterval(() => {
-                setTimer(prev => {
+                setTimer((prev) => {
                     if (prev <= 1) {
                         clearInterval(interval);
                         setIsResendDisabled(false);
@@ -62,7 +62,7 @@ export const EmailConfirmationModal = ({
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     };
 
     const handleCodeChange = (e: Event, index: number) => {
@@ -109,15 +109,14 @@ export const EmailConfirmationModal = ({
         }
     };
 
-    const handleFocus = (e: FocusEvent) => {
-        const inputElement = e.currentTarget as HTMLInputElement;
-        inputElement.setSelectionRange(1, 1);
-    };
-
     const handleVerify = async () => {
         const fullCode = code.join("");
         if (fullCode.length === 6) {
-            await onVerify(fullCode);
+            try {
+                await onVerify(fullCode);
+            } catch (error) {
+                console.error("Verification failed:", error);
+            }
         }
     };
 
@@ -134,7 +133,11 @@ export const EmailConfirmationModal = ({
     const handleResendCode = async () => {
         setIsResendDisabled(true);
         setTimer(60);
-        await onResendCode();
+        try {
+            await onResendCode();
+        } catch (error) {
+            console.error("Resend failed:", error);
+        }
     };
 
     if (!isOpen) return null;
@@ -143,26 +146,25 @@ export const EmailConfirmationModal = ({
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
             <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
                 <h2 className={styles["title"]}>Check your email</h2>
-                <p className={styles["description"]}>{email}</p>
-                <div className={styles["codeInputContainer"]}>
+                <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
+                <div className={styles["code-input-container"]}>
                     {code.map((digit, index) => (
                         <input
                             key={index}
                             placeholder="0"
-                            className={`${styles["codeInput"]} ${styles["input-with-placeholder"]}`}
+                            className={`${styles["code-input"]} ${styles["input-with-placeholder"]}`}
                             value={digit}
                             maxLength={1}
                             onInput={(e) => handleCodeChange(e, index)}
                             onPaste={handlePaste}
                             onKeyDown={(e) => handleBackspace(e, index)}
-                            onFocus={handleFocus}
                         />
                     ))}
                 </div>
 
                 <div className={styles["actions"]}>
                     <Button
-                        onClick={handleVerify}
+                        onClick={() => handleVerify().catch(console.error)}
                         variant="primary"
                         width={318}
                         disabled={isLoading || code.some((digit) => !digit)}
@@ -180,7 +182,9 @@ export const EmailConfirmationModal = ({
                             </>
                         ) : (
                             <>
-                                <span>Didn’t receive code? <a onClick={handleResendCode} className={styles["resend-link"]}>Send again</a></span>
+                                <span>Didn’t receive code?{" "}
+                                    <a onClick={() => handleResendCode().catch(console.error)} className={styles["resend-link"]}>Send again</a>
+                                </span>
                             </>
                         )}
                     </div>

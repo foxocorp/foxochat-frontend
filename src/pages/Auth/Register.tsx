@@ -107,7 +107,7 @@ const Register = () => {
 				<EmailConfirmationModal
 					isOpen={isModalOpen}
 					email={email}
-					onClose={() => setIsModalOpen(false)}
+					onClose={() => { setIsModalOpen(false); }}
 					onVerify={handleVerifyEmail}
 					onResendCode={handleResendEmail}
 				/>
@@ -116,7 +116,7 @@ const Register = () => {
 				<div className={styles["register-form-header"]}>
 					<div className={styles["register-form-title"]}>
 						<div className={styles["form"]}>
-							<div className={styles["register-title"]}>Sign up</div>
+							<div className={styles["register-title"]}>Register</div>
 							<div className={styles["form-register"]}>
 								<div className={styles["register"]}>
 									<label className={styles["register-label"]}>
@@ -166,9 +166,9 @@ const Register = () => {
 								Register
 							</Button>
 						</div>
-						<div className={styles["divider"]}></div>
+						<div className={styles["divider"]} />
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/login") }} icon={alreadyHaveAccountIcon}>
 								Already have an account?
 							</Button>
 						</div>
