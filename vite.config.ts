@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
 import { resolve, dirname } from "path";

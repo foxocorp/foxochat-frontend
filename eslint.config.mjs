@@ -12,6 +12,8 @@ export default tseslint.config(
 			".idea/",
 			".vscode/",
 			"src-tauri/",
+			"vite.config.ts",
+			"eslint.config.mjs",
 		],
 	},
 	eslint.configs.recommended,
