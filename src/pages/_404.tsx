@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import handIcon from "@icons/hand-error.svg"
 
 export function NotFound({ path }: { path: string }) {
 	const truncatedUri = path.length > 30 ? `${path.substring(0, 30)}...` : path;
@@ -7,7 +8,7 @@ export function NotFound({ path }: { path: string }) {
 		<ErrorPageWrapper>
 			<Content>
 				<Hand>
-					<img src="/src/assets/svg/hand-error.svg" alt="404" />
+					<img src={handIcon} alt="404" />
 				</Hand>
 				<Text>
 					<h1>404</h1>
