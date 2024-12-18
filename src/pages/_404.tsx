@@ -1,5 +1,7 @@
 import { styled } from "styled-components";
-import handIcon from "@icons/hand-error.svg"
+import handIcon from "@icons/hand-error.svg";
+import gridBackground from "@icons/grid-background.svg";
+import noiseEffect from "@icons/noiseEffect.svg";
 
 export function NotFound({ path }: { path: string }) {
 	const truncatedUri = path.length > 30 ? `${path.substring(0, 30)}...` : path;
@@ -38,7 +40,7 @@ export function NotFound({ path }: { path: string }) {
 const ErrorPageWrapper = styled.div`
     position: relative;
     background-color: #0a0a0a;
-    background-image: url("/src/assets/svg/grid-background.svg"), url("/src/assets/svg/noiseEffect.svg");
+	background-image: url(${gridBackground}), url(${noiseEffect});
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
