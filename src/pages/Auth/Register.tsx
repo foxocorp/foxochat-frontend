@@ -168,7 +168,7 @@ const Register = () => {
 						</div>
 						<div className={styles["divider"]} />
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={() => { location.route("/auth/login") }} icon={alreadyHaveAccountIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/login"); }} icon={alreadyHaveAccountIcon}>
 								Already have an account?
 							</Button>
 						</div>

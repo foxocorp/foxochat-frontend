@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'preact/hooks';
-import './LoadingApp.module.css';
+import { useState, useEffect } from "preact/hooks";
+import "./LoadingApp.module.css";
 
 const Loading = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -9,10 +9,10 @@ const Loading = () => {
 			setIsLoading(false);
 		};
 
-		window.addEventListener('load', handleLoad);
+		window.addEventListener("load", handleLoad);
 
 		return () => {
-			window.removeEventListener('load', handleLoad);
+			window.removeEventListener("load", handleLoad);
 		};
 	}, []);
 
@@ -24,7 +24,7 @@ const Loading = () => {
 		<div className="loading-overlay">
 			<img src="../assets/foxogram-logo.svg" alt="logo" className="logo" />
 			<div className="loading">
-				<div className="loading-bar"></div>
+				<div className="loading-bar" />
 			</div>
 		</div>
 	);

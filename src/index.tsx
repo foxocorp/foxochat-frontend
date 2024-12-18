@@ -22,14 +22,14 @@ export function App() {
         <LocationProvider>
             <main>
                 <Router>
-                    <Route path="/" component={Home}/>
-                    <Route path="/auth/login" component={Login}/>
-                    <Route path="/auth/register" component={Register}/>
-                    <Route default component={NotFound}/>
+                    <Route path="/" component={Home} />
+                    <Route path="/auth/login" component={Login} />
+                    <Route path="/auth/register" component={Register} />
+                    <Route default component={NotFound} />
                 </Router>
             </main>
         </LocationProvider>
     );
 }
 
-render(<App/>, document.getElementById("app")!);
+render(<App />, document.getElementById("app")!);

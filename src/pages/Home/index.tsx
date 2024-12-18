@@ -1,5 +1,5 @@
-import foxogramLogo from '../../assets/foxogram-logo.svg';
-import './style.css';
+import foxogramLogo from "../../assets/foxogram-logo.svg";
+import "./style.css";
 import { useLocation } from "preact-iso";
 
 export function Home() {
@@ -8,8 +8,8 @@ export function Home() {
 	location.route("/auth/login");
 
 	return (
-		<div class="home">
-			<a href="https://preactjs.com" target="_blank">
+		<div className="home">
+			<a href="https://preactjs.com" target="_blank" rel="noreferrer">
 				<img src={foxogramLogo} alt="Foxogram logo" height="160" width="160" />
 			</a>
 			<h1>Get Started building Vite-powered Preact Apps </h1>
@@ -36,7 +36,7 @@ export function Home() {
 
 function Resource(props) {
 	return (
-		<a href={props.href} target="_blank" class="resource">
+		<a href={props.href} target="_blank" className="resource" rel="noreferrer">
 			<h2>{props.title}</h2>
 			<p>{props.description}</p>
 		</a>

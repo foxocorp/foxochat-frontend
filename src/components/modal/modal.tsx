@@ -24,7 +24,7 @@ export const Modal = ({ title, description, onClose, actionButtons = [], icon }:
 
     return (
         <div className={`${styles["overlay"]} ${styles["visible"]}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation() }}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 <h2 className={styles["title"]}>{title}</h2>
                 <div className={styles["description"]}>
                     <span>{description}</span>

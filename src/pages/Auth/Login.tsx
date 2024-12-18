@@ -97,10 +97,10 @@ const Login = () => {
 						</div>
 						<div className={styles["divider"]} />
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={() => { location.route("/auth/reset-password") }} icon={resetPasswordIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/reset-password"); }} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>
-							<Button variant="secondary" onClick={() => { location.route("/auth/register") }} icon={newUserIcon}>
+							<Button variant="secondary" onClick={() => { location.route("/auth/register"); }} icon={newUserIcon}>
 								Create new account
 							</Button>
 						</div>

@@ -5,7 +5,7 @@ import {
     RESTPostAPIAuthRegisterBody,
     RESTPostAPIAuthRegisterResult,
     RESTPostAPIAuthVerifyEmailResult,
-    RESTPostAPIAuthResendEmailResult
+    RESTPostAPIAuthResendEmailResult,
 } from "@foxogram/api-types";
 
 const getAuthToken = () => localStorage.getItem("authToken");
@@ -16,7 +16,7 @@ async function Request<T>(url: string, method: string, body: unknown = null, isA
     const token = isAuthRequired ? getAuthToken() : null;
     const headers = {
         "Content-Type": "application/json",
-        ...(token && { "Authorization": `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
     };
 
     const response = await fetch(url, {
@@ -59,5 +59,5 @@ export const api = {
     async resendEmail(): Promise<RESTPostAPIAuthResendEmailResult> {
         const url = `${getApiBase()}/auth/email/resend`;
         return await Request(url, "POST", null, true);
-    }
+    },
 };

@@ -32,7 +32,7 @@ export const EmailConfirmationModal = ({
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        return () => { window.removeEventListener("keydown", handleKeyDown); };
     }, [isOpen, onClose]);
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export const EmailConfirmationModal = ({
                 });
             }, 1000);
         }
-        return () => clearInterval(interval);
+        return () => { clearInterval(interval); };
     }, [isResendDisabled]);
 
     const formatTime = (time: number) => {
@@ -144,7 +144,7 @@ export const EmailConfirmationModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 <h2 className={styles["title"]}>Check your email</h2>
                 <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
                 <div className={styles["code-input-container"]}>
@@ -155,9 +155,9 @@ export const EmailConfirmationModal = ({
                             className={`${styles["code-input"]} ${styles["input-with-placeholder"]}`}
                             value={digit}
                             maxLength={1}
-                            onInput={(e) => handleCodeChange(e, index)}
+                            onInput={(e) => { handleCodeChange(e, index); }}
                             onPaste={handlePaste}
-                            onKeyDown={(e) => handleBackspace(e, index)}
+                            onKeyDown={(e) => { handleBackspace(e, index); }}
                         />
                     ))}
                 </div>
