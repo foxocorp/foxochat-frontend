@@ -4,6 +4,16 @@ import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 
 export default tseslint.config(
+	{
+		ignores: [
+			"node_modules/",
+			"dist/",
+			".github/",
+			".idea/",
+			".vscode/",
+			"src-tauri/",
+		],
+	},
 	eslint.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	tseslint.configs.stylisticTypeChecked,
