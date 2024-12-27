@@ -16,6 +16,7 @@ import { Home } from "./pages/Home";
 import { NotFound } from "./pages/_404.jsx";
 import Login from "./pages/Auth/Login.tsx";
 import Register from "./pages/Auth/Register.tsx";
+import EmailConfirmationHandler from "./pages/Auth/Email/Verify.tsx";
 
 export function App() {
     return (
@@ -25,6 +26,7 @@ export function App() {
                     <Route path="/" component={Home} />
                     <Route path="/auth/login" component={Login} />
                     <Route path="/auth/register" component={Register} />
+                    <Route path="/auth/email/verify" component={EmailConfirmationHandler} />
                     <Route default component={NotFound} />
                 </Router>
             </main>

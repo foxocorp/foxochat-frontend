@@ -1,15 +1,14 @@
 import { useLocation } from "preact-iso";
-import { useState } from "preact/hooks";
-
+import { useState, useEffect } from "preact/hooks";
 import { api } from "@services/api/authenticationService.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
-
+import { Button } from "@components/base";
+import { EmailConfirmationModal } from "@components/modal/EmailConfirmationModal.tsx";
+import { Modal } from "@components/modal/modal";
 import styles from "./Register.module.css";
 
 import arrowLeftIcon from "@icons/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
-import { Button } from "@components/base";
-import { EmailConfirmationModal } from "@components/modal/EmailConfirmationModal.tsx";
 
 const Register = () => {
 	const [username, setUsername] = useState("");
@@ -19,9 +18,30 @@ const Register = () => {
 	const [emailError, setEmailError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [modalMessage, setModalMessage] = useState("");
 
 	const authStore = useAuthStore();
 	const location = useLocation();
+
+	useEffect(() => {
+		const errorMessage = location.query?.["error"];
+
+		if (errorMessage) {
+			switch (errorMessage) {
+				case "email-confirmation-failed":
+					setModalMessage("Email confirmation failed. Please try again.");
+					break;
+				case "invalid-code":
+					setModalMessage("The verification code is invalid. Please try again.");
+					break;
+				default:
+					setModalMessage("An unknown error occurred.");
+					break;
+			}
+			setIsErrorModalOpen(true);
+		}
+	}, [location.query]);
 
 	const validateInputs = (): boolean => {
 		let isValid = true;
@@ -61,7 +81,7 @@ const Register = () => {
 			authStore.login(accessToken);
 			setIsModalOpen(true);
 		} else {
-			alert("invalid data");
+			alert("Invalid data");
 		}
 	};
 
@@ -103,11 +123,19 @@ const Register = () => {
 
 	return (
 		<div className={styles["register-container"]}>
+			{isErrorModalOpen && modalMessage && (
+				<Modal
+					title="Error"
+					description={modalMessage}
+					onClose={() => setIsErrorModalOpen(false)}
+					actionButtons={[<Button onClick={() => setIsErrorModalOpen(false)} variant="primary" icon={arrowLeftIcon}>Close</Button>]}
+				/>
+			)}
 			{isModalOpen && (
 				<EmailConfirmationModal
 					isOpen={isModalOpen}
 					email={email}
-					onClose={() => { setIsModalOpen(false); }}
+					onClose={() => setIsModalOpen(false)}
 					onVerify={handleVerifyEmail}
 					onResendCode={handleResendEmail}
 				/>
@@ -124,9 +152,7 @@ const Register = () => {
 									</label>
 									<input
 										type="text"
-										className={`${styles["register-input"]} ${
-											usernameError ? styles["input-error"] : ""
-										}`}
+										className={`${styles["register-input"]} ${usernameError ? styles["input-error"] : ""}`}
 										placeholder="floof_fox"
 										value={username}
 										onInput={handleUsernameInput}
@@ -137,9 +163,7 @@ const Register = () => {
 									</label>
 									<input
 										type="email"
-										className={`${styles["register-input"]} ${
-											emailError ? styles["input-error"] : ""
-										}`}
+										className={`${styles["register-input"]} ${emailError ? styles["input-error"] : ""}`}
 										placeholder="floofer@coof.fox"
 										value={email}
 										onInput={handleEmailInput}
@@ -150,9 +174,7 @@ const Register = () => {
 									</label>
 									<input
 										type="password"
-										className={`${styles["register-input"]} ${
-											passwordError ? styles["input-error"] : ""
-										}`}
+										className={`${styles["register-input"]} ${passwordError ? styles["input-error"] : ""}`}
 										placeholder="your floof password :3"
 										value={password}
 										onInput={handlePasswordInput}
@@ -168,7 +190,7 @@ const Register = () => {
 						</div>
 						<div className={styles["divider"]} />
 						<div className={styles["social-buttons"]}>
-							<Button variant="secondary" onClick={() => { location.route("/auth/login"); }} icon={alreadyHaveAccountIcon}>
+							<Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
 								Already have an account?
 							</Button>
 						</div>

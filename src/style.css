@@ -6,7 +6,7 @@
 body {
 	font-family: "Inter", sans-serif;
 	color: var(--primary-color);
-	background-color: #0a0a0a;
+	background-color: #000000;
 	--primary-color: #ececec;
 	--branded-color: #4a89ff;
 	--secondary-color: rgba(14, 14, 14, 0.25);
