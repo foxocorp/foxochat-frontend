@@ -3,7 +3,6 @@ import { Button } from "@components/base/buttons/Button";
 import { api } from "@services/api/authenticationService.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
 import { useLocation } from "preact-iso";
-import Loading from "@components/LoadingApp";
 import styles from "./Login.module.css";
 import arrowLeftIcon from "@icons/arrow-left.svg";
 import resetPasswordIcon from "@icons/reset-password.svg";
@@ -14,7 +13,6 @@ const Login = () => {
 	const [password, setPassword] = useState("");
 	const [emailError, setEmailError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
 	const authStore = useAuthStore();
 	const location = useLocation();
 
@@ -40,8 +38,6 @@ const Login = () => {
 			console.error("Error during login:", error);
 			const errorMessage = error instanceof Error ? error.message : "Unknown error";
 			alert(`Error: ${errorMessage}`);
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -59,7 +55,6 @@ const Login = () => {
 
 	return (
 		<div className={styles["login-container"]}>
-			{isLoading && <Loading />}
 			<div className={styles["login-form"]}>
 				<div className={styles["login-form-header"]}>
 					<div className={styles["login-form-title"]}>
