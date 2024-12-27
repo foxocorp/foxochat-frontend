@@ -63,18 +63,18 @@
 }
 
 .code-input {
-    width: 15px;
-    height: 19px;
-    font-size: 26px;
-    font-weight: 400;
-    text-align: center;
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 26px !important;
+    font-weight: 400 !important;
+    text-align: center !important;
     border: 1px solid rgba(96, 96, 96, 0.5) !important;
-    backdrop-filter: blur(25px);
-    background: rgba(8, 8, 8, 0.25);
-    border-radius: 5px;
-    margin: 0 5px;
-    transition: border-color 0.3s ease;
-    caret-color: transparent;
+    backdrop-filter: blur(25px) !important;
+    background: rgba(8, 8, 8, 0.25) !important;
+    border-radius: 5px !important;
+    margin: 0 5px !important;
+    transition: border-color 0.3s ease !important;
+    caret-color: transparent !important;
 }
 
 .code-input:focus {
@@ -128,4 +128,20 @@
 
 .timer {
     font-size: 14px;
+}
+
+.line {
+    display: flex;
+    align-items: center;
+    font-weight: 300;
+    font-size: 14px;
+    color: #a53f3f;
+}
+
+.line::before,
+.line::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(165, 63, 63, 0.5);
+    margin: 0 10px;
 }
