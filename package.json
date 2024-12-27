@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"@fontsource/inter": "^5.1.0",
-		"@foxogram/api-types": "^0.1.0",
+		"@foxogram/api-types": "^0.1.1",
 		"mobx": "^6.13.5",
 		"preact": "^10.22.1",
 		"preact-iso": "^2.8.1",
