@@ -63,18 +63,19 @@
 }
 
 .code-input {
-    width: 42px !important;
-    height: 42px !important;
-    font-size: 26px !important;
-    font-weight: 400 !important;
-    text-align: center !important;
-    border: 1px solid rgba(96, 96, 96, 0.5) !important;
-    backdrop-filter: blur(25px) !important;
-    background: rgba(8, 8, 8, 0.25) !important;
-    border-radius: 5px !important;
-    margin: 0 5px !important;
-    transition: border-color 0.3s ease !important;
-    caret-color: transparent !important;
+    all: unset;
+    width: 42px ;
+    height: 42px ;
+    font-size: 26px ;
+    font-weight: 400 ;
+    text-align: center ;
+    border: 1px solid rgba(96, 96, 96, 0.5) ;
+    backdrop-filter: blur(25px) ;
+    background: rgba(8, 8, 8, 0.25) ;
+    border-radius: 5px ;
+    margin: 0 5px ;
+    transition: border-color 0.3s ease ;
+    caret-color: transparent ;
 }
 
 .code-input:focus {
