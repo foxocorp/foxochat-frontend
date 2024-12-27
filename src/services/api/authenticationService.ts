@@ -6,6 +6,10 @@ import {
     RESTPostAPIAuthRegisterResult,
     RESTPostAPIAuthVerifyEmailResult,
     RESTPostAPIAuthResendEmailResult,
+    RESTPostAPIAuthResetPasswordBody,
+    RESTPostAPIAuthResetPasswordResult,
+    RESTPostAPIAuthResetPasswordConfirmBody,
+    RESTPostAPIAuthResetPasswordConfirmResult,
 } from "@foxogram/api-types";
 
 const getAuthToken = () => localStorage.getItem("authToken");
@@ -59,5 +63,15 @@ export const api = {
     async resendEmail(): Promise<RESTPostAPIAuthResendEmailResult> {
         const url = `${getApiBase()}/auth/email/resend`;
         return await Request(url, "POST", null, true);
+    },
+
+    async resetPassword(body: RESTPostAPIAuthResetPasswordBody): Promise<RESTPostAPIAuthResetPasswordResult> {
+        const url = `${getApiBase()}/auth/reset-password`;
+        return await Request(url, "POST", body);
+    },
+
+    async resetPasswordConfirm(body: RESTPostAPIAuthResetPasswordConfirmBody): Promise<RESTPostAPIAuthResetPasswordConfirmResult> {
+        const url = `${getApiBase()}/auth/reset-password/confirm`;
+        return await Request(url, "POST", body, true);
     },
 };
