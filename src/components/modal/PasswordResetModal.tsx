@@ -33,6 +33,7 @@ export const PasswordResetModal = ({
                                        onSendEmail,
                                        onVerifyCode,
                                        onResetPassword,
+                                       onResendCode,
                                        isLoading = false,
                                    }: PasswordResetModalProps) => {
     const [state, setState] = useState<PasswordResetState>({
@@ -49,21 +50,10 @@ export const PasswordResetModal = ({
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
-        if (isOpen) {
-            setState({
-                step: 1,
-                emailInput: email,
-                code: Array(6).fill(""),
-                password: "",
-                errorMessage: "",
-                isResendDisabled: true,
-                timer: 60,
-            });
-        }
-    }, [isOpen, email]);
+        if (state.step === 2) {
+            timerRef.current = 60;
+            setState((prev) => ({ ...prev, timer: timerRef.current, isResendDisabled: true }));
 
-    useEffect(() => {
-        if (state.isResendDisabled) {
             intervalRef.current = setInterval(() => {
                 if (timerRef.current <= 1) {
                     clearInterval(intervalRef.current!);
@@ -79,7 +69,7 @@ export const PasswordResetModal = ({
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [state.isResendDisabled]);
+    }, [state.step]);
 
     const handleCodeChange = (e: React.FormEvent<HTMLInputElement>, index: number) => {
         const inputElement = e.currentTarget;
@@ -205,7 +195,11 @@ export const PasswordResetModal = ({
                                     </div>
                                 </>
                             ) : (
-                                <span>Didn’t receive code? Continue</span>
+                                <>
+                                    <span>Didn’t receive code?{" "}
+                                        <a onClick={() => onResendCode().catch(console.error)} className={styles["resend-link"]}>Send again</a>
+                                    </span>
+                                </>
                             )}
                         </div>
                     </>
