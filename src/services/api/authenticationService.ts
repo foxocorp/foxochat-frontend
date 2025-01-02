@@ -1,63 +1,68 @@
-import {
-    APIException,
-    RESTPostAPIAuthLoginBody,
-    RESTPostAPIAuthLoginResult,
-    RESTPostAPIAuthRegisterBody,
-    RESTPostAPIAuthRegisterResult,
-    RESTPostAPIAuthVerifyEmailResult,
-    RESTPostAPIAuthResendEmailResult
-} from "@foxogram/api-types";
+import { API } from "@foxogram/api";
+import { REST } from "@foxogram/rest";
+import { RESTPostAPIAuthLoginBody, RESTPostAPIAuthRegisterBody } from "@foxogram/api-types";
 
 const getAuthToken = () => localStorage.getItem("authToken");
 
-const getApiBase = () => "https://api.dev.foxogram.su";
+const rest = new REST();
+rest.setToken(getAuthToken() || "");
+export const api = new API(rest);
 
-async function Request<T>(url: string, method: string, body: unknown = null, isAuthRequired = false): Promise<T> {
-    const token = isAuthRequired ? getAuthToken() : null;
-    const headers = {
-        "Content-Type": "application/json",
-        ...(token && { "Authorization": `Bearer ${token}` }),
-    };
-
-    const response = await fetch(url, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : null,
-    });
-
-    if (!response.ok) {
-        const error: APIException = await response.json();
-        throw new Error(error.message || "Something went wrong");
-    }
-
-    return await response.json() as T;
-}
-
-export const api = {
-    async register(body: RESTPostAPIAuthRegisterBody): Promise<RESTPostAPIAuthRegisterResult> {
-        const url = `${getApiBase()}/auth/register`;
-        return await Request(url, "POST", body);
-    },
-
-    async login(body: RESTPostAPIAuthLoginBody): Promise<RESTPostAPIAuthLoginResult> {
-        const url = `${getApiBase()}/auth/login`;
-        const data: RESTPostAPIAuthLoginResult = await Request(url, "POST", body);
-
-        if (data.accessToken) {
-            localStorage.setItem("authToken", data.accessToken);
+export const apiMethods = {
+    async register(body: RESTPostAPIAuthRegisterBody) {
+        try {
+            const data = await api.auth.register(body);
+            if (data.accessToken) {
+                localStorage.setItem("authToken", data.accessToken);
+            }
+            return data;
+        } catch (error) {
+            console.error("Registration error:", error);
+            throw error;
         }
-
-        return data;
     },
-
-    async verifyEmail(code: string): Promise<RESTPostAPIAuthVerifyEmailResult> {
-        const url = `${getApiBase()}/auth/email/verify`;
-        const body = { code };
-        return await Request(url, "POST", body, true);
+    async login(body: RESTPostAPIAuthLoginBody) {
+        try {
+            const data = await api.auth.login(body);
+            if (data.accessToken) {
+                localStorage.setItem("authToken", data.accessToken);
+            }
+            return data;
+        } catch (error) {
+            console.error("Login error:", error);
+            throw error;
+        }
     },
-
-    async resendEmail(): Promise<RESTPostAPIAuthResendEmailResult> {
-        const url = `${getApiBase()}/auth/email/resend`;
-        return await Request(url, "POST", null, true);
-    }
+    async verifyEmail(code: string) {
+        try {
+            return await api.auth.verifyEmail({ code });
+        } catch (error) {
+            console.error("Email verification error:", error);
+            throw error;
+        }
+    },
+    async resendEmail() {
+        try {
+            return await api.auth.resendEmail();
+        } catch (error) {
+            console.error("Resend email error:", error);
+            throw error;
+        }
+    },
+    async resetPassword(email: string) {
+        try {
+            return await api.auth.resetPassword({ email });
+        } catch (error) {
+            console.error("Reset password error:", error);
+            throw error;
+        }
+    },
+    async resetPasswordConfirm(email: string, code: string, newPassword: string) {
+        try {
+            return await api.auth.resetPasswordConfirm({ email, code, newPassword });
+        } catch (error) {
+            console.error("Reset password confirmation error:", error);
+            throw error;
+        }
+    },
 };

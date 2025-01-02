@@ -1,9 +1,22 @@
+// @ts-nocheck
 import globals from "globals";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 
 export default tseslint.config(
+	{
+		ignores: [
+			"node_modules/",
+			"dist/",
+			".github/",
+			".idea/",
+			".vscode/",
+			"src-tauri/",
+			"vite.config.ts",
+			"eslint.config.mjs",
+		],
+	},
 	eslint.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	tseslint.configs.stylisticTypeChecked,
@@ -14,6 +27,7 @@ export default tseslint.config(
 			"no-multi-spaces": 2,
 			"comma-dangle": [2, "always-multiline"],
 			"@typescript-eslint/ban-ts-comment": 2,
+			"@typescript-eslint/restrict-template-expressions": 0,
 
 			/**
 			 * Preact / JSX rules

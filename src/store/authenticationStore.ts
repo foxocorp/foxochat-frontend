@@ -1,8 +1,8 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable } from "mobx";
 
 class AuthenticationStore {
 	token: string | null = null;
-	isAuthenticated: boolean = false;
+	isAuthenticated = false;
 
 	constructor() {
 		makeAutoObservable(this);
@@ -32,15 +32,15 @@ class AuthenticationStore {
 	}
 
 	private getTokenFromLocalStorage() {
-		return localStorage.getItem('authToken');
+		return localStorage.getItem("authToken");
 	}
 
 	private saveTokenToLocalStorage(token: string) {
-		localStorage.setItem('authToken', token);
+		localStorage.setItem("authToken", token);
 	}
 
 	private clearTokenFromLocalStorage() {
-		localStorage.removeItem('authToken');
+		localStorage.removeItem("authToken");
 	}
 }
 

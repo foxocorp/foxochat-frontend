@@ -1,6 +1,7 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import styles from "./EmailConfirmationModal.module.css";
 import { Button } from "@components/base/buttons/Button";
+import TimerIcon from "@icons/timer.svg";
 
 interface EmailConfirmationModalProps {
     isOpen: boolean;
@@ -20,6 +21,8 @@ export const EmailConfirmationModal = ({
                                            isLoading = false,
                                        }: EmailConfirmationModalProps) => {
     const [code, setCode] = useState<string[]>(Array(6).fill(""));
+    const [isResendDisabled, setIsResendDisabled] = useState<boolean>(true);
+    const [timer, setTimer] = useState<number>(60);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -29,8 +32,38 @@ export const EmailConfirmationModal = ({
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        return () => { window.removeEventListener("keydown", handleKeyDown); };
     }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsResendDisabled(true);
+            setTimer(60);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+        if (isResendDisabled) {
+            interval = setInterval(() => {
+                setTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        setIsResendDisabled(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => { clearInterval(interval); };
+    }, [isResendDisabled]);
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    };
 
     const handleCodeChange = (e: Event, index: number) => {
         const inputElement = e.currentTarget as HTMLInputElement;
@@ -76,15 +109,34 @@ export const EmailConfirmationModal = ({
         }
     };
 
-    const handleFocus = (e: FocusEvent) => {
-        const inputElement = e.currentTarget as HTMLInputElement;
-        inputElement.setSelectionRange(1, 1);
-    };
-
     const handleVerify = async () => {
         const fullCode = code.join("");
         if (fullCode.length === 6) {
-            await onVerify(fullCode);
+            try {
+                await onVerify(fullCode);
+            } catch (error) {
+                console.error("Verification failed:", error);
+            }
+        }
+    };
+
+    const handlePaste = (event: ClipboardEvent) => {
+        event.preventDefault();
+        const pastedText = event.clipboardData?.getData("text") || "";
+
+        const sanitizedCode = pastedText.replace(/\D/g, "").slice(0, 6).split("");
+        const paddedCode = [...sanitizedCode, ...Array(6 - sanitizedCode.length).fill("")];
+
+        setCode(paddedCode);
+    };
+
+    const handleResendCode = async () => {
+        setIsResendDisabled(true);
+        setTimer(60);
+        try {
+            await onResendCode();
+        } catch (error) {
+            console.error("Resend failed:", error);
         }
     };
 
@@ -92,37 +144,50 @@ export const EmailConfirmationModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 <h2 className={styles["title"]}>Check your email</h2>
-                <p className={styles["description"]}>{email}</p>
-                <div className={styles["codeInputContainer"]}>
+                <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
+                <div className={styles["code-input-container"]}>
                     {code.map((digit, index) => (
                         <input
                             key={index}
                             placeholder="0"
-                            className={`${styles["codeInput"]} ${styles["input-with-placeholder"]}`}
+                            className={`${styles["code-input"]} ${styles["input-with-placeholder"]}`}
                             value={digit}
                             maxLength={1}
-                            onInput={(e) => handleCodeChange(e, index)}
-                            onKeyDown={(e) => handleBackspace(e, index)}
-                            onFocus={handleFocus} />
+                            onInput={(e) => { handleCodeChange(e, index); }}
+                            onPaste={handlePaste}
+                            onKeyDown={(e) => { handleBackspace(e, index); }}
+                        />
                     ))}
                 </div>
 
                 <div className={styles["actions"]}>
                     <Button
-                        onClick={handleVerify}
+                        onClick={() => handleVerify().catch(console.error)}
                         variant="primary"
-                        width={315}
-                        disabled={isLoading || code.some((digit) => !digit)}>
+                        width={318}
+                        disabled={isLoading || code.some((digit) => !digit)}
+                    >
                         {isLoading ? "Checking..." : "Confirm"}
                     </Button>
-                    <p className={styles["resend-text"]}>
-                        Didn’t receive code?{" "}
-                        <span onClick={onResendCode} className={`${styles["resend-link"]} ${styles["underline"]}`}>
-                            Send again
-                        </span>
-                    </p>
+                    <div className={styles["resend-text"]}>
+                        {isResendDisabled ? (
+                            <>
+                                <span>Time until you can resend code</span>
+                                <div className={styles["timer-container"]}>
+                                    <span className={styles["timer"]}>{formatTime(timer)}</span>
+                                    <img className={styles["timer-icon"]} src={TimerIcon} alt="Timer" />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <span>Didn’t receive code?{" "}
+                                    <a onClick={() => handleResendCode().catch(console.error)} className={styles["resend-link"]}>Send again</a>
+                                </span>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

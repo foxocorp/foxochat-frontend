@@ -60,12 +60,12 @@
 	color: var(--primary-color);
 }
 
-input {
+.register-input {
 	border: 1px solid rgba(96, 96, 96, 0.5) !important;
-	background: rgba(0, 0, 0, 0.7);
-	border-radius: 5px;
-	padding: 13px 14px;
-	height: 25px;
+	background: rgba(0, 0, 0, 0.7) !important;
+	border-radius: 5px !important;
+	padding: 4px 16px !important;
+	height: 37px !important;
 }
 
 .input-error {
