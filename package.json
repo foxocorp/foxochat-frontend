@@ -10,6 +10,7 @@
 		"build-desktop": "tauri build"
 	},
 	"dependencies": {
+		"@a1rth/css-normalize": "^1.1.9",
 		"@fontsource/inter": "^5.1.0",
 		"@foxogram/api": "^0.1.2",
 		"@foxogram/rest": "^0.1.0",
