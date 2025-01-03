@@ -1,7 +1,9 @@
-name: 'Build Desktop'
+name: Build Desktop
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   publish-tauri:
