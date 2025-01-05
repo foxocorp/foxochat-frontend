@@ -13,6 +13,7 @@
 	cursor: pointer;
 	user-select: none;
 	transition: opacity .25s linear;
+	background: var(--primary-color);
 }
 
 .button-primary:hover,
