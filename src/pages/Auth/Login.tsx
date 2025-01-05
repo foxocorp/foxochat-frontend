@@ -5,7 +5,7 @@ import { JSX } from "preact";
 import styles from "./Login.module.css";
 
 import { Button } from "@components/base/buttons/Button";
-import { PasswordResetModal } from "@components/modal/PasswordResetModal";
+import { PasswordResetModal } from "@components/modal/PasswordReset/PasswordResetModal.tsx";
 
 import arrowLeftIcon from "@icons/arrow-left.svg";
 import resetPasswordIcon from "@icons/reset-password.svg";
@@ -146,7 +146,7 @@ const Login = (): JSX.Element => {
 							</Button>
 						</div>
 						<div className={styles["divider"]} />
-						<div className={styles["social-buttons"]}>
+						<div className={styles["action-buttons"]}>
 							<Button variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>

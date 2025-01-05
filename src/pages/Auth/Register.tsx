@@ -7,8 +7,8 @@ import arrowLeftIcon from "@icons/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
 
 import { Button } from "@components/base";
-import { EmailConfirmationModal } from "@components/modal/EmailConfirmationModal";
-import { Modal } from "@components/modal/modal";
+import { EmailConfirmationModal } from "@components/modal/EmailConfirmation/EmailConfirmationModal.tsx";
+import { Modal } from "@components/modal/Modal.tsx";
 
 import { apiMethods } from "@services/api/authenticationService.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
@@ -197,7 +197,7 @@ const Register = () => {
                             </Button>
                         </div>
                         <div className={styles["divider"]} />
-                        <div className={styles["social-buttons"]}>
+                        <div className={styles["action-buttons"]}>
                             <Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
                                 Already have an account?
                             </Button>
