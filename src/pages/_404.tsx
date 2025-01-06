@@ -1,5 +1,5 @@
 import { styled } from "styled-components";
-import handIcon from "@icons/hand-error.svg";
+import handIcon from "@icons/errors/hand-error.svg";
 import gridBackground from "@icons/grid-background.svg";
 import noiseEffect from "@icons/noise-effect.svg";
 

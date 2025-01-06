@@ -17,6 +17,9 @@ body {
 	--secondary-color: rgb(14 14 14 / 0.25);
 	--danger-color: #f24747;
 
+	--modal-error-line-color: #a53f3f;
+	--modal-error-input-color: rgb(165 63 63 / 0.5);;
+
 	--gray-color: rgb(236 236 236 / 0.5);
 }
 
