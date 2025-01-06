@@ -85,7 +85,6 @@ export const useEmailVerification = (onVerify: (code: string) => Promise<void>, 
         if (newErrors.every((error) => !error)) {
             try {
                 await onVerify(fullCode);
-                console.log("[SUCCESS] Verification successful");
                 setError(true);
             } catch (err) {
                 console.error("[ERROR] Verification failed:", err);

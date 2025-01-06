@@ -142,7 +142,7 @@ button:disabled {
 }
 
 .code-input.error {
-    border: 1px solid var(--modal-error-input-color);
+    border: 1px solid var(--error-input-dark);
     background: rgb(8 8 8 / 0.25);
 }
 
@@ -151,7 +151,7 @@ button:disabled {
     align-items: center;
     font-weight: 300;
     font-size: 0.875rem;
-    color: var(--modal-error-line-color);
+    color: var(--error-dark);
     animation: errorSlideIn 0.3s ease;
 }
 
@@ -159,7 +159,7 @@ button:disabled {
 .line::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid var(--modal-error-input-color);
+    border-bottom: 1px solid var(--error-input-dark);
     margin: 0 10px;
 }
 
