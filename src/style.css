@@ -9,8 +9,8 @@ body {
 	background-color: #000000;
 	--primary-color: #ececec;
 	--branded-color: #4a89ff;
-	--secondary-color: rgba(14, 14, 14, 0.25);
+	--secondary-color: rgb(14 14 14 / 0.25);
 	--danger-color: #f24747;
 
-	--gray-color: rgba(236, 236, 236, 0.5);
+	--gray-color: rgb(236 236 236 / 0.5);
 }

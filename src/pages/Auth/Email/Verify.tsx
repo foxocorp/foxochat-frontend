@@ -1,7 +1,7 @@
 import { FunctionalComponent } from "preact";
 import { useEffect } from "preact/hooks";
 import { useLocation } from "preact-iso";
-import { api } from "@services/api/authenticationService.ts";
+import { apiMethods } from "@services/api/authenticationService.ts";
 
 const EmailConfirmationHandler: FunctionalComponent = () => {
     const location = useLocation();
@@ -15,7 +15,7 @@ const EmailConfirmationHandler: FunctionalComponent = () => {
                     return;
                 }
 
-                await api.verifyEmail(code);
+                await apiMethods.verifyEmail(code);
                 window.location.href = "/";
             } catch (error) {
                 window.location.href = "/auth/register?error=email-confirmation-failed";
