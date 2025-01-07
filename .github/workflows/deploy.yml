@@ -13,5 +13,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Foxogram frontend
-        run: docker compose up foxogram-frontend${{ github.ref_name == 'main' && '' || github.ref_name == 'dev' && '-dev' || '-dev' }} -d --build
+      - name: Run Foxogram Frontend
+        run: docker compose up foxogram-frontend${{ github.ref_name == 'dev' && '-dev' || '' }} -d --build
