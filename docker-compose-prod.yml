@@ -1,5 +1,6 @@
 services:
   foxogram-frontend:
+    container_name: foxogram-frontend
     build:
       context: .
       args:
