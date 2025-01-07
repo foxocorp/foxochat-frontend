@@ -2,6 +2,8 @@ services:
   foxogram-frontend-dev:
     build:
       context: .
+      args:
+        NODE_ENV: development
     restart: always
     networks:
       - traefik
