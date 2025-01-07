@@ -1,12 +1,14 @@
 FROM node:latest AS builder
 
+ARG NODE_ENV
+
 WORKDIR /workspace
 
 # Copy package manifest.
 COPY package.json ./package.json
 
 # Cache depedencies.
-RUN npm install
+RUN npm install --include=dev
 
 # Copy sources.
 COPY . ./
