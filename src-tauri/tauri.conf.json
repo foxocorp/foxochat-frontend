@@ -13,8 +13,10 @@
     "windows": [
       {
         "title": "Foxogram",
-        "width": 800,
-        "height": 600,
+        "width": 1100,
+        "height": 650,
+        "minWidth": 1100,
+        "minHeight": 650,
         "resizable": true,
         "fullscreen": false
       }

@@ -1,7 +1,10 @@
 services:
   foxogram-frontend-dev:
+    container_name: foxogram-frontend-dev
     build:
       context: .
+      args:
+        NODE_ENV: development
     restart: always
     networks:
       - traefik

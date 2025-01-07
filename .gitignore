@@ -17,11 +17,18 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 !.idea/codeStyles
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
+# Tauri
+src-tauri/target/
+src-tauri/gen/schemas
+
+# macOS
+.DS_Store
+
+# Lock file
 package-lock.json

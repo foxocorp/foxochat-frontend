@@ -1,5 +1,7 @@
 FROM node:latest AS builder
 
+ARG NODE_ENV
+
 WORKDIR /workspace
 
 # Copy package manifest.

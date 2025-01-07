@@ -37,10 +37,10 @@
 }
 
 .button-secondary {
-	border: 1px solid rgba(96, 96, 96, 0.5);
+	border: 1px solid rgb(96 96 96 / 0.5);
 	font-weight: 500;
 	font-size: 15px;
-	background: rgba(14, 14, 14, 0.25);
+	background: rgb(14 14 14 / 0.25);
 }
 
 .button-danger {
