@@ -1,4 +1,3 @@
-
 .login-container {
 	position: relative;
 	min-height: 100vh;
@@ -69,6 +68,7 @@
 	width: 368px;
 	height: 48px;
 	margin-bottom: 15px;
+	transition: border 0.3s ease-in-out !important;
 }
 
 .login-input:focus {
@@ -77,14 +77,10 @@
 }
 
 .input-error {
-	border: 1px solid rgb(165 63 63 / 0.5) !important;
+	border: 1px solid rgb(165 63 63 / 0.5);
 }
 
-.login-input {
-	transition: border 0.3s ease-in-out !important;
-}
-
-::placeholder {
+.login-input::placeholder {
 	font-weight: 400;
 	font-size: 16px;
 	color: rgb(96 96 96 / 0.7);
@@ -142,4 +138,57 @@
 
 .action-buttons button {
 	height: 40px;
+}
+
+.input-error {
+	border: 1px solid rgb(165 63 63 / 0.5);
+}
+
+@keyframes slideIn {
+	0% {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.error-text {
+	color: var(--error-dark);
+	font-weight: 300;
+	font-size: 14px;
+	opacity: 0;
+	transform: translateX(-30px);
+	position: absolute;
+	animation: slideIn 0.7s ease-in-out forwards;
+}
+
+.login-input[type="password"] + .error-text {
+	top: 20%;
+}
+
+@media (max-width: 375px) {
+	.login-form {
+		width: 90%;
+		padding: 10px;
+	}
+
+	.login-input {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	.form {
+		width: 100%;
+	}
+
+	.divider {
+		width: 100%;
+	}
+
+	.action-buttons button {
+		width: 100% !important;
+	}
 }
