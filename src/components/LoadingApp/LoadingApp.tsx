@@ -1,6 +1,6 @@
 import { useState, useEffect } from "preact/hooks";
 import styles from "./LoadingApp.module.css";
-import foxogramLogo from "../assets/foxogram.svg";
+import foxogramLogo from "../../assets/foxogram.svg";
 
 const Loading = ({ onLoaded }: { onLoaded: () => void }) => {
 	const [isLoading, setIsLoading] = useState(true);
