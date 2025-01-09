@@ -1,222 +1,226 @@
-import { API, UserAPI, MessageAPI, ChannelAPI } from "@foxogram/api";
+import { API } from "@foxogram/api";
 import { REST } from "@foxogram/rest";
-import {
-    RESTDeleteAPIUserBody,
-    RESTPatchAPIUserBody,
-    RESTPostAPIAuthLoginBody,
-    RESTPostAPIAuthRegisterBody,
-    RESTPostAPIUserDeleteConfirmBody,
-    RESTPostAPIMessageBody,
-    RESTPatchAPIMessageBody,
-    RESTPostAPIChannelBody,
-    RESTPatchAPIChannelBody,
-} from "@foxogram/api-types";
+import { ChannelType } from "@foxogram/api-types";
+const apiUrl = import.meta.env.PROD
+    ? "https://api.foxogram.su"
+    : 'https://api.dev.foxogram.su/';
 
-const getAuthToken = () => localStorage.getItem("authToken");
-const setAuthToken = (token: string) => localStorage.setItem("authToken", token);
-const removeAuthToken = () => localStorage.removeItem("authToken");
+const getAuthToken = (): string | null => localStorage.getItem("authToken");
+const setAuthToken = (token: string): void => localStorage.setItem("authToken", token);
+const removeAuthToken = (): void => localStorage.removeItem("authToken");
 
-const rest = new REST();
-rest.setToken(getAuthToken() || "");
-export const api = new API(rest);
+const defaultOptions = {
+    authPrefix: "Bearer",
+    baseURL: apiUrl,
+};
 
-const apiRequest = async <T>(method: () => Promise<T>, errorMessage: string): Promise<T> => {
+const rest = new REST(defaultOptions);
+const token = getAuthToken();
+if (token) {
+    rest.setToken(token);
+}
+
+const api = new API(rest);
+
+/**
+ * Auth methods
+ */
+export const login = async (email: string, password: string) => {
     try {
-        return await method();
+        const token = await api.auth.login({ email, password });
+        setAuthToken(token.accessToken);
+        return token;
     } catch (error) {
-        const errorMessageToLog = error instanceof Error ? error.message : "Unknown error";
-        console.error(`[ERROR] ${errorMessage}`);
-        throw new Error(errorMessageToLog);
+        console.error("Error logging in:", error);
+        return undefined;
     }
 };
 
-export const apiMethods = {
-
-    async fetchUserChannels() {
-        return apiRequest(async () => {
-            const token = getAuthToken();
-            const response = await fetch('https://api.foxogram.su/users/@me/channels', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch user channels');
-            }
-
-            return await response.json();
-        }, "Fetching user channels");
-    },
-
-    async register(body: RESTPostAPIAuthRegisterBody) {
-        return apiRequest(async () => {
-            const data = await api.auth.register(body);
-            if (data.accessToken) {
-                setAuthToken(data.accessToken);
-            }
-            return data;
-        }, "Registration");
-    },
-
-    async login(body: RESTPostAPIAuthLoginBody) {
-        return apiRequest(async () => {
-            const data = await api.auth.login(body);
-            if (data.accessToken) {
-                setAuthToken(data.accessToken);
-            }
-            return data;
-        }, "Login");
-    },
-
-    async verifyEmail(code: string) {
-        return apiRequest(async () => {
-            return await api.auth.verifyEmail({ code });
-        }, "Email verification");
-    },
-
-    async resendEmail() {
-        return apiRequest(async () => {
-            return await api.auth.resendEmail();
-        }, "Resend email");
-    },
-
-    async resetPassword(email: string) {
-        return apiRequest(async () => {
-            return await api.auth.resetPassword({ email });
-        }, "Reset password");
-    },
-
-    async resetPasswordConfirm(email: string, code: string, newPassword: string) {
-        return apiRequest(async () => {
-            return await api.auth.resetPasswordConfirm({ email, code, newPassword });
-        }, "Reset password confirmation");
-    },
-
-    async fetchCurrentUser() {
-        return apiRequest(async () => {
-            const userApiInstance = new UserAPI(rest);
-            return await userApiInstance.current();
-        }, "Fetching current user");
-    },
-
-    async updateUserProfile(body: RESTPatchAPIUserBody) {
-        return apiRequest(async () => {
-            const userApiInstance = new UserAPI(rest);
-            return await userApiInstance.edit(body);
-        }, "Updating user profile");
-    },
-
-    async deleteUserAccount(body: RESTDeleteAPIUserBody) {
-        return apiRequest(async () => {
-            const userApiInstance = new UserAPI(rest);
-            return await userApiInstance.delete(body);
-        }, "Deleting user account");
-    },
-
-    async confirmDeleteUserAccount(body: RESTPostAPIUserDeleteConfirmBody) {
-        return apiRequest(async () => {
-            const userApiInstance = new UserAPI(rest);
-            return await userApiInstance.confirmDelete(body);
-        }, "Confirming user account deletion");
-    },
-
-    async createMessage(channelId: string, body: RESTPostAPIMessageBody) {
-        return apiRequest(async () => {
-            const messageApiInstance = new MessageAPI(rest);
-            return await messageApiInstance.create(channelId, body);
-        }, "Creating message");
-    },
-
-    async deleteMessage(channelId: string, messageId: string) {
-        return apiRequest(async () => {
-            const messageApiInstance = new MessageAPI(rest);
-            return await messageApiInstance.delete(channelId, Number(messageId));
-        }, "Deleting message");
-    },
-
-    async editMessage(channelId: string, messageId: string, body: RESTPatchAPIMessageBody) {
-        return apiRequest(async () => {
-            const messageApiInstance = new MessageAPI(rest);
-            return await messageApiInstance.edit(channelId, Number(messageId), body);
-        }, "Editing message");
-    },
-
-    async getMessage(channelId: string, messageId: string) {
-        return apiRequest(async () => {
-            const messageApiInstance = new MessageAPI(rest);
-            return await messageApiInstance.get(channelId, Number(messageId));
-        }, "Fetching message");
-    },
-
-    async listMessages(channelId: string) {
-        return apiRequest(async () => {
-            const messageApiInstance = new MessageAPI(rest);
-            return await messageApiInstance.list(channelId);
-        }, "Listing messages");
-    },
-
-    async createChannel(channelName: string, body: RESTPostAPIChannelBody) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.create(channelName, body);
-        }, "Creating channel");
-    },
-
-    async deleteChannel(channelId: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.delete(channelId);
-        }, "Deleting channel");
-    },
-
-    async editChannel(channelId: string, body: RESTPatchAPIChannelBody) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.edit(channelId, body);
-        }, "Editing channel");
-    },
-
-    async getChannel(channelId: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.get(channelId);
-        }, "Fetching channel");
-    },
-
-    async joinChannel(channelId: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.join(channelId);
-        }, "Joining channel");
-    },
-
-    async leaveChannel(channelId: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.leave(channelId);
-        }, "Leaving channel");
-    },
-
-    async getChannelMember(channelId: string, memberKey: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.member(channelId, memberKey);
-        }, "Getting channel member");
-    },
-
-    async listChannelMembers(channelId: string) {
-        return apiRequest(async () => {
-            const channelApiInstance = new ChannelAPI(rest);
-            return await channelApiInstance.members(channelId);
-        }, "Listing channel members");
-    },
+export const register = async (username: string, email: string, password: string) => {
+    try {
+        const token = await api.auth.register({ email, password, username });
+        setAuthToken(token.accessToken);
+        return token;
+    } catch (error) {
+        console.error("Error registering user:", error);
+        return undefined;
+    }
 };
 
-export const authUtils = {
-    getAuthToken,
-    setAuthToken,
-    removeAuthToken,
+export const resendEmailVerification = async () => {
+    try {
+        const result = await api.auth.resendEmail();
+        return result;
+    } catch (error) {
+        console.error("Error resending email verification:", error);
+        return undefined;
+    }
 };
+
+export const resetPassword = async (email: string) => {
+    try {
+        const result = await api.auth.resetPassword({ email });
+        return result;
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        return undefined;
+    }
+};
+
+export const confirmResetPassword = async (email: string, code: string, newPassword: string) => {
+    try {
+        const result = await api.auth.resetPasswordConfirm({ email, code, newPassword });
+        return result;
+    } catch (error) {
+        console.error("Error confirming password reset:", error);
+        return undefined;
+    }
+};
+
+export const verifyEmail = async (code: string) => {
+    try {
+        const result = await api.auth.verifyEmail({ code });
+        return result;
+    } catch (error) {
+        console.error("Error verifying email:", error);
+        return undefined;
+    }
+};
+
+/**
+ * User methods
+ */
+export const getCurrentUser = async (): Promise<{ username: string; avatar: string } | undefined> => {
+    try {
+        const user = await api.user.current();
+        return user;
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        return undefined;
+    }
+};
+
+export const editUser = async (body: { name: string; email: string; }) => {
+    try {
+        const updatedUser = await api.user.edit(body);
+        return updatedUser;
+    } catch (error) {
+        console.error("Error editing user:", error);
+        return undefined;
+    }
+};
+
+export const deleteUser = async (body: { password: string }) => {
+    try {
+        const result = await api.user.delete(body);
+        removeAuthToken()
+        return result;
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return undefined;
+    }
+};
+
+export const confirmDeleteUser = async (body: { password: string; code: string }) => {
+    try {
+        const result = await api.user.confirmDelete(body);
+        return result;
+    } catch (error) {
+        console.error("Error confirming user deletion:", error);
+        return undefined;
+    }
+};
+
+export const userChannelsList = async () => {
+    try {
+        const result = await api.user.channels();
+        return result;
+    } catch (error) {
+        console.error("Error getting channels list:", error);
+        return undefined;
+    }
+};
+
+/**
+ * Channel methods
+ */
+export const createChannel = async (body: { displayName: string; name: string; type: ChannelType }) => {
+    try {
+        const newChannel = await api.channel.create(body);
+        return newChannel;
+    } catch (error) {
+        console.error("Error creating channel:", error);
+        return undefined;
+    }
+};
+
+export const deleteChannel = async (channelName: string) => {
+    try {
+        const result = await api.channel.delete(channelName);
+        return result;
+    } catch (error) {
+        console.error("Error deleting channel:", error);
+        return undefined;
+    }
+};
+
+export const editChannel = async (channelName: string, body: { name?: string }) => {
+    try {
+        const updatedChannel = await api.channel.edit(channelName, body);
+        return updatedChannel;
+    } catch (error) {
+        console.error("Error editing channel:", error);
+        return undefined;
+    }
+};
+
+export const getChannel = async (channelName: string) => {
+    try {
+        const channel = await api.channel.get(channelName);
+        return channel;
+    } catch (error) {
+        console.error("Error fetching channel:", error);
+        return undefined;
+    }
+};
+
+export const joinChannel = async (channelName: string) => {
+    try {
+        const member = await api.channel.join(channelName);
+        return member;
+    } catch (error) {
+        console.error("Error joining channel:", error);
+        return undefined;
+    }
+};
+
+export const leaveChannel = async (channelName: string) => {
+    try {
+        const result = await api.channel.leave(channelName);
+        return result;
+    } catch (error) {
+        console.error("Error leaving channel:", error);
+        return undefined;
+    }
+};
+
+export const getChannelMember = async (channelName: string, memberKey: string) => {
+    try {
+        const member = await api.channel.member(channelName, memberKey);
+        return member;
+    } catch (error) {
+        console.error("Error fetching channel member:", error);
+        return undefined;
+    }
+};
+
+export const listChannelMembers = async (channelName: string) => {
+    try {
+        const members = await api.channel.members(channelName);
+        return members;
+    } catch (error) {
+        console.error("Error fetching channel members:", error);
+        return undefined;
+    }
+};
+
