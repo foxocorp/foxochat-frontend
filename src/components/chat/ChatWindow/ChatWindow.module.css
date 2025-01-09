@@ -1,0 +1,7 @@
+.chat-window {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: var(--background-chat-color);
+    height: 100%;
+}
