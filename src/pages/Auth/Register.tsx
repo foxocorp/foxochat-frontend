@@ -1,18 +1,16 @@
 import { useLocation } from "preact-iso";
 import { useState, useEffect } from "preact/hooks";
-
 import styles from "./Register.module.css";
 
-import arrowLeftIcon from "@icons/arrow-left.svg";
-import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
+import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
+import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
 
 import { Button } from "@components/base";
 import { EmailConfirmationModal } from "@components/modal/EmailConfirmation/EmailConfirmationModal.tsx";
 import { Modal } from "@components/modal/Modal.tsx";
 
-import { apiMethods } from "@services/api/authenticationService.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
-
+import { register, resendEmailVerification, verifyEmail } from "@services/api/apiMethods.ts";
 
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -80,13 +78,13 @@ const Register = () => {
         if (!validateInputs()) return;
 
         try {
-            const { accessToken } = await apiMethods.register({ username, email, password });
+            const token = await register(username, email, password);
 
-            if (accessToken) {
-                authStore.login(accessToken);
+            if (token?.accessToken) {
+                authStore.login(token.accessToken);
                 setIsModalOpen(true);
             } else {
-                alert("Invalid data");
+                console.error("Registration failed");
             }
         } catch (error) {
             console.error("Registration failed", error);
@@ -95,7 +93,7 @@ const Register = () => {
 
     const handleVerifyEmail = async (code: string) => {
         try {
-            await apiMethods.verifyEmail(code);
+            await verifyEmail(code);
             setIsModalOpen(false);
             location.route("/");
         } catch (error) {
@@ -105,7 +103,7 @@ const Register = () => {
 
     const handleResendEmail = async () => {
         try {
-            await apiMethods.resendEmail();
+            await resendEmailVerification();
         } catch (error) {
             console.error("Resend failed", error);
         }
@@ -165,7 +163,9 @@ const Register = () => {
                                         value={username}
                                         onInput={handleUsernameInput}
                                         required
+                                        autoComplete="nope"
                                     />
+                                    {usernameError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                     <label className={styles["register-label"]}>
                                         Email<span className={styles["required"]}>*</span>
                                     </label>
@@ -177,6 +177,7 @@ const Register = () => {
                                         onInput={handleEmailInput}
                                         required
                                     />
+                                    {emailError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                     <label className={styles["register-label"]}>
                                         Password<span className={styles["required"]}>*</span>
                                     </label>
@@ -188,6 +189,7 @@ const Register = () => {
                                         onInput={handlePasswordInput}
                                         required
                                     />
+                                    {passwordError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                 </div>
                             </div>
                         </div>
