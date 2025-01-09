@@ -8,6 +8,7 @@ import EmptyState from "@components/chat/EmptyState/EmptyState.tsx";
 import { Chat } from "../../types/chatTypes.ts";
 import { userChannelsList } from "@services/api/apiMethods.ts";
 import { APIChannel } from "@foxogram/api-types";
+import { getAuthToken } from "@services/api/apiMethods";
 
 enum ChannelType {
 	DM = 1,
@@ -21,6 +22,13 @@ export function Home() {
 	const [chats, setChats] = useState<Chat[]>([]);
 	const location = useLocation();
 	const currentUser = "user1";
+	const token = getAuthToken();
+
+	useEffect(() => {
+		if (!token) {
+			location.route("/auth/login");
+		}
+	}, [token, location]);
 
 	const formatChannel = useCallback((channel: APIChannel) => {
 		return {
