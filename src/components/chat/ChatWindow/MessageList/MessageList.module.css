@@ -1,0 +1,35 @@
+.message-list {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: var(--background-chat-color);
+}
+
+.message {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+
+.message-me {
+    align-self: flex-end;
+    color: var(--primary-color);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.message-them {
+    align-self: flex-start;
+    background-color: #333;
+    color: var(--primary-color);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.message-time {
+    font-size: 12px;
+    color: var(--gray-color);
+    margin-top: 5px;
+    align-self: flex-end;
+}
