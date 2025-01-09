@@ -5,7 +5,7 @@ const apiUrl = import.meta.env.PROD
     ? "https://api.foxogram.su"
     : 'https://api.dev.foxogram.su/';
 
-const getAuthToken = (): string | null => localStorage.getItem("authToken");
+export const getAuthToken = (): string | null => localStorage.getItem("authToken");
 const setAuthToken = (token: string): void => localStorage.setItem("authToken", token);
 const removeAuthToken = (): void => localStorage.removeItem("authToken");
 
