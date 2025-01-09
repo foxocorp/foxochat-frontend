@@ -1,7 +1,8 @@
-import { Button } from "@components/base/buttons/Button";
+import { Button } from "@components/base/buttons/Button.tsx";
 import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import styles from "./PasswordResetModal.module.css";
 import TimerIcon from "@icons/timer.svg";
+import { APIOk } from "@foxogram/api-types";
 
 type Step = 1 | 2 | 3;
 
@@ -11,7 +12,7 @@ interface PasswordResetModalProps {
     onClose: () => void;
     onSendEmail: (email: string) => Promise<void>;
     onVerifyCode: (code: string) => Promise<void>;
-    onResetPassword: (password: string) => Promise<void>;
+    onResetPassword: (password: string) => Promise<APIOk | undefined>;
     onResendCode: () => Promise<void>;
     isLoading?: boolean;
 }
