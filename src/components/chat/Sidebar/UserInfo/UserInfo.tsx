@@ -1,5 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
-import { getCurrentUser } from "@services/api/apiMethods.ts";
+import { apiMethods } from "@services/api/apiMethods.ts";
 import styles from "./UserInfo.module.css";
 import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
@@ -19,7 +19,7 @@ const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
 
     const fetchUser = async () => {
         try {
-            const user = await getCurrentUser();
+            const user = await apiMethods.getCurrentUser();
             if (user) {
                 setUserData({
                     username: user.username,
