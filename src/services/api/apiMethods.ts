@@ -1,16 +1,16 @@
 import { API } from "@foxogram/api";
 import { REST } from "@foxogram/rest";
 import { ChannelType } from "@foxogram/api-types";
+
 const apiUrl = import.meta.env.PROD
     ? "https://api.foxogram.su"
-    : 'https://api.dev.foxogram.su/';
+    : "https://api.dev.foxogram.su/";
 
 export const getAuthToken = (): string | null => localStorage.getItem("authToken");
 const setAuthToken = (token: string): void => localStorage.setItem("authToken", token);
 const removeAuthToken = (): void => localStorage.removeItem("authToken");
 
 const defaultOptions = {
-    authPrefix: "Bearer",
     baseURL: apiUrl,
 };
 
@@ -20,207 +20,42 @@ if (token) {
     rest.setToken(token);
 }
 
-const api = new API(rest);
+const foxogramAPI = new API(rest);
 
-/**
- * Auth methods
- */
-export const login = async (email: string, password: string) => {
-    try {
-        const token = await api.auth.login({ email, password });
+export const apiMethods = {
+    login: async (email: string, password: string) => {
+        const token = await foxogramAPI.auth.login({ email, password });
         setAuthToken(token.accessToken);
         return token;
-    } catch (error) {
-        console.error("Error logging in:", error);
-        return undefined;
-    }
-};
+    },
 
-export const register = async (username: string, email: string, password: string) => {
-    try {
-        const token = await api.auth.register({ email, password, username });
+    register: async (username: string, email: string, password: string) => {
+        const token = await foxogramAPI.auth.register({ email, password, username });
         setAuthToken(token.accessToken);
         return token;
-    } catch (error) {
-        console.error("Error registering user:", error);
-        return undefined;
-    }
-};
+    },
 
-export const resendEmailVerification = async () => {
-    try {
-        const result = await api.auth.resendEmail();
+    resendEmailVerification: () => foxogramAPI.auth.resendEmail(),
+    resetPassword: (email: string) => foxogramAPI.auth.resetPassword({ email }),
+    confirmResetPassword: (email: string, code: string, newPassword: string) => foxogramAPI.auth.resetPasswordConfirm({ email, code, newPassword }),
+    verifyEmail: (code: string) => foxogramAPI.auth.verifyEmail({ code }),
+
+    getCurrentUser: () => foxogramAPI.user.current(),
+    editUser: (body: { name: string; email: string }) => foxogramAPI.user.edit(body),
+    deleteUser: (body: { password: string }) => {
+        const result = foxogramAPI.user.delete(body);
+        removeAuthToken();
         return result;
-    } catch (error) {
-        console.error("Error resending email verification:", error);
-        return undefined;
-    }
-};
+    },
+    confirmDeleteUser: (body: { password: string; code: string }) => foxogramAPI.user.confirmDelete(body),
+    userChannelsList: () => foxogramAPI.user.channels(),
 
-export const resetPassword = async (email: string) => {
-    try {
-        const result = await api.auth.resetPassword({ email });
-        return result;
-    } catch (error) {
-        console.error("Error resetting password:", error);
-        return undefined;
-    }
+    createChannel: (body: { displayName: string; name: string; type: ChannelType }) => foxogramAPI.channel.create(body),
+    deleteChannel: (channelName: string) => foxogramAPI.channel.delete(channelName),
+    editChannel: (channelName: string, body: { name?: string }) => foxogramAPI.channel.edit(channelName, body),
+    getChannel: (channelName: string) => foxogramAPI.channel.get(channelName),
+    joinChannel: (channelName: string) => foxogramAPI.channel.join(channelName),
+    leaveChannel: (channelName: string) => foxogramAPI.channel.leave(channelName),
+    getChannelMember: (channelName: string, memberKey: string) => foxogramAPI.channel.member(channelName, memberKey),
+    listChannelMembers: (channelName: string) => foxogramAPI.channel.members(channelName),
 };
-
-export const confirmResetPassword = async (email: string, code: string, newPassword: string) => {
-    try {
-        const result = await api.auth.resetPasswordConfirm({ email, code, newPassword });
-        return result;
-    } catch (error) {
-        console.error("Error confirming password reset:", error);
-        return undefined;
-    }
-};
-
-export const verifyEmail = async (code: string) => {
-    try {
-        const result = await api.auth.verifyEmail({ code });
-        return result;
-    } catch (error) {
-        console.error("Error verifying email:", error);
-        return undefined;
-    }
-};
-
-/**
- * User methods
- */
-export const getCurrentUser = async (): Promise<{ username: string; avatar: string } | undefined> => {
-    try {
-        const user = await api.user.current();
-        return user;
-    } catch (error) {
-        console.error("Error fetching current user:", error);
-        return undefined;
-    }
-};
-
-export const editUser = async (body: { name: string; email: string; }) => {
-    try {
-        const updatedUser = await api.user.edit(body);
-        return updatedUser;
-    } catch (error) {
-        console.error("Error editing user:", error);
-        return undefined;
-    }
-};
-
-export const deleteUser = async (body: { password: string }) => {
-    try {
-        const result = await api.user.delete(body);
-        removeAuthToken()
-        return result;
-    } catch (error) {
-        console.error("Error deleting user:", error);
-        return undefined;
-    }
-};
-
-export const confirmDeleteUser = async (body: { password: string; code: string }) => {
-    try {
-        const result = await api.user.confirmDelete(body);
-        return result;
-    } catch (error) {
-        console.error("Error confirming user deletion:", error);
-        return undefined;
-    }
-};
-
-export const userChannelsList = async () => {
-    try {
-        const result = await api.user.channels();
-        return result;
-    } catch (error) {
-        console.error("Error getting channels list:", error);
-        return undefined;
-    }
-};
-
-/**
- * Channel methods
- */
-export const createChannel = async (body: { displayName: string; name: string; type: ChannelType }) => {
-    try {
-        const newChannel = await api.channel.create(body);
-        return newChannel;
-    } catch (error) {
-        console.error("Error creating channel:", error);
-        return undefined;
-    }
-};
-
-export const deleteChannel = async (channelName: string) => {
-    try {
-        const result = await api.channel.delete(channelName);
-        return result;
-    } catch (error) {
-        console.error("Error deleting channel:", error);
-        return undefined;
-    }
-};
-
-export const editChannel = async (channelName: string, body: { name?: string }) => {
-    try {
-        const updatedChannel = await api.channel.edit(channelName, body);
-        return updatedChannel;
-    } catch (error) {
-        console.error("Error editing channel:", error);
-        return undefined;
-    }
-};
-
-export const getChannel = async (channelName: string) => {
-    try {
-        const channel = await api.channel.get(channelName);
-        return channel;
-    } catch (error) {
-        console.error("Error fetching channel:", error);
-        return undefined;
-    }
-};
-
-export const joinChannel = async (channelName: string) => {
-    try {
-        const member = await api.channel.join(channelName);
-        return member;
-    } catch (error) {
-        console.error("Error joining channel:", error);
-        return undefined;
-    }
-};
-
-export const leaveChannel = async (channelName: string) => {
-    try {
-        const result = await api.channel.leave(channelName);
-        return result;
-    } catch (error) {
-        console.error("Error leaving channel:", error);
-        return undefined;
-    }
-};
-
-export const getChannelMember = async (channelName: string, memberKey: string) => {
-    try {
-        const member = await api.channel.member(channelName, memberKey);
-        return member;
-    } catch (error) {
-        console.error("Error fetching channel member:", error);
-        return undefined;
-    }
-};
-
-export const listChannelMembers = async (channelName: string) => {
-    try {
-        const members = await api.channel.members(channelName);
-        return members;
-    } catch (error) {
-        console.error("Error fetching channel members:", error);
-        return undefined;
-    }
-};
-
