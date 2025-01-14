@@ -25,19 +25,19 @@ const foxogramAPI = new API(rest);
 export const apiMethods = {
     login: async (email: string, password: string) => {
         const token = await foxogramAPI.auth.login({ email, password });
-        setAuthToken(token.accessToken);
+        setAuthToken(token.access_token);
         return token;
     },
 
     register: async (username: string, email: string, password: string) => {
-        const token = await foxogramAPI.auth.register({ email, password, username });
-        setAuthToken(token.accessToken);
+        const token = await foxogramAPI.auth.register({ username, email, password });
+        setAuthToken(token.access_token);
         return token;
     },
 
     resendEmailVerification: () => foxogramAPI.auth.resendEmail(),
     resetPassword: (email: string) => foxogramAPI.auth.resetPassword({ email }),
-    confirmResetPassword: (email: string, code: string, newPassword: string) => foxogramAPI.auth.resetPasswordConfirm({ email, code, newPassword }),
+    confirmResetPassword: (email: string, code: string, new_password: string) => foxogramAPI.auth.resetPasswordConfirm({ email, code, new_password }),
     verifyEmail: (code: string) => foxogramAPI.auth.verifyEmail({ code }),
 
     getCurrentUser: () => foxogramAPI.user.current(),
@@ -50,7 +50,7 @@ export const apiMethods = {
     confirmDeleteUser: (body: { password: string; code: string }) => foxogramAPI.user.confirmDelete(body),
     userChannelsList: () => foxogramAPI.user.channels(),
 
-    createChannel: (body: { displayName: string; name: string; type: ChannelType }) => foxogramAPI.channel.create(body),
+    createChannel: (body: { display_name: string; name: string; type: ChannelType }) => foxogramAPI.channel.create(body),
     deleteChannel: (channelName: string) => foxogramAPI.channel.delete(channelName),
     editChannel: (channelName: string, body: { name?: string }) => foxogramAPI.channel.edit(channelName, body),
     getChannel: (channelName: string) => foxogramAPI.channel.get(channelName),
