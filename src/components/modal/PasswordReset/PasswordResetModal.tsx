@@ -1,30 +1,17 @@
-import { Button } from "@components/base/buttons/Button.tsx";
-import { useEffect, useState, useCallback, useRef } from "preact/hooks";
+import { Button } from "@components/Base/Buttons/Button.tsx";
+import { usePasswordReset } from "./PasswordReset";
 import styles from "./PasswordResetModal.module.css";
 import TimerIcon from "@icons/timer.svg";
 import { APIOk } from "@foxogram/api-types";
-
-type Step = 1 | 2 | 3;
 
 interface PasswordResetModalProps {
     isOpen: boolean;
     email: string;
     onClose: () => void;
-    onSendEmail: (email: string) => Promise<void>;
-    onVerifyCode: (code: string) => Promise<void>;
+    onSendEmail: (email: string) => Promise<APIOk>;
+    onVerifyCode: (code: string) => Promise<APIOk>;
     onResetPassword: (password: string) => Promise<APIOk | undefined>;
-    onResendCode: () => Promise<void>;
-    isLoading?: boolean;
-}
-
-interface PasswordResetState {
-    step: Step;
-    emailInput: string;
-    code: string[];
-    password: string;
-    errorMessage: string;
-    isResendDisabled: boolean;
-    timer: number;
+    onResendCode: () => Promise<APIOk>;
 }
 
 export const PasswordResetModal = ({
@@ -35,109 +22,17 @@ export const PasswordResetModal = ({
                                        onVerifyCode,
                                        onResetPassword,
                                        onResendCode,
-                                       isLoading = false,
                                    }: PasswordResetModalProps) => {
-    const [state, setState] = useState<PasswordResetState>({
-        step: 1,
-        emailInput: email,
-        code: Array(6).fill(""),
-        password: "",
-        errorMessage: "",
-        isResendDisabled: true,
-        timer: 60,
-    });
-
-    const timerRef = useRef<number>(60);
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    useEffect(() => {
-        if (state.step === 2) {
-            timerRef.current = 60;
-            setState((prev) => ({ ...prev, timer: timerRef.current, isResendDisabled: true }));
-
-            intervalRef.current = setInterval(() => {
-                if (timerRef.current <= 1) {
-                    clearInterval(intervalRef.current!);
-                    setState((prev) => ({ ...prev, isResendDisabled: false, timer: 0 }));
-                    timerRef.current = 0;
-                } else {
-                    timerRef.current -= 1;
-                    setState((prev) => ({ ...prev, timer: timerRef.current }));
-                }
-            }, 1000);
-        }
-
-        return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-        };
-    }, [state.step]);
-
-    const handleCodeChange = (e: React.FormEvent<HTMLInputElement>, index: number) => {
-        const inputElement = e.currentTarget;
-        const value = inputElement.value;
-
-        if (/^\d$/.test(value)) {
-            setState((prev) => {
-                const updatedCode = [...prev.code];
-                updatedCode[index] = value;
-                if (index < 5 && value) {
-                    const nextInput = inputElement.nextElementSibling as HTMLInputElement | null;
-                    if (nextInput) {
-                        nextInput.focus();
-                    }
-                }
-                return { ...prev, code: updatedCode };
-            });
-        } else {
-            inputElement.value = "";
-        }
-    };
-
-    const handleSendEmail = useCallback(async () => {
-        const isValidEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(state.emailInput);
-        if (!isValidEmail) {
-            setState((prev) => ({ ...prev, errorMessage: "Invalid email address" }));
-            return;
-        }
-
-        try {
-            await onSendEmail(state.emailInput);
-            setState((prev) => ({ ...prev, step: 2 }));
-        } catch (error) {
-            setState((prev) => ({ ...prev, errorMessage: "Failed to send email. Please try again." }));
-        }
-    }, [state.emailInput, onSendEmail]);
-
-    const handleVerifyCode = useCallback(async () => {
-        const fullCode = state.code.join("");
-        if (fullCode.length === 6) {
-            try {
-                await onVerifyCode(fullCode);
-                setState((prev) => ({ ...prev, step: 3 }));
-            } catch (error) {
-                setState((prev) => ({ ...prev, errorMessage: "Invalid verification code. Please try again." }));
-            }
-        }
-    }, [state.code, onVerifyCode]);
-
-    const handleResetPassword = useCallback(async () => {
-        if (state.password.length >= 8 && state.password.length <= 128) {
-            try {
-                await onResetPassword(state.password);
-                window.location.href = "/auth/login";
-            } catch (error) {
-                setState((prev) => ({ ...prev, errorMessage: "Failed to reset password. Please try again." }));
-            }
-        } else {
-            setState((prev) => ({ ...prev, errorMessage: "Password must be between 8 and 128 characters." }));
-        }
-    }, [state.password, onResetPassword]);
-
-    const formatTime = (time: number): string => {
-        const minutes = Math.floor(time / 60);
-        const seconds = time % 60;
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    };
+    const {
+        state,
+        setState,
+        handleSendEmail,
+        handleCodeChange,
+        handleResendCode,
+        handleVerifyCode,
+        handleResetPassword,
+        formatTime,
+    } = usePasswordReset(email, onSendEmail, onVerifyCode, onResetPassword, onResendCode);
 
     if (!isOpen) return null;
 
@@ -155,10 +50,14 @@ export const PasswordResetModal = ({
                             placeholder="fox@foxmail.fox"
                             className={styles["easy-input"]}
                         />
-                        {state.errorMessage && <div className={styles["error-message"]}>{state.errorMessage}</div>}
+                        {state.errorMessage && (
+                            <div className={`${styles["line"]} ${styles["error-line"]}`}>
+                                Code is invalid
+                            </div>
+                        )}
                         <div className={styles["actions"]}>
-                            <Button onClick={handleSendEmail} variant="primary" width={318} disabled={isLoading || !state.emailInput}>
-                                {isLoading ? "Loading..." : "Confirm"}
+                            <Button onClick={handleSendEmail} variant="primary" width={318} disabled={!state.emailInput}>
+                                {"Confirm"}
                             </Button>
                         </div>
                     </>
@@ -173,17 +72,26 @@ export const PasswordResetModal = ({
                                 <input
                                     key={index}
                                     placeholder="0"
-                                    className={`${styles["code-input"]} ${styles["input-with-placeholder"]}`}
+                                    className={`${styles["code-input"]} ${state.errorMessage ? styles["error"] : ""}`}
                                     value={digit}
                                     maxLength={1}
                                     onInput={(e) => handleCodeChange(e, index)}
                                 />
                             ))}
                         </div>
-                        {state.errorMessage && <div className={styles["error-message"]}>{state.errorMessage}</div>}
+                        {state.errorMessage && (
+                            <div className={`${styles["line"]} ${styles["error-line"]}`}>
+                                Code is invalid
+                            </div>
+                        )}
                         <div className={styles["actions"]}>
-                            <Button onClick={handleVerifyCode} variant="primary" width={318} disabled={isLoading || state.code.some((digit) => !digit)}>
-                                {isLoading ? "Verifying..." : "Verify Code"}
+                            <Button
+                                onClick={handleVerifyCode}
+                                variant="primary"
+                                width={318}
+                                disabled={state.code.some((digit) => !digit)}
+                            >
+                                {"Verify Code"}
                             </Button>
                         </div>
                         <div className={styles["resend-text"]}>
@@ -197,8 +105,11 @@ export const PasswordResetModal = ({
                                 </>
                             ) : (
                                 <>
-                                    <span>Didn’t receive code?{" "}
-                                        <a onClick={() => onResendCode().catch(console.error)} className={styles["resend-link"]}>Send again</a>
+                                    <span>
+                                        Didn’t receive code?{" "}
+                                        <a onClick={handleResendCode} className={styles["resend-link"]}>
+                                            Send again
+                                        </a>
                                     </span>
                                 </>
                             )}
@@ -218,10 +129,19 @@ export const PasswordResetModal = ({
                             className={styles["easy-input"]}
                             maxLength={128}
                         />
-                        {state.errorMessage && <div className={styles["error-message"]}>{state.errorMessage}</div>}
+                        {state.errorMessage && (
+                            <div className={`${styles["line"]} ${styles["error-line"]}`}>
+                                {state.errorMessage}
+                            </div>
+                        )}
                         <div className={styles["actions"]}>
-                            <Button onClick={handleResetPassword} variant="primary" width={318} disabled={isLoading || state.password.length < 8 || state.password.length > 128}>
-                                {isLoading ? "Resetting..." : "Confirm"}
+                            <Button
+                                onClick={handleResetPassword}
+                                variant="primary"
+                                width={318}
+                                disabled={state.password.length < 8 || state.password.length > 128}
+                            >
+                                {"Confirm"}
                             </Button>
                         </div>
                     </>
