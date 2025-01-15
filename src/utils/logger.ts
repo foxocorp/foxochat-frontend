@@ -1,23 +1,43 @@
-export class Logger {
-    private static logColor = '\x1b[34m';
-    private static infoColor = '\x1b[32m';
-    private static warnColor = '\x1b[33m';
-    private static errorColor = '\x1b[31m';
-    private static resetColor = '\x1b[0m';
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-    static log(message: string) {
-        console.log(`${this.logColor}[LOG]${this.resetColor} ${message}`);
+export class Logger {
+    private static colors = {
+        info: '\x1b[32m',
+        warn: '\x1b[33m',
+        error: '\x1b[31m',
+        debug: '\x1b[37m',
+    }
+
+    private static logLevels: Record<string, LogLevel[]> = {
+        production: ['info', 'error'],
+        development: ['debug', 'info', 'warn', 'error'],
+    }
+
+    private static currentEnv: string = import.meta.env.MODE || 'development';
+
+    private static isLogLevelEnabled(level: LogLevel): boolean {
+        return this.logLevels[this.currentEnv]?.includes(level) ?? false;
+    }
+
+    private static logMessage(level: LogLevel, message: string) {
+        if (this.isLogLevelEnabled(level)) {
+            console.log(`${this.colors[level]}[${level.toUpperCase()}] ${message}`);
+        }
+    }
+
+    static debug(message: string) {
+        this.logMessage('debug', message);
     }
 
     static info(message: string) {
-        console.log(`${this.infoColor}[INFO]${this.resetColor} ${message}`);
+        this.logMessage('info', message);
     }
 
     static warn(message: string) {
-        console.log(`${this.warnColor}[WARN]${this.resetColor} ${message}`);
+        this.logMessage('warn', message);
     }
 
     static error(message: string) {
-        console.log(`${this.errorColor}[ERROR]${this.resetColor} ${message}`);
+        this.logMessage('error', message);
     }
 }
