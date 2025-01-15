@@ -51,11 +51,11 @@ export const apiMethods = {
     userChannelsList: () => foxogramAPI.user.channels(),
 
     createChannel: (body: { display_name: string; name: string; type: ChannelType }) => foxogramAPI.channel.create(body),
-    deleteChannel: (channelName: string) => foxogramAPI.channel.delete(channelName),
-    editChannel: (channelName: string, body: { name?: string }) => foxogramAPI.channel.edit(channelName, body),
-    getChannel: (channelName: string) => foxogramAPI.channel.get(channelName),
-    joinChannel: (channelName: string) => foxogramAPI.channel.join(channelName),
-    leaveChannel: (channelName: string) => foxogramAPI.channel.leave(channelName),
-    getChannelMember: (channelName: string, memberKey: string) => foxogramAPI.channel.member(channelName, memberKey),
-    listChannelMembers: (channelName: string) => foxogramAPI.channel.members(channelName),
+    deleteChannel: (channelName: number) => foxogramAPI.channel.delete(channelName),
+    editChannel: (channelName: number, body: { name?: string }) => foxogramAPI.channel.edit(channelName, body),
+    getChannel: (channelName: number) => foxogramAPI.channel.get(channelName),
+    joinChannel: (channelName: number) => foxogramAPI.channel.join(channelName),
+    leaveChannel: (channelName: number) => foxogramAPI.channel.leave(channelName),
+    getChannelMember: (channelName: number, memberKey: string) => foxogramAPI.channel.member(channelName, memberKey),
+    listChannelMembers: (channelName: number) => foxogramAPI.channel.members(channelName),
 };
