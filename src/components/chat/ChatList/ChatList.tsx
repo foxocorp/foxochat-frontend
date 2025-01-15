@@ -1,11 +1,11 @@
 import styles from "./ChatList.module.css";
-import ChatItem from "./ChatItem/ChatItem.tsx";
-import { Chat } from "../../../types/chatTypes.ts";
+import ChatItem from "./ChatItem/ChatItem";
+import { Channel } from "@types/chatTypes.ts";
 
 interface ChatListProps {
-    chats: Chat[];
-    onSelectChat: (chat: Chat) => void;
-    currentUser: string;
+    chats: Channel[];
+    onSelectChat: (chat: Channel) => void;
+    currentUser: number;
 }
 
 const ChatList = ({ chats, onSelectChat, currentUser }: ChatListProps) => {
@@ -16,7 +16,7 @@ const ChatList = ({ chats, onSelectChat, currentUser }: ChatListProps) => {
     return (
         <div className={styles["chat-list"]}>
             {chats.map((chat, index) => (
-                <div key={`${chat.name || "unknown"}-${chat.displayName || "unknown"}-${index}`}>
+                <div key={`${chat.name || "unknown"}-${chat.display_name || "unknown"}-${index}`}>
                     <ChatItem
                         chat={chat}
                         onSelectChat={onSelectChat}

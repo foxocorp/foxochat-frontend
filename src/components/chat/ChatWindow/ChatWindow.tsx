@@ -1,39 +1,49 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "../ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
-import { Message, Chat } from "../../../types/chatTypes";
+import { WebSocketClient } from "../../../gateway/webSocketClient.ts";
+import { Message, Channel } from "@types/chatTypes.ts";
 
 interface ChatWindowProps {
-    chat: Chat;
+    channel: Channel;
+    wsClient: WebSocketClient;
 }
 
-const ChatWindow = ({ chat }: ChatWindowProps) => {
-    const [messages, setMessages] = useState<Message[]>([
-        { content: "Hi, how are you?", timestamp: "10:30 AM", isSender: false },
-        { content: "I'm good, thanks! How about you?", timestamp: "10:32 AM", isSender: true },
-    ]);
+const ChatWindow = ({ channel, wsClient }: ChatWindowProps) => {
+    const [messages, setMessages] = useState<Message[]>([]);
+
+    useEffect(() => {
+        const handleMessageCreate = (newMessage: Message) => {
+            setMessages((prevMessages) => {
+                if (prevMessages.some(msg => msg.id === newMessage.id)) {
+                    return prevMessages;
+                }
+
+                return [
+                    ...prevMessages,
+                    newMessage,
+                ];
+            });
+        };
+
+        wsClient.on("messageCreate", handleMessageCreate);
+
+        return () => {
+            wsClient.off("messageCreate", handleMessageCreate);
+        };
+    }, [wsClient]);
 
     const handleSendMessage = (newMessage: string) => {
-        const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        setMessages([
-            ...messages,
-            { content: newMessage, timestamp: currentTime, isSender: true },
-        ]);
+        wsClient.sendMessage({ content: newMessage, attachments: [] });
     };
-
-    const handleSendMedia = () => {};
 
     return (
         <div className={styles["chat-window"]}>
-            <ChatHeader
-                avatar={chat.avatar}
-                username={chat.displayName}
-                status="Online"
-            />
+            <ChatHeader avatar={channel.icon} username={channel.display_name || channel.name} status="Онлайн" />
             <MessageList messages={messages} />
-            <MessageInput onSendMessage={handleSendMessage} onSendMedia={handleSendMedia} />
+            <MessageInput onSendMessage={handleSendMessage} />
         </div>
     );
 };

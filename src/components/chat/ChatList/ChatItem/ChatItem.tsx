@@ -1,50 +1,43 @@
-import { Chat } from "../../../../types/chatTypes.ts";
+import { Channel } from "@types/chatTypes.ts";
 import styles from "./ChatItem.module.css";
 
 interface ChatItemProps {
-    chat: Chat;
-    onSelectChat: (chat: Chat) => void;
-    currentUser: string;
+    chat: Channel;
+    onSelectChat: (chat: Channel) => void;
+    currentUser: number;
 }
 
 const ChatItem = ({ chat, onSelectChat, currentUser }: ChatItemProps) => {
     const formatLastMessage = () => {
-        let messagePrefix = "";
-        let messageContent = "";
+        const lastMessage = chat.lastMessage;
+        console.log(chat)
 
-        if (chat.isGroup) {
-            messagePrefix = `${chat.lastMessage.sender}: `;
-            messageContent = chat.lastMessage.text;
-        } else if (chat.isChannel) {
-            messagePrefix = "";
-            messageContent = chat.lastMessage.text;
-        } else {
-            if (chat.lastMessage.senderId === currentUser) {
-                messagePrefix = "You: ";
-                messageContent = chat.lastMessage.text;
-            } else {
-                messagePrefix = `${chat.lastMessage.sender}: `;
-                messageContent = chat.lastMessage.text;
-            }
+        if (!lastMessage || !lastMessage.author || !lastMessage.author.user) {
+            return <span className={styles["message-text"]}>No messages yet</span>;
         }
+
+        const { content, author } = lastMessage;
+
+        const isCurrentUser = author.id === currentUser;
+        const messagePrefix = isCurrentUser ? "You: " : `${author.user.username || 'Unknown'}: `;
 
         return (
             <>
                 <span className={styles["you-text"]}>{messagePrefix}</span>
-                <span className={styles["message-text"]}>{messageContent}</span>
+                <span className={styles["message-text"]}>{content}</span>
             </>
         );
     };
 
-    const chatItemClass = chat.isChannel ? styles["news-channel"] : "";
+    const chatItemClass = chat.type === 1 ? styles["news-channel"] : "";
 
     return (
         <div
             className={`${styles["chat-item"]} ${chatItemClass}`}
             onClick={() => onSelectChat(chat)}
         >
-            {chat.avatar ? (
-                <img src={chat.avatar} alt={chat.name} className={styles["chat-avatar"]} />
+            {chat.icon ? (
+                <img src={chat.icon} alt={chat.name} className={styles["chat-avatar"]} />
             ) : (
                 <div className={styles["default-avatar"]}>
                     {chat.name.charAt(0).toUpperCase()}
@@ -52,7 +45,7 @@ const ChatItem = ({ chat, onSelectChat, currentUser }: ChatItemProps) => {
             )}
             <div className={styles["chat-info"]}>
                 <p className={styles["chat-name"]}>
-                    {chat.displayName || chat.name}
+                    {chat.display_name || chat.name}
                 </p>
                 <p className={styles["chat-message"]}>{formatLastMessage()}</p>
             </div>

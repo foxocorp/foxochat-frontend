@@ -1,15 +1,30 @@
 import styles from "./EmptyState.module.css";
-import { Chat } from "../../../types/chatTypes";
+import { Channel } from "@types/chatTypes.ts";
 
 interface EmptyStateProps {
-    chats: Chat[];
-    onSelectChat: (chat: Chat) => void;
-    selectedChat: Chat | null;
+    chats: Channel[];
+    onSelectChat: (chat: Channel) => void;
+    selectedChat: Channel | null;
 }
 
 const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
-    const handleChatClick = (chat: Chat) => {
+    const handleChatClick = (chat: Channel) => {
         onSelectChat(chat);
+    };
+
+    const formatTimestamp = (timestamp: number): string => {
+        const date = new Date(timestamp);
+
+        const is12HourFormat = new Intl.DateTimeFormat("en-US", { hour12: true }).formatToParts(new Date()).some(part => part.type === 'dayPeriod');
+
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: is12HourFormat,
+        };
+
+        const formatter = new Intl.DateTimeFormat("en-US", options);
+        return formatter.format(date);
     };
 
     return (
@@ -26,31 +41,36 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                             className={`${styles["chat-item"]} ${
                                 selectedChat?.name === chat.name ? styles["selected"] : ""
                             }`}
-                            onClick={() => handleChatClick(chat)}>
+                            onClick={() => handleChatClick(chat)}
+                        >
                             <div className={styles["avatar"]}>
-                                {chat.avatar ? (
+                                {chat.icon ? (
                                     <img
-                                        src={chat.avatar}
+                                        src={chat.icon}
                                         alt={chat.name}
-                                        className={styles["chat-avatar"]}/>
+                                        className={styles["chat-avatar"]}
+                                    />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
-                                        {chat.displayName?.charAt(0).toUpperCase() ||
+                                        {chat.display_name?.charAt(0).toUpperCase() ||
                                             chat.name.charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
                             <div className={styles["chat-content"]}>
                                 <span className={styles["username"]}>
-                                    {chat.displayName || chat.name}
+                                    {chat.display_name || chat.name}
                                 </span>
                                 <span className={styles["message-preview"]}>
-                                    {chat.lastMessage.text.length > 20
-                                        ? `${chat.lastMessage.text.substring(0, 20)}...`
-                                        : chat.lastMessage.text}
-                                </span>
+                                    {chat.lastMessage?.content && chat.lastMessage.content.length > 20
+                                        ? `${chat.lastMessage.content.substring(0, 20)}...`
+                                        : chat.lastMessage?.content}</span>
                             </div>
-                            <span className={styles["timestamp"]}>10:34</span>
+                            <span className={styles["timestamp"]}>
+                                {chat.lastMessage
+                                    ? formatTimestamp(chat.lastMessage.created_at)
+                                    : "No messages"}
+                            </span>
                         </div>
                     ))}
                 </div>

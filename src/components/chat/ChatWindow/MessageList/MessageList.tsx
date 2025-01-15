@@ -1,6 +1,6 @@
 import MessageItem from "./MessageItem/MessageItem";
 import styles from "./MessageList.module.css";
-import { Message} from "../../../../types/chatTypes.ts";
+import { Message } from "@types/chatTypes.ts";
 
 interface MessageListProps {
     messages: Message[];
@@ -13,8 +13,8 @@ const MessageList = ({ messages }: MessageListProps) => {
                 <MessageItem
                     key={index}
                     content={msg.content}
-                    timestamp={msg.timestamp}
-                    isSender={msg.isSender}
+                    created_at={msg.created_at}
+                    author={msg.author}
                 />
             ))}
         </div>
