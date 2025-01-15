@@ -38,7 +38,7 @@ const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     };
 
     useEffect(() => {
-        fetchUser().then(r => console.log(r));
+        fetchUser();
     }, []);
 
     if (loading) {
