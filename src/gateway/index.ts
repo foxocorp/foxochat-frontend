@@ -9,8 +9,9 @@ export const initWebSocket = () => {
             ? "wss://gateway.foxogram.su"
             : "wss://gateway.dev.foxogram.su";
 
-        new WebSocketClient(() => token, gatewayUrl);
+        return new WebSocketClient(() => token, gatewayUrl);
     } else {
         console.log("Token is not available");
+        return null;
     }
 };
