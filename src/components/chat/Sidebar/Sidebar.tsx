@@ -2,12 +2,12 @@ import styles from "./Sidebar.module.css";
 import SearchBar from "./SearchBar/SearchBar";
 import UserInfo from "./UserInfo/UserInfo";
 import ChatList from "../ChatList/ChatList";
-import { Chat } from "../../../types/chatTypes.ts";
+import { Channel } from "@types/chatTypes.ts";
 
 interface SidebarProps {
-    chats: Chat[];
-    onSelectChat: (chat: Chat) => void;
-    currentUser: string;
+    chats: Channel[];
+    onSelectChat: (chat: Channel) => void;
+    currentUser: number;
 }
 
 const Sidebar = ({ chats, onSelectChat, currentUser }: SidebarProps) => {
@@ -20,7 +20,7 @@ const Sidebar = ({ chats, onSelectChat, currentUser }: SidebarProps) => {
                 <ChatList chats={chats} onSelectChat={onSelectChat} currentUser={currentUser} />
             </div>
             <div className={styles["sidebar-footer"]}>
-                <UserInfo username="Username" avatar="/favicon-96x96.png" status="Online" />
+                <UserInfo username={currentUser.toString()} avatar="/favicon-96x96.png" status="Online" />
             </div>
         </div>
     );
