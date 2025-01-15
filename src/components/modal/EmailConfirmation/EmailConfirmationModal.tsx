@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "preact/hooks";
-import { Button } from "@components/base/buttons/Button.tsx";
+import { Button } from "@components/Base/Buttons/Button.tsx";
 import { useEmailVerification } from "./EmailConfirmation.ts";
 
 import styles from "./EmailConfirmationModal.module.css";

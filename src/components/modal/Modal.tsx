@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
 import styles from "./Modal.module.css";
-import { Button } from "@components/base/buttons/Button";
+import { Button } from "@components/Base/Buttons/Button";
 import { JSX } from "preact";
 
 interface ModalProps {
