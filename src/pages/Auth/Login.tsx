@@ -1,12 +1,12 @@
 import { useState } from "preact/hooks";
 import { JSX } from "preact";
 import styles from "./Login.module.css";
-import { Button } from "@components/base/buttons/Button";
-import { PasswordResetModal } from "@components/modal/PasswordReset/PasswordResetModal.tsx";
+import { Button } from "@components/Base/Buttons/Button";
+import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal.tsx";
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import resetPasswordIcon from "@icons/navigation/reset-password.svg";
 import newUserIcon from "@icons/navigation/new-user.svg";
-import { login, resetPassword, confirmResetPassword, resendEmailVerification } from "@services/api/apiMethods.ts";
+import { apiMethods } from "@services/api/apiMethods.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
 import { useLocation } from "preact-iso";
 
@@ -50,9 +50,9 @@ const Login = (): JSX.Element => {
 		if (!isValid) return;
 
 		try {
-			const response = await login(email, password);
-			if (response?.accessToken) {
-				authStore.login(response.accessToken);
+			const response = await apiMethods.login(email, password);
+			if (response?.access_token) {
+				authStore.login(response.access_token);
 				console.log("Successful login");
 			} else {
 				console.error("Login error. Please try again.");
@@ -62,50 +62,12 @@ const Login = (): JSX.Element => {
 		}
 	};
 
-	const handleEmailInput = (e: Event): void => {
-		const value = (e.target as HTMLInputElement).value;
-		setEmail(value);
-	};
-
-	const handlePasswordInput = (e: Event): void => {
-		const value = (e.target as HTMLInputElement).value;
-		setPassword(value);
-		setPasswordError(false);
-	};
-
 	const openPasswordResetModal = (): void => {
 		setPasswordResetModalOpen(true);
 	};
 
 	const closePasswordResetModal = (): void => {
 		setPasswordResetModalOpen(false);
-	};
-
-	const sendResetEmail = async (email: string): Promise<void> => {
-		try {
-			await resetPassword(email);
-			console.log("Reset email sent");
-		} catch (error) {
-			console.error("Error sending reset password email:", error);
-		}
-	};
-
-	const verifyResetCode = async (code: string): Promise<void> => {
-		try {
-			await confirmResetPassword(email, code, password);
-			console.log("Reset code verified");
-		} catch (error) {
-			console.error("Error verifying reset password code:", error);
-		}
-	};
-
-	const resendResetCode = async (): Promise<void> => {
-		try {
-			await resendEmailVerification();
-			console.log("Reset code resent");
-		} catch (error) {
-			console.error("Error resending reset password code:", error);
-		}
 	};
 
 	return (
@@ -125,7 +87,7 @@ const Login = (): JSX.Element => {
 										className={`${styles["login-input"]} ${emailError ? styles["input-error"] : ""}`}
 										placeholder="floofer@coof.fox"
 										value={email}
-										onInput={handleEmailInput}
+										onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
 										onBlur={() => setEmailError(!validateEmail(email))}
 										required
 									/>
@@ -140,7 +102,7 @@ const Login = (): JSX.Element => {
 										className={`${styles["login-input"]} ${passwordError ? styles["input-error"] : ""}`}
 										placeholder="your floof password :3"
 										value={password}
-										onInput={handlePasswordInput}
+										onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
 										required
 									/>
 									{passwordError && (
@@ -160,13 +122,7 @@ const Login = (): JSX.Element => {
 							<Button variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>
-							<Button
-								variant="secondary"
-								onClick={() => {
-									location.route("/auth/register");
-								}}
-								icon={newUserIcon}
-							>
+							<Button variant="secondary" onClick={() => {location.route("/auth/register")}} icon={newUserIcon}>
 								Create new account
 							</Button>
 						</div>
@@ -177,10 +133,10 @@ const Login = (): JSX.Element => {
 				isOpen={isPasswordResetModalOpen}
 				email={email}
 				onClose={closePasswordResetModal}
-				onSendEmail={sendResetEmail}
-				onVerifyCode={verifyResetCode}
-				onResendCode={resendResetCode}
-				onResetPassword={resetPassword}
+				onSendEmail={apiMethods.resetPassword}
+				onVerifyCode={(code) => apiMethods.confirmResetPassword(email, code, password)}
+				onResetPassword={apiMethods.resetPassword}
+				onResendCode={apiMethods.resendEmailVerification}
 			/>
 		</div>
 	);

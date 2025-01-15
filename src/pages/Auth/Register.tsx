@@ -1,16 +1,16 @@
 import { useLocation } from "preact-iso";
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import styles from "./Register.module.css";
 
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
 
-import { Button } from "@components/base";
-import { EmailConfirmationModal } from "@components/modal/EmailConfirmation/EmailConfirmationModal.tsx";
-import { Modal } from "@components/modal/Modal.tsx";
+import { Button } from "@components/Base";
+import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal.tsx";
+import { Modal } from "@components/Modal/Modal.tsx";
 
 import { useAuthStore } from "@store/authenticationStore.ts";
-import { register, resendEmailVerification, verifyEmail } from "@services/api/apiMethods.ts";
+import { apiMethods } from "@services/api/apiMethods.ts";
 
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -78,10 +78,10 @@ const Register = () => {
         if (!validateInputs()) return;
 
         try {
-            const token = await register(username, email, password);
+            const token = await apiMethods.register(username, email, password);
 
-            if (token?.accessToken) {
-                authStore.login(token.accessToken);
+            if (token?.access_token) {
+                authStore.login(token.access_token);
                 setIsModalOpen(true);
             } else {
                 console.error("Registration failed");
@@ -93,19 +93,19 @@ const Register = () => {
 
     const handleVerifyEmail = async (code: string) => {
         try {
-            await verifyEmail(code);
+            await apiMethods.verifyEmail(code);
             setIsModalOpen(false);
             location.route("/");
         } catch (error) {
-            console.error("Verification failed", error);
+            console.error(error);
         }
     };
 
     const handleResendEmail = async () => {
         try {
-            await resendEmailVerification();
+            await apiMethods.resendEmailVerification();
         } catch (error) {
-            console.error("Resend failed", error);
+            console.error(error);
         }
     };
 
@@ -134,7 +134,11 @@ const Register = () => {
                     title="Error"
                     description={modalMessage}
                     onClose={() => setIsErrorModalOpen(false)}
-                    actionButtons={[<Button onClick={() => setIsErrorModalOpen(false)} variant="primary" icon={arrowLeftIcon}>Close</Button>]}
+                    actionButtons={[
+                        <Button onClick={() => setIsErrorModalOpen(false)} variant="primary" icon={arrowLeftIcon}>
+                            Close
+                        </Button>
+                    ]}
                 />
             )}
             {isModalOpen && (
@@ -199,7 +203,7 @@ const Register = () => {
                             </Button>
                         </div>
                         <div className={styles["divider"]} />
-                        <div className={styles["action-buttons"]}>
+                        <div className={styles["action-Buttons"]}>
                             <Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
                                 Already have an account?
                             </Button>
