@@ -4,7 +4,7 @@
     position: relative;
 }
 
-.message-item.sender {
+.message-item.author {
     justify-content: flex-end;
 }
 
@@ -26,7 +26,7 @@
     word-wrap: break-word;
 }
 
-.message-item.sender .message-content {
+.message-item.author .message-content {
     background: rgb(74 137 255 / 0.3);
     color: var(--primary-color);
 }
@@ -37,6 +37,6 @@
     margin-left: 10px;
 }
 
-.message-item.sender .message-time {
+.message-item.author .message-time {
     margin-left: 10px;
 }
