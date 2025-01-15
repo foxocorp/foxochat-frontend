@@ -12,6 +12,7 @@
 			"@components/*": ["./src/components/*"],
 			"@icons/*": ["./src/assets/svg/*"],
 			"@services/*": ["./src/services/*"],
+			"@types/*": ["./src/types/*"],
 			"@store/*": ["./src/store/*"]
 		}
 	},
