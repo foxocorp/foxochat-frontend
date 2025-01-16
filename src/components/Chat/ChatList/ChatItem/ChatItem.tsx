@@ -33,21 +33,21 @@ const ChatItem = ({ chat, onSelectChat, currentUser }: ChatItemProps) => {
 
     return (
         <div
-            className={`${styles["Chat-item"]} ${chatItemClass}`}
+            className={`${styles["chat-item"]} ${chatItemClass}`}
             onClick={() => onSelectChat(chat)}
         >
             {chat.icon ? (
-                <img src={chat.icon} alt={chat.name} className={styles["Chat-avatar"]} />
+                <img src={chat.icon} alt={chat.name} className={styles["chat-avatar"]} />
             ) : (
                 <div className={styles["default-avatar"]}>
                     {chat.name.charAt(0).toUpperCase()}
                 </div>
             )}
-            <div className={styles["Chat-info"]}>
-                <p className={styles["Chat-name"]}>
+            <div className={styles["chat-info"]}>
+                <p className={styles["chat-name"]}>
                     {chat.display_name || chat.name}
                 </p>
-                <p className={styles["Chat-message"]}>{formatLastMessage()}</p>
+                <p className={styles["chat-message"]}>{formatLastMessage()}</p>
             </div>
         </div>
     );

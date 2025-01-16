@@ -14,7 +14,7 @@ const ChatList = ({ chats, onSelectChat, currentUser }: ChatListProps) => {
     }
 
     return (
-        <div className={styles["Chat-list"]}>
+        <div className={styles["chat-list"]}>
             {chats.map((chat, index) => (
                 <div key={`${chat.name || "unknown"}-${chat.display_name || "unknown"}-${index}`}>
                     <ChatItem

@@ -118,7 +118,7 @@ const Login = (): JSX.Element => {
 							</Button>
 						</div>
 						<div className={styles["divider"]} />
-						<div className={styles["action-buttons"]}>
+						<div className={styles["action-Buttons"]}>
 							<Button variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>

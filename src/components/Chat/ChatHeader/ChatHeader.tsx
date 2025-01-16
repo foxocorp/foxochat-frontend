@@ -11,23 +11,23 @@ const ChatHeader = ({ avatar, displayName, username, status }: ChatHeaderProps) 
     const nameToDisplay = displayName || username;
 
     return (
-        <div className={styles["Chat-header"]}>
+        <div className={styles["chat-header"]}>
             {avatar ? (
                 <img
                     src={avatar}
                     alt={`${nameToDisplay}'s avatar`}
-                    className={styles["Chat-header-avatar"]}
+                    className={styles["chat-header-avatar"]}
                 />
             ) : (
                 <div className={styles["default-avatar"]}>
                     {nameToDisplay.charAt(0).toUpperCase()}
                 </div>
             )}
-            <div className={styles["Chat-header-info"]}>
-                <p className={styles["Chat-header-username"]}>{nameToDisplay}</p>
-                <p className={styles["Chat-header-status"]}>{status}</p>
+            <div className={styles["chat-header-info"]}>
+                <p className={styles["chat-header-username"]}>{nameToDisplay}</p>
+                <p className={styles["chat-header-status"]}>{status}</p>
             </div>
-            <button className={styles["Chat-header-edit"]}></button>
+            <button className={styles["chat-header-edit"]}></button>
         </div>
     );
 };
