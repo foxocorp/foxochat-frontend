@@ -3,11 +3,8 @@ import styles from "./MessageInput.module.css";
 import mediaIcon from "@icons/chat/media.svg";
 import sendIcon from "@icons/chat/paperplane.svg";
 import React from "react";
+import { MessageInputProps } from "@interfaces/chat.interface.ts";
 
-interface MessageInputProps {
-    onSendMessage: (message: string) => void;
-    onSendMedia?: () => void;
-}
 
 const MessageInput = ({ onSendMessage, onSendMedia }: MessageInputProps) => {
     const [message, setMessage] = useState("");

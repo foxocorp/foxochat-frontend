@@ -3,12 +3,8 @@ import { apiMethods } from "@services/api/apiMethods.ts";
 import styles from "./UserInfo.module.css";
 import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
+import { UserInfoProps } from "@interfaces/chat.interface.ts";
 
-interface UserInfoProps {
-    username: string;
-    avatar: string;
-    status?: string;
-}
 
 const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);

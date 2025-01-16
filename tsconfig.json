@@ -12,8 +12,8 @@
 			"@components/*": ["./src/components/*"],
 			"@icons/*": ["./src/assets/svg/*"],
 			"@services/*": ["./src/services/*"],
-			"@types/*": ["./src/types/*"],
-			"@store/*": ["./src/store/*"]
+			"@store/*": ["./src/store/*"],
+			"@interfaces/*": ["./src/interfaces/*"]
 		}
 	},
 	"include": ["node_modules/vite/client.d.ts", "**/*", "src/types.d.ts"]

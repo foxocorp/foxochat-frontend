@@ -1,10 +1,7 @@
 import MessageItem from "./MessageItem/MessageItem";
 import styles from "./MessageList.module.css";
-import { Message } from "@types/chatTypes.ts";
+import { MessageListProps } from "@interfaces/chat.interface.ts";
 
-interface MessageListProps {
-    messages: Message[];
-}
 
 const MessageList = ({ messages }: MessageListProps) => {
     return (

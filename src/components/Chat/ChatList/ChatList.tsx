@@ -1,12 +1,7 @@
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
-import { Channel } from "@types/chatTypes.ts";
+import { ChatListProps } from "@interfaces/chat.interface.ts";
 
-interface ChatListProps {
-    chats: Channel[];
-    onSelectChat: (chat: Channel) => void;
-    currentUser: number;
-}
 
 const ChatList = ({ chats, onSelectChat, currentUser }: ChatListProps) => {
     if (chats.length === 0) {
