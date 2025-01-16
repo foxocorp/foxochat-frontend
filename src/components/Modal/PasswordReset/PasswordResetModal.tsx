@@ -38,7 +38,7 @@ export const PasswordResetModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["Modal"]} onClick={(e) => e.stopPropagation()}>
                 {state.step === 1 && (
                     <>
                         <h2 className={styles["title"]}>Reset password</h2>

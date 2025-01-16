@@ -40,7 +40,7 @@ const ChatWindow = ({ channel, wsClient }: ChatWindowProps) => {
     };
 
     return (
-        <div className={styles["chat-window"]}>
+        <div className={styles["Chat-window"]}>
             <ChatHeader avatar={channel.icon} username={channel.display_name || channel.name} status="Онлайн" />
             <MessageList messages={messages} />
             <MessageInput onSendMessage={handleSendMessage} />

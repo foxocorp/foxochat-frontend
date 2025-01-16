@@ -34,11 +34,11 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                     Select a channel to start messaging
                 </h1>
                 <p className={styles["empty-subtext"]}>or check unread messages:</p>
-                <div className={styles["chat-list"]}>
+                <div className={styles["Chat-list"]}>
                     {chats.map((chat, index) => (
                         <div
                             key={index}
-                            className={`${styles["chat-item"]} ${
+                            className={`${styles["Chat-item"]} ${
                                 selectedChat?.name === chat.name ? styles["selected"] : ""
                             }`}
                             onClick={() => handleChatClick(chat)}
@@ -48,7 +48,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     <img
                                         src={chat.icon}
                                         alt={chat.name}
-                                        className={styles["chat-avatar"]}
+                                        className={styles["Chat-avatar"]}
                                     />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
@@ -57,7 +57,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     </div>
                                 )}
                             </div>
-                            <div className={styles["chat-content"]}>
+                            <div className={styles["Chat-content"]}>
                                 <span className={styles["username"]}>
                                     {chat.display_name || chat.name}
                                 </span>

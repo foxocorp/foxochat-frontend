@@ -65,7 +65,7 @@ export const EmailConfirmationModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={closeModal}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["Modal"]} onClick={(e) => e.stopPropagation()}>
                 <h2 className={styles["title"]}>Check your email</h2>
                 <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
                 <div className={`${styles["code-input-container"]} ${error ? styles["error"] : ""}`}>
