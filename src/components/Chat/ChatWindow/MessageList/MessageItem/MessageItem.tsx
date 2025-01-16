@@ -1,5 +1,5 @@
 import styles from "./MessageItem.module.css";
-import { Author } from "@types/chatTypes.ts";
+import { Author } from "@interfaces/chat.interface.ts";
 
 const MessageItem = ({ content, created_at, author }: { content: string, created_at: number, author: Author }) => {
     return (

@@ -1,11 +1,6 @@
 import styles from "./ChatHeader.module.css";
+import { ChatHeaderProps } from "@interfaces/chat.interface.ts";
 
-interface ChatHeaderProps {
-    avatar: string | null;
-    displayName?: string | null;
-    username: string;
-    status: string;
-}
 
 const ChatHeader = ({ avatar, displayName, username, status }: ChatHeaderProps) => {
     const nameToDisplay = displayName || username;

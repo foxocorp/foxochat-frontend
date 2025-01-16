@@ -3,13 +3,8 @@ import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "../ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
-import { WebSocketClient } from "../../../gateway/webSocketClient.ts";
-import { Message, Channel } from "@types/chatTypes.ts";
+import { ChatWindowProps, Message } from "@interfaces/chat.interface.ts";
 
-interface ChatWindowProps {
-    channel: Channel;
-    wsClient: WebSocketClient;
-}
 
 const ChatWindow = ({ channel, wsClient }: ChatWindowProps) => {
     const [messages, setMessages] = useState<Message[]>([]);

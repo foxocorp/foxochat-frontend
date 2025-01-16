@@ -1,11 +1,6 @@
-import { Channel } from "@types/chatTypes.ts";
+import { ChatItemProps } from "@interfaces/chat.interface.ts";
 import styles from "./ChatItem.module.css";
 
-interface ChatItemProps {
-    chat: Channel;
-    onSelectChat: (chat: Channel) => void;
-    currentUser: number;
-}
 
 const ChatItem = ({ chat, onSelectChat, currentUser }: ChatItemProps) => {
     const formatLastMessage = () => {

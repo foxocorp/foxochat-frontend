@@ -2,13 +2,8 @@ import styles from "./Sidebar.module.css";
 import SearchBar from "./SearchBar/SearchBar";
 import UserInfo from "./UserInfo/UserInfo";
 import ChatList from "../ChatList/ChatList";
-import { Channel } from "@types/chatTypes.ts";
+import { SidebarProps } from "@interfaces/chat.interface.ts";
 
-interface SidebarProps {
-    chats: Channel[];
-    onSelectChat: (chat: Channel) => void;
-    currentUser: number;
-}
 
 const Sidebar = ({ chats, onSelectChat, currentUser }: SidebarProps) => {
     return (

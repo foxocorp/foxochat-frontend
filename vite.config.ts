@@ -28,8 +28,8 @@ export default defineConfig({
 				replacement: resolve(__dirname, "./src/store/"),
 			},
 			{
-				find: "@types",
-				replacement: resolve(__dirname, "./src/types/"),
+				find: "@interfaces",
+				replacement: resolve(__dirname, "./src/interfaces/"),
 			},
 		],
 	},
