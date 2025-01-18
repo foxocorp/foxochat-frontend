@@ -5,46 +5,34 @@ export enum LogLevel {
     Error = 8,
 }
 
-export class Logger {
-    private static colors: Record<LogLevel, string> = {
-        [LogLevel.Info]: "\x1b[32m",
-        [LogLevel.Warn]: "\x1b[33m",
-        [LogLevel.Error]: "\x1b[31m",
-        [LogLevel.Debug]: "\x1b[37m",
-    };
+const colors: Record<LogLevel, string> = {
+    [LogLevel.Info]: "\x1b[32m",
+    [LogLevel.Warn]: "\x1b[33m",
+    [LogLevel.Error]: "\x1b[31m",
+    [LogLevel.Debug]: "\x1b[37m",
+};
 
-    private static logLevels: Record<string, LogLevel> = {
-        production: LogLevel.Info | LogLevel.Error,
-        development: LogLevel.Debug | LogLevel.Info | LogLevel.Warn | LogLevel.Error,
-    };
+const logLevels: Record<string, LogLevel> = {
+    production: LogLevel.Info | LogLevel.Error,
+    development: LogLevel.Debug | LogLevel.Info | LogLevel.Warn | LogLevel.Error,
+};
 
-    private static currentEnv: string = import.meta.env.MODE;
+const currentEnv: string = import.meta.env.MODE;
 
-    private static isLogLevelEnabled(level: LogLevel): boolean {
-        const envMask = this.logLevels[this.currentEnv];
+const isLogLevelEnabled = (level: LogLevel): boolean => {
+    const envMask = logLevels[currentEnv];
+    return !!envMask && (level & envMask) === level.valueOf();
+};
 
-        return !!envMask && (level & envMask) === level.valueOf();
+const logMessage = (level: LogLevel, message: string) => {
+    if (isLogLevelEnabled(level)) {
+        console.log(`${colors[level]}[${LogLevel[level]}] ${message}`);
     }
+};
 
-    private static logMessage(level: LogLevel, message: string) {
-        if (this.isLogLevelEnabled(level)) {
-            console.log(`${this.colors[level]}[${LogLevel[level]}] ${message}`);
-        }
-    }
-
-    static debug(message: string) {
-        this.logMessage(LogLevel.Debug, message);
-    }
-
-    static info(message: string) {
-        this.logMessage(LogLevel.Info, message);
-    }
-
-    static warn(message: string) {
-        this.logMessage(LogLevel.Warn, message);
-    }
-
-    static error(message: string) {
-        this.logMessage(LogLevel.Error, message);
-    }
-}
+export const Logger = {
+    debug: (message: string) => { logMessage(LogLevel.Debug, message); },
+    info: (message: string) => { logMessage(LogLevel.Info, message); },
+    warn: (message: string) => { logMessage(LogLevel.Warn, message); },
+    error: (message: string) => { logMessage(LogLevel.Error, message); },
+};
