@@ -1,14 +1,14 @@
 import { API } from "@foxogram/api";
 import { REST } from "@foxogram/rest";
-import { ChannelType } from "@foxogram/api-types";
+import { ChannelType, MemberKey } from "@foxogram/api-types";
 
 const apiUrl = import.meta.env.PROD
     ? "https://api.foxogram.su"
-    : "https://api.dev.foxogram.su/";
+    : "https://api.dev.foxogram.su";
 
 export const getAuthToken = (): string | null => localStorage.getItem("authToken");
-const setAuthToken = (token: string): void => localStorage.setItem("authToken", token);
-const removeAuthToken = (): void => localStorage.removeItem("authToken");
+const setAuthToken = (token: string): void => { localStorage.setItem("authToken", token); };
+export const removeAuthToken = (): void => { localStorage.removeItem("authToken"); };
 
 const defaultOptions = {
     baseURL: apiUrl,
@@ -56,6 +56,12 @@ export const apiMethods = {
     getChannel: (channelName: number) => foxogramAPI.channel.get(channelName),
     joinChannel: (channelName: number) => foxogramAPI.channel.join(channelName),
     leaveChannel: (channelName: number) => foxogramAPI.channel.leave(channelName),
-    getChannelMember: (channelName: number, memberKey: string) => foxogramAPI.channel.member(channelName, memberKey),
+    getChannelMember: (channelName: number, memberKey: MemberKey) => foxogramAPI.channel.member(channelName, memberKey),
     listChannelMembers: (channelName: number) => foxogramAPI.channel.members(channelName),
+
+    createMessage: (channelId: number, body: { content: string; attachments?: Uint8Array[] }) => foxogramAPI.message.create(channelId, body),
+    deleteMessage: (channelId: number, messageId: number) => foxogramAPI.message.delete(channelId, messageId),
+    editMessage: (channelId: number, messageId: number, content: string, attachments: Uint8Array[]) => foxogramAPI.message.edit(channelId, messageId, { content, attachments }),
+    getMessage: (channelId: number, messageId: number) => foxogramAPI.message.get(channelId, messageId),
+    listMessages: (channelId: number, query?: { before?: number; limit?: number }) => foxogramAPI.message.list(channelId, query),
 };
