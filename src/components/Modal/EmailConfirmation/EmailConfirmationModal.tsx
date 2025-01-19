@@ -65,7 +65,7 @@ export const EmailConfirmationModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={closeModal}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 <h2 className={styles["title"]}>Check your email</h2>
                 <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
                 <div className={`${styles["code-input-container"]} ${error ? styles["error"] : ""}`}>
@@ -76,9 +76,9 @@ export const EmailConfirmationModal = ({
                             className={`${styles["code-input"]} ${styles["input-with-placeholder"]} ${error ? styles["error"] : ""}`}
                             value={digit}
                             maxLength={1}
-                            onInput={(e) => handleInputChange(e, index)}
+                            onInput={(e) => { handleInputChange(e, index); }}
                             onPaste={handlePaste}
-                            onKeyDown={(e) => handleBackspace(e, index)}
+                            onKeyDown={(e) => { handleBackspace(e, index); }}
                         />
                     ))}
                 </div>
@@ -89,7 +89,7 @@ export const EmailConfirmationModal = ({
                 )}
                 <div className={styles["actions"]}>
                     <Button
-                        onClick={() => handleVerify().catch(() => setIsErrorVisible(true))}
+                        onClick={() => handleVerify().catch(() => { setIsErrorVisible(true); })}
                         variant="primary"
                         width={318}
                         disabled={code.some((digit) => !digit)}
@@ -108,7 +108,7 @@ export const EmailConfirmationModal = ({
                         ) : (
                             <span>
                                 Didn’t receive code?{" "}
-                                <a onClick={() => handleResendCode().catch(() => setIsErrorVisible(true))}
+                                <a onClick={() => handleResendCode().catch(() => { setIsErrorVisible(true); })}
                                    className={styles["resend-link"]}>
                                     Send again
                                 </a>

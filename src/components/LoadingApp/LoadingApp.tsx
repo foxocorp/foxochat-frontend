@@ -1,26 +1,13 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import styles from "./LoadingApp.module.css";
 import foxogramLogo from "../../assets/foxogram.svg";
 
-const Loading = ({ onLoaded }: { onLoaded: () => void }) => {
-	const [isLoading, setIsLoading] = useState(true);
-
+const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void, isLoading: boolean }) => {
 	useEffect(() => {
-		const handleLoad = () => {
-			setIsLoading(false);
+		if (!isLoading) {
 			onLoaded();
-		};
-
-		if (document.readyState === "complete") {
-			handleLoad();
-		} else {
-			window.addEventListener("load", handleLoad);
 		}
-
-		return () => {
-			window.removeEventListener("load", handleLoad);
-		};
-	}, [onLoaded]);
+	}, [isLoading, onLoaded]);
 
 	if (!isLoading) {
 		return null;

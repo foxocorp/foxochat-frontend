@@ -2,12 +2,21 @@
     display: flex;
     align-items: center;
     padding: 10px 15px;
+    margin-bottom: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s ease, transform 0.3s ease, border-radius 0.3s ease;
+    border-radius: 10px;
 }
 
 .chat-item:hover {
-    background-color: rgb(0 0 0 / 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.98);
+}
+
+.active-chat {
+    background-color: rgba(182, 182, 182, 0.1);
+    padding: 10px 15px;
+    border-radius: 10px;
 }
 
 .chat-avatar {
@@ -20,6 +29,7 @@
 .chat-info {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .chat-name {
@@ -31,7 +41,11 @@
 .chat-message {
     color: rgb(236 236 236 / 0.5);
     margin-top: 3px;
-    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 100%;
 }
 
 .you-text {
@@ -65,4 +79,5 @@
     width: 50px;
     height: 50px;
     margin-right: 10px;
+    flex-shrink: 0;
 }

@@ -3,7 +3,7 @@ import { ChatHeaderProps } from "@interfaces/chat.interface.ts";
 
 
 const ChatHeader = ({ avatar, displayName, username, status }: ChatHeaderProps) => {
-    const nameToDisplay = displayName || username;
+    const nameToDisplay = displayName ?? username;
 
     return (
         <div className={styles["chat-header"]}>
@@ -22,7 +22,7 @@ const ChatHeader = ({ avatar, displayName, username, status }: ChatHeaderProps) 
                 <p className={styles["chat-header-username"]}>{nameToDisplay}</p>
                 <p className={styles["chat-header-status"]}>{status}</p>
             </div>
-            <button className={styles["chat-header-edit"]}></button>
+            <button className={styles["chat-header-edit"]} />
         </div>
     );
 };

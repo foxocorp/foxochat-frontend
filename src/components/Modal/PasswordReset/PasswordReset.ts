@@ -17,12 +17,12 @@ export const usePasswordReset = (
     onSendEmail: (email: string) => Promise<APIOk>,
     onVerifyCode: (code: string) => Promise<APIOk>,
     onResetPassword: (password: string) => Promise<APIOk | undefined>,
-    onResendCode: () => Promise<APIOk>
+    onResendCode: () => Promise<APIOk>,
 ) => {
     const [state, setState] = useState<PasswordResetState>({
         step: 1,
         emailInput: email,
-        code: Array(6).fill(""),
+        code: new Array<string>(6).fill(""),
         password: "",
         errorMessage: "",
         isResendDisabled: true,
@@ -31,7 +31,6 @@ export const usePasswordReset = (
 
     const timerRef = useRef<number>(60);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
     const location = useLocation();
 
     useEffect(() => {
@@ -41,7 +40,9 @@ export const usePasswordReset = (
 
             intervalRef.current = setInterval(() => {
                 if (timerRef.current <= 1) {
-                    clearInterval(intervalRef.current!);
+                    if (intervalRef.current) {
+                        clearInterval(intervalRef.current);
+                    }
                     setState((prev) => ({ ...prev, isResendDisabled: false, timer: 0 }));
                     timerRef.current = 0;
                 } else {
@@ -80,17 +81,17 @@ export const usePasswordReset = (
     const handleSendEmail = useCallback(async () => {
         const isValidEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(state.emailInput);
         if (!isValidEmail) {
-            setState((prev) => ({ ...prev, errorMessage: "Please enter a valid email address." }));
+            setState((prev) => ({ ...prev, errorMessage: "Incorrect format" }));
             return;
         }
 
         try {
             await onSendEmail(state.emailInput);
             setState((prev) => ({ ...prev, step: 2, errorMessage: "" }));
-        } catch (error) {
+        } catch {
             setState((prev) => ({
                 ...prev,
-                errorMessage: "Could not send email. Please check your email address or try again later.",
+                errorMessage: "Incorrect format",
             }));
         }
     }, [state.emailInput, onSendEmail]);
@@ -104,11 +105,11 @@ export const usePasswordReset = (
             } catch (error) {
                 setState((prev) => ({
                     ...prev,
-                    errorMessage: "Invalid verification code. Please try again.",
+                    errorMessage: "Incorrect format",
                 }));
             }
         } else {
-            setState((prev) => ({ ...prev, errorMessage: "Please fill in all fields." }));
+            setState((prev) => ({ ...prev, errorMessage: "Incorrect format" }));
         }
     }, [state.code, onVerifyCode]);
 
@@ -120,13 +121,13 @@ export const usePasswordReset = (
             } catch (error) {
                 setState((prev) => ({
                     ...prev,
-                    errorMessage: "Failed to reset password. Please try again.",
+                    errorMessage: "Incorrect format",
                 }));
             }
         } else {
             setState((prev) => ({
                 ...prev,
-                errorMessage: "Password must be between 8 and 128 characters.",
+                errorMessage: "Incorrect format",
             }));
         }
     }, [state.password, onResetPassword]);
@@ -138,7 +139,7 @@ export const usePasswordReset = (
         } catch (error) {
             setState((prev) => ({
                 ...prev,
-                errorMessage: "Failed to resend code. Please try again.",
+                errorMessage: "Incorrect format",
             }));
         }
     }, [onResendCode]);

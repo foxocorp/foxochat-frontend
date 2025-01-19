@@ -1,10 +1,10 @@
-import { JSX, ComponentChildren } from "preact";
+import { ComponentChildren } from "preact";
 import "./Buttons.css";
 
 interface ButtonProps {
 	children: ComponentChildren;
 	width?: number;
-	onClick?: (event: JSX.TargetedEvent<HTMLButtonElement, MouseEvent>) => void;
+	onClick?: () => void | Promise<void>;
 	variant?: "primary" | "secondary" | "danger" | "default";
 	icon?: string | undefined;
 	disabled?: boolean;

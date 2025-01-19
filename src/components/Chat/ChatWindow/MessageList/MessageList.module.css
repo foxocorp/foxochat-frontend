@@ -1,8 +1,12 @@
 .message-list {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     flex: 1;
     padding: 15px;
     overflow-y: auto;
     background-color: var(--background-chat-color);
+    scroll-behavior: smooth;
 }
 
 .message {

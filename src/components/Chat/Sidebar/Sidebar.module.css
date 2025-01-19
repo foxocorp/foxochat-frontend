@@ -6,6 +6,7 @@
     flex-direction: column;
     border-right: 0.5px solid rgb(96 96 96 / 0.5);
     z-index: 999;
+    flex-shrink: 0;
 }
 
 .sidebar-header {

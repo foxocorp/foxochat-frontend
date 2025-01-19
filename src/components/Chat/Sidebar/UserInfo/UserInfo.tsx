@@ -5,7 +5,6 @@ import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
 import { UserInfoProps } from "@interfaces/chat.interface.ts";
 
-
 const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isAccountSwitchOpen, setIsAccountSwitchOpen] = useState(false);
@@ -16,16 +15,11 @@ const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     const fetchUser = async () => {
         try {
             const user = await apiMethods.getCurrentUser();
-            if (user) {
-                setUserData({
-                    username: user.username,
-                    avatar: user.avatar,
-                    status: status || "Unknown",
-                });
-                console.log(user);
-            } else {
-                setError("User data is unavailable.");
-            }
+            setUserData({
+                username: user.username,
+                avatar: user.avatar,
+                status: status ?? "Unknown",
+            });
         } catch {
             setError("Failed to load user data.");
         } finally {
@@ -34,7 +28,7 @@ const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     };
 
     useEffect(() => {
-        fetchUser();
+        void fetchUser();
     }, []);
 
     if (loading) {
@@ -48,26 +42,26 @@ const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     return (
         <div className={styles["user-info"]}>
             <img
-                src={userData?.avatar || avatar}
-                alt={`${userData?.username || username} Avatar`}
+                src={userData?.avatar ?? avatar}
+                alt={`${userData?.username ?? username} Avatar`}
                 className={styles["user-avatar"]}
             />
             <div className={styles["user-details"]}>
-                <p className={styles["username"]}>{userData?.username || username}</p>
-                <p className={styles["status"]}>{userData?.status || status}</p>
+                <p className={styles["username"]}>{userData?.username ?? username}</p>
+                <p className={styles["status"]}>{userData?.status ?? status}</p>
             </div>
             <div className={styles["user-actions"]}>
                 <img
                     src={accountSwitchIcon}
                     alt="Switch Account"
                     className={styles["action-icon"]}
-                    onClick={() => setIsAccountSwitchOpen(!isAccountSwitchOpen)}
+                    onClick={() => { setIsAccountSwitchOpen(!isAccountSwitchOpen); }}
                 />
                 <img
                     src={settingsIcon}
                     alt="Settings"
                     className={styles["action-icon"]}
-                    onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                    onClick={() => { setIsSettingsOpen(!isSettingsOpen); }}
                 />
             </div>
         </div>

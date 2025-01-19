@@ -10,7 +10,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
     const formatTimestamp = (timestamp: number): string => {
         const date = new Date(timestamp);
 
-        const is12HourFormat = new Intl.DateTimeFormat("en-US", { hour12: true }).formatToParts(new Date()).some(part => part.type === 'dayPeriod');
+        const is12HourFormat = new Intl.DateTimeFormat("en-US", { hour12: true }).formatToParts(new Date()).some(part => part.type === "dayPeriod");
 
         const options: Intl.DateTimeFormatOptions = {
             hour: "2-digit",
@@ -36,7 +36,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                             className={`${styles["chat-item"]} ${
                                 selectedChat?.name === chat.name ? styles["selected"] : ""
                             }`}
-                            onClick={() => handleChatClick(chat)}
+                            onClick={() => { handleChatClick(chat); }}
                         >
                             <div className={styles["avatar"]}>
                                 {chat.icon ? (
@@ -47,7 +47,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
-                                        {chat.display_name?.charAt(0).toUpperCase() ||
+                                        {chat.display_name.charAt(0).toUpperCase() ||
                                             chat.name.charAt(0).toUpperCase()}
                                     </div>
                                 )}
@@ -64,13 +64,13 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                             <span className={styles["timestamp"]}>
                                 {chat.lastMessage
                                     ? formatTimestamp(chat.lastMessage.created_at)
-                                    : "No messages"}
+                                    : "00:00"}
                             </span>
                         </div>
                     ))}
                 </div>
             </div>
-            <div className={styles["glow"]}></div>
+            <div className={styles["glow"]} />
         </div>
     );
 };

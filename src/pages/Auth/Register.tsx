@@ -11,6 +11,7 @@ import { Modal } from "@components/Modal/Modal.tsx";
 
 import { useAuthStore } from "@store/authenticationStore.ts";
 import { apiMethods } from "@services/api/apiMethods.ts";
+import { Logger } from "../../utils/logger.ts";
 
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -27,7 +28,7 @@ const Register = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const errorMessage = location.query?.["error"];
+        const errorMessage = location.query["error"];
 
         if (errorMessage) {
             switch (errorMessage) {
@@ -72,22 +73,20 @@ const Register = () => {
         return isValid;
     };
 
-    const handleRegister = async (e: Event) => {
-        e.preventDefault();
-
+    const handleRegister = async () => {
         if (!validateInputs()) return;
 
         try {
             const token = await apiMethods.register(username, email, password);
 
-            if (token?.access_token) {
+            if (token.access_token) {
                 authStore.login(token.access_token);
                 setIsModalOpen(true);
             } else {
                 console.error("Registration failed");
             }
         } catch (error) {
-            console.error("Registration failed", error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
@@ -97,7 +96,7 @@ const Register = () => {
             setIsModalOpen(false);
             location.route("/");
         } catch (error) {
-            console.error(error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
@@ -105,7 +104,7 @@ const Register = () => {
         try {
             await apiMethods.resendEmailVerification();
         } catch (error) {
-            console.error(error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
@@ -133,11 +132,11 @@ const Register = () => {
                 <Modal
                     title="Error"
                     description={modalMessage}
-                    onClose={() => setIsErrorModalOpen(false)}
+                    onClose={() => { setIsErrorModalOpen(false); }}
                     actionButtons={[
-                        <Button onClick={() => setIsErrorModalOpen(false)} variant="primary" icon={arrowLeftIcon}>
+                        <Button key="close-button" onClick={() => { setIsErrorModalOpen(false); }} variant="primary" icon={arrowLeftIcon}>
                             Close
-                        </Button>
+                        </Button>,
                     ]}
                 />
             )}
@@ -145,7 +144,7 @@ const Register = () => {
                 <EmailConfirmationModal
                     isOpen={isModalOpen}
                     email={email}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => { setIsModalOpen(false); }}
                     onVerify={handleVerifyEmail}
                     onResendCode={handleResendEmail}
                 />
@@ -198,13 +197,20 @@ const Register = () => {
                             </div>
                         </div>
                         <div className={styles["register-button"]}>
-                            <Button variant="primary" onClick={handleRegister} icon={arrowLeftIcon}>
+                            <Button
+                                key="register-button"
+                                variant="primary"
+                                onClick={() => {
+                                    void handleRegister();
+                                }}
+                                icon={arrowLeftIcon}
+                            >
                                 Register
                             </Button>
                         </div>
                         <div className={styles["divider"]} />
-                        <div className={styles["action-Buttons"]}>
-                            <Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
+                        <div className={styles["action-buttons"]}>
+                            <Button variant="secondary" onClick={() => { location.route("/auth/login"); }} icon={alreadyHaveAccountIcon}>
                                 Already have an account?
                             </Button>
                         </div>

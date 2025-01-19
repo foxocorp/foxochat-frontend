@@ -38,7 +38,7 @@ export const PasswordResetModal = ({
 
     return (
         <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 {state.step === 1 && (
                     <>
                         <h2 className={styles["title"]}>Reset password</h2>
@@ -46,13 +46,13 @@ export const PasswordResetModal = ({
                         <input
                             type="email"
                             value={state.emailInput}
-                            onInput={(e) => setState((prev) => ({ ...prev, emailInput: e.currentTarget.value }))}
+                            onInput={(e) => { setState((prev) => ({ ...prev, emailInput: e.currentTarget.value })); }}
                             placeholder="fox@foxmail.fox"
                             className={styles["easy-input"]}
                         />
                         {state.errorMessage && (
                             <div className={`${styles["line"]} ${styles["error-line"]}`}>
-                                Code is invalid
+                                {state.errorMessage}
                             </div>
                         )}
                         <div className={styles["actions"]}>
@@ -75,13 +75,13 @@ export const PasswordResetModal = ({
                                     className={`${styles["code-input"]} ${state.errorMessage ? styles["error"] : ""}`}
                                     value={digit}
                                     maxLength={1}
-                                    onInput={(e) => handleCodeChange(e, index)}
+                                    onInput={(e) => { handleCodeChange(e, index); }}
                                 />
                             ))}
                         </div>
                         {state.errorMessage && (
                             <div className={`${styles["line"]} ${styles["error-line"]}`}>
-                                Code is invalid
+                                {state.errorMessage}
                             </div>
                         )}
                         <div className={styles["actions"]}>
@@ -124,7 +124,7 @@ export const PasswordResetModal = ({
                         <input
                             type="password"
                             value={state.password}
-                            onInput={(e) => setState((prev) => ({ ...prev, password: e.currentTarget.value }))}
+                            onInput={(e) => { setState((prev) => ({ ...prev, password: e.currentTarget.value })); }}
                             placeholder="New password"
                             className={styles["easy-input"]}
                             maxLength={128}

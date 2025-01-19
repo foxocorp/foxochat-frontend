@@ -29,9 +29,7 @@ const Login = (): JSX.Element => {
 		return password.length >= 4 && password.length <= 128;
 	};
 
-	const handleLogin = async (e: Event): Promise<void> => {
-		e.preventDefault();
-
+	const handleLogin = async (): Promise<void> => {
 		setEmailError(false);
 		setPasswordError(false);
 
@@ -51,7 +49,7 @@ const Login = (): JSX.Element => {
 
 		try {
 			const response = await apiMethods.login(email, password);
-			if (response?.access_token) {
+			if (response.access_token) {
 				authStore.login(response.access_token);
 				console.log("Successful login");
 			} else {
@@ -61,6 +59,7 @@ const Login = (): JSX.Element => {
 			console.error("Error during login:", error);
 		}
 	};
+
 
 	const openPasswordResetModal = (): void => {
 		setPasswordResetModalOpen(true);
@@ -87,8 +86,8 @@ const Login = (): JSX.Element => {
 										className={`${styles["login-input"]} ${emailError ? styles["input-error"] : ""}`}
 										placeholder="floofer@coof.fox"
 										value={email}
-										onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-										onBlur={() => setEmailError(!validateEmail(email))}
+										onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
+										onBlur={() => { setEmailError(!validateEmail(email)); }}
 										required
 									/>
 									{emailError && (
@@ -102,7 +101,7 @@ const Login = (): JSX.Element => {
 										className={`${styles["login-input"]} ${passwordError ? styles["input-error"] : ""}`}
 										placeholder="your floof password :3"
 										value={password}
-										onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+										onInput={(e) => { setPassword((e.target as HTMLInputElement).value); }}
 										required
 									/>
 									{passwordError && (
@@ -113,16 +112,16 @@ const Login = (): JSX.Element => {
 
 						</div>
 						<div className={styles["login-button"]}>
-							<Button variant="primary" onClick={handleLogin} icon={arrowLeftIcon}>
+							<Button key="login-button" variant="primary" onClick={handleLogin} icon={arrowLeftIcon}>
 								Log in
 							</Button>
 						</div>
 						<div className={styles["divider"]} />
-						<div className={styles["action-Buttons"]}>
-							<Button variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
+						<div className={styles["action-buttons"]}>
+							<Button key="reset-password-button" variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
 								Reset your password
 							</Button>
-							<Button variant="secondary" onClick={() => {location.route("/auth/register")}} icon={newUserIcon}>
+							<Button key="create-account-button" variant="secondary" onClick={() => {location.route("/auth/register");}} icon={newUserIcon}>
 								Create new account
 							</Button>
 						</div>

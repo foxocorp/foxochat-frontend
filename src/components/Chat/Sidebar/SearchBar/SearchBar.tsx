@@ -3,7 +3,7 @@ import styles from "./SearchBar.module.css";
 import searchIcon from "@icons/navigation/magnifying-glass.svg";
 import React from "react";
 
-const platformMatchers: { [key: string]: RegExp } = {
+const platformMatchers: Record<string, RegExp> = {
     windows: /windows nt/i,
     mac: /mac(?:intosh| os x)/i,
     mobile: /mobile|android|iphone|ipad|ipod/i,
@@ -99,7 +99,7 @@ const SearchBar = () => {
                 placeholder={`Search (${shortcut})`}
                 className={`${styles["search-input"]} ${isSearchActive ? styles["active-input"] : ""}`}
                 autoFocus={isSearchActive}
-                onBlur={() => setSearchActive(false)}
+                onBlur={() => { setSearchActive(false); }}
             />
         </div>
     );

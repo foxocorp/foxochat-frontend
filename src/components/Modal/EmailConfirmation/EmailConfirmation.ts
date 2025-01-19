@@ -5,24 +5,25 @@ export const useTimer = (initialTime: number, onTimeout: () => void) => {
 
     useEffect(() => {
         if (time > 0) {
-            const interval = setInterval(() => setTime((prev) => prev - 1), 1000);
-            return () => clearInterval(interval);
-        } else {
+            const interval = setInterval(() => { setTime((prev) => prev - 1); }, 1000);
+            return () => { clearInterval(interval); };
+        } 
             onTimeout();
             return undefined;
-        }
+        
     }, [time, onTimeout]);
 
-    return { time, resetTimer: () => setTime(initialTime) };
+    return { time, resetTimer: () => { setTime(initialTime); } };
 };
 
-export const useEmailVerification = (onVerify: (code: string) => Promise<void>, onResendCode: () => Promise<void>) => {
+export const useEmailVerification = (
+    onVerify: (code: string) => Promise<void>, onResendCode: () => Promise<void>) => {
     const [code, setCode] = useState<string[]>(Array(6).fill(""));
     const [isResendDisabled, setIsResendDisabled] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [codeErrors, setCodeErrors] = useState<boolean[]>(Array(6).fill(false));
 
-    const { time, resetTimer } = useTimer(60, () => setIsResendDisabled(false));
+    const { time, resetTimer } = useTimer(60, () => { setIsResendDisabled(false); });
 
     const resetErrorState = () => {
         if (error) {
@@ -120,10 +121,11 @@ export const useEmailVerification = (onVerify: (code: string) => Promise<void>, 
 
     const handlePaste = (event: ClipboardEvent) => {
         event.preventDefault();
-        const pastedText = event.clipboardData?.getData("text") || "";
+        const pastedText = event.clipboardData?.getData("text") ?? "";
         if (pastedText.trim() === "") return;
-        const sanitizedCode = pastedText.replace(/\D/g, "").slice(0, 6).split("");
-        const paddedCode = [...sanitizedCode, ...Array(6 - sanitizedCode.length).fill("")];
+        const sanitizedCode: string[] = pastedText.replace(/\D/g, "").slice(0, 6).split("");
+        const paddedCode: string[] = sanitizedCode.concat(new Array(6 - sanitizedCode.length).fill(""));
+
         setCode(paddedCode);
     };
 
