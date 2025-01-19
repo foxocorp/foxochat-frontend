@@ -1,44 +1,40 @@
 import { WebSocketClient } from "../gateway/webSocketClient.ts";
-import { APIUser } from "@foxogram/api-types";
+import { APIChannel, APIMessage, APIUser, UserFlags, UserType } from "@foxogram/api-types";
+import React from "react";
+
+/* === Interface Definitions === */
 
 export interface User {
-    user: APIUser;
-    channels: number[];
     id: number;
+    channels: number[];
     avatar: string;
     display_name: string;
     username: string;
-    flags: number;
-    type: number;
+    email: string;
+    flags: UserFlags;
+    type: UserType;
     created_at: number;
-}
-
-export interface Author {
-    member: string;
-    id: number;
-    user: User;
-    permissions: number;
-    joined_at: number;
 }
 
 export interface Message {
     id: number;
     content: string;
-    author: Author;
-    channel: number;
+    author: APIUser;
+    channel: APIChannel;
     attachments: string[];
     created_at: number;
 }
 
+
 export interface Channel {
     id: number;
-    display_name: string;
     name: string;
+    display_name: string;
     icon: string | null;
     type: number;
     owner: User;
     created_at: number;
-    lastMessage: Message | null;
+    lastMessage: APIMessage | null;
 }
 
 /* === Props Section === */
@@ -47,6 +43,7 @@ export interface Channel {
 export interface ChatWindowProps {
     channel: Channel;
     wsClient: WebSocketClient;
+    currentUserId: number;
 }
 
 export interface ChatListProps {
@@ -65,18 +62,20 @@ export interface ChatHeaderProps {
 export interface ChatItemProps {
     chat: Channel;
     onSelectChat: (chat: Channel) => void;
+    isActive: boolean;
     currentUser: number;
 }
-
 
 /* Message Props */
 export interface MessageListProps {
     messages: Message[];
+    currentUserId: number;
+    onScroll: (event: Event) => void;
+    messageListRef: React.RefObject<HTMLDivElement>;
 }
 
 export interface MessageInputProps {
-    onSendMessage: (message: string) => void;
-    onSendMedia?: () => void;
+    channelId: number;
 }
 
 /* Other Props */
@@ -97,6 +96,3 @@ export interface SidebarProps {
     onSelectChat: (chat: Channel) => void;
     currentUser: number;
 }
-
-
-
