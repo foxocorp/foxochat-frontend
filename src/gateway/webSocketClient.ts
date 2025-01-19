@@ -53,7 +53,7 @@ export class WebSocketClient {
                     this.handleDispatch(message as GatewayDispatchMessageCreateMessage | GatewayDispatchMessageUpdateMessage | GatewayDispatchMessageDeleteMessage);
                     break;
                 case GatewayOpcodes.Hello:
-                    this.startHeartbeat((message.d as { heartbeat_interval: number }).heartbeat_interval * 1000);
+                    this.startHeartbeat((message.d as { heartbeat_interval: number }).heartbeat_interval);
                     break;
                 case GatewayOpcodes.HeartbeatAck:
                     Logger.debug("Received HeartbeatAck");
