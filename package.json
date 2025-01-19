@@ -17,6 +17,7 @@
 		"@foxogram/gateway-types": "^0.1.1",
 		"@foxogram/rest": "^0.1.3",
 		"mobx": "^6.13.5",
+		"moment": "^2.30.1",
 		"preact": "^10.22.1",
 		"preact-iso": "^2.8.1",
 		"styled-components": "^6.1.13",
