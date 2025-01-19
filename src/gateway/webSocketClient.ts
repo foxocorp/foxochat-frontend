@@ -95,9 +95,14 @@ export class WebSocketClient {
         }
     }
 
-    private handleClose = ({ code }: CloseEvent) => {
+    private handleClose = ({ code, reason }: CloseEvent) => {
         Logger.warn(`WebSocket closed with code ${code}`);
-        if (code !== 1000) this.reconnect();
+        if (reason) {
+            Logger.warn(`Reason: ${reason}`);
+        }
+        if (code !== 1000) {
+            this.reconnect();
+        }
     };
 
     private startHeartbeat(interval: number) {
