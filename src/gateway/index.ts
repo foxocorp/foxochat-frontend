@@ -1,5 +1,5 @@
-import { WebSocketClient } from './webSocketClient.ts';
-import { getAuthToken } from '../services/api/apiMethods.ts';
+import { WebSocketClient } from "./webSocketClient.ts";
+import { getAuthToken } from "../services/api/apiMethods.ts";
 
 export const initWebSocket = () => {
     const token = getAuthToken();
@@ -10,8 +10,8 @@ export const initWebSocket = () => {
             : "wss://gateway.dev.foxogram.su";
 
         return new WebSocketClient(() => token, gatewayUrl);
-    } else {
+    } 
         console.log("Token is not available");
         return null;
-    }
+    
 };
