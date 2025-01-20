@@ -1,19 +1,4 @@
 services:
-  foxogram-frontend:
-    container_name: foxogram-frontend
-    build:
-      context: .
-      args:
-        NODE_ENV: production
-    restart: always
-    networks:
-      - traefik
-    labels:
-      traefik.enable: true
-      traefik.http.routers.foxogram-frontend.rule: Host(`app.foxogram.su`)
-      traefik.http.routers.foxogram-frontend.tls.certresolver: letsencrypt
-      traefik.http.services.foxogram-frontend.loadbalancer.server.port: 80
-
   foxogram-frontend-dev:
     container_name: foxogram-frontend-dev
     build:
