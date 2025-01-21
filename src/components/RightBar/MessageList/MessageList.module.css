@@ -1,6 +1,6 @@
 .message-list {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     height: 100%;
     flex: 1;
     padding: 15px;
@@ -36,4 +36,29 @@
     color: var(--gray-color);
     margin-top: 5px;
     align-self: flex-end;
+}
+
+.sticky-date {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--primary-color);
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    background: #0A0A0A8C;
+    padding: 17px 15px;
+    border-radius: 0.9375rem;
+    text-align: center;
+    width: fit-content;
+    margin: 0 auto;
+    height: 30px;
+}
+
+.sticky-date span {
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s;
 }
