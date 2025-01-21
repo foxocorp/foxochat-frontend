@@ -2,15 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import "./style.css";
 import Loading from "@components/LoadingApp/LoadingApp.tsx";
-import Sidebar from "@components/Chat/Sidebar/Sidebar.tsx";
-import ChatWindow from "@components/Chat/ChatWindow/ChatWindow.tsx";
-import EmptyState from "@components/Chat/EmptyState/EmptyState.tsx";
-import { Channel, User } from "@interfaces/chat.interface";
-import { apiMethods, removeAuthToken } from "@services/api/apiMethods.ts";
+import Sidebar from "@components/LeftBar/Sidebar.tsx";
+import ChatWindow from "@components/RightBar/ChatWindow.tsx";
+import EmptyState from "@components/RightBar/EmptyState/EmptyState.tsx";
+import { Channel } from "@interfaces/chat.interface";
+import { apiMethods } from "@services/api/apiMethods.ts";
 import { getAuthToken } from "@services/api/apiMethods";
 import { initWebSocket } from "../../gateway";
-import { APIChannel, APIUser } from "@foxogram/api-types";
-import { Logger } from "../../utils/logger.ts";
+import { useFetchUserData } from "@hooks/useFetchUserData.ts";
 
 export function Home() {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -22,29 +21,6 @@ export function Home() {
 	const token = getAuthToken();
 
 	const wsClient = useMemo(() => initWebSocket(), []);
-
-	const formatUser = (apiUser: APIUser): User => ({
-		id: apiUser.id,
-		channels: apiUser.channels ?? [],
-		avatar: apiUser.avatar,
-		display_name: apiUser.display_name,
-		username: apiUser.username,
-		email: apiUser.email,
-		flags: apiUser.flags,
-		type: apiUser.type,
-		created_at: apiUser.created_at,
-	}) as User;
-
-	const formatChannel = (apiChannel: APIChannel): Channel => ({
-		id: apiChannel.id,
-		name: apiChannel.name,
-		display_name: apiChannel.display_name,
-		icon: apiChannel.icon,
-		type: apiChannel.type,
-		owner: formatUser(apiChannel.owner),
-		created_at: apiChannel.created_at,
-		lastMessage: apiChannel.last_message ?? null,
-	});
 
 	useEffect(() => {
 		const handleOnline = () => {
@@ -66,32 +42,17 @@ export function Home() {
 	}, []);
 
 	useEffect(() => {
-		if (!token) { location.route("/auth/login"); return; }
+		if (!token) {
+			location.route("/auth/login");
+			return;
+		}
 
 		apiMethods.getCurrentUser().catch(() => {
-			removeAuthToken();
 			location.route("/auth/login");
 		});
 	}, [token, location]);
 
-
-	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				const channels: APIChannel[] = await apiMethods.userChannelsList();
-				const formattedChannels = channels.map(formatChannel);
-				setChats(formattedChannels);
-			} catch (error) {
-				Logger.error(error instanceof Error ? error.message : String(error));
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		if (!isOffline) {
-			void fetchUserData();
-		}
-	}, [isOffline]);
+	useFetchUserData(setChats, setIsLoading, isOffline);
 
 	useEffect(() => {
 		if (wsClient && !isOffline) {
