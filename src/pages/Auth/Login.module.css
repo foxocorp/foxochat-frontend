@@ -1,4 +1,3 @@
-
 .login-container {
 	position: relative;
 	min-height: 100vh;
@@ -62,22 +61,26 @@
 }
 
 .login-input {
-	border: 1px solid rgb(96 96 96 / 0.5) !important;
-	background: rgb(0 0 0 / 0.7) !important;
-	border-radius: 5px !important;
-	padding: 4px 16px !important;
-	height: 37px !important;
-}
-
-.input-error {
-	border: 1px solid rgb(165 63 63 / 0.5) !important;
-}
-
-.login-input {
+	border: 1px solid rgb(96 96 96 / 0.5);
+	background: rgb(0 0 0 / 0.7);
+	border-radius: 5px;
+	padding: 4px 16px;
+	width: 368px;
+	height: 48px;
+	margin-bottom: 15px;
 	transition: border 0.3s ease-in-out !important;
 }
 
-::placeholder {
+.login-input:focus {
+	outline: none;
+	box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.input-error {
+	border: 1px solid rgb(165 63 63 / 0.5);
+}
+
+.login-input::placeholder {
 	font-weight: 400;
 	font-size: 16px;
 	color: rgb(96 96 96 / 0.7);
@@ -101,13 +104,6 @@
 	margin-bottom: 5px;
 }
 
-.login-input {
-	padding: 10px;
-	margin-bottom: 15px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-}
-
 .required {
 	font-weight: 500;
 	font-size: 18px;
@@ -117,7 +113,7 @@
 
 .login-button {
 	display: flex;
-	margin-top: 90px;
+	margin-top: 105px;
 }
 
 .divider {
@@ -133,44 +129,66 @@
 	margin-top: 20px;
 }
 
-.social-buttons {
+.action-buttons {
 	margin-top: 20px;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-.create-account-button,
-.reset-password-button {
-	font-weight: 500;
-	font-size: 15px;
-	color: var(--secondary-color);
-	border: 1px solid rgb(96 96 96 / 0.5);
-	border-radius: 4px;
-	padding: 0 16px;
-	width: 368px;
-	height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 10px;
-	cursor: pointer;
-	background-color: rgb(0 0 0 / 0.7);
-	transition: background-color 0.3s ease, transform 0.2s ease;
+.action-buttons button {
+	height: 40px;
 }
 
-.create-account-button img,
-.reset-password-button img {
-	width: 20px;
-	height: 20px;
+.input-error {
+	border: 1px solid rgb(165 63 63 / 0.5);
 }
 
-.create-account-button:hover,
-.reset-password-button:hover {
-	background-color: rgb(11 11 11 / 0.8);
+@keyframes slideIn {
+	0% {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
-.create-account-button:active,
-.reset-password-button:active {
-	background-color: rgb(66 66 66 / 0.9);
+.error-text {
+	color: var(--error-dark);
+	font-weight: 300;
+	font-size: 14px;
+	opacity: 0;
+	transform: translateX(-30px);
+	position: absolute;
+	animation: slideIn 0.7s ease-in-out forwards;
+}
+
+.login-input[type="password"] + .error-text {
+	top: 20%;
+}
+
+@media (max-width: 375px) {
+	.login-form {
+		width: 90%;
+		padding: 10px;
+	}
+
+	.login-input {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	.form {
+		width: 100%;
+	}
+
+	.divider {
+		width: 100%;
+	}
+
+	.action-buttons button {
+		width: 100% !important;
+	}
 }

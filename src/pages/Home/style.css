@@ -1,0 +1,11 @@
+.home-container {
+    display: flex;
+    height: 100vh;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+

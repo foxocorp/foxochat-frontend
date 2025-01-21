@@ -1,18 +1,17 @@
 import { useLocation } from "preact-iso";
-import { useState, useEffect } from "preact/hooks";
-
+import { useEffect, useState } from "preact/hooks";
 import styles from "./Register.module.css";
 
-import arrowLeftIcon from "@icons/arrow-left.svg";
-import alreadyHaveAccountIcon from "@icons/already-have-account.svg";
+import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
+import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
 
-import { Button } from "@components/base";
-import { EmailConfirmationModal } from "@components/modal/EmailConfirmationModal";
-import { Modal } from "@components/modal/modal";
+import { Button } from "@components/Base";
+import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal.tsx";
+import { Modal } from "@components/Modal/Modal.tsx";
 
-import { apiMethods } from "@services/api/authenticationService.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
-
+import { apiMethods } from "@services/api/apiMethods.ts";
+import { Logger } from "../../utils/logger.ts";
 
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -29,7 +28,7 @@ const Register = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const errorMessage = location.query?.["error"];
+        const errorMessage = location.query["error"];
 
         if (errorMessage) {
             switch (errorMessage) {
@@ -74,22 +73,20 @@ const Register = () => {
         return isValid;
     };
 
-    const handleRegister = async (e: Event) => {
-        e.preventDefault();
-
+    const handleRegister = async () => {
         if (!validateInputs()) return;
 
         try {
-            const { accessToken } = await apiMethods.register({ username, email, password });
+            const token = await apiMethods.register(username, email, password);
 
-            if (accessToken) {
-                authStore.login(accessToken);
+            if (token.access_token) {
+                authStore.login(token.access_token);
                 setIsModalOpen(true);
             } else {
-                alert("Invalid data");
+                console.error("Registration failed");
             }
         } catch (error) {
-            console.error("Registration failed", error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
@@ -99,15 +96,15 @@ const Register = () => {
             setIsModalOpen(false);
             location.route("/");
         } catch (error) {
-            console.error("Verification failed", error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
     const handleResendEmail = async () => {
         try {
-            await apiMethods.resendEmail();
+            await apiMethods.resendEmailVerification();
         } catch (error) {
-            console.error("Resend failed", error);
+            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
         }
     };
 
@@ -135,15 +132,19 @@ const Register = () => {
                 <Modal
                     title="Error"
                     description={modalMessage}
-                    onClose={() => setIsErrorModalOpen(false)}
-                    actionButtons={[<Button onClick={() => setIsErrorModalOpen(false)} variant="primary" icon={arrowLeftIcon}>Close</Button>]}
+                    onClose={() => { setIsErrorModalOpen(false); }}
+                    actionButtons={[
+                        <Button key="close-button" onClick={() => { setIsErrorModalOpen(false); }} variant="primary" icon={arrowLeftIcon}>
+                            Close
+                        </Button>,
+                    ]}
                 />
             )}
             {isModalOpen && (
                 <EmailConfirmationModal
                     isOpen={isModalOpen}
                     email={email}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => { setIsModalOpen(false); }}
                     onVerify={handleVerifyEmail}
                     onResendCode={handleResendEmail}
                 />
@@ -165,7 +166,9 @@ const Register = () => {
                                         value={username}
                                         onInput={handleUsernameInput}
                                         required
+                                        autoComplete="nope"
                                     />
+                                    {usernameError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                     <label className={styles["register-label"]}>
                                         Email<span className={styles["required"]}>*</span>
                                     </label>
@@ -177,6 +180,7 @@ const Register = () => {
                                         onInput={handleEmailInput}
                                         required
                                     />
+                                    {emailError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                     <label className={styles["register-label"]}>
                                         Password<span className={styles["required"]}>*</span>
                                     </label>
@@ -188,17 +192,25 @@ const Register = () => {
                                         onInput={handlePasswordInput}
                                         required
                                     />
+                                    {passwordError && <span className={styles["error-text"]}>— Incorrect format</span>}
                                 </div>
                             </div>
                         </div>
                         <div className={styles["register-button"]}>
-                            <Button variant="primary" onClick={handleRegister} icon={arrowLeftIcon}>
+                            <Button
+                                key="register-button"
+                                variant="primary"
+                                onClick={() => {
+                                    void handleRegister();
+                                }}
+                                icon={arrowLeftIcon}
+                            >
                                 Register
                             </Button>
                         </div>
                         <div className={styles["divider"]} />
-                        <div className={styles["social-buttons"]}>
-                            <Button variant="secondary" onClick={() => location.route("/auth/login")} icon={alreadyHaveAccountIcon}>
+                        <div className={styles["action-buttons"]}>
+                            <Button variant="secondary" onClick={() => { location.route("/auth/login"); }} icon={alreadyHaveAccountIcon}>
                                 Already have an account?
                             </Button>
                         </div>
