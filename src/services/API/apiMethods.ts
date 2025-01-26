@@ -7,8 +7,8 @@ const apiUrl = import.meta.env.PROD
     : "https://api.dev.foxogram.su";
 
 export const getAuthToken = (): string | null => localStorage.getItem("authToken");
-const setAuthToken = (token: string): void => { localStorage.setItem("authToken", token); };
 export const removeAuthToken = (): void => { localStorage.removeItem("authToken"); };
+const setAuthToken = (token: string) => { localStorage.setItem("authToken", token);};
 
 const defaultOptions = {
     baseURL: apiUrl,
@@ -26,12 +26,14 @@ export const apiMethods = {
     login: async (email: string, password: string) => {
         const token = await foxogramAPI.auth.login({ email, password });
         setAuthToken(token.access_token);
+        rest.setToken(token.access_token);
         return token;
     },
 
     register: async (username: string, email: string, password: string) => {
         const token = await foxogramAPI.auth.register({ username, email, password });
         setAuthToken(token.access_token);
+        rest.setToken(token.access_token);
         return token;
     },
 
@@ -42,24 +44,24 @@ export const apiMethods = {
 
     getCurrentUser: () => foxogramAPI.user.current(),
     editUser: (body: { name: string; email: string }) => foxogramAPI.user.edit(body),
-    deleteUser: (body: { password: string }) => {
-        const result = foxogramAPI.user.delete(body);
+    deleteUser: async (body: { password: string }) => {
+        await foxogramAPI.user.delete(body);
         removeAuthToken();
-        return result;
     },
     confirmDeleteUser: (body: { password: string; code: string }) => foxogramAPI.user.confirmDelete(body),
     userChannelsList: () => foxogramAPI.user.channels(),
 
     createChannel: (body: { display_name: string; name: string; type: ChannelType }) => foxogramAPI.channel.create(body),
-    deleteChannel: (channelName: number) => foxogramAPI.channel.delete(channelName),
-    editChannel: (channelName: number, body: { name?: string }) => foxogramAPI.channel.edit(channelName, body),
-    getChannel: (channelName: number) => foxogramAPI.channel.get(channelName),
-    joinChannel: (channelName: number) => foxogramAPI.channel.join(channelName),
-    leaveChannel: (channelName: number) => foxogramAPI.channel.leave(channelName),
-    getChannelMember: (channelName: number, memberKey: MemberKey) => foxogramAPI.channel.member(channelName, memberKey),
-    listChannelMembers: (channelName: number) => foxogramAPI.channel.members(channelName),
+    deleteChannel: (channelId: number) => foxogramAPI.channel.delete(channelId),
+    editChannel: (channelId: number, body: { name?: string }) => foxogramAPI.channel.edit(channelId, body),
+    getChannel: (channelId: number) => foxogramAPI.channel.get(channelId),
+    joinChannel: (channelId: number) => foxogramAPI.channel.join(channelId),
+    leaveChannel: (channelId: number) => foxogramAPI.channel.leave(channelId),
+    getChannelMember: (channelId: number, memberKey: MemberKey) =>foxogramAPI.channel.member(channelId, memberKey),
+    listChannelMembers: (channelId: number) => foxogramAPI.channel.members(channelId),
 
-    createMessage: (channelId: number, body: { content: string; attachments?: Uint8Array[] }) => foxogramAPI.message.create(channelId, body),
+    membersList: (channelId: number) => foxogramAPI.channel.members(channelId),
+    createMessage: (channelId: number, body: { content: string; attachments: Uint8Array[] }) => foxogramAPI.message.create(channelId, body),
     deleteMessage: (channelId: number, messageId: number) => foxogramAPI.message.delete(channelId, messageId),
     editMessage: (channelId: number, messageId: number, content: string, attachments: Uint8Array[]) => foxogramAPI.message.edit(channelId, messageId, { content, attachments }),
     getMessage: (channelId: number, messageId: number) => foxogramAPI.message.get(channelId, messageId),
