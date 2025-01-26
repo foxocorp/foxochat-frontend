@@ -40,7 +40,6 @@ export default tseslint.config(
 				allowFunctions: true,
 				allowArrowFunctions: true,
 			}],
-			"eslint-disable-next-line react/no-danger": 2,
 			"react/jsx-no-comment-textnodes": 2,
 			"react/jsx-no-duplicate-props": 2,
 			"react/jsx-no-target-blank": 2,
