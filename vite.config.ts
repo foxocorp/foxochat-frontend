@@ -21,8 +21,16 @@ export default defineConfig({
                 replacement: resolve(__dirname, "./src/assets/svg"),
             },
             {
+                find: "@hooks",
+                replacement: resolve(__dirname, "./src/hooks/"),
+            },
+            {
                 find: "@services",
                 replacement: resolve(__dirname, "./src/services/"),
+            },
+            {
+                find: "@utils",
+                replacement: resolve(__dirname, "./src/utils/"),
             },
             {
                 find: "@store",
