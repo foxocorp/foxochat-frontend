@@ -55,7 +55,6 @@ export const Home = observer(() => {
 	}, [handleUnauthorized]);
 
 	const initApp = useCallback(async () => {
-		console.log(!isMounted.current && !token);
 		if (!isMounted.current && !token) return;
 
 		try {
