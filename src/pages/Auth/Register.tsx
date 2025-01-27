@@ -10,8 +10,8 @@ import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/Emai
 import { Modal } from "@components/Modal/Modal.tsx";
 
 import { useAuthStore } from "@store/authenticationStore.ts";
-import { apiMethods } from "@services/api/apiMethods.ts";
-import { Logger } from "../../utils/logger.ts";
+import { apiMethods } from "@services/API/apiMethods.ts";
+import { Logger } from "@utils/logger.ts";
 
 const Register = () => {
     const [username, setUsername] = useState("");

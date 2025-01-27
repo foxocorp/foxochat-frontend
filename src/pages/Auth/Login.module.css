@@ -73,7 +73,7 @@
 
 .login-input:focus {
 	outline: none;
-	box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+	box-shadow: 0 0 3px rgb(255 255 255 / 0.7);
 }
 
 .input-error {

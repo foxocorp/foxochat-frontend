@@ -14,7 +14,7 @@
 	position: fixed;
 	width: 500px;
 	height: 500px;
-	background: rgba(74, 137, 255, 0.8);
+	background: rgb(74 137 255 / 0.8);
 	border-radius: 50%;
 	filter: blur(200px);
 	z-index: 0;
@@ -73,7 +73,7 @@
 
 .register-input:focus {
 	outline: none;
-	box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+	box-shadow: 0 0 3px rgb(255 255 255 / 0.7);
 }
 
 .input-error {

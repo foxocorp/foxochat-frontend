@@ -1,7 +1,7 @@
 import { FunctionalComponent } from "preact";
 import { useEffect } from "preact/hooks";
 import { useLocation } from "preact-iso";
-import { apiMethods } from "@services/api/apiMethods.ts";
+import { apiMethods } from "@services/API/apiMethods.ts";
 
 const EmailConfirmationHandler: FunctionalComponent = () => {
     const location = useLocation();
