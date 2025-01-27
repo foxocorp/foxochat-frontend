@@ -1,12 +1,12 @@
 name: Build Desktop
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
       - main
-
-permissions:
-  contents: write
 
 jobs:
   build:
@@ -31,10 +31,10 @@ jobs:
           cache-dependency-path: ./package.json
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1ff72ee08e3cb84d84adba594e0a297990fc1ed3 # stable
 
       - name: Rust Cache
-        uses: swatinem/rust-cache@v2
+        uses: swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           workspaces: './src-tauri -> target'
 
@@ -42,7 +42,7 @@ jobs:
         run: npm install
 
       - name: Build Desktop
-        uses: tauri-apps/tauri-action@v0.5.16
+        uses: tauri-apps/tauri-action@fd1ea0d8e31d0f8670cf14c79c076d85caf9fb53 # v0.5.19
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
