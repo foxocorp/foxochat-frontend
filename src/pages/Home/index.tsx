@@ -12,14 +12,13 @@ import { chatStore } from "@store/chatStore.ts";
 import { Channel } from "@interfaces/chat.interface.ts";
 import { Logger } from "@utils/logger.ts";
 import { initWebSocket } from "../../gateway/initWebSocket.ts";
+import { APIError } from "@foxogram/rest";
 
 export const Home = observer(() => {
 	const location = useLocation();
 	const token = getAuthToken();
 
 	const [initialLoadDone, setInitialLoadDone] = useState(false);
-	const reconnectAttemptsRef = useRef(0);
-	const MAX_RECONNECT_ATTEMPTS = 3;
 	const wsClientRef = useRef<ReturnType<typeof initWebSocket> | null>(null);
 	const isMounted = useRef(true);
 
@@ -56,7 +55,8 @@ export const Home = observer(() => {
 	}, [handleUnauthorized]);
 
 	const initApp = useCallback(async () => {
-		if (!isMounted.current || !token) return;
+		console.log(!isMounted.current && !token);
+		if (!isMounted.current && !token) return;
 
 		try {
 			Logger.debug("Initializing application...");
@@ -70,15 +70,13 @@ export const Home = observer(() => {
 			if (isMounted.current) {
 				setInitialLoadDone(true);
 			}
-		} catch (error) {
-			if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+		} catch (error: APIError) {
+			Logger.debug(`Status code: ${error.status}`);
+
+			if (error.status === 401) {
 				handleUnauthorized();
 				return;
 			}
-
-			const delay = Math.min(1000 * 2 ** reconnectAttemptsRef.current, 30000);
-			reconnectAttemptsRef.current++;
-			setTimeout(initApp, delay);
 		}
 	}, [token, handleUnauthorized, setupWebSocket]);
 
