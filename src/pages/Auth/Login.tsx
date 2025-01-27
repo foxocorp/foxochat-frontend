@@ -6,9 +6,10 @@ import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordRese
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import resetPasswordIcon from "@icons/navigation/reset-password.svg";
 import newUserIcon from "@icons/navigation/new-user.svg";
-import { apiMethods } from "@services/api/apiMethods.ts";
+import { apiMethods } from "@services/API/apiMethods.ts";
 import { useAuthStore } from "@store/authenticationStore.ts";
 import { useLocation } from "preact-iso";
+import { Logger } from "@utils/logger.ts";
 
 const Login = (): JSX.Element => {
 	const [email, setEmail] = useState<string>("");
@@ -52,11 +53,12 @@ const Login = (): JSX.Element => {
 			if (response.access_token) {
 				authStore.login(response.access_token);
 				console.log("Successful login");
+				location.route("/");
 			} else {
 				console.error("Login error. Please try again.");
 			}
 		} catch (error) {
-			console.error("Error during login:", error);
+			Logger.error(`Error during login: ${error}`);
 		}
 	};
 

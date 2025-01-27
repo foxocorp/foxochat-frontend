@@ -1,0 +1,130 @@
+.message-item {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 12px;
+    gap: 8px;
+    animation: messageAppear 0.3s ease-out;
+}
+
+.author {
+    flex-direction: row-reverse;
+}
+
+.avatar-container {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(225deg, #eea7a7 0%, #cd5555 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.content-wrapper {
+    max-width: 70%;
+    position: relative;
+    margin-left: 10px;
+}
+
+.author-name {
+    font-size: 16px;
+    color: #ececec;
+    margin-bottom: 2px;
+}
+
+.text-content {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.author .text-content {
+    background: #2f79ff;
+    color: var(--primary-color);
+    border-radius: 12px 12px 2px 12px;
+}
+
+.receiver .text-content {
+    background: rgb(40 40 40 / 0.4);
+    color: rgb(236 236 236 / 0.75);
+    border-radius: 2px 12px 12px 12px;
+}
+
+.message-text {
+    font-weight: 400;
+    font-size: 16px;
+    padding-right: 40px;
+}
+
+.timestamp {
+    position: absolute;
+    right: 8px;
+    bottom: 4px;
+    font-size: 11px;
+    color: rgb(255 255 255 / 0.5);
+    white-space: nowrap;
+}
+
+.image-container {
+    margin: 4px 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.message-image {
+    max-width: 240px;
+    max-height: 240px;
+    object-fit: cover;
+    cursor: zoom-in;
+    border-radius: 6px;
+}
+
+.image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgb(0 0 0 / 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: zoom-out;
+}
+
+.fullscreen-image {
+    max-width: 90%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
