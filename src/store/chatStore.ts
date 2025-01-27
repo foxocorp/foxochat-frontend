@@ -484,20 +484,11 @@ class ChatStore {
 
         return new Message({
             ...data,
-            attachments: data.attachments.map(att => {
-                console.log("Full attachment data:", att);
-                return {
-                    hash: att.hash,
-                    contentType: att.content_type,
-                    filename: att.filename,
-                    flags: att.flags,
-                };
-            }) || [],
+            attachments: [],
             author: this.transformApiMember(author),
             channel: this.transformApiChannel(data.channel),
         });
     };
-
 
     private transformApiMember = (apiMember: APIMember): Member => {
         return new Member({
