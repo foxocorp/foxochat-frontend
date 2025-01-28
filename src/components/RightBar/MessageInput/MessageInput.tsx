@@ -27,7 +27,7 @@ const MessageInput = ({ }: MessageInputProps) => {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && !e.shiftKey && (message.trim() !== "" || files.length > 0)) {
+        if (e.key === "Enter" && !e.shiftKey) {
             void handleSend();
             e.preventDefault();
         }
@@ -59,6 +59,12 @@ const MessageInput = ({ }: MessageInputProps) => {
             textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "scroll" : "hidden";
         }
     }, [message]);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.focus();
+        }
+    }, []);
 
     return (
         <div className={styles["message-input-container"]}>

@@ -224,7 +224,6 @@ export interface ChatItemProps {
     onSelectChat: (chat: Channel) => void,
     isActive: boolean,
     currentUser: number,
-    key?: string
 }
 
 export interface MessageGroupProps {

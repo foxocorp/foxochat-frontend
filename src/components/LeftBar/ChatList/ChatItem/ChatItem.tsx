@@ -1,29 +1,35 @@
-import { ChatItemProps } from "@interfaces/chat.interface.ts";
+import { useState, useEffect, useMemo } from "react";
 import styles from "./ChatItem.module.css";
 import { replaceEmojis } from "@utils/emoji.ts";
 import { observer } from "mobx-react";
 import { ChannelType } from "@foxogram/api-types";
-import { useMemo } from "preact/hooks";
+import { ChatItemProps } from "@interfaces/chat.interface.ts";
 
 const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
-    const { lastMessageContent } = useMemo(() => {
-        const lastMessage = chat.lastMessage;
+    const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
 
+    const lastMessageContent = useMemo(() => {
+        const lastMessage = chat.lastMessage;
         const authorName = lastMessage?.author.user.username ?? "Unknown user";
         const isCurrentUserAuthor = lastMessage?.author.id === currentUser;
 
-        return {
-            lastMessageContent: lastMessage
-                ? isCurrentUserAuthor
-                    ? `You: ${lastMessage.content}`
-                    : `${authorName}: ${lastMessage.content}`
-                : "No messages",
-        };
+        return lastMessage
+            ? isCurrentUserAuthor
+                ? `You: ${lastMessage.content}`
+                : `${authorName}: ${lastMessage.content}`
+            : "No messages";
     }, [chat.lastMessage, currentUser]);
 
-    const chatItemClass = chat.type === ChannelType.DM
-        ? styles["news-channel"]
-        : "";
+    useEffect(() => {
+        const replaceNameEmojis = async () => {
+            const replacedName = await replaceEmojis(chat.display_name || chat.name, "64");
+            setEmojiReplacedName(replacedName);
+        };
+
+        void replaceNameEmojis();
+    }, [chat.display_name, chat.name]);
+
+    const chatItemClass = chat.type === ChannelType.DM ? styles["news-channel"] : "";
 
     const avatarContent = useMemo(() => {
         if (chat.icon) {
@@ -50,7 +56,7 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
             {avatarContent}
             <div className={styles["chat-info"]}>
                 <p className={styles["chat-name"]}>
-                    {replaceEmojis(chat.display_name || chat.name, "64")}
+                    {emojiReplacedName}
                 </p>
                 <p className={styles["chat-message"]}>
                     {lastMessageContent}

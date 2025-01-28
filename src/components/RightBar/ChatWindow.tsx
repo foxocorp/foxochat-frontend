@@ -1,4 +1,4 @@
-import { useRef } from "preact/hooks";
+import { useRef, useEffect } from "preact/hooks";
 import { observer } from "mobx-react";
 import MessageList from "./MessageList/MessageList.tsx";
 import MessageInput from "./MessageInput/MessageInput.tsx";
@@ -16,6 +16,10 @@ const ChatWindow = observer(({ channel }: ChatWindowProps) => {
         lastLoadPosition: 0,
         isTracking: false
     });
+
+    useEffect(() => {
+        document.title = channel.display_name || channel.name || "Foxogram";
+    }, [channel]);
 
     const handleScroll = useThrottle(() => {
         const list = messageListRef.current;

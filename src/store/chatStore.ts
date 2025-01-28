@@ -344,6 +344,13 @@ class ChatStore {
         }
     });
 
+    private playSendMessageSound() {
+        const audio = new Audio("public/sounds/fg_sfx.mp3");
+        audio.play().catch((error: unknown) => {
+            Logger.error(`Failed to play message sent sound: ${error}`);
+        });
+    }
+
     async sendMessage(content: string, files: File[] = []) {
         if (!this.currentChannelId || !this.currentUserId) return;
 
@@ -360,6 +367,8 @@ class ChatStore {
             const response = await apiMethods.createMessage(this.currentChannelId, formData);
 
             runInAction(() => { this.processSentMessage(response); });
+
+            this.playSendMessageSound();
         } catch (error) {
             this.handleMessageSendError(error);
         } finally {
