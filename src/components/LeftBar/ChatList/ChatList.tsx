@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
 import { ChatListProps, Channel } from "@interfaces/chat.interface.ts";
@@ -7,14 +7,20 @@ import { observer } from "mobx-react";
 
 const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) => {
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
+    const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
     const handleSelectChat = (chat: Channel) => {
         setActiveChatId(chat.id);
         onSelectChat(chat);
     };
 
-    const noChatsMessage = useMemo(async () => {
-        return await replaceEmojis("😔", "160");
+    useEffect(() => {
+        const fetchNoChatsMessage = async () => {
+            const message = await replaceEmojis("😔", "160");
+            setNoChatsMessage(message);
+        };
+
+        void fetchNoChatsMessage();
     }, []);
 
     if (chats.length === 0) {
