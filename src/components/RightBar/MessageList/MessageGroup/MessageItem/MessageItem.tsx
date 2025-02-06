@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from 'rehype-highlight'
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./MessageItem.module.css";
 import { MessageItemProps } from "@interfaces/chat.interface";
@@ -103,7 +105,9 @@ const MessageItem = ({ content, created_at, author, currentUserId, showAuthorNam
                                 {safeAuthor.user.display_name || safeAuthor.user.username}
                             </div>
                         )}
-                        <div className={styles["message-text"]}>{content}</div>
+                        <div className={styles["message-text"]}>
+                            <ReactMarkdown>{content}</ReactMarkdown>
+                        </div>
                         <div className={styles["timestamp"]}>{formattedTime}</div>
                     </div>
                 )}

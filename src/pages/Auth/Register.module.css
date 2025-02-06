@@ -69,6 +69,7 @@
 	height: 48px;
 	margin-bottom: 15px;
 	transition: border 0.3s ease-in-out !important;
+	color: var(--primary-color);
 }
 
 .register-input:focus {

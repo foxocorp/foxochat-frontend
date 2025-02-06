@@ -89,6 +89,10 @@ button {
 	cursor: pointer;
 }
 
+li {
+	list-style-position: inside;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	::before,

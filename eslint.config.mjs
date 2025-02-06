@@ -28,6 +28,7 @@ export default tseslint.config(
 			"comma-dangle": [2, "always-multiline"],
 			"@typescript-eslint/ban-ts-comment": 2,
 			"@typescript-eslint/restrict-template-expressions": 0,
+			"@typescript-eslint/no-unsafe-member-access": 0,
 
 			/**
 			 * Preact / JSX rules

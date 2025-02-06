@@ -4,12 +4,23 @@ import { defineConfig } from "vite";
 import { dirname, resolve } from "path";
 import preact from "@preact/preset-vite";
 import autoprefixer from "autoprefixer";
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [preact()],
+    plugins: [
+        preact(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'node_modules/foxomoji/dist/**/*',
+                    dest: 'foxomoji',
+                },
+            ],
+        }),
+    ],
     resolve: {
         alias: [
             {

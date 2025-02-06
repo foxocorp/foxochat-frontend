@@ -6,15 +6,14 @@ import foxomoji from 'foxomoji';
  * @param resolution - The resolution of the emoji images (either '64' or '160').
  * @returns The text with emojis replaced by image tags.
  */
-export const replaceEmojis = (text: string, resolution: '64' | '160' = '64'): string => {
+export const replaceEmojis = async (text: string, resolution: '64' | '160' = '64'): Promise<string> => {
     const emojis = foxomoji.getAllEmojis();
     let result = text;
 
-    emojis.forEach((emoji: { code: string; char: string; }) => {
-        const escapedChar = escapeRegExp(emoji.char);
-        const imgTag = `<img src="/node_modules/foxomoji/dist/emoji-${resolution}/${emoji.code}.png" class="emoji" alt="${emoji.char}" draggable="false">`;
-        result = result.replace(new RegExp(escapedChar, 'g'), imgTag);
-    });
+    for (const emoji of emojis) {
+        const imgTag = `<img src="/foxomoji/emoji-${resolution}/${emoji.code}.png" class="emoji" alt="${emoji.char}" draggable="false">`;
+        result = result.replace(new RegExp(escapeRegExp(emoji.char), 'g'), imgTag);
+    }
 
     return result;
 };
