@@ -42,7 +42,22 @@ export const apiMethods = {
     confirmResetPassword: (email: string, code: string, new_password: string) => foxogramAPI.auth.resetPasswordConfirm({ email, code, new_password }),
     verifyEmail: (code: string) => foxogramAPI.auth.verifyEmail({ code }),
 
-    getCurrentUser: () => foxogramAPI.user.current(),
+    getCurrentUser: async () => {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error("Authorization required");
+        }
+
+        try {
+            return await foxogramAPI.user.current();
+        } catch (error) {
+            if ((error as any)?.status === 401) {
+                removeAuthToken();
+                throw error;
+            }
+            throw error;
+        }
+    },
     editUser: (body: { name: string; email: string }) => foxogramAPI.user.edit(body),
     deleteUser: async (body: { password: string }) => {
         await foxogramAPI.user.delete(body);
