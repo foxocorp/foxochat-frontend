@@ -91,12 +91,7 @@ export class Message {
     content: string;
     author: Member;
     channel: Channel;
-    attachments: [
-        hash: string,
-        contentType: string,
-        filename: string,
-        flags: string,
-    ];
+    attachments: [];
     created_at: number;
 
     constructor(data: {
@@ -104,12 +99,7 @@ export class Message {
         content: string;
         author: APIMember;
         channel: APIChannel;
-        attachments: [
-            hash: string,
-            contentType: string,
-            filename: string,
-            flags: string,
-        ];
+        attachments: Attachment[];
         created_at: number
     }) {
         this.id = data.id ?? 0;
@@ -238,10 +228,13 @@ export interface MessageItemProps {
     currentUserId: number;
     showAuthorName: boolean;
     attachments: Attachment[];
+    status?: "sending" | "sent" | "failed";
+    onRetry?: () => void;
+    onDelete?: () => void;
 }
 
 export interface Attachment {
-    hash: string;
+    id: string;
     content_type: string;
     filename: string;
     flags: number;
