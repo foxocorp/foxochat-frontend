@@ -27,11 +27,11 @@ export const Modal = ({ title, description, onClose, actionButtons = [], icon }:
             <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
                 <h2 className={styles["title"]}>{title}</h2>
                 <div className={styles["description"]}>
-                    <span>{description}</span>
+                    <span>{typeof description === "object" ? JSON.stringify(description) : description}</span>
                 </div>
                 <div className={styles["actions"]}>
                     {actionButtons.length > 0 ? (actionButtons) : (
-                        <Button onClick={onClose} variant="primary" icon={icon}>
+                        <Button onClick={onClose} fontWeight={500} variant="primary" icon={icon}>
                             Close
                         </Button>
                     )}

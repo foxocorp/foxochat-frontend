@@ -8,13 +8,18 @@ import { chatStore } from "@store/chatStore.ts";
 import { ChatWindowProps } from "@interfaces/chat.interface.ts";
 import { useThrottle } from "@hooks/useThrottle.ts";
 
-const ChatWindow = observer(({ channel }: ChatWindowProps) => {
+interface Props extends ChatWindowProps {
+    isMobile: boolean;
+    onBack?: () => void;
+}
+
+const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
     const messageListRef = useRef<HTMLDivElement>(null);
     const messages = chatStore.messagesByChannelId[channel.id] || [];
     const scrollState = useRef({
         prevHeight: 0,
         lastLoadPosition: 0,
-        isTracking: false
+        isTracking: false,
     });
 
     useEffect(() => {
@@ -24,21 +29,16 @@ const ChatWindow = observer(({ channel }: ChatWindowProps) => {
     const handleScroll = useThrottle(() => {
         const list = messageListRef.current;
         if (!list || chatStore.isLoadingHistory || !messages.length) return;
-
         const scrollPosition = list.scrollTop;
         const triggerZone = list.clientHeight * 0.7;
-
         if (scrollPosition < triggerZone && !scrollState.current.isTracking) {
             scrollState.current.prevHeight = list.scrollHeight;
             scrollState.current.lastLoadPosition = scrollPosition;
             scrollState.current.isTracking = true;
-
             const beforeTimestamp = messages[0]?.created_at ?? undefined;
-
-            chatStore.fetchMessages(channel.id, beforeTimestamp)
-                .finally(() => {
-                    scrollState.current.isTracking = false;
-                });
+            chatStore.fetchMessages(channel.id, beforeTimestamp).finally(() => {
+                scrollState.current.isTracking = false;
+            });
         }
     }, 300);
 
@@ -46,10 +46,12 @@ const ChatWindow = observer(({ channel }: ChatWindowProps) => {
         <div className={styles["chat-window"]}>
             <ChatHeader
                 avatar={channel.icon}
-                username={channel.display_name || channel.name}
+                username={channel.name}
+                displayName={channel.display_name}
                 channelId={channel.id}
+                isMobile={isMobile}
+                onBack={isMobile ? (onBack as () => void) : () => {}}
             />
-
             <MessageList
                 messages={messages}
                 currentUserId={chatStore.currentUserId ?? -1}
@@ -57,7 +59,6 @@ const ChatWindow = observer(({ channel }: ChatWindowProps) => {
                 onScroll={handleScroll}
                 channel={channel}
             />
-
             <MessageInput
                 onSendMessage={(content, files) => chatStore.sendMessage(content, files)}
                 isSending={chatStore.isSendingMessage}

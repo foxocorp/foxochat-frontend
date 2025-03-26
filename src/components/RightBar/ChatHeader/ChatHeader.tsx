@@ -1,11 +1,22 @@
-import styles from "./ChatHeader.module.css";
+import { useEffect, useState } from "preact/hooks";
 import { ChatHeaderProps } from "@interfaces/chat.interface.ts";
 import { apiMethods } from "@services/API/apiMethods.ts";
-import { useEffect, useState } from "preact/hooks";
+import styles from "./ChatHeader.module.css";
 
-const ChatHeader = ({ avatar, displayName, username, channelId }: ChatHeaderProps) => {
+interface Props extends ChatHeaderProps {
+    isMobile: boolean;
+    onBack: () => void;
+}
+
+const ChatHeader = ({
+                        avatar,
+                        displayName,
+                        username,
+                        channelId,
+                        isMobile,
+                        onBack,
+                    }: Props) => {
     const nameToDisplay = displayName ?? username;
-
     const [participantsCount, setParticipantsCount] = useState(0);
 
     useEffect(() => {
@@ -17,12 +28,16 @@ const ChatHeader = ({ avatar, displayName, username, channelId }: ChatHeaderProp
                 console.error("Failed to fetch members:", error);
             }
         };
-
         if (channelId) void fetchMembers();
     }, [channelId]);
 
     return (
         <div className={styles["chat-header"]}>
+            {isMobile && onBack && (
+                <button className={styles["back-button"]} onClick={onBack}>
+                    ←
+                </button>
+            )}
             {avatar ? (
                 <img
                     src={avatar}
@@ -37,12 +52,11 @@ const ChatHeader = ({ avatar, displayName, username, channelId }: ChatHeaderProp
             <div className={styles["chat-header-info"]}>
                 <p className={styles["chat-header-username"]}>{nameToDisplay}</p>
                 <div className={styles["chat-header-members"]}>
-                    <span className={styles["members-count"]}>
-                        • {participantsCount} Members
-                    </span>
+          <span className={styles["members-count"]}>
+            • {participantsCount} Members
+          </span>
                 </div>
             </div>
-            <button className={styles["chat-header-edit"]} />
         </div>
     );
 };
