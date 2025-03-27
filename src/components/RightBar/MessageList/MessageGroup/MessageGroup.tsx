@@ -1,6 +1,7 @@
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem.tsx";
 import styles from "./MessageGroup.module.css";
 import { MessageGroupProps } from "@interfaces/chat.interface.ts";
+import { chatStore } from "@store/chatStore.ts";
 
 const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
     if (messages.length === 0) return null;
@@ -19,6 +20,9 @@ const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
                     currentUserId={currentUserId}
                     showAuthorName={true}
                     attachments={msg.attachments ?? []}
+                    status={msg.status}
+                    onRetry={() => chatStore.retryMessage(msg.id)}
+                    onDelete={() => chatStore.deleteMessage(msg.id)}
                 />
             ))}
         </div>

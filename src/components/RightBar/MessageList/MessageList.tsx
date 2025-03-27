@@ -57,7 +57,7 @@ const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channe
             list.scrollTop = list.scrollHeight;
             isInitialLoad.current = false;
         } else if (messages.length > prevMessagesCount.current) {
-            const wasNearBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 100;
+            const wasNearBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 200;
             if (wasNearBottom) {
                 list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
             }

@@ -1,7 +1,7 @@
 import { action, flow, makeAutoObservable, observable, runInAction } from "mobx";
 import { apiMethods, getAuthToken } from "@services/API/apiMethods.ts";
 import { APIMessage, APIUser, APIChannel, ChannelType, UserType, UserFlags, APIMember, MemberPermissions } from "@foxogram/api-types";
-import { Channel, Member, Message, User } from "@interfaces/chat.interface.ts";
+import { Channel, Member, Message, User, Attachment } from "@interfaces/chat.interface.ts";
 import { WebSocketClient } from "../gateway/webSocketClient.ts";
 import { GatewayDispatchEvents } from "@foxogram/gateway-types";
 import { initWebSocket } from "../gateway/initWebSocket.ts";
@@ -80,8 +80,22 @@ class ChatStore {
         }, { autoBind: true });
     }
 
+    async retryMessage(messageId: number) {
+        const message = this.messagesByChannelId[this.currentChannelId]
+            ?.find(m => m.id === messageId);
+
+        if (message) {
+            await this.sendMessage(message.content, message.attachments);
+            this.deleteMessage(messageId);
+        }
+    }
+
     setCurrentUser = action((userId: number) => {
-        this.currentUserId = userId;
+        try {
+            this.currentUserId = userId;
+        } catch (error) {
+            Logger.error(`Error while setting current user: ${userId}`);
+        }
     });
 
     setHasMoreMessages = action((channelId: number, hasMore: boolean) => {
@@ -124,7 +138,7 @@ class ChatStore {
             yield this.fetchChannelsFromAPI();
             this.initializeWebSocket();
         } catch (error) {
-            Logger.error(`Store initialization failed: ${error}`);
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
             runInAction(() => {
                 this.connectionError = "Initialization error";
             });
@@ -152,7 +166,7 @@ class ChatStore {
         if (!this.currentChannelId) return;
         const currentMessages = this.messagesByChannelId[this.currentChannelId];
         if (currentMessages?.length) return;
-        this.fetchMessages(this.currentChannelId).catch((err) => { Logger.error(err);});
+        this.fetchMessages(this.currentChannelId).catch((err: unknown) => { Logger.error(err instanceof Error ? err.message : "An unknown error occurred");});
     });
 
     private setupWebSocketHandlers() {
@@ -165,10 +179,6 @@ class ChatStore {
         };
 
         this.wsClient.on(GatewayDispatchEvents.MessageCreate, messageHandler);
-    }
-
-    private isAuthorizationError(error: unknown): boolean {
-        return (error as any)?.response?.status === 401 || (error as any)?.code === "UNAUTHORIZED";
     }
 
     private clearAuthAndRedirect() {
@@ -195,17 +205,25 @@ class ChatStore {
                 this.connectionError = null;
             });
         } catch (error) {
-            if (this.isAuthorizationError(error)) {
+            if ((error as any)?.response?.status === 401 || (error as any)?.code === "UNAUTHORIZED") {
+                Logger.error(`Authorization error occurred ${error}`);
                 this.clearAuthAndRedirect();
+            } else {
+                Logger.error(`Failed to fetch current user ${error}`);
             }
         }
     }
 
     async fetchChannelsFromAPI(): Promise<void> {
-        if (this.channels.length > 0 || this.activeRequests.has("channels")) return;
-        this.activeRequests.add("channels");
+        if (!getAuthToken()) {
+            this.clearAuthAndRedirect();
+            return;
+        }
 
         try {
+            if (this.channels.length > 0 || this.activeRequests.has("channels")) return;
+            this.activeRequests.add("channels");
+
             runInAction(() => (this.isLoading = true));
             const apiChannels = await apiMethods.userChannelsList();
 
@@ -215,23 +233,30 @@ class ChatStore {
                     .filter((c): c is Channel => c !== null);
             });
         } catch (error) {
-            this.handleChannelFetchError(error);
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
+            if (this.isAuthError(error)) {
+                this.clearAuthAndRedirect();
+            }
         } finally {
             this.activeRequests.delete("channels");
             runInAction(() => (this.isLoading = false));
         }
     }
 
-    private handleChannelFetchError(error: unknown) {
-        if ((error as any)?.response?.status === 429) {
-            const retryAfter = (error as any).response.headers["Retry-After"] || 5;
-            setTimeout(() => this.fetchChannelsFromAPI(), retryAfter * 1000);
-        } else {
-            Logger.error(`Error fetching channels: ${error}`);
-        }
+    private isAuthError(error: unknown): boolean {
+        return (
+            (error as any)?.response?.status === 401 ||
+            (error as any)?.message?.includes("auth") ||
+            (error as any)?.code === "UNAUTHORIZED"
+        );
     }
 
     async fetchMessages(channelId: number, beforeTimestamp?: number) {
+        if (!getAuthToken()) {
+            this.clearAuthAndRedirect();
+            return;
+        }
+
         if (this.shouldAbortRequest(channelId)) return;
 
         const isInitial = !beforeTimestamp;
@@ -290,11 +315,13 @@ class ChatStore {
 
     private handleFetchError(error: unknown) {
         if ((error as Error).name === "AbortError") {
-            Logger.debug("Request aborted");
-        } else if (this.isAuthorizationError(error)) {
+            Logger.debug(`Request aborted ${error}`);
+        }
+        else if ((error as any)?.response?.status === 401 || (error as any)?.code === "UNAUTHORIZED") {
+            Logger.error(`Authorization error occurred ${error}`);
             this.clearAuthAndRedirect();
         } else {
-            Logger.error(`Fetch messages error: ${error}`);
+            Logger.error(`Error fetching messages ${error}`);
         }
     }
 
@@ -327,27 +354,27 @@ class ChatStore {
         );
     });
 
-    setCurrentChannel = action((channelId: number | null) => {
+    setCurrentChannel = action(async (channelId: number | null) => {
         this.currentChannelId = channelId;
         if (channelId) {
             localStorage.setItem("currentChannelId", String(channelId));
-            this.loadChannelData(channelId);
+            await this.loadChannelData(channelId);
         } else {
             localStorage.removeItem("currentChannelId");
         }
     });
 
-    private loadChannelData = action((channelId: number) => {
+    private loadChannelData = action(async (channelId: number) => {
         this.setHasMoreMessages(channelId, true);
         if (!this.messagesByChannelId[channelId]?.length) {
-            this.fetchMessages(channelId);
+            await this.fetchMessages(channelId);
         }
     });
 
     private playSendMessageSound() {
         const audio = new Audio("public/sounds/fg_sfx.mp3");
         audio.play().catch((error: unknown) => {
-            Logger.error(`Failed to play message sent sound: ${error}`);
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
         });
     }
 
@@ -382,12 +409,7 @@ class ChatStore {
 
         if (newMessage.attachments.length) {
             newMessage.attachments.forEach((attachment) => {
-                console.log("Attachment received:", {
-                    hash: attachment,
-                    contentType: attachment,
-                    filename: attachment,
-                    flags: attachment,
-                });
+                console.log("Attachment received:", attachment);
             });
         }
 
@@ -401,7 +423,7 @@ class ChatStore {
     }
 
     private handleMessageSendError(error: unknown) {
-        Logger.error(`Message send error: ${error}`);
+        Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
         runInAction(() => {
             this.connectionError = "Failed to send message";
         });
@@ -481,19 +503,24 @@ class ChatStore {
                     : null,
             });
         } catch (error) {
-            Logger.error(`Error creating channel: ${error}`);
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
             return null;
         }
     }
 
     private transformToMessage = (data: APIMessage): Message => {
-        console.log("Full message data:", data);
-
         const author: APIMember = data.author || fallbackMember;
+
+        const attachments: Attachment[] = (data.attachments || []).map(att => ({
+            id: att.id,
+            content_type: att.content_type,
+            filename: att.filename,
+            flags: att.flags,
+        }));
 
         return new Message({
             ...data,
-            attachments: [],
+            attachments,
             author: this.transformApiMember(author),
             channel: this.transformApiChannel(data.channel),
         });

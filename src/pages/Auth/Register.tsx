@@ -46,24 +46,39 @@ const Register = () => {
         }
     }, [location.query]);
 
+    const validateUsername = (username: string): boolean => {
+        const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+        return usernameRegex.test(username);
+    };
+
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email) && email.length >= 4 && email.length <= 64;
+    };
+
+    const validatePassword = (password: string): boolean => {
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,128}$/;
+        return passwordRegex.test(password);
+    };
+
     const validateInputs = (): boolean => {
         let isValid = true;
 
-        if (!username.trim()) {
+        if (!username.trim() || !validateUsername(username)) {
             setUsernameError(true);
             isValid = false;
         } else {
             setUsernameError(false);
         }
 
-        if (!email.trim()) {
+        if (!email.trim() || !validateEmail(email)) {
             setEmailError(true);
             isValid = false;
         } else {
             setEmailError(false);
         }
 
-        if (!password.trim()) {
+        if (!password.trim() || !validatePassword(password)) {
             setPasswordError(true);
             isValid = false;
         } else {
@@ -84,9 +99,13 @@ const Register = () => {
                 setIsModalOpen(true);
             } else {
                 console.error("Registration failed");
+                setModalMessage("Registration failed. Please try again.");
+                setIsErrorModalOpen(true);
             }
         } catch (error) {
-            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
+            Logger.error(error instanceof Error ? error.exception.message : "An unknown error occurred");
+            setModalMessage(error.exception.message);
+            setIsErrorModalOpen(true);
         }
     };
 
@@ -96,7 +115,7 @@ const Register = () => {
             setIsModalOpen(false);
             location.route("/");
         } catch (error) {
-            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
         }
     };
 
@@ -104,7 +123,7 @@ const Register = () => {
         try {
             await apiMethods.resendEmailVerification();
         } catch (error) {
-            Logger.error((error instanceof Error ? error.message : "An unknown error occurred"));
+            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
         }
     };
 
@@ -197,14 +216,14 @@ const Register = () => {
                             </div>
                         </div>
                         <div className={styles["register-button"]}>
-                            <Button
-                                key="register-button"
-                                variant="primary"
-                                onClick={() => {
-                                    void handleRegister();
-                                }}
-                                icon={arrowLeftIcon}
-                            >
+                            <Button key="register-button"
+                                    variant="primary"
+                                    fontSize={20}
+                                    fontWeight={600}
+                                    onClick={() => {
+                                        void handleRegister();
+                                    }}
+                                    icon={arrowLeftIcon}>
                                 Register
                             </Button>
                         </div>

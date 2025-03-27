@@ -1,19 +1,22 @@
 .message-item {
     display: flex;
-    margin-bottom: 8px;
-    padding: 2px 12px;
+    align-items: flex-start;
     gap: 8px;
-    animation: messageAppear 0.3s ease-out;
+    margin-bottom: 12px;
+    padding: 0 8px;
+    width: 100%;
 }
 
 .author {
     flex-direction: row-reverse;
+    margin-left: auto;
 }
 
 .avatar-container {
     width: 32px;
     height: 32px;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .avatar {
@@ -24,8 +27,8 @@
 }
 
 .default-avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: linear-gradient(225deg, #eea7a7 0%, #cd5555 100%);
     display: flex;
@@ -33,98 +36,159 @@
     justify-content: center;
     color: white;
     font-weight: 500;
-    font-size: 18px;
+    font-size: 14px;
 }
 
-.content-wrapper {
-    max-width: 70%;
-    position: relative;
-    margin-left: 10px;
-}
-
-.author-name {
-    font-size: 16px;
-    color: #ececec;
-    margin-bottom: 2px;
-}
-
-.text-content {
-    position: relative;
-    padding: 8px 12px;
-    border-radius: 12px;
-    line-height: 1.4;
-    word-break: break-word;
-}
-
-.author .text-content {
+.message-bubble {
     background: #2f79ff;
-    color: var(--primary-color);
+    border-radius: 12px;
+    padding: 8px 8px;
+    max-width: 480px;
+    min-width: 120px;
+    position: relative;
+    display: inline-block;
+
+    img {
+        border-radius: 12px;
+    }
+}
+
+.author .message-bubble {
+    background: #2f79ff;
     border-radius: 12px 12px 2px 12px;
 }
 
-.receiver .text-content {
-    background: rgb(40 40 40 / 0.4);
-    color: rgb(236 236 236 / 0.75);
-    border-radius: 2px 12px 12px 12px;
+.receiver .message-bubble {
+    background: rgba(40, 40, 40, 0.4);
+    border-radius: 12px 12px 12px 2px;
 }
 
-.message-text {
-    font-weight: 400;
-    font-size: 16px;
-    padding-right: 40px;
-}
-
-.timestamp {
-    position: absolute;
-    right: 8px;
-    bottom: 4px;
-    font-size: 11px;
-    color: rgb(255 255 255 / 0.5);
-    white-space: nowrap;
-}
-
-.image-container {
-    margin: 4px 0;
+.media-grid {
+    max-width: 400px;
+    display: grid;
+    margin-bottom: 8px;
     border-radius: 8px;
     overflow: hidden;
 }
 
-.message-image {
-    max-width: 240px;
-    max-height: 240px;
+.media-image {
+    max-width: 100%;
+    height: auto;
     object-fit: cover;
-    cursor: zoom-in;
     border-radius: 6px;
 }
 
-.image-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgb(0 0 0 / 0.9);
+.text-content {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    cursor: zoom-out;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.fullscreen-image {
-    max-width: 90%;
-    max-height: 90vh;
-    object-fit: contain;
+.author-name {
+    font-size: 0.8rem;
+    color: #e0e0e0;
+    margin-bottom: 4px;
+}
+
+.message-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-right: 63px;
+    min-height: 1.2em;
+}
+
+.message-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.timestamp {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.status-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+}
+
+.action-popup {
+    background: #2b2b2b;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.author .action-popup {
+    left: 0;
+    right: auto;
+}
+
+.action-popup button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.action-popup button:hover {
+    opacity: 1;
+}
+
+.action-popup img {
+    width: 24px;
+    height: 24px;
+}
+
+.gif-content {
+    max-width: 300px;
+    max-height: 400px;
+    border-radius: 8px;
+    image-rendering: optimizeQuality;
+}
+
+.media-container {
+    margin: 8px 0;
+    position: relative;
+}
+
+.media-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+.media-video {
+    width: 100%;
+    max-width: 400px;
     border-radius: 8px;
 }
 
-@keyframes messageAppear {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.media-audio {
+    width: 100%;
+    min-width: 200px;
+}
+
+.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.file-icon {
+    width: 24px;
+    height: 24px;
 }

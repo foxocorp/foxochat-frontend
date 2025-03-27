@@ -27,7 +27,8 @@ const Login = (): JSX.Element => {
 	};
 
 	const validatePassword = (password: string): boolean => {
-		return password.length >= 4 && password.length <= 128;
+		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,128}$/;
+		return passwordRegex.test(password);
 	};
 
 	const handleLogin = async (): Promise<void> => {
@@ -61,7 +62,6 @@ const Login = (): JSX.Element => {
 			Logger.error(`Error during login: ${error}`);
 		}
 	};
-
 
 	const openPasswordResetModal = (): void => {
 		setPasswordResetModalOpen(true);
@@ -111,10 +111,15 @@ const Login = (): JSX.Element => {
 									)}
 								</div>
 							</div>
-
 						</div>
 						<div className={styles["login-button"]}>
-							<Button key="login-button" variant="primary" onClick={handleLogin} icon={arrowLeftIcon}>
+							<Button
+								key="login-button"
+								variant="primary"
+								fontSize={20}
+								fontWeight={600}
+								onClick={handleLogin}
+								icon={arrowLeftIcon}>
 								Log in
 							</Button>
 						</div>

@@ -26,6 +26,7 @@
     margin: 0 auto;
     height: 30px;
     z-index: 99;
+    backdrop-filter: blur(25px);
 }
 
 .sticky-date span {
