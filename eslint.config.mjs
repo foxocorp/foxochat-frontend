@@ -141,4 +141,11 @@ export default tseslint.config(
 			},
 		},
 	},
+	{
+		files: ["**/*.d.ts"],
+		rules: {
+			"no-unused-vars": "off",
+			"@typescript-eslint/no-unused-vars": "off",
+		},
+	}
 );

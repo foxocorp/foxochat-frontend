@@ -12,6 +12,24 @@ import React from "react";
 
 /* === Interface Definitions === */
 
+export interface ConnectionManager {
+    startHeartbeat: (interval: number, sendHeartbeat: () => void, onMissed: () => void) => number;
+    cleanupHeartbeat: (heartbeatIntervalId: number | null) => void;
+    scheduleReconnect: (
+        isExplicitClose: boolean,
+        currentAttempts: number,
+        maxReconnectAttempts: number,
+        currentDelay: number,
+        reconnectFn: () => void
+    ) => ReturnType<typeof setTimeout> | null;
+    checkConnectionHealth: (
+        isConnected: boolean,
+        heartbeatAckReceived: boolean,
+        reconnectFn: () => void,
+        delay: number
+    ) => void;
+}
+
 export class Member {
     id: number;
     user: User;
@@ -91,16 +109,16 @@ export class Message {
     content: string;
     author: Member;
     channel: Channel;
-    attachments: [];
+    attachments: Attachment[];
     created_at: number;
 
     constructor(data: {
-        id: number;
-        content: string;
+        id?: number;
+        content?: string;
         author: APIMember;
         channel: APIChannel;
-        attachments: Attachment[];
-        created_at: number
+        attachments?: Attachment[];
+        created_at?: number;
     }) {
         this.id = data.id ?? 0;
         this.content = data.content ?? "";
@@ -182,14 +200,11 @@ export class Channel {
     }
 }
 
-
 /* === Props Section === */
 
-/* Chat Props */
-export interface LoadingProps {
-    isLoading: boolean;
-    onLoaded?: () => void;
-}
+/**
+ * Chat Props
+ */
 
 export interface ChatWindowProps {
     channel: Channel;
@@ -240,7 +255,10 @@ export interface Attachment {
     flags: number;
 }
 
-/* Message Props */
+/**
+ * Message Prop
+ */
+
 export interface MessageListProps {
     messages: Message[];
     currentUserId: number;
@@ -255,7 +273,10 @@ export interface MessageInputProps {
     isSending: boolean;
 }
 
-/* Other Props */
+/**
+ * Other Props
+*/
+
 export interface EmptyStateProps {
     chats: Channel[];
     onSelectChat: (chat: Channel) => void;
