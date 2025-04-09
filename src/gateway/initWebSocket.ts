@@ -9,13 +9,9 @@ export const initWebSocket = (
         ? "wss://gateway.foxogram.su"
         : "wss://gateway.dev.foxogram.su";
 
-    return new WebSocketClient(
-        () => token,
-        gatewayUrl,
-        (event: CloseEvent) => {
-            if (event.code === GatewayCloseCodes.Unauthorized) {
-                onUnauthorized?.();
-            }
-        },
+    return new WebSocketClient( () => token, gatewayUrl, (event: CloseEvent) => {
+        if (event.code === Number(GatewayCloseCodes.Unauthorized)) {
+            onUnauthorized?.();
+        }}, onUnauthorized,
     );
 };
