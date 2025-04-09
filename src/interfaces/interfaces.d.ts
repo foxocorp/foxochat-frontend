@@ -13,8 +13,12 @@ import React from "react";
 /* === Interface Definitions === */
 
 export interface ConnectionManager {
-    startHeartbeat: (interval: number, sendHeartbeat: () => void, onMissed: () => void) => number;
-    cleanupHeartbeat: (heartbeatIntervalId: number | null) => void;
+    startHeartbeat(
+        interval: number,
+        sendHeartbeat: () => void,
+        onMissed: () => void
+    ): ReturnType<typeof setInterval>;
+    cleanupHeartbeat(id: ReturnType<typeof setInterval> | null): void;
     scheduleReconnect: (
         isExplicitClose: boolean,
         currentAttempts: number,
