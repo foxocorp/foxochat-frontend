@@ -3,7 +3,7 @@ import { apiMethods } from "@services/API/apiMethods.ts";
 import styles from "./UserInfo.module.css";
 import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
-import { UserInfoProps } from "@interfaces/chat.interface.ts";
+import { UserInfoProps } from "@interfaces/interfaces.d";
 import { chatStore } from "@store/chatStore.ts";
 
 const UserInfo = ({ username, avatar, status }: UserInfoProps) => {

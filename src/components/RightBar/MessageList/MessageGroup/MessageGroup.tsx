@@ -1,6 +1,6 @@
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem.tsx";
 import styles from "./MessageGroup.module.css";
-import { MessageGroupProps } from "@interfaces/chat.interface.ts";
+import { MessageGroupProps } from "@interfaces/interfaces.d";
 import { chatStore } from "@store/chatStore.ts";
 
 const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {

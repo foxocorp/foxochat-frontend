@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
-import { ChatListProps, Channel } from "@interfaces/chat.interface.ts";
+import { ChatListProps, Channel } from "@interfaces/interfaces.d";
 import { replaceEmojis } from "@utils/emoji.ts";
 import { observer } from "mobx-react";
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "preact/hooks";
-import { SidebarProps } from "@interfaces/chat.interface.ts";
+import { SidebarProps } from "@interfaces/interfaces.d";
 import styles from "./Sidebar.module.css";
 import SearchBar from "./SearchBar/SearchBar.tsx";
 import ChatList from "@components/LeftBar/ChatList/ChatList";

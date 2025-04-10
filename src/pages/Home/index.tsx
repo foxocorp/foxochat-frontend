@@ -9,7 +9,7 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState.tsx";
 import { apiMethods } from "@services/API/apiMethods.ts";
 import { getAuthToken } from "@services/API/apiMethods";
 import { chatStore } from "@store/chatStore.ts";
-import { Channel } from "@interfaces/chat.interface.ts";
+import { Channel } from "@interfaces/interfaces.d";
 import { Logger } from "@utils/logger.ts";
 import { initWebSocket } from "../../gateway/initWebSocket.ts";
 

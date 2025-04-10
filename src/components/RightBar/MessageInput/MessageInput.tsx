@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "preact/hooks";
 import styles from "./MessageInput.module.css";
 import mediaIcon from "@icons/chat/media.svg";
 import sendIcon from "@icons/chat/paperplane.svg";
-import { MessageInputProps } from "@interfaces/chat.interface.ts";
+import { MessageInputProps } from "@interfaces/interfaces.d";
 import { chatStore } from "@store/chatStore.ts";
 import { Logger } from "@utils/logger.ts";
 import React from "react";
