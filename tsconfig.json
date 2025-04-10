@@ -1,7 +1,6 @@
 {
 	"extends": [
-		"@tsconfig/strictest/tsconfig.json",
-		"@tsconfig/vite-react/tsconfig.json"
+		"@tsconfig/strictest/tsconfig.json"
 	],
 	"compilerOptions": {
 		/* Preact Config */
@@ -18,5 +17,5 @@
 			"@interfaces/*": ["./src/interfaces/*"]
 		}
 	},
-	"include": ["node_modules/vite/client.d.ts", "**/*", "src/types.d.ts"]
+	"include": ["src/**/*"]
 }

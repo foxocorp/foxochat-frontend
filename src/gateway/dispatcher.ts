@@ -1,4 +1,4 @@
-import { EventPayloadMap, EmitFunc, EventHandlers } from "./types";
+import { EventPayloadMap, EmitFunc, EventHandlers } from "./types.d";
 import { Logger } from "@utils/logger";
 import { messageEventHandlers } from "./events/messageEventHandlers";
 import { channelEventHandlers } from "./events/channelEventHandlers";
