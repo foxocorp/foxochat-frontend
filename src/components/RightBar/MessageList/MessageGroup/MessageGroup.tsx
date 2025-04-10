@@ -1,7 +1,7 @@
-import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem.tsx";
+import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem";
 import styles from "./MessageGroup.module.css";
 import { MessageGroupProps } from "@interfaces/interfaces.d";
-import { chatStore } from "@store/chatStore.ts";
+import { chatStore } from "@store/chatStore";
 
 const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
     if (messages.length === 0) return null;

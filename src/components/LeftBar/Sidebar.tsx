@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { SidebarProps } from "@interfaces/interfaces.d";
 import styles from "./Sidebar.module.css";
-import SearchBar from "./SearchBar/SearchBar.tsx";
+import SearchBar from "./SearchBar/SearchBar";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
-import UserInfo from "./UserInfo/UserInfo.tsx";
+import UserInfo from "./UserInfo/UserInfo";
 
 const MIN_SIDEBAR_WIDTH = 300;
 const DEFAULT_DESKTOP_WIDTH = 460;

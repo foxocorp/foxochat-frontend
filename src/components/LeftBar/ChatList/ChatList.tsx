@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
 import { ChatListProps, Channel } from "@interfaces/interfaces.d";
-import { replaceEmojis } from "@utils/emoji.ts";
+import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 
 const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) => {

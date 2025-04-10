@@ -1,4 +1,4 @@
-import { WebSocketClient } from "./webSocketClient.ts";
+import { WebSocketClient } from "./webSocketClient";
 import { GatewayCloseCodes } from "@foxogram/gateway-types";
 
 export const initWebSocket = (

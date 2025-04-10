@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "preact/hooks";
-import { Button } from "@components/Base/Buttons/Button.tsx";
-import { useEmailVerification } from "./EmailConfirmation.ts";
+import { Button } from "@components/Base/Buttons/Button";
+import { useEmailVerification } from "./EmailConfirmation";
 
 import styles from "./EmailConfirmationModal.module.css";
 import TimerIcon from "@icons/timer.svg";

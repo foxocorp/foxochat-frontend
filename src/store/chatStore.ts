@@ -1,11 +1,11 @@
 import { action, flow, makeAutoObservable, observable, runInAction } from "mobx";
-import { apiMethods, getAuthToken } from "@services/API/apiMethods.ts";
+import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { APIMessage, APIUser, APIChannel, ChannelType, UserType, UserFlags, APIMember, MemberPermissions } from "@foxogram/api-types";
 import { Channel, Member, Message, User, Attachment } from "@interfaces/interfaces.d";
-import { WebSocketClient } from "../gateway/webSocketClient.ts";
+import { WebSocketClient } from "../gateway/webSocketClient";
 import { GatewayDispatchEvents } from "@foxogram/gateway-types";
-import { initWebSocket } from "../gateway/initWebSocket.ts";
-import { Logger } from "../utils/logger.ts";
+import { initWebSocket } from "../gateway/initWebSocket";
+import { Logger } from "../utils/logger";
 
 const fallbackMember: APIMember = {
     id: 0,

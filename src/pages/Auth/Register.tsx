@@ -6,12 +6,12 @@ import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
 
 import { Button } from "@components/Base";
-import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal.tsx";
-import { Modal } from "@components/Modal/Modal.tsx";
+import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal";
+import { Modal } from "@components/Modal/Modal";
 
-import { useAuthStore } from "@store/authenticationStore.ts";
-import { apiMethods } from "@services/API/apiMethods.ts";
-import { Logger } from "@utils/logger.ts";
+import { useAuthStore } from "@store/authenticationStore";
+import { apiMethods } from "@services/API/apiMethods";
+import { Logger } from "@utils/logger";
 
 const Register = () => {
     const [username, setUsername] = useState("");

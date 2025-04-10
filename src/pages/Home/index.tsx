@@ -2,16 +2,16 @@ import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import { observer } from "mobx-react";
 import "./style.css";
-import Loading from "@components/LoadingApp/LoadingApp.tsx";
-import Sidebar from "@components/LeftBar/Sidebar.tsx";
-import ChatWindow from "@components/RightBar/ChatWindow.tsx";
-import EmptyState from "@components/RightBar/EmptyState/EmptyState.tsx";
-import { apiMethods } from "@services/API/apiMethods.ts";
+import Loading from "@components/LoadingApp/LoadingApp";
+import Sidebar from "@components/LeftBar/Sidebar";
+import ChatWindow from "@components/RightBar/ChatWindow";
+import EmptyState from "@components/RightBar/EmptyState/EmptyState";
+import { apiMethods } from "@services/API/apiMethods";
 import { getAuthToken } from "@services/API/apiMethods";
-import { chatStore } from "@store/chatStore.ts";
+import { chatStore } from "@store/chatStore";
 import { Channel } from "@interfaces/interfaces.d";
-import { Logger } from "@utils/logger.ts";
-import { initWebSocket } from "../../gateway/initWebSocket.ts";
+import { Logger } from "@utils/logger";
+import { initWebSocket } from "../../gateway/initWebSocket";
 
 export const Home = observer(() => {
 	const location = useLocation();

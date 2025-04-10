@@ -14,9 +14,9 @@ import { LocationProvider, Router, Route } from "preact-iso";
 
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/_404.jsx";
-import Login from "./pages/Auth/Login.tsx";
-import Register from "./pages/Auth/Register.tsx";
-import EmailConfirmationHandler from "./pages/Auth/Email/Verify.tsx";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 
 export function App() {
     return (

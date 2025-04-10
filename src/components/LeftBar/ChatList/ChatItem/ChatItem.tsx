@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import styles from "./ChatItem.module.css";
-import { replaceEmojis } from "@utils/emoji.ts";
+import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 import { ChannelType } from "@foxogram/api-types";
 import { ChatItemProps } from "@interfaces/interfaces.d";

@@ -1,4 +1,4 @@
-import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup.tsx";
+import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
 import styles from "./MessageList.module.css";
 import { Message, MessageListProps } from "@interfaces/interfaces.d";
 import { useEffect, useMemo, useRef } from "preact/hooks";

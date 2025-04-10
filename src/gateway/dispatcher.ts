@@ -1,8 +1,8 @@
 import { EventPayloadMap, EmitFunc, EventHandlers } from "./types";
 import { Logger } from "@utils/logger";
-import { messageEventHandlers } from "./events/messageEventHandlers.ts";
-import { channelEventHandlers } from "./events/channelEventHandlers.ts";
-import { memberEventHandlers } from "./events/memberEventHandlers.ts";
+import { messageEventHandlers } from "./events/messageEventHandlers";
+import { channelEventHandlers } from "./events/channelEventHandlers";
+import { memberEventHandlers } from "./events/memberEventHandlers";
 
 export const allHandlers: EventHandlers = {
     ...channelEventHandlers,

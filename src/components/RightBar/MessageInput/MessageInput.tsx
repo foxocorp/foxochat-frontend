@@ -3,8 +3,8 @@ import styles from "./MessageInput.module.css";
 import mediaIcon from "@icons/chat/media.svg";
 import sendIcon from "@icons/chat/paperplane.svg";
 import { MessageInputProps } from "@interfaces/interfaces.d";
-import { chatStore } from "@store/chatStore.ts";
-import { Logger } from "@utils/logger.ts";
+import { chatStore } from "@store/chatStore";
+import { Logger } from "@utils/logger";
 import React from "react";
 
 const MessageInput = ({ }: MessageInputProps) => {

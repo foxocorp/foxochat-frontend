@@ -1,12 +1,12 @@
 import { useRef, useEffect } from "preact/hooks";
 import { observer } from "mobx-react";
-import MessageList from "./MessageList/MessageList.tsx";
-import MessageInput from "./MessageInput/MessageInput.tsx";
-import ChatHeader from "./ChatHeader/ChatHeader.tsx";
+import MessageList from "./MessageList/MessageList";
+import MessageInput from "./MessageInput/MessageInput";
+import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
-import { chatStore } from "@store/chatStore.ts";
+import { chatStore } from "@store/chatStore";
 import { ChatWindowProps } from "@interfaces/interfaces.d";
-import { useThrottle } from "@hooks/useThrottle.ts";
+import { useThrottle } from "@hooks/useThrottle";
 
 interface Props extends ChatWindowProps {
     isMobile: boolean;
