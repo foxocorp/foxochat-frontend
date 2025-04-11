@@ -3,7 +3,7 @@ import {
     GatewayDispatchEvents,
     GatewayCloseCodes,
 } from "@foxogram/gateway-types";
-import { Logger } from "@utils/logger";
+import { Logger } from "@utils/logger.ts";
 import { APIChannel, APIMember, APIMessage } from "@foxogram/api-types";
 import { connectionManager } from "./connectionManager";
 import { parseMessage, GatewayMessage } from "./messageParser";

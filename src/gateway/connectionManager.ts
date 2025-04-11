@@ -1,5 +1,5 @@
-import { Logger } from "@utils/logger";
-import type { ConnectionManager } from "@interfaces/interfaces.d";
+import { Logger } from "@utils/logger.ts";
+import type { ConnectionManager } from "@interfaces/interfaces.d.ts";
 
 export const connectionManager: ConnectionManager = {
     startHeartbeat(interval, sendHeartbeat, onMissed) {
