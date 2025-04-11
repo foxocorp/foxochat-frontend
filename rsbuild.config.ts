@@ -1,7 +1,11 @@
 import { pluginPreact } from '@rsbuild/plugin-preact';
+import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
 
 export default {
-    plugins: [pluginPreact()],
+    plugins: [
+        pluginPreact(),
+        pluginTypedCSSModules(),
+    ],
     html: {
         template: './index.html',
     },
