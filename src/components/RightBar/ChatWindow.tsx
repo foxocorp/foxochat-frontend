@@ -5,7 +5,7 @@ import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
 import { chatStore } from "@store/chatStore";
-import { ChatWindowProps } from "@interfaces/interfaces.d";
+import { ChatWindowProps } from "@interfaces/interfaces";
 import { useThrottle } from "@hooks/useThrottle";
 
 interface Props extends ChatWindowProps {

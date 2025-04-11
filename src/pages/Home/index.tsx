@@ -9,7 +9,7 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 import { apiMethods } from "@services/API/apiMethods";
 import { getAuthToken } from "@services/API/apiMethods";
 import { chatStore } from "@store/chatStore";
-import { Channel } from "@interfaces/interfaces.d";
+import { Channel } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
 import { initWebSocket } from "../../gateway/initWebSocket";
 
