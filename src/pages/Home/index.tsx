@@ -58,7 +58,7 @@ export const Home = observer(() => {
 
 	useEffect(() => {
 		return () => {
-			chatStore.setCurrentChannel(null);
+			void chatStore.setCurrentChannel(null);
 			wsClientRef.current?.close();
 		};
 	}, []);
@@ -99,14 +99,15 @@ export const Home = observer(() => {
 
 	useEffect(() => {
 		isMounted.current = true;
-		initApp().catch((e: unknown) => { Logger.error(e); });
+		initApp().catch((e: unknown) => {
+			Logger.error(e); });
 		return () => {
 			isMounted.current = false;
 		};
 	}, [initApp]);
 
 	const handleSelectChat = useCallback((chat: Channel) => {
-		chatStore.setCurrentChannel(chat.id);
+		void chatStore.setCurrentChannel(chat.id);
 		if (isMobile) {
 			setMobileView("chat");
 			setChatTransition("slide-in");
@@ -116,7 +117,7 @@ export const Home = observer(() => {
 	const handleBackToList = useCallback(() => {
 		setChatTransition("slide-out");
 		setTimeout(() => {
-			chatStore.setCurrentChannel(null);
+			void chatStore.setCurrentChannel(null);
 			setMobileView("list");
 			setChatTransition("");
 		}, 300);
