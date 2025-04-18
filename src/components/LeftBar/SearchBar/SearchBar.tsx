@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "preact/hooks";
 import styles from "./SearchBar.module.css";
 import searchIcon from "@icons/navigation/magnifying-glass.svg";
 import React from "react";
+import { chatStore } from "@store/chat/chatStore";
+import { apiMethods } from "@services/API/apiMethods";
 
 const platformMatchers: Record<string, RegExp> = {
     windows: /windows nt/i,
@@ -37,6 +39,40 @@ const SearchBar = () => {
     const [isSearchActive, setSearchActive] = useState(false);
     const [isBorderInactive, setBorderInactive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleKeyPress = async (e: KeyboardEvent) => {
+        if (e.key === "Enter" && query.trim()) {
+            const channelId = parseInt(query.trim(), 10);
+            if (!isNaN(channelId)) {
+                try {
+                    const channel = await apiMethods.getChannel(channelId);
+
+                    const isMember = chatStore.channels.some(c => c.id === channelId);
+
+                    if (!isMember) {
+                        await apiMethods.joinChannel(channelId);
+                        chatStore.addNewChannel(channel);
+                    }
+
+                    await chatStore.setCurrentChannel(channelId);
+                    setQuery("");
+                    setSearchActive(false);
+
+                } catch (error) {
+                    console.error("Channel join error:", error);
+                    alert("Couldn't find or join this channel");
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        const input = inputRef.current;
+        if (input) {
+            input.addEventListener("keypress", handleKeyPress);
+            return () => { input.removeEventListener("keypress", handleKeyPress); };
+        }
+    }, [query]);
 
     useEffect(() => {
         const ctrlPlatforms = ["windows", "linux"];
@@ -82,25 +118,18 @@ const SearchBar = () => {
         }
     };
 
-    const shortcut = getShortcut(platform);
 
     return (
         <div className={styles["search-container"]}>
-            <div
-                className={`${styles["search-bar"]} ${isSearchActive ? styles["active"] : ""} ${isBorderInactive ? styles["inactive-border"] : ""}`}
-            >
+            <div className={`${styles["search-bar"]} ${isSearchActive ? styles["active"] : ""} ${isBorderInactive ? styles["inactive-border"] : ""}`}>
                 <img src={searchIcon} alt="Search" className={styles["search-icon"]} />
                 <input
                     ref={inputRef}
-                    id="search-input"
                     type="text"
-                    autoComplete="off"
                     value={query}
                     onInput={handleChange}
-                    placeholder={`Search (${shortcut})`}
+                    placeholder={`Search or enter channel ID (${getShortcut(platform)})`}
                     className={`${styles["search-input"]} ${isSearchActive ? styles["active-input"] : ""}`}
-                    autoFocus={isSearchActive}
-                    onBlur={() => { setSearchActive(false); }}
                 />
             </div>
         </div>

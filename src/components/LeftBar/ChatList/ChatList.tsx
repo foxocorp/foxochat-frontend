@@ -1,4 +1,4 @@
-import { useState, useEffect } from "preact/hooks";
+import { useState, useEffect, useMemo } from "preact/hooks";
 
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
@@ -9,6 +9,14 @@ import { observer } from "mobx-react";
 const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) => {
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
+
+    const sortedChannels = useMemo(() => {
+        return [...chats].sort((a, b) => {
+            const aTime = a.lastMessage?.created_at ?? a.created_at;
+            const bTime = b.lastMessage?.created_at ?? b.created_at;
+            return bTime - aTime; 
+        });
+    }, [chats]);
 
     const handleSelectChat = (chat: Channel) => {
         setActiveChatId(chat.id);
@@ -35,7 +43,7 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
 
     return (
         <div className={styles["chat-list"]}>
-            {chats.map(chat => (
+            {sortedChannels.map(chat => (
                 <ChatItem
                     key={chat.id}
                     chat={chat}

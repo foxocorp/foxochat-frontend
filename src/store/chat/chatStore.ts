@@ -6,15 +6,62 @@ import {
     runInAction,
 } from "mobx";
 
-import { fallbackMember } from "./constants";
-import * as transforms from "./transforms";
 import * as apiService from "./apiService";
 import * as wsService from "./websocketService";
 import type { WebSocketClient } from "../../gateway/webSocketClient";
-import { GatewayDispatchEvents } from "@foxogram/gateway-types";
-import { Channel, Message } from "@interfaces/interfaces";
+import { Channel, Message, User } from "@interfaces/interfaces";
+import { APIChannel } from "@foxogram/api-types";
+import { apiMethods } from "@services/API/apiMethods";
 
 export class ChatStore {
+    @action
+    addNewChannel(apiChannel: APIChannel) {
+        const newChannel = new Channel({
+            id: apiChannel.id,
+            name: apiChannel.name,
+            display_name: apiChannel.display_name,
+            type: apiChannel.type,
+            member_count: apiChannel.member_count,
+            owner: new User(apiChannel.owner),
+            created_at: Date.now(),
+            lastMessage: apiChannel.last_message
+                ? new Message(apiChannel.last_message)
+                : null,
+            createdAt: new Date().toISOString(),
+        });
+
+        this.channels.unshift(newChannel);
+    }
+    @action
+    handleNewMessage(message: Message) {
+        const channelId = message.channel.id;
+        const channelIndex = this.channels.findIndex(c => c.id === channelId);
+
+        if (channelIndex > -1) {
+            const updatedChannel = new Channel({
+                ...this.channels[channelIndex],
+                lastMessage: message
+            });
+
+            this.channels.splice(channelIndex, 1);
+            this.channels.unshift(updatedChannel);
+        }
+
+        this.messagesByChannelId[channelId] ??= [];
+        this.messagesByChannelId[channelId].push(message);
+    }
+
+    @action
+    async joinChannel(channelId: number) {
+        try {
+            const channel = await apiMethods.getChannel(channelId);
+            this.addNewChannel(channel);
+            await this.setCurrentChannel(channelId);
+        } catch (error) {
+            console.error("Join channel error:", error);
+            throw error;
+        }
+    }
     messagesByChannelId: Record<number, Message[]> = {};
     channels: Channel[] = [];
     currentChannelId: number | null = null;
@@ -95,21 +142,7 @@ export class ChatStore {
             );
         });
     });
-
-    handleNewMessage(apiMsg: any) {
-        const msg = transforms.transformToMessage(apiMsg);
-        const cid = msg.channel.id;
-        runInAction(() => {
-            if (!this.messagesByChannelId[cid]?.some(m => m.id === msg.id)) {
-                this.messagesByChannelId[cid] = [
-                    ...(this.messagesByChannelId[cid] ?? []),
-                    msg,
-                ];
-                this.updateChannelLastMessage(cid, msg);
-            }
-        });
-    }
-
+    
     updateChannelLastMessage = action((channelId: number, message: Message) => {
         this.channels = this.channels.map(ch =>
             ch.id === channelId ? new Channel({ ...ch, lastMessage: message }) : ch,

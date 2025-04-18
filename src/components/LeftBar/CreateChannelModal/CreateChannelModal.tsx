@@ -10,36 +10,36 @@ interface Props {
     onCreate: (data: {
         name: string;
         displayName: string;
-        members: string;
+        members?: string[];
         channelType: ChannelType;
     }) => void;
+    type: "group" | "channel";
 }
 
-const TYPE_OPTIONS = [
-    { value: ChannelType.Channel, label: "Channel" },
-    { value: ChannelType.Group, label: "Group" },
-];
-
-export default function CreateChannelModal({ onClose, onCreate }: Props) {
+export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
     const [name, setName] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [members, setMembers] = useState("");
-    const [channelType, setChannelType] = useState<ChannelType | null>(null);
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
+
+    const isGroup = type === "group";
+    const title = isGroup ? "New Group" : "New Channel";
+
+    useEffect(() => {
+        setIsVisible(true);
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-                onClose();
+                handleClose();
             }
         };
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                onClose();
-            }
+            if (e.key === "Escape") handleClose();
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -49,7 +49,13 @@ export default function CreateChannelModal({ onClose, onCreate }: Props) {
             document.removeEventListener("mousedown", handleClickOutside);
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [onClose]);
+    }, []);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setIsVisible(false);
+        setTimeout(onClose, 300);
+    };
 
     const handleSubmit = async (e: Event) => {
         e.preventDefault();
@@ -58,111 +64,82 @@ export default function CreateChannelModal({ onClose, onCreate }: Props) {
         setIsCreating(true);
 
         try {
-            const created = await apiMethods.createChannel({
+            const payload = {
                 display_name: displayName || name,
                 name: name.replace(/\s+/g, "_").toLowerCase(),
-                type: channelType,
-            });
+                type: isGroup ? ChannelType.Group : ChannelType.Channel,
+                ...(isGroup && { members: members.split(",").map(m => m.trim()) }),
+            };
+
+            const created = await apiMethods.createChannel(payload);
 
             await chatStore.fetchChannelsFromAPI();
             await chatStore.setCurrentChannel(created.id);
             onCreate({
                 displayName: displayName || name,
                 name,
-                members,
-                channelType,
+                ...(isGroup && { members: payload.members }),
+                channelType: payload.type,
             });
-            onClose();
+            handleClose();
         } catch (error) {
-            console.error("Error creating channel:", error);
+            console.error(`Error creating ${type}:`, error);
         } finally {
             setIsCreating(false);
         }
     };
 
     return (
-        <div className={styles["overlay"]}>
-            <div className={styles["modal"]} ref={modalRef}>
-                <h2 className={styles["title"]}>Create channel</h2>
+        <div className={`${styles.overlay} ${isVisible ? styles.show : ""} ${isClosing ? styles.hide : ""}`}>
+            <div className={styles.modal} ref={modalRef}>
+                <h2 className={styles.title}>{title}</h2>
 
-                <div className={styles["field"]}>
-                    <label className={styles["label"]}>Display Name</label>
+                <div className={styles.field}>
+                    <label className={styles.label}>
+                        Display Name
+                    </label>
                     <input
-                        className={styles["input"]}
-                        placeholder="Foxogram display name"
+                        className={styles.input}
+                        placeholder={isGroup ? "Group display name" : "Channel display name"}
                         value={displayName}
                         onInput={(e) => { setDisplayName((e.target as HTMLInputElement).value); }}
+                        required
                     />
                 </div>
 
-                <div className={styles["field"]}>
-                    <label className={styles["label"]}>
-                        Name <span className={styles["required"]}>*</span>
+                <div className={styles.field}>
+                    <label className={styles.label}>
+                        Name <span className={styles.required}>*</span>
                     </label>
                     <input
-                        className={styles["input"]}
-                        placeholder="Foxogram channel name"
+                        className={styles.input}
+                        placeholder={isGroup ? "Unique group name" : "Unique channel name"}
                         value={name}
                         onInput={(e) => { setName((e.target as HTMLInputElement).value); }}
                         required
                     />
                 </div>
 
-                <div className={styles["field"]}>
-                    <label className={styles["label"]}>Members</label>
-                    <input
-                        className={styles["input"]}
-                        placeholder="@username"
-                        value={members}
-                        onInput={(e) => { setMembers((e.target as HTMLInputElement).value); }}
-                    />
-                </div>
-
-                <div className={styles["field"]}>
-                    <label className={styles["label"]}>
-                        Type <span className={styles["required"]}>*</span>
-                    </label>
-                    <div className={styles["dropdown"]} ref={dropdownRef}>
-                        <div
-                            className={styles["dropdown-toggle"]}
-                            onClick={() => { setDropdownOpen((prev) => !prev); }}
-                        >
-                            {channelType ? TYPE_OPTIONS.find((o) => o.value === channelType)?.label : "Select Type"}
-                            <svg className={styles["caret"]} width="12" height="8" viewBox="0 0 12 8">
-                                <path d="M1 1l5 6 5-6" stroke="#AAA" strokeWidth="2" fill="none" />
-                            </svg>
-                        </div>
-
-                        {isDropdownOpen && (
-                            <ul className={styles["dropdown-menu"]}>
-                                {TYPE_OPTIONS.map((opt) => (
-                                    <li
-                                        key={opt.value}
-                                        className={
-                                            styles["dropdown-item"] +
-                                            (opt.value === channelType ? ` ${styles["selected"]}` : "")
-                                        }
-                                        onClick={() => {
-                                            setChannelType(opt.value);
-                                            setDropdownOpen(false);
-                                        }}
-                                    >
-                                        {opt.label}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                {isGroup && (
+                    <div className={styles.field}>
+                        <label className={styles.label}>Members</label>
+                        <input
+                            className={styles.input}
+                            placeholder="@Foxogram @Foxocorp"
+                            value={members}
+                            onInput={(e) => { setMembers((e.target as HTMLInputElement).value); }}
+                        />
                     </div>
-                </div>
+                )}
 
                 <button
                     type="submit"
-                    className={styles["create"]}
-                    disabled={!name.trim() || !channelType || isCreating}
-                    onClick={ handleSubmit }
+                    className={styles.create}
+                    disabled={isCreating || !name.trim()}
+                    onClick={handleSubmit}
                 >
                     <span>{isCreating ? "Creating..." : "Create"}</span>
-                    <img src={CreateIcon} alt="Create" className={styles["icon"]} />
+                    <img src={CreateIcon} alt="Create" className={styles.icon} />
                 </button>
             </div>
         </div>

@@ -106,6 +106,19 @@
     color: var(--primary-color);
 }
 
+.create-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.header-controls {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 @media (max-width: 768px) {
     .sidebar-header {
         padding: 8px;
