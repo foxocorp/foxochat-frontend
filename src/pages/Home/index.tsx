@@ -124,6 +124,16 @@ export const Home = observer(() => {
 		}, 300);
 	}, []);
 
+	useEffect(() => {
+		if (!chatStore.channels.length) {
+			void chatStore.fetchChannelsFromAPI();
+		}
+		const uniqueIds = new Set(chatStore.channels.map(c => c.id));
+		if (uniqueIds.size !== chatStore.channels.length) {
+			Logger.error("Duplicate channel IDs detected!");
+		}
+	}, [token, location]);
+
 	if (isLoading || !initialLoadDone) {
 		return <Loading isLoading />;
 	}
