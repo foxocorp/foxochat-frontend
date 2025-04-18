@@ -7,6 +7,7 @@ import { ChatItemProps } from "@interfaces/interfaces";
 
 const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
+    console.log("ChatItem props:", { chat, onSelectChat, currentUser, isActive });
 
     const lastMessageContent = useMemo(() => {
         const lastMessage = chat.lastMessage;
