@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo } from "preact/hooks";
 
 import styles from "./ChatItem.module.css";
 import { replaceEmojis } from "@utils/emoji";
-import { observer } from "mobx-react-lite";
+import { observer } from "mobx-react";
 import { ChannelType } from "@foxogram/api-types";
 import { ChatItemProps } from "@interfaces/interfaces";
 
-const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
+const ChatItemComponent = ({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
 
     const lastMessageContent = useMemo(() => {
@@ -22,12 +22,8 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
     }, [chat.lastMessage, currentUser]);
 
     useEffect(() => {
-        const replaceNameEmojis = () => {
-            const replacedName = replaceEmojis(chat.display_name || chat.name, "64");
-            setEmojiReplacedName(replacedName);
-        };
-
-        replaceNameEmojis();
+        const replacedName = replaceEmojis(chat.display_name || chat.name, "64");
+        setEmojiReplacedName(replacedName);
     }, [chat.display_name, chat.name]);
 
     const chatItemClass = chat.type === ChannelType.DM ? styles["news-channel"] : "";
@@ -65,6 +61,7 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
             </div>
         </div>
     );
-});
+};
 
+const ChatItem = observer(ChatItemComponent);
 export default ChatItem;

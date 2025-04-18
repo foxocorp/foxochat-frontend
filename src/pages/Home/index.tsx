@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
-import { observer } from "mobx-react-lite";
+import { observer } from "mobx-react";
 
 import "./style.css";
 
@@ -15,7 +15,7 @@ import { Channel } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
 import { initWebSocket } from "../../gateway/initWebSocket";
 
-export const Home = observer(() => {
+const HomeComponent = () => {
 	const location = useLocation();
 	const token = getAuthToken();
 	const [initialLoadDone, setInitialLoadDone] = useState(false);
@@ -188,4 +188,6 @@ export const Home = observer(() => {
 			</div>
 		</div>
 	);
-});
+};
+
+export const Home = observer(HomeComponent);

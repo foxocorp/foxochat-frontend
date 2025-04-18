@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "preact/hooks";
-import { observer } from "mobx-react-lite";
+import { observer } from "mobx-react";
 import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "./ChatHeader/ChatHeader";
@@ -13,7 +13,7 @@ interface Props extends ChatWindowProps {
     onBack?: () => void;
 }
 
-const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
+const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
     const messageListRef = useRef<HTMLDivElement>(null);
     const messages = chatStore.messagesByChannelId[channel.id] ?? [];
     const scrollState = useRef({
@@ -65,6 +65,7 @@ const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
             />
         </div>
     );
-});
+};
 
+const ChatWindow = observer(ChatWindowComponent);
 export default ChatWindow;
