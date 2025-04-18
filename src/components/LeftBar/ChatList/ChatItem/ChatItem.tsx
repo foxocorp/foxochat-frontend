@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { ChannelType } from "@foxogram/api-types";
 import { ChatItemProps } from "@interfaces/interfaces";
 
-const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
+const ChatItemBase = ({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
 
     const lastMessageContent = useMemo(() => {
@@ -22,7 +22,7 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
 
     useEffect(() => {
         const replaceNameEmojis = () => {
-            const replacedName = "Debug";
+            const replacedName = replaceEmojis(chat.display_name || chat.name, "64");
             setEmojiReplacedName(replacedName);
         };
 
@@ -64,6 +64,12 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
             </div>
         </div>
     );
-});
+};
+
+ChatItemBase.displayName = "ChatItemBase";
+
+const ChatItem = observer(ChatItemBase);
+
+ChatItem.displayName = "ChatItem";
 
 export default ChatItem;

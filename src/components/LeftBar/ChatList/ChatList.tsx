@@ -5,7 +5,7 @@ import { ChatListProps, Channel } from "@interfaces/interfaces";
 import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 
-const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) => {
+const ChatListBase = ({ chats, currentUser, onSelectChat }: ChatListProps) => {
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
@@ -16,7 +16,7 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
 
     useEffect(() => {
         const fetchNoChatsMessage = () => {
-            const message = "😔";
+            const message = replaceEmojis("😔", "160");
             setNoChatsMessage(message);
         };
 
@@ -49,6 +49,12 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
             ))}
         </div>
     );
-});
+};
+
+ChatListBase.displayName = "ChatListBase";
+
+const ChatList = observer(ChatListBase);
+
+ChatList.displayName = "ChatList";
 
 export default ChatList;
