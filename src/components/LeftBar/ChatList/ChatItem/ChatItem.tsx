@@ -22,7 +22,7 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
 
     useEffect(() => {
         const replaceNameEmojis = () => {
-            const replacedName = replaceEmojis(chat.display_name || chat.name, "64");
+            const replacedName = "Debug";
             setEmojiReplacedName(replacedName);
         };
 
