@@ -9,7 +9,6 @@ import { connectionManager } from "./connectionManager";
 import { parseMessage, GatewayMessage } from "./messageParser";
 import { allHandlers, dispatchEvent } from "./dispatcher";
 import { EventHandlers, EventPayloadMap } from "./types";
-import { logger } from "@rsbuild/core";
 
 export interface EventMap {
     [GatewayDispatchEvents.MessageCreate]: APIMessage;
