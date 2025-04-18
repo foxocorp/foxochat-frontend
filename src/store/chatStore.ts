@@ -5,7 +5,7 @@ import { Channel, Member, Message, User, Attachment } from "@interfaces/interfac
 import { WebSocketClient } from "../gateway/webSocketClient";
 import { GatewayDispatchEvents } from "@foxogram/gateway-types";
 import { initWebSocket } from "../gateway/initWebSocket";
-import { Logger } from "../utils/logger";
+import { Logger } from "@utils/logger";
 
 const fallbackMember: APIMember = {
     id: 0,
@@ -82,7 +82,7 @@ class ChatStore {
 
     async retryMessage(messageId: number) {
         const message = this.messagesByChannelId[this.currentChannelId]
-            ?.find(m => m.id === messageId);
+            ?.find((m: { id: number; }) => m.id === messageId);
 
         if (message) {
             await this.sendMessage(message.content, message.attachments);
