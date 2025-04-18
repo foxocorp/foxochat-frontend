@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
-import { observer } from "mobx-react";
+import { observer } from "mobx-react-lite";
 
 import "./style.css";
 

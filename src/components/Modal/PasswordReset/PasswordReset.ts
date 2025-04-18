@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
 import { APIOk } from "@foxogram/api-types";
 import { useLocation } from "preact-iso";
+import React from "react";
 
 export interface PasswordResetState {
     step: 1 | 2 | 3;
