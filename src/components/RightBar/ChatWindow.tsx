@@ -4,7 +4,7 @@ import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
-import { chatStore } from "@store/chatStore";
+import chatStore from "@store/chat/index";
 import { ChatWindowProps } from "@interfaces/interfaces";
 import { useThrottle } from "@hooks/useThrottle";
 

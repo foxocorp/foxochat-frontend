@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import styles from "./ChatItem.module.css";
 import { replaceEmojis } from "@utils/emoji";
+import { observer } from "mobx-react";
 import { ChannelType } from "@foxogram/api-types";
 import { ChatItemProps } from "@interfaces/interfaces";
 
-const ChatItem = ({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
+const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
 
     const lastMessageContent = useMemo(() => {
@@ -63,6 +64,6 @@ const ChatItem = ({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) 
             </div>
         </div>
     );
-};
+});
 
 export default ChatItem;

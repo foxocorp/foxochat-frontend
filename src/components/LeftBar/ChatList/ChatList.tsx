@@ -5,7 +5,7 @@ import { ChatListProps, Channel } from "@interfaces/interfaces";
 import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 
-const ChatList = (({ chats, currentUser, onSelectChat }: ChatListProps) => {
+const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) => {
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 

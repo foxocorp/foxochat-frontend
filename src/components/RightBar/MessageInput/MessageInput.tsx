@@ -3,7 +3,7 @@ import styles from "./MessageInput.module.css";
 import mediaIcon from "@icons/chat/media.svg";
 import sendIcon from "@icons/chat/paperplane.svg";
 import { MessageInputProps } from "@interfaces/interfaces";
-import { chatStore } from "@store/chatStore";
+import chatStore from "@store/chat/index";
 import { Logger } from "@utils/logger";
 import React from "react";
 

@@ -10,7 +10,7 @@ import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 
 import { apiMethods, getAuthToken } from "@services/API/apiMethods";
-import { chatStore } from "@store/chatStore";
+import chatStore from "@store/chat/index";
 import { Channel } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
 import { initWebSocket } from "../../gateway/initWebSocket";

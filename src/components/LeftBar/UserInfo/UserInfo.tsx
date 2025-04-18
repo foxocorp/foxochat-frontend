@@ -4,7 +4,7 @@ import styles from "./UserInfo.module.css";
 import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
 import { UserInfoProps } from "@interfaces/interfaces";
-import { chatStore } from "@store/chatStore";
+import chatStore from "@store/chat/index";
 
 const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
