@@ -1,4 +1,4 @@
-FROM node:latest AS builder
+FROM node:lts-alpine AS builder
 
 ARG NODE_ENV
 
