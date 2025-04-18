@@ -6,8 +6,7 @@ import Loading from "@components/LoadingApp/LoadingApp";
 import Sidebar from "@components/LeftBar/Sidebar";
 import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
-import { apiMethods } from "@services/API/apiMethods";
-import { getAuthToken } from "@services/API/apiMethods";
+import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { chatStore } from "@store/chatStore";
 import { Channel } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
@@ -22,8 +21,9 @@ export const Home = observer(() => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
-	const { channels: chats, currentUserId, currentChannelId, isLoading } = chatStore;
-	const selectedChat = chats.find((c) => c.id === currentChannelId) ?? null;
+
+	const { channels, currentUserId, currentChannelId, isLoading, fetchChannelsFromAPI, setCurrentChannel, setCurrentUser } = chatStore;
+	const selectedChat = channels.find((c) => c.id === currentChannelId) ?? null;
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -42,21 +42,21 @@ export const Home = observer(() => {
 		}
 		(async () => {
 			try {
-				if (!chatStore.channels.length) await chatStore.fetchChannelsFromAPI();
+				if (!channels.length) await fetchChannelsFromAPI();
 			} catch (error) {
 				Logger.error(`Channels fetch failed: ${error}`);
 				localStorage.removeItem("authToken");
 				location.route("/auth/login");
 			}
 		})();
-	}, [token]);
+	}, [token, channels, fetchChannelsFromAPI]);
 
 	useEffect(() => {
 		return () => {
-			chatStore.setCurrentChannel(null);
+			setCurrentChannel(null);
 			wsClientRef.current?.close();
 		};
-	}, []);
+	}, [setCurrentChannel]);
 
 	const setupWebSocket = useCallback(
 		(token: string | null) => {
@@ -81,8 +81,8 @@ export const Home = observer(() => {
 		try {
 			Logger.debug("Initializing application...");
 			const user = await apiMethods.getCurrentUser();
-			chatStore.setCurrentUser(user.id);
-			await chatStore.fetchChannelsFromAPI();
+			setCurrentUser(user.id);
+			await fetchChannelsFromAPI();
 			setupWebSocket(token);
 			setInitialLoadDone(true);
 		} catch (error) {
@@ -90,7 +90,7 @@ export const Home = observer(() => {
 			localStorage.removeItem("authToken");
 			location.route("/auth/login");
 		}
-	}, [token, setupWebSocket, location]);
+	}, [token, setupWebSocket, location, setCurrentUser, fetchChannelsFromAPI]);
 
 	useEffect(() => {
 		isMounted.current = true;
@@ -101,21 +101,21 @@ export const Home = observer(() => {
 	}, [initApp]);
 
 	const handleSelectChat = useCallback((chat: Channel) => {
-		chatStore.setCurrentChannel(chat.id);
+		setCurrentChannel(chat.id);
 		if (isMobile) {
 			setMobileView("chat");
 			setChatTransition("slide-in");
 		}
-	}, [isMobile]);
+	}, [isMobile, setCurrentChannel]);
 
 	const handleBackToList = useCallback(() => {
 		setChatTransition("slide-out");
 		setTimeout(() => {
-			chatStore.setCurrentChannel(null);
+			setCurrentChannel(null);
 			setMobileView("list");
 			setChatTransition("");
 		}, 300);
-	}, []);
+	}, [setCurrentChannel]);
 
 	if (isLoading || !initialLoadDone) {
 		return <Loading isLoading={true} onLoaded={() => {}} />;
@@ -126,7 +126,7 @@ export const Home = observer(() => {
 			<div className="home-container mobile">
 				<div className="sidebar-wrapper visible">
 					<Sidebar
-						chats={chats}
+						chats={channels}
 						onSelectChat={handleSelectChat}
 						currentUser={currentUserId ?? -1}
 						isMobile={true}
@@ -146,11 +146,10 @@ export const Home = observer(() => {
 		);
 	}
 
-
 	return (
 		<div className="home-container">
 			<Sidebar
-				chats={chats}
+				chats={channels}
 				onSelectChat={handleSelectChat}
 				currentUser={currentUserId ?? -1}
 				isMobile={false}
@@ -164,7 +163,7 @@ export const Home = observer(() => {
 					/>
 				) : (
 					<EmptyState
-						chats={chats}
+						chats={channels}
 						onSelectChat={handleSelectChat}
 						selectedChat={null}
 					/>

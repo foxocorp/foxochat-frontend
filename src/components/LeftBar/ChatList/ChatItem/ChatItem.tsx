@@ -21,12 +21,12 @@ const ChatItem = observer(({ chat, onSelectChat, currentUser, isActive }: ChatIt
     }, [chat.lastMessage, currentUser]);
 
     useEffect(() => {
-        const replaceNameEmojis = async () => {
-            const replacedName = await replaceEmojis(chat.display_name || chat.name, "64");
+        const replaceNameEmojis = () => {
+            const replacedName = replaceEmojis(chat.display_name || chat.name, "64");
             setEmojiReplacedName(replacedName);
         };
 
-        void replaceNameEmojis();
+        replaceNameEmojis();
     }, [chat.display_name, chat.name]);
 
     const chatItemClass = chat.type === ChannelType.DM ? styles["news-channel"] : "";
