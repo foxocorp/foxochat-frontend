@@ -43,7 +43,8 @@ export const Home = observer(() => {
 			location.route("/auth/login");
 			return;
 		}
-		(async () => {
+
+		void (async () => {
 			try {
 				if (!chatStore.channels.length) {
 					await chatStore.fetchChannelsFromAPI();
@@ -100,7 +101,7 @@ export const Home = observer(() => {
 	useEffect(() => {
 		isMounted.current = true;
 		initApp().catch((e: unknown) => {
-			Logger.error(e); });
+			Logger.error(`Error while initializing application: ${e}`); });
 		return () => {
 			isMounted.current = false;
 		};
