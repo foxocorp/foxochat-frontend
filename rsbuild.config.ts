@@ -17,7 +17,7 @@ export default {
     output: {
         copy: [
             {
-                from: "node_modules/foxomoji/dist/**/*",
+                from: "node_modules/foxomoji/dist",
                 to: "foxomoji"
             }
         ]
