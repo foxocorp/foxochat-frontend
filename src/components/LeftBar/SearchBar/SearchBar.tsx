@@ -85,22 +85,24 @@ const SearchBar = () => {
     const shortcut = getShortcut(platform);
 
     return (
-        <div
-            className={`${styles["search-bar"]} ${isSearchActive ? styles["active"] : ""} ${isBorderInactive ? styles["inactive-border"] : ""}`}
-        >
-            <img src={searchIcon} alt="Search" className={styles["search-icon"]} />
-            <input
-                ref={inputRef}
-                id="search-input"
-                type="text"
-                autoComplete="off"
-                value={query}
-                onInput={handleChange}
-                placeholder={`Search (${shortcut})`}
-                className={`${styles["search-input"]} ${isSearchActive ? styles["active-input"] : ""}`}
-                autoFocus={isSearchActive}
-                onBlur={() => { setSearchActive(false); }}
-            />
+        <div className={styles["search-container"]}>
+            <div
+                className={`${styles["search-bar"]} ${isSearchActive ? styles["active"] : ""} ${isBorderInactive ? styles["inactive-border"] : ""}`}
+            >
+                <img src={searchIcon} alt="Search" className={styles["search-icon"]} />
+                <input
+                    ref={inputRef}
+                    id="search-input"
+                    type="text"
+                    autoComplete="off"
+                    value={query}
+                    onInput={handleChange}
+                    placeholder={`Search (${shortcut})`}
+                    className={`${styles["search-input"]} ${isSearchActive ? styles["active-input"] : ""}`}
+                    autoFocus={isSearchActive}
+                    onBlur={() => { setSearchActive(false); }}
+                />
+            </div>
         </div>
     );
 };
