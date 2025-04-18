@@ -24,9 +24,31 @@ const isLogLevelEnabled = (level: LogLevel): boolean => {
     return !!envMask && (level & envMask) === level.valueOf();
 };
 
+const getCallerLocation = (): string => {
+    const error = new Error();
+    const stackLines = error.stack?.split("\n") ?? [];
+
+    const callerLine = stackLines[3] ?? stackLines[2] ?? "";
+    const match = (/at (.+) \((.+):(\d+):(\d+)\)/.exec(callerLine)) ?? (/at (.+):(\d+):(\d+)/.exec(callerLine));
+
+    if (match) {
+        if (match.length === 5) {
+            const [, , file, line, column] = match;
+            return `${file}:${line}:${column}`;
+        }
+        if (match.length === 4) {
+            const [, file, line, column] = match;
+            return `${file}:${line}:${column}`;
+        }
+    }
+
+    return "unknown location";
+};
+
 const logMessage = (level: LogLevel, message: string) => {
     if (isLogLevelEnabled(level)) {
-        console.log(`${colors[level]}[${LogLevel[level]}] ${message}`);
+        const location = getCallerLocation();
+        console.log(`${colors[level]}[${LogLevel[level]}] ${message} \x1b[90m(${location})\x1b[0m`);
     }
 };
 
