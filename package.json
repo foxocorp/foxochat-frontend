@@ -28,8 +28,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.17.0",
-		"@preact/preset-vite": "^2.9.3",
-		"@rsbuild/core": "^1.3.5",
+		"@rsbuild/core": "^1.3.8",
 		"@rsbuild/plugin-preact": "^1.3.1",
 		"@rsbuild/plugin-typed-css-modules": "^1.0.2",
 		"@tauri-apps/cli": "^2.1.0",
