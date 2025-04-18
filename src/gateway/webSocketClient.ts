@@ -3,7 +3,7 @@ import {
     GatewayDispatchEvents,
     GatewayCloseCodes,
 } from "@foxogram/gateway-types";
-import { Logger } from "@utils/logger";
+import { Logger } from "@utils/Logger";
 import { APIChannel, APIMember, APIMessage } from "@foxogram/api-types";
 import { connectionManager } from "./connectionManager";
 import { parseMessage, GatewayMessage } from "./messageParser";
@@ -57,14 +57,14 @@ export class WebSocketClient {
 
     public connect(): void {
         const token = this.getToken();
-        logger.info(`[WS] Attempting connect, token = ${token}`);
+        Logger.info(`[WS] Attempting connect, token = ${token}`);
         if (!token) {
             Logger.error("Cannot connect: No authentication token");
             this.onUnauthorized?.();
             return;
         }
         if (this.isExplicitClose) return;
-        logger.info(`[WS] Connecting to ${this.gatewayUrl}`);
+        Logger.info(`[WS] Connecting to ${this.gatewayUrl}`);
 
         try {
             if (this.socket) {
