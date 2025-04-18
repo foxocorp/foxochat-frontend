@@ -9,6 +9,7 @@ import { connectionManager } from "./connectionManager";
 import { parseMessage, GatewayMessage } from "./messageParser";
 import { allHandlers, dispatchEvent } from "./dispatcher";
 import { EventHandlers, EventPayloadMap } from "./types";
+import { logger } from "@rsbuild/core";
 
 export interface EventMap {
     [GatewayDispatchEvents.MessageCreate]: APIMessage;
@@ -56,12 +57,16 @@ export class WebSocketClient {
     }
 
     public connect(): void {
-        if (this.isExplicitClose) return;
-        if (!this.getToken()) {
+        const token = this.getToken();
+        logger.info(`[WS] Attempting connect, token = ${token}`);
+        if (!token) {
             Logger.error("Cannot connect: No authentication token");
             this.onUnauthorized?.();
             return;
         }
+        if (this.isExplicitClose) return;
+        logger.info(`[WS] Connecting to ${this.gatewayUrl}`);
+
         try {
             if (this.socket) {
                 this.socket.close();
