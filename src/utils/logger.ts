@@ -48,6 +48,7 @@ const getCallerLocation = (): string => {
 const logMessage = (level: LogLevel, message: string) => {
     if (isLogLevelEnabled(level)) {
         const location = getCallerLocation();
+        console.trace();
         console.log(`${colors[level]}[${LogLevel[level]}] ${message} \x1b[90m(${location})\x1b[0m`);
     }
 };
