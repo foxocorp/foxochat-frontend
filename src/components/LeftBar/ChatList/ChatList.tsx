@@ -20,7 +20,7 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
             setNoChatsMessage(message);
         };
 
-        void fetchNoChatsMessage();
+        fetchNoChatsMessage();
     }, []);
 
     if (chats.length === 0) {
