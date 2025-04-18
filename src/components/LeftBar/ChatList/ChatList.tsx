@@ -15,8 +15,8 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
     };
 
     useEffect(() => {
-        const fetchNoChatsMessage = async () => {
-            const message = await replaceEmojis("😔", "160");
+        const fetchNoChatsMessage = () => {
+            const message = replaceEmojis("😔", "160");
             setNoChatsMessage(message);
         };
 
