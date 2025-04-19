@@ -1,13 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "preact/hooks";
+
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
-import { ChatListProps, Channel } from "@interfaces/chat.interface.ts";
-import { replaceEmojis } from "@utils/emoji.ts";
+import { ChatListProps, Channel } from "@interfaces/interfaces";
+import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 
-const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) => {
+const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) => {
     const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
+
+    const sortedChannels = useMemo(() => {
+        return [...chats].sort((a, b) => {
+            const aTime = a.lastMessage?.created_at ?? a.created_at;
+            const bTime = b.lastMessage?.created_at ?? b.created_at;
+            return bTime - aTime; 
+        });
+    }, [chats]);
 
     const handleSelectChat = (chat: Channel) => {
         setActiveChatId(chat.id);
@@ -15,12 +24,8 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
     };
 
     useEffect(() => {
-        const fetchNoChatsMessage = async () => {
-            const message = await replaceEmojis("😔", "160");
-            setNoChatsMessage(message);
-        };
-
-        void fetchNoChatsMessage();
+        const message = replaceEmojis("😔", "160");
+        setNoChatsMessage(message);
     }, []);
 
     if (chats.length === 0) {
@@ -38,7 +43,7 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
 
     return (
         <div className={styles["chat-list"]}>
-            {chats.map(chat => (
+            {sortedChannels.map(chat => (
                 <ChatItem
                     key={chat.id}
                     chat={chat}
@@ -49,6 +54,7 @@ const ChatList = observer(({ chats, currentUser, onSelectChat }: ChatListProps) 
             ))}
         </div>
     );
-});
+};
 
+const ChatList = observer(ChatListComponent);
 export default ChatList;

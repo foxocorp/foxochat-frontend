@@ -1,21 +1,21 @@
 import { useRef, useEffect } from "preact/hooks";
 import { observer } from "mobx-react";
-import MessageList from "./MessageList/MessageList.tsx";
-import MessageInput from "./MessageInput/MessageInput.tsx";
-import ChatHeader from "./ChatHeader/ChatHeader.tsx";
+import MessageList from "./MessageList/MessageList";
+import MessageInput from "./MessageInput/MessageInput";
+import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
-import { chatStore } from "@store/chatStore.ts";
-import { ChatWindowProps } from "@interfaces/chat.interface.ts";
-import { useThrottle } from "@hooks/useThrottle.ts";
+import chatStore from "@store/chat/index";
+import { ChatWindowProps } from "@interfaces/interfaces";
+import { useThrottle } from "@hooks/useThrottle";
 
 interface Props extends ChatWindowProps {
     isMobile: boolean;
     onBack?: () => void;
 }
 
-const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
+const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
     const messageListRef = useRef<HTMLDivElement>(null);
-    const messages = chatStore.messagesByChannelId[channel.id] || [];
+    const messages = chatStore.messagesByChannelId[channel.id] ?? [];
     const scrollState = useRef({
         prevHeight: 0,
         lastLoadPosition: 0,
@@ -36,7 +36,7 @@ const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
             scrollState.current.lastLoadPosition = scrollPosition;
             scrollState.current.isTracking = true;
             const beforeTimestamp = messages[0]?.created_at ?? undefined;
-            chatStore.fetchMessages(channel.id, beforeTimestamp).finally(() => {
+            void chatStore.fetchMessages(channel.id, beforeTimestamp).finally(() => {
                 scrollState.current.isTracking = false;
             });
         }
@@ -65,6 +65,7 @@ const ChatWindow = observer(({ channel, isMobile, onBack }: Props) => {
             />
         </div>
     );
-});
+};
 
+const ChatWindow = observer(ChatWindowComponent);
 export default ChatWindow;

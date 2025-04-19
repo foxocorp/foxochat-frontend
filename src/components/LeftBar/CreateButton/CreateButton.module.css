@@ -1,0 +1,39 @@
+.create-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+    width: 53px;
+    height: 53px;
+    padding: 10px 16px;
+    background: rgb(0 0 0 / 0.25);
+    border: none;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.create-button:hover {
+    opacity: 0.9;
+}
+
+.plus-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.button-text {
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .button-text {
+        display: none;
+    }
+
+    .create-button {
+        padding: 10px;
+        border-radius: 50%;
+    }
+}

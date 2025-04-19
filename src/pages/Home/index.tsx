@@ -1,19 +1,21 @@
 import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import { observer } from "mobx-react";
-import "./style.css";
-import Loading from "@components/LoadingApp/LoadingApp.tsx";
-import Sidebar from "@components/LeftBar/Sidebar.tsx";
-import ChatWindow from "@components/RightBar/ChatWindow.tsx";
-import EmptyState from "@components/RightBar/EmptyState/EmptyState.tsx";
-import { apiMethods } from "@services/API/apiMethods.ts";
-import { getAuthToken } from "@services/API/apiMethods";
-import { chatStore } from "@store/chatStore.ts";
-import { Channel } from "@interfaces/chat.interface.ts";
-import { Logger } from "@utils/logger.ts";
-import { initWebSocket } from "../../gateway/initWebSocket.ts";
 
-export const Home = observer(() => {
+import "./style.css";
+
+import Loading from "@components/LoadingApp/LoadingApp";
+import Sidebar from "@components/LeftBar/Sidebar";
+import ChatWindow from "@components/RightBar/ChatWindow";
+import EmptyState from "@components/RightBar/EmptyState/EmptyState";
+
+import { apiMethods, getAuthToken } from "@services/API/apiMethods";
+import chatStore from "@store/chat/index";
+import { Channel } from "@interfaces/interfaces";
+import { Logger } from "@utils/logger";
+import { initWebSocket } from "../../gateway/initWebSocket";
+
+const HomeComponent = () => {
 	const location = useLocation();
 	const token = getAuthToken();
 	const [initialLoadDone, setInitialLoadDone] = useState(false);
@@ -22,8 +24,9 @@ export const Home = observer(() => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
-	const { channels: chats, currentUserId, currentChannelId, isLoading } = chatStore;
-	const selectedChat = chats.find((c) => c.id === currentChannelId) ?? null;
+
+	const { channels, currentUserId, currentChannelId, isLoading } = chatStore;
+	const selectedChat = channels.find(c => c.id === currentChannelId) ?? null;
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -40,20 +43,23 @@ export const Home = observer(() => {
 			location.route("/auth/login");
 			return;
 		}
-		(async () => {
+
+		void (async () => {
 			try {
-				if (!chatStore.channels.length) await chatStore.fetchChannelsFromAPI();
+				if (!chatStore.channels.length) {
+					await chatStore.fetchChannelsFromAPI();
+				}
 			} catch (error) {
 				Logger.error(`Channels fetch failed: ${error}`);
 				localStorage.removeItem("authToken");
 				location.route("/auth/login");
 			}
 		})();
-	}, [token]);
+	}, [token, location]);
 
 	useEffect(() => {
 		return () => {
-			chatStore.setCurrentChannel(null);
+			void chatStore.setCurrentChannel(null);
 			wsClientRef.current?.close();
 		};
 	}, []);
@@ -94,14 +100,15 @@ export const Home = observer(() => {
 
 	useEffect(() => {
 		isMounted.current = true;
-		initApp().catch((error: unknown) => { Logger.error(`${error}`); });
+		initApp().catch((e: unknown) => {
+			Logger.error(`Error while initializing application: ${e}`); });
 		return () => {
 			isMounted.current = false;
 		};
 	}, [initApp]);
 
 	const handleSelectChat = useCallback((chat: Channel) => {
-		chatStore.setCurrentChannel(chat.id);
+		void chatStore.setCurrentChannel(chat.id);
 		if (isMobile) {
 			setMobileView("chat");
 			setChatTransition("slide-in");
@@ -111,14 +118,24 @@ export const Home = observer(() => {
 	const handleBackToList = useCallback(() => {
 		setChatTransition("slide-out");
 		setTimeout(() => {
-			chatStore.setCurrentChannel(null);
+			void chatStore.setCurrentChannel(null);
 			setMobileView("list");
 			setChatTransition("");
 		}, 300);
 	}, []);
 
+	useEffect(() => {
+		if (!chatStore.channels.length) {
+			void chatStore.fetchChannelsFromAPI();
+		}
+		const uniqueIds = new Set(chatStore.channels.map(c => c.id));
+		if (uniqueIds.size !== chatStore.channels.length) {
+			Logger.error("Duplicate channel IDs detected!");
+		}
+	}, [token, location]);
+
 	if (isLoading || !initialLoadDone) {
-		return <Loading isLoading={true} onLoaded={() => {}} />;
+		return <Loading isLoading />;
 	}
 
 	if (isMobile) {
@@ -126,10 +143,10 @@ export const Home = observer(() => {
 			<div className="home-container mobile">
 				<div className="sidebar-wrapper visible">
 					<Sidebar
-						chats={chats}
+						chats={channels}
 						onSelectChat={handleSelectChat}
 						currentUser={currentUserId ?? -1}
-						isMobile={true}
+						isMobile
 					/>
 				</div>
 				{mobileView === "chat" && selectedChat && (
@@ -138,7 +155,7 @@ export const Home = observer(() => {
 							channel={selectedChat}
 							currentUserId={currentUserId ?? -1}
 							onBack={handleBackToList}
-							isMobile={true}
+							isMobile
 						/>
 					</div>
 				)}
@@ -146,11 +163,10 @@ export const Home = observer(() => {
 		);
 	}
 
-
 	return (
 		<div className="home-container">
 			<Sidebar
-				chats={chats}
+				chats={channels}
 				onSelectChat={handleSelectChat}
 				currentUser={currentUserId ?? -1}
 				isMobile={false}
@@ -164,7 +180,7 @@ export const Home = observer(() => {
 					/>
 				) : (
 					<EmptyState
-						chats={chats}
+						chats={channels}
 						onSelectChat={handleSelectChat}
 						selectedChat={null}
 					/>
@@ -172,4 +188,6 @@ export const Home = observer(() => {
 			</div>
 		</div>
 	);
-});
+};
+
+export const Home = observer(HomeComponent);

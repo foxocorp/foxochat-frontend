@@ -10,8 +10,11 @@
     transition: background-color 0.3s ease, border 0.3s ease;
 }
 
-.search-bar.active {
-    border: 2px solid var(--branded-color);
+.search-container {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
 }
 
 .search-bar.inactive-border {

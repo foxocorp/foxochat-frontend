@@ -1,20 +1,16 @@
 import {
     GatewayOpcodes,
-    GatewayDispatchEvents, GatewayCloseCodes,
+    GatewayDispatchEvents,
+    GatewayCloseCodes,
 } from "@foxogram/gateway-types";
-import { Logger } from "@utils/logger.ts";
+import { Logger } from "@utils/logger";
 import { APIChannel, APIMember, APIMessage } from "@foxogram/api-types";
+import { connectionManager } from "./connectionManager";
+import { parseMessage, GatewayMessage } from "./messageParser";
+import { allHandlers, dispatchEvent } from "./dispatcher";
+import { EventHandlers, EventPayloadMap } from "./types";
 
-interface GatewayMessage {
-    op: GatewayOpcodes;
-    d?: unknown;
-    s?: number;
-    t?: string;
-}
-
-type EventListener<T> = (data: T) => void;
-
-interface EventMap {
+export interface EventMap {
     [GatewayDispatchEvents.MessageCreate]: APIMessage;
     [GatewayDispatchEvents.MessageUpdate]: APIMessage;
     [GatewayDispatchEvents.MessageDelete]: { id: number };
@@ -24,32 +20,33 @@ interface EventMap {
     [GatewayDispatchEvents.MemberAdd]: APIMember;
     [GatewayDispatchEvents.MemberRemove]: { user_id: number; channel_id: number };
     [GatewayDispatchEvents.MemberUpdate]: APIMember;
-    connected: void;
+    connected: undefined;
     close: CloseEvent;
     error: Event;
 }
+
+type EventListener<T> = (_data: T) => void;
 
 export class WebSocketClient {
     private socket: WebSocket | null = null;
     private readonly getToken: () => string | null;
     private heartbeatIntervalId: ReturnType<typeof setInterval> | null = null;
-    private eventListeners: Partial<Record<keyof EventMap, EventListener<unknown>[]>> = {};
-    private messageQueue: GatewayMessage[] = [];
-    private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    private heartbeatInterval = 0;
     private heartbeatAckReceived = true;
-    private readonly onUnauthorized?: () => void;
     private reconnectAttempts = 0;
-    private maxReconnectAttempts = 3;
-    private readonly gatewayUrl: string;
-    public isConnected = false;
-    private initialReconnectDelay = 5000;
-    private isExplicitClose = false;
     private reconnectDelay = 1000;
+    private readonly maxReconnectAttempts = 3;
+    private isExplicitClose = false;
+    public isConnected = false;
+    private eventListeners: Partial<{ [K in keyof EventMap]: EventListener<EventMap[K]>[] }> = {};
+    private readonly gatewayUrl: string;
+    private readonly onClose: ((_evt: CloseEvent) => void) | undefined;
+    private readonly onUnauthorized: (() => void) | undefined;
 
     constructor(
         getToken: () => string | null,
         gatewayUrl: string,
-        onClose?: (event: CloseEvent) => void,
+        onClose?: (_evt: CloseEvent) => void,
         onUnauthorized?: () => void,
     ) {
         this.getToken = getToken;
@@ -58,61 +55,55 @@ export class WebSocketClient {
         this.onUnauthorized = onUnauthorized;
     }
 
-    public connect() {
-        if (this.isExplicitClose) return;
-
-        if (!this.getToken()) {
+    public connect(): void {
+        const token = this.getToken();
+        Logger.info(`[WS] Attempting connect, token = ${token}`);
+        if (!token) {
             Logger.error("Cannot connect: No authentication token");
             this.onUnauthorized?.();
             return;
         }
+        if (this.isExplicitClose) return;
+        Logger.info(`[WS] Connecting to ${this.gatewayUrl}`);
 
         try {
             if (this.socket) {
                 this.socket.close();
                 this.socket = null;
             }
-
             this.socket = new WebSocket(this.gatewayUrl);
-
             const connectTimeout = setTimeout(() => {
                 if (this.socket?.readyState !== WebSocket.OPEN) {
                     Logger.error("Connection timeout");
                     this.socket?.close();
                 }
             }, 5000);
-
             this.socket.onopen = () => {
                 clearTimeout(connectTimeout);
                 this.handleOpen();
             };
-
             this.setupWebSocketHandlers();
         } catch (error) {
-            console.error("WebSocket connection error:", error);
+            Logger.error(`WebSocket connection error: ${error}`);
             this.scheduleReconnect();
         }
     }
 
-    private setupWebSocketHandlers() {
+    private setupWebSocketHandlers(): void {
         if (!this.socket) return;
-
-        this.socket.onopen = this.handleOpen;
-        this.socket.onmessage = (e: MessageEvent) => this.handleMessage(e);
-        this.socket.onclose = (e: CloseEvent) => this.handleClose(e);
+        this.socket.onmessage = (e: MessageEvent) => {
+            this.handleMessage(e);
+        };
+        this.socket.onclose = (e: CloseEvent) => {
+            this.handleClose(e);
+        };
         this.socket.onerror = (e: Event) => {
-            Logger.error(`WebSocket error: ${e}`);
+            Logger.error(`WebSocket error: ${JSON.stringify(e)}`);
             this.handleError(e);
         };
     }
 
-    private handleError = (e: Event) => {
-        Logger.error("WebSocket connection error");
-        this.emit("error", e);
-        this.scheduleReconnect();
-    };
-
-    private handleOpen = () => {
+    private handleOpen = (): void => {
         this.isConnected = true;
         this.reconnectAttempts = 0;
         Logger.debug("WebSocket connection established");
@@ -120,260 +111,195 @@ export class WebSocketClient {
         this.emit("connected", undefined);
     };
 
-    private sendIdentify() {
+    private sendIdentify(): void {
         const token = this.getToken();
         if (!token) {
             Logger.error("No token available for identification");
             this.socket?.close();
             return;
         }
-
-        const payload: { token: string; intents: number } = {
+        const payload = {
             token,
             intents: (1 << 0) | (1 << 1) | (1 << 2),
         };
         this.send({ op: GatewayOpcodes.Identify, d: payload });
     }
 
-    private handleMessage = ({ data }: MessageEvent) => {
+    private handleMessage = ({ data }: MessageEvent): void => {
         if (typeof data !== "string") {
             Logger.warn("Received non-text message");
             return;
         }
-
         try {
-            const message = this.parseMessage(data);
+            const message = parseMessage(data);
             this.processGatewayMessage(message);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            Logger.error(`Message handling failed: ${errorMessage}`);
+            Logger.error(`Message handling failed: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     };
 
-    private parseMessage(data: string): GatewayMessage {
-        try {
-            const parsed: unknown = JSON.parse(data);
-            if (this.isGatewayMessage(parsed)) {
-                return parsed;
-            }
-            throw new Error("Invalid message structure");
-        } catch (error) {
-            throw new Error("Malformed JSON received");
-        }
-    }
-
-    private isGatewayMessage(msg: unknown): msg is GatewayMessage {
-        return typeof msg === "object" &&
-            msg !== null &&
-            "op" in msg &&
-            Object.values(GatewayOpcodes).includes(Number((msg as GatewayMessage).op));
-    }
-
-    private processGatewayMessage(message: GatewayMessage) {
-        const opcode = message.op;
-        switch (opcode) {
+    private processGatewayMessage(message: GatewayMessage): void {
+        switch (message.op) {
             case GatewayOpcodes.Dispatch:
-                this.handleDispatch(message);
-                break;
+                if (message.t) {
+                    const handler = allHandlers[message.t as keyof EventHandlers];
 
+                    if (handler) {
+                        dispatchEvent(
+                            message.t as keyof EventPayloadMap,
+                            message.d as EventPayloadMap[keyof EventPayloadMap],
+                            (_evt, payload) => {
+                                this.emit(_evt as keyof EventMap, payload);
+                            },
+                        );
+                    } else {
+                        Logger.warn(`Unhandled dispatch type: ${message.t}`);
+                    }
+                } else {
+                    Logger.warn("Received dispatch without event type");
+                }
+                break;
             case GatewayOpcodes.Hello:
                 this.handleHello(message.d as { heartbeat_interval: number });
                 break;
-
             case GatewayOpcodes.HeartbeatAck:
                 this.handleHeartbeatAck();
                 break;
-
             case GatewayOpcodes.Heartbeat:
                 this.handleServerHeartbeat();
                 break;
-
             default:
-                Logger.warn(`Unhandled opcode: ${GatewayOpcodes[opcode] || opcode}`);
+                Logger.warn(`Unhandled opcode: ${GatewayOpcodes[message.op] || message.op}`);
         }
     }
 
-    private handleHello(helloData: { heartbeat_interval: number }) {
+
+    private handleHello(data: { heartbeat_interval: number }): void {
         Logger.debug("Received Hello, starting heartbeat...");
-        this.startHeartbeat(helloData.heartbeat_interval);
+        this.startHeartbeat(data.heartbeat_interval);
     }
 
-    private startHeartbeat(interval: number) {
-        this.cleanupHeartbeat();
-
+    private startHeartbeat(interval: number): void {
+        this.heartbeatInterval = interval;
         this.sendHeartbeat();
-
-        this.heartbeatIntervalId = setInterval(() => {
-            if (!this.heartbeatAckReceived) {
-                Logger.warn("Missed heartbeat ACK, reconnecting...");
-                this.reconnect();
-                return;
-            }
-
-            this.heartbeatAckReceived = false;
-            this.sendHeartbeat();
-        }, interval);
+        this.heartbeatIntervalId = connectionManager.startHeartbeat(
+            interval,
+            this.sendHeartbeat.bind(this),
+            () => {
+                if (!this.heartbeatAckReceived) {
+                    Logger.warn("Missed heartbeat ACK, reconnecting...");
+                    this.reconnect();
+                }
+                this.heartbeatAckReceived = false;
+            },
+        );
     }
 
-    private handleHeartbeatAck() {
+    private handleHeartbeatAck(): void {
         this.heartbeatAckReceived = true;
         Logger.debug("Heartbeat acknowledged");
-
-        setTimeout(() => this.checkConnectionHealth(), this.heartbeatInterval * 0.9);
+        setTimeout(() => {
+            connectionManager.checkConnectionHealth(
+                this.isConnected,
+                this.heartbeatAckReceived,
+                this.reconnect.bind(this),
+                this.heartbeatInterval * 0.9,
+            );
+        }, this.heartbeatInterval * 0.9);
     }
 
-    private handleServerHeartbeat() {
+    private handleServerHeartbeat(): void {
         Logger.debug("Server requested heartbeat");
         this.sendHeartbeat();
     }
 
-    private handleDispatch(message: GatewayMessage) {
-        if (!message.t) {
-            Logger.warn("Received dispatch without event type");
-            return;
-        }
-
-        this.processEvent(message.t as GatewayDispatchEvents, message.d);
+    private sendHeartbeat(): void {
+        this.send({ op: GatewayOpcodes.Heartbeat, d: null });
     }
 
-    private processEvent(eventType: GatewayDispatchEvents, data: unknown) {
-        switch (eventType) {
-            case GatewayDispatchEvents.MessageCreate:
-                this.emit(GatewayDispatchEvents.MessageCreate, data as APIMessage);
-                break;
-            case GatewayDispatchEvents.MessageUpdate:
-                this.emit(GatewayDispatchEvents.MessageUpdate, data as APIMessage);
-                break;
-            case GatewayDispatchEvents.MessageDelete:
-                this.emit(GatewayDispatchEvents.MessageDelete, data as { id: number });
-                break;
-            case GatewayDispatchEvents.ChannelCreate:
-                this.emit(GatewayDispatchEvents.ChannelCreate, data as APIChannel);
-                break;
-            case GatewayDispatchEvents.ChannelUpdate:
-                this.emit(GatewayDispatchEvents.ChannelUpdate, data as APIChannel);
-                break;
-            case GatewayDispatchEvents.ChannelDelete:
-                this.emit(GatewayDispatchEvents.ChannelDelete, data as { id: number });
-                break;
-            case GatewayDispatchEvents.MemberAdd:
-                this.emit(GatewayDispatchEvents.MemberAdd, data as APIMember);
-                break;
-            case GatewayDispatchEvents.MemberRemove:
-                this.emit(
-                    GatewayDispatchEvents.MemberRemove,
-                    data as { user_id: number; channel_id: number },
-                );
-                break;
-            case GatewayDispatchEvents.MemberUpdate:
-                this.emit(GatewayDispatchEvents.MemberUpdate, data as APIMember);
-                break;
-            default:
-                Logger.warn(`Unhandled event type: ${eventType}`);
-        }
-    }
-
-    private sendHeartbeat() {
-        this.send({
-            op: GatewayOpcodes.Heartbeat,
-            d: null,
-        });
-    }
-
-    private handleClose = (event: CloseEvent) => {
+    private handleClose = (event: CloseEvent): void => {
         Logger.error(`Connection closed: ${event.code} (${event.reason})`);
         this.isConnected = false;
-        this.cleanupHeartbeat();
-
-        if (this.onClose) {
-            this.onClose(event);
-        }
-
-        if (event.code === GatewayCloseCodes.Unauthorized) {
+        connectionManager.cleanupHeartbeat(this.heartbeatIntervalId);
+        this.onClose?.(event);
+        if (event.code === (GatewayCloseCodes.Unauthorized as unknown as number)) {
             this.onUnauthorized?.();
             return;
         }
-
         if (!event.wasClean) {
             this.scheduleReconnect();
         }
     };
 
-    private cleanupHeartbeat() {
-        if (this.heartbeatIntervalId) {
-            clearInterval(this.heartbeatIntervalId);
-            this.heartbeatIntervalId = null;
-        }
+    private handleError(e: Event): void {
+        Logger.error("WebSocket connection error");
+        this.emit("error", e);
+        this.scheduleReconnect();
     }
 
-    private checkConnectionHealth() {
-        if (!this.isConnected || !this.heartbeatAckReceived) {
-            Logger.warn("Connection unhealthy, forcing reconnect");
-            this.reconnect();
-        }
-    }
-
-    private scheduleReconnect() {
-        if (this.isExplicitClose || this.reconnectAttempts >= this.maxReconnectAttempts) return;
-
-        this.reconnectTimeoutId = setTimeout(() => {
+    private scheduleReconnect(): void {
+        const timeoutId = connectionManager.scheduleReconnect(
+            this.isExplicitClose,
+            this.reconnectAttempts,
+            this.maxReconnectAttempts,
+            this.reconnectDelay,
+            this.reconnect.bind(this),
+        );
+        if (timeoutId) {
             this.reconnectAttempts++;
             this.reconnectDelay *= 2;
-            this.connect();
-        }, this.reconnectDelay);
+        }
     }
 
-    reconnect() {
+    public reconnect(): void {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             Logger.error("Max reconnect attempts reached");
             this.onUnauthorized?.();
             return;
         }
-
-        this.reconnectAttempts++;
         Logger.debug(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
         this.heartbeatAckReceived = true;
         this.connect();
     }
 
-
-    private send(message: GatewayMessage) {
+    private send(message: GatewayMessage): void {
         if (this.socket?.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
-        } else {
-            this.messageQueue.push(message);
         }
     }
 
-    private emit<T extends keyof EventMap>(event: T, data: EventMap[T]) {
-        const listeners = this.eventListeners[event] ?? [];
-        listeners.forEach(listener => { listener(data); });
+    private emit<T extends keyof EventMap>(event: T, data: EventMap[T]): void {
+        if (!this.eventListeners[event]) return;
+        (this.eventListeners[event]).forEach(listener => {
+            listener(data);
+        });
     }
 
-    public on<T extends keyof EventMap>(event: T, listener: EventListener<EventMap[T]>) {
-        const listeners = this.eventListeners[event] ?? [];
-        this.eventListeners[event] = [...listeners, listener as EventListener<unknown>];
+    public on<T extends keyof EventMap>(event: T, listener: EventListener<EventMap[T]>): void {
+        if (!this.eventListeners[event]) {
+            (this.eventListeners as Record<T, EventListener<EventMap[T]>[]>)[event] = [];
+        }
+        (this.eventListeners as Record<T, EventListener<EventMap[T]>[]>)[event].push(listener);
     }
 
-    public off<T extends keyof EventMap>(event: T, listener: EventListener<EventMap[T]>) {
-        const listeners = this.eventListeners[event];
-        if (listeners) {
-            this.eventListeners[event] = listeners.filter(l => l !== listener);
+    public off<T extends keyof EventMap>(event: T, listener: EventListener<EventMap[T]>): void {
+        if (this.eventListeners[event]) {
+            (this.eventListeners as Record<T, EventListener<EventMap[T]>[]>)[event] =
+                (this.eventListeners as Record<T, EventListener<EventMap[T]>[]>)[event].filter(l => l !== listener);
         }
     }
 
-    public getConnectionState() {
+    public getConnectionState(): number | undefined {
         return this.socket?.readyState;
     }
 
-    public close() {
+    public close(): void {
         this.isExplicitClose = true;
         this.reconnectDelay = 1000;
         Logger.info("Closing WebSocket connection...");
         this.reconnectAttempts = 0;
         this.isConnected = false;
         this.socket?.close(1000, "Client initiated closure");
-        this.cleanupHeartbeat();
-        this.messageQueue = [];
+        connectionManager.cleanupHeartbeat(this.heartbeatIntervalId);
     }
 }

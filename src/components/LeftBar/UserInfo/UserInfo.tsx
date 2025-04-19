@@ -1,10 +1,10 @@
 import { useState, useEffect } from "preact/hooks";
-import { apiMethods } from "@services/API/apiMethods.ts";
+import { apiMethods } from "@services/API/apiMethods";
 import styles from "./UserInfo.module.css";
 import settingsIcon from "@icons/navigation/settings.svg";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
-import { UserInfoProps } from "@interfaces/chat.interface.ts";
-import { chatStore } from "@store/chatStore.ts";
+import { UserInfoProps } from "@interfaces/interfaces";
+import chatStore from "@store/chat/index";
 
 const UserInfo = ({ username, avatar, status }: UserInfoProps) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);

@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./MessageItem.module.css";
-import { MessageItemProps, Attachment } from "@interfaces/chat.interface";
+import { MessageItemProps, Attachment } from "@interfaces/interfaces";
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
 import StateFailed from "@icons/chat/state-failed.svg";

@@ -1,5 +1,5 @@
 import styles from "./EmptyState.module.css";
-import { EmptyStateProps, Channel } from "@interfaces/chat.interface.ts";
+import { EmptyStateProps, Channel } from "@interfaces/interfaces";
 
 
 const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {

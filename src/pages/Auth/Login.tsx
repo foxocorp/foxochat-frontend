@@ -2,14 +2,14 @@ import { useState } from "preact/hooks";
 import { JSX } from "preact";
 import styles from "./Login.module.css";
 import { Button } from "@components/Base/Buttons/Button";
-import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal.tsx";
+import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import resetPasswordIcon from "@icons/navigation/reset-password.svg";
 import newUserIcon from "@icons/navigation/new-user.svg";
-import { apiMethods } from "@services/API/apiMethods.ts";
-import { useAuthStore } from "@store/authenticationStore.ts";
+import { apiMethods } from "@services/API/apiMethods";
+import { useAuthStore } from "@store/authenticationStore";
 import { useLocation } from "preact-iso";
-import { Logger } from "@utils/logger.ts";
+import { Logger } from "@utils/logger";
 
 const Login = (): JSX.Element => {
 	const [email, setEmail] = useState<string>("");
