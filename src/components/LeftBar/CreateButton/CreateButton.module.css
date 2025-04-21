@@ -33,7 +33,6 @@
     }
 
     .create-button {
-        padding: 10px;
-        border-radius: 50%;
+        border-radius: 9px;
     }
 }
