@@ -45,6 +45,8 @@ jobs:
         uses: tauri-apps/tauri-action@fd1ea0d8e31d0f8670cf14c79c076d85caf9fb53 # v0.5.19
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: foxogram-${{github.run_id}}
           releaseName: 'Foxogram ${{github.run_id}}'
