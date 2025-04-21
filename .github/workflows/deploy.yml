@@ -7,6 +7,10 @@ on:
   push:
     branches:
       - dev
+    paths-ignore:
+      - 'src-tauri/**'
+      - '.github/assets/**'
+      - '.github/workflows/desktop.yml'
 
 jobs:
   build:
