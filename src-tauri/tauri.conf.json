@@ -39,7 +39,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg0MUE0NERGQkY3MkU0MkQKUldRdDVISy8zMFFhaEJ0RGFjbXd3UzVVNi8vQlhiSFFxTEt5UVA2ZFY3cHU5YnV6SUdDU3c4c2oK%",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg0MUE0NERGQkY3MkU0MkQKUldRdDVISy8zMFFhaEJ0RGFjbXd3UzVVNi8vQlhiSFFxTEt5UVA2ZFY3cHU5YnV6SUdDU3c4c2oK",
       "endpoints": [
         "https://github.com/foxocorp/foxogram-frontend/releases/latest/download/latest.json"
       ]
