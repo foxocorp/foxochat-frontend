@@ -1,6 +1,7 @@
 services:
   foxogram-frontend-dev:
     container_name: foxogram-frontend-dev
+    image: foxogram/frontend:dev
     build:
       context: .
       args:
