@@ -15,7 +15,7 @@
 		"@foxogram/api": "^0.1.7",
 		"@foxogram/api-types": "^0.1.8",
 		"@foxogram/gateway-types": "^0.1.2",
-		"@foxogram/rest": "^0.1.4",
+		"@foxogram/rest": "^0.1.5",
 		"@tauri-apps/plugin-updater": "^2.7.1",
 		"foxomoji": "^1.0.1",
 		"mobx": "^6.13.7",
