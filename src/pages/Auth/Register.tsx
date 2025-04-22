@@ -56,11 +56,6 @@ const Register = () => {
         return emailRegex.test(email) && email.length >= 4 && email.length <= 64;
     };
 
-    const validatePassword = (password: string): boolean => {
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,128}$/;
-        return passwordRegex.test(password);
-    };
-
     const validateInputs = (): boolean => {
         let isValid = true;
 
@@ -78,7 +73,7 @@ const Register = () => {
             setEmailError(false);
         }
 
-        if (!password.trim() || !validatePassword(password)) {
+        if (!password.trim() || !password) {
             setPasswordError(true);
             isValid = false;
         } else {

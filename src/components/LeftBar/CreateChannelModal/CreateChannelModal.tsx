@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from "preact/hooks";
 import CreateIcon from "@icons/chat/create-black.svg";
 import styles from "./CreateChannelModal.module.css";
-import { apiMethods } from "@services/API/apiMethods";
-import { chatStore } from "@store/chat/chatStore";
 import { ChannelType } from "@foxogram/api-types";
 
 interface Props {
@@ -57,30 +55,20 @@ export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
         setTimeout(onClose, 300);
     };
 
-    const handleSubmit = async (e: Event) => {
+    const handleSubmit = (e: Event) => {
         e.preventDefault();
         if (!name.trim()) return;
 
         setIsCreating(true);
 
         try {
-            const payload = {
-                display_name: displayName || name,
-                name: name.replace(/\s+/g, "_").toLowerCase(),
-                type: isGroup ? ChannelType.Group : ChannelType.Channel,
-                ...(isGroup && { members: members.split(",").map(m => m.trim()) }),
-            };
-
-            const created = await apiMethods.createChannel(payload);
-
-            await chatStore.fetchChannelsFromAPI();
-            await chatStore.setCurrentChannel(created.id);
             onCreate({
                 displayName: displayName || name,
                 name,
-                ...(isGroup && { members: payload.members }),
-                channelType: payload.type,
+                ...(isGroup && { members: members.split(",").map(m => m.trim()) }),
+                channelType: isGroup ? ChannelType.Group : ChannelType.Channel,
             });
+
             handleClose();
         } catch (error) {
             console.error(`Error creating ${type}:`, error);

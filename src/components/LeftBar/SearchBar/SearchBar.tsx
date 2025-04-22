@@ -33,7 +33,11 @@ const getShortcut = (platform: string): string => {
     }
 };
 
-const SearchBar = () => {
+interface SearchBarProps {
+    onJoinChannel: (channelId: number | null) => Promise<void>;
+}
+
+const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
     const [query, setQuery] = useState("");
     const [platform] = useState(getPlatform());
     const [isSearchActive, setSearchActive] = useState(false);
@@ -54,7 +58,7 @@ const SearchBar = () => {
                         chatStore.addNewChannel(channel);
                     }
 
-                    await chatStore.setCurrentChannel(channelId);
+                    await onJoinChannel(channelId);
                     setQuery("");
                     setSearchActive(false);
 

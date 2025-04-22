@@ -51,8 +51,8 @@ const Sidebar = ({
                 members: data.members ?? [],
             });
 
-            chatStore.addNewChannel(response.data);
-            await chatStore.setCurrentChannel(response.data.id);
+            chatStore.addNewChannel(response);
+            await chatStore.setCurrentChannel(response.id);
 
             if (isMobile) {
                 setMobileView("chat");
@@ -60,7 +60,6 @@ const Sidebar = ({
             }
         } catch (error) {
             console.error("Creation error:", error);
-            alert(`Failed to create ${data.channelType === "group" ? "group" : "channel"}`);
         }
     };
 
