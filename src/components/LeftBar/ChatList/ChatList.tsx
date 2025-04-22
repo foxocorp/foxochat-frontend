@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
-import { ChatListProps, Channel } from "@interfaces/interfaces";
+import { Channel, ChatListProps } from "@interfaces/interfaces";
 import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 
@@ -14,9 +14,9 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
         return [...chats].sort((a, b) => {
             const aTime = a.lastMessage?.created_at ?? a.created_at;
             const bTime = b.lastMessage?.created_at ?? b.created_at;
-            return bTime - aTime; 
+            return bTime - aTime;
         });
-    }, [chats]);
+    }, [chats.length, chats]);
 
     const handleSelectChat = (chat: Channel) => {
         setActiveChatId(chat.id);
