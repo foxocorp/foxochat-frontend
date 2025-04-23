@@ -24,13 +24,13 @@
 		"preact": "^10.26.5",
 		"preact-iso": "^2.9.1",
 		"react-markdown": "^10.1.0",
-		"rehype-highlight": "^7.0.2",
-		"styled-components": "^6.1.13"
+		"rehype-highlight": "^7.0.2"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.24.0",
 		"@rsbuild/core": "^1.3.9",
 		"@rsbuild/plugin-preact": "^1.3.1",
+		"@rsbuild/plugin-sass": "^1.3.1",
 		"@rsbuild/plugin-typed-css-modules": "^1.0.2",
 		"@tauri-apps/cli": "^2.5.0",
 		"@tsconfig/strictest": "^2.0.5",

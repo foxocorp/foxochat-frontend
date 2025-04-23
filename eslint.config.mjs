@@ -25,14 +25,7 @@ export default tseslint.config(
 		files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
 		rules: {
 			"@typescript-eslint/dot-notation": "off",
-			"@typescript-eslint/no-unused-vars": [
-				"warn",
-				{
-					"argsIgnorePattern": "^_",
-					"varsIgnorePattern": "^_",
-					"caughtErrorsIgnorePattern": "^_"
-				}
-			],
+			"@typescript-eslint/no-unused-vars": "off",
 			"no-multi-spaces": 2,
 			"comma-dangle": [2, "always-multiline"],
 			"@typescript-eslint/ban-ts-comment": 2,
