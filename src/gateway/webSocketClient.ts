@@ -1,12 +1,8 @@
-import {
-    GatewayOpcodes,
-    GatewayDispatchEvents,
-    GatewayCloseCodes,
-} from "@foxogram/gateway-types";
-import { Logger } from "@utils/logger";
+import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from "@foxogram/gateway-types";
+import { Logger, LogLevel } from "@utils/logger";
 import { APIChannel, APIMember, APIMessage } from "@foxogram/api-types";
 import { connectionManager } from "./connectionManager";
-import { parseMessage, GatewayMessage } from "./messageParser";
+import { GatewayMessage, parseMessage } from "./messageParser";
 import { allHandlers, dispatchEvent } from "./dispatcher";
 import { EventHandlers, EventPayloadMap } from "./types";
 
@@ -57,36 +53,72 @@ export class WebSocketClient {
 
     public connect(): void {
         const token = this.getToken();
-        Logger.info(`[WS] Attempting connect, token = ${token}`);
+
+        Logger.header("NEW CONNECTION");
+
+        Logger.group(`WebSocket Session — ${this.gatewayUrl}`, LogLevel.Info);
+
+        Logger.info("[WS] Attempting connect");
+
         if (!token) {
             Logger.error("Cannot connect: No authentication token");
             this.onUnauthorized?.();
+            Logger.groupEnd();
             return;
         }
-        if (this.isExplicitClose) return;
-        Logger.info(`[WS] Connecting to ${this.gatewayUrl}`);
 
+        if (this.isExplicitClose) {
+            Logger.warn("Explicitly closed, do not connect");
+            Logger.groupEnd();
+            return;
+        }
+
+        Logger.group(`[FAST CONNECT] ${this.gatewayUrl}`, LogLevel.Info);
+
+        const start = performance.now();
         try {
             if (this.socket) {
                 this.socket.close();
                 this.socket = null;
             }
             this.socket = new WebSocket(this.gatewayUrl);
+
             const connectTimeout = setTimeout(() => {
                 if (this.socket?.readyState !== WebSocket.OPEN) {
                     Logger.error("Connection timeout");
                     this.socket?.close();
                 }
             }, 5000);
+
             this.socket.onopen = () => {
                 clearTimeout(connectTimeout);
+                const duration = Math.round(performance.now() - start);
+                Logger.groupEnd();
+                Logger.group(`[FAST CONNECT] connected in ${duration}ms`, LogLevel.Info);
+
                 this.handleOpen();
+
+                Logger.groupEnd();
             };
+
             this.setupWebSocketHandlers();
         } catch (error) {
             Logger.error(`WebSocket connection error: ${error}`);
             this.scheduleReconnect();
         }
+
+        Logger.groupEnd();
+    }
+
+    public disconnect(): void {
+        Logger.info("Disconnecting WebSocket...");
+        this.isExplicitClose = true;
+        this.reconnectDelay = 1000;
+        this.reconnectAttempts = 0;
+        this.isConnected = false;
+        this.socket?.close(1000, "Client initiated disconnection");
+        connectionManager.cleanupHeartbeat(this.heartbeatIntervalId);
+        this.emit("close", new CloseEvent("close", { code: 1000, reason: "Disconnected by client" }));
     }
 
     private setupWebSocketHandlers(): void {
@@ -175,7 +207,7 @@ export class WebSocketClient {
 
 
     private handleHello(data: { heartbeat_interval: number }): void {
-        Logger.debug("Received Hello, starting heartbeat...");
+        Logger.group("[HELLO] Got Hello, starting heartbeat...", LogLevel.Debug);
         this.startHeartbeat(data.heartbeat_interval);
     }
 
@@ -238,6 +270,8 @@ export class WebSocketClient {
     }
 
     private scheduleReconnect(): void {
+        Logger.group("[RECONNECT] Scheduling reconnect", LogLevel.Warn);
+
         const timeoutId = connectionManager.scheduleReconnect(
             this.isExplicitClose,
             this.reconnectAttempts,
@@ -245,6 +279,9 @@ export class WebSocketClient {
             this.reconnectDelay,
             this.reconnect.bind(this),
         );
+
+        Logger.groupEnd();
+
         if (timeoutId) {
             this.reconnectAttempts++;
             this.reconnectDelay *= 2;
