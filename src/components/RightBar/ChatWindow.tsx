@@ -23,8 +23,10 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
     });
 
     useEffect(() => {
-        document.title = channel.display_name || channel.name || "Foxogram";
+        const name = channel.display_name || channel.name || "";
+        document.title = name ? `Foxogram: ${name}` : "Foxogram";
     }, [channel]);
+
 
     const handleScroll = useThrottle(() => {
         const list = messageListRef.current;

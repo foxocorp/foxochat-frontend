@@ -2,17 +2,7 @@ import { useState, useRef, useEffect } from "preact/hooks";
 import CreateIcon from "@icons/chat/create-black.svg";
 import styles from "./CreateChannelModal.module.css";
 import { ChannelType } from "@foxogram/api-types";
-
-interface Props {
-    onClose: () => void;
-    onCreate: (data: {
-        name: string;
-        displayName: string;
-        members?: string[];
-        channelType: ChannelType;
-    }) => void;
-    type: "group" | "channel";
-}
+import { Props } from "@interfaces/interfaces";
 
 export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
     const [name, setName] = useState("");

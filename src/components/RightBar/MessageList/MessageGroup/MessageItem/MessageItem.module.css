@@ -59,7 +59,7 @@
 }
 
 .receiver .message-bubble {
-    background: rgba(40, 40, 40, 0.4);
+    background: rgb(40 40 40 / 0.4);
     border-radius: 12px 12px 12px 2px;
 }
 
@@ -108,7 +108,7 @@
 
 .timestamp {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(255 255 255 / 0.7);
 }
 
 .status-icon {
@@ -124,7 +124,7 @@
     display: flex;
     gap: 12px;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
 }
 
 .author .action-popup {
@@ -184,7 +184,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255 255 255 / 0.1);
     border-radius: 8px;
 }
 

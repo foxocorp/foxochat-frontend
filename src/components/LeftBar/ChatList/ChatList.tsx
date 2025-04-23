@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
 import { Channel, ChatListProps } from "@interfaces/interfaces";
