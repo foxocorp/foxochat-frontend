@@ -1,69 +1,60 @@
-import {
-    action,
-    flow,
-    makeAutoObservable,
-    observable,
-    runInAction,
-} from "mobx";
-
 import * as apiService from "./apiService";
 import * as wsService from "./websocketService";
-import type { WebSocketClient } from "../../gateway/webSocketClient";
-import { Channel, Message, User } from "@interfaces/interfaces";
-import { APIChannel } from "@foxogram/api-types";
+import { action, flow, makeAutoObservable, observable, runInAction } from "mobx";
 import { apiMethods } from "@services/API/apiMethods";
+import { APIChannel, APIMessage } from "@foxogram/api-types";
+import type { WebSocketClient } from "../../gateway/webSocketClient";
 
 export class ChatStore {
     @action
     addNewChannel(apiChannel: APIChannel) {
-        const newChannel = new Channel({
-            id: apiChannel.id,
-            name: apiChannel.name,
-            display_name: apiChannel.display_name,
-            type: apiChannel.type,
-            member_count: apiChannel.member_count,
-            owner: new User(apiChannel.owner),
-            created_at: Date.now(),
-            lastMessage: apiChannel.last_message
-                ? new Message(apiChannel.last_message)
-                : null,
-            createdAt: new Date().toISOString(),
-        });
-
-        this.channels.unshift(newChannel);
+        this.channels.unshift(apiChannel);
     }
+
     @action
-    handleNewMessage(message: Message) {
-        const channelId = message.channel.id;
-        const channelIndex = this.channels.findIndex(c => c.id === channelId);
+    handleNewMessage(message: APIMessage) {
+        const channelId = typeof message.channel === "object" ? message.channel.id : message.channel;
 
+        const channelIndex = this.channels.findIndex(c => c?.id === channelId);
         if (channelIndex > -1) {
-            const updatedChannel = new Channel({
-                ...this.channels[channelIndex],
-                lastMessage: message
-            });
+            const ch = this.channels[channelIndex];
+            if (!ch) return;
 
-            this.channels.splice(channelIndex, 1);
-            this.channels.unshift(updatedChannel);
+            const updatedChannel: APIChannel = {
+                ...ch,
+                last_message: message,
+            };
+
+            runInAction(() => {
+                this.channels.splice(channelIndex, 1);
+                this.channels.unshift(updatedChannel);
+            });
         }
 
-        this.messagesByChannelId[channelId] ??= [];
-        this.messagesByChannelId[channelId].push(message);
+        runInAction(() => {
+            (this.messagesByChannelId[channelId] ??= []).push(message);
+        });
+    }
+
+    @action
+    setIsLoading(isLoading: boolean) {
+        this.isLoading = isLoading;
     }
 
     @action
     async joinChannel(channelId: number) {
         try {
-            const channel = await apiMethods.getChannel(channelId);
-            this.addNewChannel(channel);
+            const apiChannel = await apiMethods.getChannel(channelId);
+            this.addNewChannel(apiChannel);
             await this.setCurrentChannel(channelId);
         } catch (error) {
             console.error("Join channel error:", error);
             throw error;
         }
     }
-    messagesByChannelId: Record<number, Message[]> = {};
-    channels: Channel[] = [];
+
+    messagesByChannelId: Record<number, APIMessage[]> = {};
+    channels: (APIChannel | null)[] = [];
     currentChannelId: number | null = null;
     currentUserId: number | null = null;
     isLoading = false;
@@ -125,28 +116,33 @@ export class ChatStore {
     updateMessage = action((messageId: number, newContent: string) => {
         const cid = this.currentChannelId;
         if (!cid) return;
+
         const msgs = this.messagesByChannelId[cid];
-        const idx = msgs?.findIndex(m => m.id === messageId);
-        if (idx == null || idx < 0) return;
+        if (!msgs) return;
+
+        const idx = msgs.findIndex(m => m.id === messageId);
+        if (idx < 0) return;
+
+        const msg = msgs[idx];
+        if (!msg) return;
+
         runInAction(() => {
-            msgs[idx].content = newContent;
+            msg.content = newContent;
         });
     });
 
     deleteMessage = action((messageId: number) => {
         const cid = this.currentChannelId;
         if (!cid) return;
+        const msgs = this.messagesByChannelId[cid];
+        if (!msgs) return;
         runInAction(() => {
-            this.messagesByChannelId[cid] = this.messagesByChannelId[cid].filter(
-                m => m.id !== messageId,
-            );
+            this.messagesByChannelId[cid] = msgs.filter(m => m.id !== messageId);
         });
     });
-    
-    updateChannelLastMessage = action((channelId: number, message: Message) => {
-        this.channels = this.channels.map(ch =>
-            ch.id === channelId ? new Channel({ ...ch, lastMessage: message }) : ch,
-        );
+
+    updateChannelLastMessage = action(() => {
+        this.channels = this.channels.filter(c => c !== null);
     });
 
     setCurrentChannel = action(async (channelId: number | null) => {

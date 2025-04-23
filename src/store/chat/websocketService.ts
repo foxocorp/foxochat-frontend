@@ -5,7 +5,7 @@ import { Logger } from "@utils/logger";
 import type { ChatStore } from "./chatStore";
 
 export function clearAuthAndRedirect(this: ChatStore): void {
-    this.wsClient?.disconnect?.();
+    this.wsClient?.disconnect();
     localStorage.removeItem("authToken");
     if (!window.location.pathname.startsWith("/auth/login")) {
         window.location.href = "/auth/login";
@@ -28,7 +28,7 @@ export function initializeWebSocket(this: ChatStore): void {
 export function handleHistorySync(this: ChatStore): void {
     if (!this.currentChannelId) return;
     if (this.messagesByChannelId[this.currentChannelId]?.length) return;
-    this.fetchMessages(this.currentChannelId).catch(err => {
+    this.fetchMessages(this.currentChannelId).catch((err: unknown) => {
         Logger.error(`History sync error: ${err}`);
     });
 }
@@ -41,6 +41,6 @@ export function setupWebSocketHandlers(this: ChatStore): void {
             if (!this.messagesByChannelId[message.channel.id]?.some(m => m.id === message.id)) {
                 this.handleNewMessage(message);
             }
-        }
+        },
     );
 }
