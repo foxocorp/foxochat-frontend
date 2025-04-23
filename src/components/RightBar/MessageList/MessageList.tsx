@@ -1,7 +1,8 @@
 import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
 import styles from "./MessageList.module.css";
-import { Message, MessageListProps } from "@interfaces/interfaces";
+import { MessageListProps } from "@interfaces/interfaces";
 import { useEffect, useMemo, useRef } from "preact/hooks";
+import { APIMessage } from "@foxogram/api-types";
 import moment from "moment";
 
 const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channel }: MessageListProps) => {
@@ -13,15 +14,15 @@ const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channe
     }, [channel.id]);
 
     const groupedMessages = useMemo(() => {
-        if (!messages?.length) return [];
+        if (!messages.length) return [];
 
         const groups = [];
-        let currentGroup: Message[] = [];
+        let currentGroup: APIMessage[] = [];
         let currentAuthor = -1;
         let currentDate = "";
 
         for (const msg of messages) {
-            if (!msg?.created_at || !msg.author?.user?.id) continue;
+            if (!msg.created_at || !msg.author.user.id) continue;
 
             const msgDate = moment(msg.created_at).format("YYYY-MM-DD");
             const lastMessage = currentGroup[currentGroup.length-1];
@@ -59,7 +60,7 @@ const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channe
         } else if (messages.length > prevMessagesCount.current) {
             const wasNearBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 200;
             if (wasNearBottom) {
-                list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+                list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
             }
         }
         prevMessagesCount.current = messages.length;
@@ -84,14 +85,14 @@ const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channe
     );
 };
 
-function createGroup(messages: Message[], date: string) {
+function createGroup(messages: APIMessage[], date: string) {
     const isToday = date === moment().format("YYYY-MM-DD");
     return {
         dateLabel: isToday ? null : moment(date).format("MMMM D, YYYY"),
         messages: messages.filter(msg =>
-            msg?.created_at &&
-            msg.author?.user?.id
-        )
+            msg.created_at &&
+            msg.author.user.id,
+        ),
     };
 }
 

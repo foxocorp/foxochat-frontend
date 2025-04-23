@@ -10,7 +10,7 @@ const ChatItemComponent = ({ chat, onSelectChat, currentUser, isActive }: ChatIt
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
 
     const lastMessageContent = useMemo(() => {
-        const lastMessage = chat.lastMessage;
+        const lastMessage = chat.last_message;
         const authorName = lastMessage?.author.user.username ?? "Unknown user";
         const isCurrentUserAuthor = lastMessage?.author.id === currentUser;
 
@@ -19,7 +19,7 @@ const ChatItemComponent = ({ chat, onSelectChat, currentUser, isActive }: ChatIt
                 ? `You: ${lastMessage.content}`
                 : `${authorName}: ${lastMessage.content}`
             : "No messages";
-    }, [chat.lastMessage, currentUser]);
+    }, [chat.last_message, currentUser]);
 
     useEffect(() => {
         const replacedName = replaceEmojis(chat.display_name || chat.name, "64");

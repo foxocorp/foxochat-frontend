@@ -23,6 +23,11 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
         return formatter.format(date);
     };
 
+    const getInitial = (chat: APIChannel): string => {
+        return ((chat.display_name[0] ?? chat.name[0]) ?? "?").toUpperCase();
+    };
+
+
     return (
         <div className={styles["empty-container"]}>
             <div className={styles["content"]}>
@@ -48,7 +53,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
-                                        {(chat.display_name?.charAt(0) || chat.name?.charAt(0) || "?").toUpperCase()}
+                                        {getInitial(chat)}
                                     </div>
                                 )}
                             </div>

@@ -45,28 +45,21 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleKeyPress = async (e: KeyboardEvent) => {
-        if (e.key === "Enter" && query.trim()) {
-            const channelId = parseInt(query.trim(), 10);
-            if (!isNaN(channelId)) {
-                try {
-                    const channel = await apiMethods.getChannel(channelId);
+        if (e.key !== "Enter") return;
 
-                    const isMember = chatStore.channels.some(c => c.id === channelId);
+        const trimmed = query.trim();
+        const channelId = parseInt(trimmed, 10);
+        if (!trimmed || !Number.isInteger(channelId)) return;
 
-                    if (!isMember) {
-                        await apiMethods.joinChannel(channelId);
-                        chatStore.addNewChannel(channel);
-                    }
+        try {
+            await chatStore.joinChannel(channelId);
+            await onJoinChannel(channelId);
 
-                    await onJoinChannel(channelId);
-                    setQuery("");
-                    setSearchActive(false);
-
-                } catch (error) {
-                    console.error("Channel join error:", error);
-                    alert("Couldn't find or join this channel");
-                }
-            }
+            setQuery("");
+            setSearchActive(false);
+        } catch (error) {
+            console.error("Channel join error:", error);
+            alert("Couldn't find or join this channel");
         }
     };
 

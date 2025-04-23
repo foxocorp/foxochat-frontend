@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./MessageItem.module.css";
-import { MessageItemProps, Attachment } from "@interfaces/interfaces";
+import { MessageItemProps } from "@interfaces/interfaces";
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
 import StateFailed from "@icons/chat/state-failed.svg";
@@ -98,7 +98,7 @@ const MessageItem = ({
     );
 
     const validAttachments = useMemo(() =>
-            (attachments as Attachment[])
+            (attachments)
                 .filter(att =>
                     att.content_type.startsWith("image/") ||
                     att.content_type === "video/mp4" ||
@@ -134,7 +134,7 @@ const MessageItem = ({
                     />
                 ) : (
                     <div className={styles["default-avatar"]}>
-                        {safeAuthor.user.display_name.charAt(0).toUpperCase()}
+                        {safeAuthor.user.display_name ? safeAuthor.user.display_name.charAt(0).toUpperCase() : ""}
                     </div>
                 )}
             </div>

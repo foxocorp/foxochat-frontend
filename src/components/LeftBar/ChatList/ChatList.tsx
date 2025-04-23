@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./ChatList.module.css";
 import ChatItem from "./ChatItem/ChatItem";
-import { Channel, ChatListProps } from "@interfaces/interfaces";
+import { ChatListProps } from "@interfaces/interfaces";
+import { APIChannel } from "@foxogram/api-types";
 import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
+import chatStore from "@store/chat";
 
 const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) => {
-    const [activeChatId, setActiveChatId] = useState<number | null>(null);
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
     const sortedChannels = useMemo(() => {
-        return [...chats].sort((a, b) => {
-            const aTime = a.lastMessage?.created_at ?? a.created_at;
-            const bTime = b.lastMessage?.created_at ?? b.created_at;
+        return [...chatStore.channels].sort((a, b) => {
+            const aTime = a?.last_message?.created_at ?? a?.created_at ?? 0;
+            const bTime = b?.last_message?.created_at ?? b?.created_at ?? 0;
             return bTime - aTime;
         });
-    }, [chats.length, chats]);
+    }, [chatStore.channels.length]);
 
-    const handleSelectChat = (chat: Channel) => {
-        setActiveChatId(chat.id);
+    const handleSelectChat = (chat: APIChannel) => {
         onSelectChat(chat);
     };
 
@@ -40,17 +40,21 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
         );
     }
 
+    const activeChatId = chatStore.currentChannelId;
+
     return (
         <div className={styles["chat-list"]}>
-            {sortedChannels.map(chat => (
-                <ChatItem
-                    key={chat.id}
-                    chat={chat}
-                    isActive={chat.id === activeChatId}
-                    onSelectChat={handleSelectChat}
-                    currentUser={currentUser}
-                />
-            ))}
+            {sortedChannels
+                .filter((chat): chat is APIChannel => chat !== null)
+                .map(chat => (
+                    <ChatItem
+                        key={chat.id}
+                        chat={chat}
+                        isActive={chat.id === activeChatId}
+                        onSelectChat={handleSelectChat}
+                        currentUser={currentUser}
+                    />
+                ))}
         </div>
     );
 };
