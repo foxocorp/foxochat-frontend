@@ -48,8 +48,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
-                                        {chat.display_name.charAt(0).toUpperCase() ||
-                                            chat.name.charAt(0).toUpperCase()}
+                                        {(chat.display_name?.charAt(0) || chat.name?.charAt(0) || "?").toUpperCase()}
                                     </div>
                                 )}
                             </div>
