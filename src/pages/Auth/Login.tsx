@@ -26,11 +26,6 @@ const Login = (): JSX.Element => {
 		return emailRegex.test(email) && email.length >= 4 && email.length <= 64;
 	};
 
-	const validatePassword = (password: string): boolean => {
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,128}$/;
-		return passwordRegex.test(password);
-	};
-
 	const handleLogin = async (): Promise<void> => {
 		setEmailError(false);
 		setPasswordError(false);
@@ -42,7 +37,7 @@ const Login = (): JSX.Element => {
 			isValid = false;
 		}
 
-		if (!password || !validatePassword(password)) {
+		if (!password || !password) {
 			setPasswordError(true);
 			isValid = false;
 		}
@@ -53,7 +48,7 @@ const Login = (): JSX.Element => {
 			const response = await apiMethods.login(email, password);
 			if (response.access_token) {
 				authStore.login(response.access_token);
-				console.log("Successful login");
+				Logger.info("Successful login");
 				location.route("/");
 			} else {
 				console.error("Login error. Please try again.");
