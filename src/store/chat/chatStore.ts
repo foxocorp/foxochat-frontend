@@ -44,8 +44,18 @@ export class ChatStore {
     @action
     async joinChannel(channelId: number) {
         try {
-            const apiChannel = await apiMethods.getChannel(channelId);
-            this.addNewChannel(apiChannel);
+            const joined = await apiMethods.joinChannel(channelId);
+
+            const channel = joined.channel;
+
+            const alreadyExists = this.channels.some(ch => ch?.id === channelId);
+
+            if (!alreadyExists) {
+                runInAction(() => {
+                    this.channels.unshift(channel);
+                });
+            }
+
             await this.setCurrentChannel(channelId);
         } catch (error) {
             console.error("Join channel error:", error);
