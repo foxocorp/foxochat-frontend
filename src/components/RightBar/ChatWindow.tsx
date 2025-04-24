@@ -16,11 +16,94 @@ interface Props extends ChatWindowProps {
 const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
     const messageListRef = useRef<HTMLDivElement>(null);
     const messages = chatStore.messagesByChannelId[channel.id] ?? [];
-    const scrollState = useRef({
-        prevHeight: 0,
-        lastLoadPosition: 0,
-        isTracking: false,
-    });
+    const isProgrammaticHashChange = useRef(false);
+    const lastValidChannelId = useRef<number | null>(null);
+    const scrollState = useRef({ prevHeight: 0, lastLoadPosition: 0, isTracking: false });
+
+    useEffect(() => {
+        if (channel.id) {
+            lastValidChannelId.current = channel.id;
+            isProgrammaticHashChange.current = true;
+            window.location.hash = `#${channel.id}`;
+            setTimeout(() => {
+                isProgrammaticHashChange.current = false;
+            }, 100);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (channel.id && channel.id !== lastValidChannelId.current) {
+            lastValidChannelId.current = channel.id;
+            isProgrammaticHashChange.current = true;
+            window.location.hash = `#${channel.id}`;
+            setTimeout(() => {
+                isProgrammaticHashChange.current = false;
+            }, 100);
+        }
+    }, [channel.id]);
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            if (isProgrammaticHashChange.current) return;
+
+            const hash = window.location.hash.substring(1);
+
+            if (!hash) {
+                if (lastValidChannelId.current !== null) {
+                    chatStore.setCurrentChannel(null).catch(console.error);
+                }
+                return;
+            }
+
+            const channelId = parseInt(hash, 10);
+
+            if (isNaN(channelId)) {
+                restoreLastValidChannel();
+                return;
+            }
+
+            if (channelId === lastValidChannelId.current) return;
+
+            const channelExists = chatStore.channels.some(c => c.id === channelId);
+            if (!channelExists) {
+                restoreLastValidChannel();
+                return;
+            }
+
+            chatStore.setCurrentChannel(channelId)
+                .then(() => {
+                    lastValidChannelId.current = channelId;
+                })
+                .catch(() => {
+                    restoreLastValidChannel();
+                });
+        };
+
+        const restoreLastValidChannel = () => {
+            isProgrammaticHashChange.current = true;
+            if (lastValidChannelId.current !== null) {
+                window.location.hash = `#${lastValidChannelId.current}`;
+            } else {
+                window.location.hash = "";
+            }
+            setTimeout(() => {
+                isProgrammaticHashChange.current = false;
+            }, 100);
+        };
+
+        window.addEventListener("hashchange", handleHashChange);
+        return () => { window.removeEventListener("hashchange", handleHashChange); };
+    }, []);
+
+    useEffect(() => {
+        const hash = window.location.hash.substring(1);
+        if (hash && !isNaN(Number(hash))) {
+            const channelId = Number(hash);
+            if (channelId !== channel.id) {
+                chatStore.setCurrentChannel(channelId).catch(console.error);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         const name = channel.display_name || channel.name || "";

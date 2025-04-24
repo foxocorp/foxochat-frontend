@@ -118,8 +118,7 @@ const apiUrl = import.meta.env.PROD
     : "https://api.dev.foxogram.su";
 
 export async function sendMessage(this: ChatStore, content: string, files: File[] = []): Promise<void> {
-    const channelId = 1;
-    if (!this.currentUserId) return;
+    if (!this.currentChannelId || !this.currentUserId) return;
 
     this.isSendingMessage = true;
 
@@ -128,11 +127,13 @@ export async function sendMessage(this: ChatStore, content: string, files: File[
         const token = getAuthToken();
         if (!token) throw new Error("No auth token");
 
-        const url = `${apiUrl}/messages/channel/${channelId}`;
+        const url = `${apiUrl}/messages/channel/${this.currentChannelId}`;
         const formData = new FormData();
         formData.append("content", trimmedContent || " ");
 
-        files.forEach(file => { formData.append("attachments", file); });
+        files.forEach(file => {
+            formData.append("attachments", file);
+        });
 
         const response = await fetch(url, {
             method: "POST",
