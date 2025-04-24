@@ -11,11 +11,11 @@
 		"lint": "eslint"
 	},
 	"dependencies": {
-		"@fontsource/inter": "^5.1.0",
-		"@foxogram/api": "^0.1.7",
-		"@foxogram/api-types": "^0.1.8",
-		"@foxogram/gateway-types": "^0.1.2",
-		"@foxogram/rest": "^0.1.5",
+		"@fontsource/inter": "^5.2.5",
+		"@foxogram/api": "^0.1.8",
+		"@foxogram/api-types": "^0.1.9",
+		"@foxogram/gateway-types": "^0.1.3",
+		"@foxogram/rest": "^0.1.6",
 		"@tauri-apps/plugin-updater": "^2.7.1",
 		"foxomoji": "^1.0.1",
 		"mobx": "^6.13.7",
@@ -27,8 +27,8 @@
 		"rehype-highlight": "^7.0.2"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.24.0",
-		"@rsbuild/core": "^1.3.9",
+		"@eslint/js": "^9.25.1",
+		"@rsbuild/core": "^1.3.11",
 		"@rsbuild/plugin-preact": "^1.3.1",
 		"@rsbuild/plugin-sass": "^1.3.1",
 		"@rsbuild/plugin-typed-css-modules": "^1.0.2",
@@ -36,13 +36,13 @@
 		"@tsconfig/strictest": "^2.0.5",
 		"@types/ws": "^8.18.1",
 		"autoprefixer": "^10.4.21",
-		"eslint": "^9.24.0",
+		"eslint": "^9.25.1",
 		"eslint-plugin-react": "^7.37.5",
 		"globals": "^16.0.0",
 		"postcss": "^8.5.3",
-		"sass": "^1.86.3",
+		"sass": "^1.87.0",
 		"typescript": "^5.8.3",
-		"typescript-eslint": "^8.30.1"
+		"typescript-eslint": "^8.31.0"
 	},
 	"browserslist": [
 		"last 4 versions"
