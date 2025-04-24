@@ -4,6 +4,7 @@ import { action, flow, makeAutoObservable, observable, runInAction } from "mobx"
 import { apiMethods } from "@services/API/apiMethods";
 import { APIChannel, APIMessage } from "@foxogram/api-types";
 import type { WebSocketClient } from "../../gateway/webSocketClient";
+import { Logger } from "@utils/logger";
 
 export class ChatStore {
     @action
@@ -63,6 +64,22 @@ export class ChatStore {
         }
     }
 
+    @action
+    private async initializeFromUrl() {
+        const hash = window.location.hash.substring(1);
+        if (!hash || isNaN(Number(hash))) return;
+
+        const channelId = Number(hash);
+
+        if (!this.channels.length) {
+            await this.fetchChannelsFromAPI();
+        }
+
+        if (this.channels.some(c => c?.id === channelId)) {
+            await this.setCurrentChannel(channelId);
+        }
+    }
+
     messagesByChannelId: Record<number, APIMessage[]> = {};
     channels: (APIChannel | null)[] = [];
     currentChannelId: number | null = null;
@@ -102,6 +119,10 @@ export class ChatStore {
             },
             { autoBind: true },
         );
+
+        this.initializeFromUrl().catch((error: unknown) => {
+            Logger.error(`Failed to initialize from URL: ${error}`);
+        });
     }
 
     fetchCurrentUser = apiService.fetchCurrentUser;

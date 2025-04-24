@@ -113,22 +113,47 @@ function readFileAsUint8Array(file: File): Promise<Uint8Array> {
     });
 }
 
+const apiUrl = import.meta.env.PROD
+    ? "https://api.foxogram.su"
+    : "https://api.dev.foxogram.su";
+
 export async function sendMessage(this: ChatStore, content: string, files: File[] = []): Promise<void> {
-    if (!this.currentChannelId || !this.currentUserId) return;
+    const channelId = 1;
+    if (!this.currentUserId) return;
 
     this.isSendingMessage = true;
 
     try {
-        const fileUint8Arrays = await Promise.all(files.map(readFileAsUint8Array));
+        const trimmedContent = content.trim();
+        const token = getAuthToken();
+        if (!token) throw new Error("No auth token");
 
-        const response = await apiMethods.createMessage(this.currentChannelId, {
-            content,
-            attachments: fileUint8Arrays,
+        const url = `${apiUrl}/messages/channel/${channelId}`;
+        const formData = new FormData();
+        formData.append("content", trimmedContent || " ");
+
+        files.forEach(file => { formData.append("attachments", file); });
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
         });
 
-        const msg = transformToMessage(response);
-        const existingMessages = this.messagesByChannelId[msg.channel.id] ?? [];
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(JSON.stringify({
+                status: response.status,
+                ...errorBody,
+            }));
+        }
 
+        const responseData = await response.json();
+        const msg = transformToMessage(responseData);
+
+        const existingMessages = this.messagesByChannelId[msg.channel.id] ?? [];
         if (!existingMessages.some(m => m.id === msg.id)) {
             this.messagesByChannelId[msg.channel.id] = [...existingMessages, msg];
             this.updateChannelLastMessage(msg.channel.id, msg);
