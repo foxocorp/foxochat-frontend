@@ -17,6 +17,7 @@ export default {
         },
     },
     output: {
+        // cssModules: { namedExport: true },
         copy: [
             {
                 from: "node_modules/foxomoji/dist",
