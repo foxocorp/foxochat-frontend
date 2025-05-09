@@ -1,82 +1,74 @@
+import { observer } from "mobx-react";
 import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
 import styles from "./MessageList.module.css";
-import { MessageListProps } from "@interfaces/interfaces";
-import { useEffect, useMemo, useRef } from "preact/hooks";
-import { APIMessage } from "@foxogram/api-types";
-import moment from "moment";
+import MessageLoader from "@components/RightBar/MessageList/MessageLoader/MessageLoader";
+import type { MessageListProps } from "@interfaces/interfaces";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import isToday from "dayjs/plugin/isToday";
 
-const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channel }: MessageListProps) => {
-    const prevMessagesCount = useRef(messages.length);
-    const isInitialLoad = useRef(true);
+dayjs.extend(localizedFormat);
+dayjs.extend(isToday);
 
-    useEffect(() => {
-        isInitialLoad.current = true;
-    }, [channel.id]);
+const MessageListComponent = ({
+                                  messages,
+                                  isLoading,
+                                  isInitialLoading,
+                                  currentUserId,
+                                  messageListRef,
+                                  onScroll,
+                              }: MessageListProps & { isLoading: boolean }) => {
+    if (isLoading || isInitialLoading) {
+        return (
+            <div
+                ref={messageListRef}
+                onScroll={onScroll}
+                className={styles["message-list"]}
+            >
+                <MessageLoader />
+            </div>
+        );
+    }
 
-    const groupedMessages = useMemo(() => {
-        if (!messages.length) return [];
+    const groups: { date: string; msgs: typeof messages }[] = [];
+    let grp: typeof messages = [];
+    let lastAuthor = -1;
+    let lastDate = "";
 
-        const groups = [];
-        let currentGroup: APIMessage[] = [];
-        let currentAuthor = -1;
-        let currentDate = "";
+    for (const msg of messages) {
+        const d = dayjs(msg.created_at).format("YYYY-MM-DD");
+        const split =
+            d !== lastDate ||
+            msg.author.user.id !== lastAuthor ||
+            (grp.length && msg.created_at - grp[grp.length - 1].created_at > 300_000);
 
-        for (const msg of messages) {
-            if (!msg.created_at || !msg.author.user.id) continue;
-
-            const msgDate = moment(msg.created_at).format("YYYY-MM-DD");
-            const lastMessage = currentGroup[currentGroup.length-1];
-
-            const timeDiff = lastMessage?.created_at
-                ? msg.created_at - lastMessage.created_at
-                : Infinity;
-
-            if (msgDate !== currentDate ||
-                msg.author.user.id !== currentAuthor ||
-                timeDiff > 300000) {
-
-                if (currentGroup.length) {
-                    groups.push(createGroup(currentGroup, currentDate));
-                }
-                currentGroup = [msg];
-                currentAuthor = msg.author.user.id;
-                currentDate = msgDate;
-            } else {
-                currentGroup.push(msg);
-            }
+        if (split) {
+            if (grp.length) groups.push({ date: lastDate, msgs: grp });
+            grp = [msg];
+            lastDate = d;
+            lastAuthor = msg.author.user.id;
+        } else {
+            grp.push(msg);
         }
+    }
 
-        if (currentGroup.length) groups.push(createGroup(currentGroup, currentDate));
-        return groups;
-    }, [messages]);
-
-    useEffect(() => {
-        const list = messageListRef.current;
-        if (!list || !messages.length) return;
-
-        if (isInitialLoad.current) {
-            list.scrollTop = list.scrollHeight;
-            isInitialLoad.current = false;
-        } else if (messages.length > prevMessagesCount.current) {
-            const wasNearBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 200;
-            if (wasNearBottom) {
-                list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
-            }
-        }
-        prevMessagesCount.current = messages.length;
-    }, [messages.length]);
+    if (grp.length) groups.push({ date: lastDate, msgs: grp });
 
     return (
-        <div className={styles["message-list"]} ref={messageListRef} onScroll={onScroll}>
-            {groupedMessages.map((group, index) => (
-                <div key={`${group.dateLabel}-${group.messages[0]?.id ?? `group-${index}`}`}>
-                    {group.dateLabel && (
+        <div
+            ref={messageListRef}
+            onScroll={onScroll}
+            className={styles["message-list"]}
+        >
+            {groups.map((g) => (
+                <div key={`${g.date}-${g.msgs[0]?.id}`}>
+                    {!dayjs(g.date).isToday() && (
                         <div className={styles["sticky-date"]}>
-                            <span>{group.dateLabel}</span>
+                            {dayjs(g.date).format("MMMM D, YYYY")}
                         </div>
                     )}
                     <MessageGroup
-                        messages={group.messages}
+                        messages={g.msgs}
                         currentUserId={currentUserId}
                     />
                 </div>
@@ -85,15 +77,4 @@ const MessageList = ({ messages, currentUserId, messageListRef, onScroll, channe
     );
 };
 
-function createGroup(messages: APIMessage[], date: string) {
-    const isToday = date === moment().format("YYYY-MM-DD");
-    return {
-        dateLabel: isToday ? null : moment(date).format("MMMM D, YYYY"),
-        messages: messages.filter(msg =>
-            msg.created_at &&
-            msg.author.user.id,
-        ),
-    };
-}
-
-export default MessageList;
+export default observer(MessageListComponent);

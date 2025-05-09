@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "preact/hooks";
+import { useEffect, useRef, useState, useLayoutEffect } from "preact/hooks";
 import { observer } from "mobx-react";
 import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
@@ -6,19 +6,17 @@ import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.css";
 import chatStore from "@store/chat/index";
 import { ChatWindowProps } from "@interfaces/interfaces";
-import { useThrottle } from "@hooks/useThrottle";
+import { autorun } from "mobx";
+import { Logger } from "@utils/logger";
 
-interface Props extends ChatWindowProps {
-    isMobile: boolean;
-    onBack?: () => void;
-}
+const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => {
+    const listRef = useRef<HTMLDivElement>(null);
+    const lastScrollAtBottom = useRef(true);
+    const prevMessageCount = useRef(0);
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
-const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
-    const messageListRef = useRef<HTMLDivElement>(null);
-    const messages = chatStore.messagesByChannelId[channel.id] ?? [];
     const isProgrammaticHashChange = useRef(false);
     const lastValidChannelId = useRef<number | null>(null);
-    const scrollState = useRef({ prevHeight: 0, lastLoadPosition: 0, isTracking: false });
 
     useEffect(() => {
         if (channel.id) {
@@ -47,7 +45,6 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
             if (isProgrammaticHashChange.current) return;
 
             const hash = window.location.hash.substring(1);
-
             if (!hash) {
                 if (lastValidChannelId.current !== null) {
                     chatStore.setCurrentChannel(null).catch(console.error);
@@ -56,7 +53,6 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
             }
 
             const channelId = parseInt(hash, 10);
-
             if (isNaN(channelId)) {
                 restoreLastValidChannel();
                 return;
@@ -92,40 +88,90 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
         };
 
         window.addEventListener("hashchange", handleHashChange);
-        return () => { window.removeEventListener("hashchange", handleHashChange); };
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
     }, []);
 
     useEffect(() => {
-        const hash = window.location.hash.substring(1);
-        if (hash && !isNaN(Number(hash))) {
-            const channelId = Number(hash);
-            if (channelId !== channel.id) {
-                chatStore.setCurrentChannel(channelId).catch(console.error);
+        (async () => {
+            await chatStore.initChannel(channel.id);
+        })().catch((error: unknown) => { Logger.error(error); });
+    }, [channel.id]);
+
+    useEffect(() => {
+        return () => {
+            if (listRef.current) {
+                chatStore.channelScrollPositions.set(channel.id, listRef.current.scrollTop);
             }
+            const messages = chatStore.messagesByChannelId.get(channel.id);
+            if (messages && messages.length > 0) {
+                chatStore.lastViewedMessageTimestamps.set(channel.id, messages[messages.length - 1].created_at);
+            }
+        };
+    }, [channel.id]);
+
+    useLayoutEffect(() => {
+        const messages = chatStore.messagesByChannelId.get(channel.id);
+        if (messages && messages.length > 0 && listRef.current) {
+            listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "auto" });
+            lastScrollAtBottom.current = true;
+            setShowScrollButton(false);
         }
-    }, []);
+    }, [channel.id, chatStore.messagesByChannelId.get(channel.id)]);
 
     useEffect(() => {
-        const name = channel.display_name || channel.name || "";
-        document.title = name ? `Foxogram: ${name}` : "Foxogram";
-    }, [channel]);
+        const stop = autorun(() => {
+            const messages = chatStore.messagesByChannelId.get(channel.id);
+            if (!messages) return;
 
+            if (messages.length > prevMessageCount.current && lastScrollAtBottom.current) {
+                requestAnimationFrame(() => {
+                    if (listRef.current) {
+                        listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+                        setShowScrollButton(false);
+                    }
+                });
+            }
 
-    const handleScroll = useThrottle(() => {
-        const list = messageListRef.current;
-        if (!list || chatStore.isLoadingHistory || !messages.length) return;
-        const scrollPosition = list.scrollTop;
-        const triggerZone = list.clientHeight * 0.7;
-        if (scrollPosition < triggerZone && !scrollState.current.isTracking) {
-            scrollState.current.prevHeight = list.scrollHeight;
-            scrollState.current.lastLoadPosition = scrollPosition;
-            scrollState.current.isTracking = true;
-            const beforeTimestamp = messages[0]?.created_at ?? undefined;
-            void chatStore.fetchMessages(channel.id, beforeTimestamp).finally(() => {
-                scrollState.current.isTracking = false;
-            });
+            prevMessageCount.current = messages.length;
+        });
+
+        return () => { stop(); };
+    }, [channel.id]);
+
+    const handleScroll = async (e: Event) => {
+        const el = e.currentTarget as HTMLDivElement;
+        const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
+        lastScrollAtBottom.current = nearBottom;
+        setShowScrollButton(!nearBottom);
+
+        const messages = chatStore.messagesByChannelId.get(channel.id);
+        if (!messages?.length || chatStore.activeRequests.has(channel.id)) return;
+        if (el.scrollTop > 100) return;
+
+        const hasMore = chatStore.hasMoreMessagesByChannelId.get(channel.id);
+        if (!hasMore) return;
+
+        const prevHeight = el.scrollHeight;
+
+        await chatStore.fetchMessages(channel.id, {
+            before: messages[0].created_at,
+        });
+
+        if (listRef.current) {
+            const newHeight = listRef.current.scrollHeight;
+            listRef.current.scrollTop = newHeight - prevHeight + el.scrollTop;
         }
-    }, 300);
+    };
+
+    const handleScrollToBottom = () => {
+        if (listRef.current) {
+            listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+            lastScrollAtBottom.current = true;
+            setShowScrollButton(false);
+        }
+    };
 
     return (
         <div className={styles["chat-window"]}>
@@ -135,22 +181,32 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: Props) => {
                 displayName={channel.display_name}
                 channelId={channel.id}
                 isMobile={isMobile}
-                onBack={isMobile ? (onBack as () => void) : () => {}}
+                onBack={isMobile ? onBack : undefined}
             />
             <MessageList
-                messages={messages}
+                messages={chatStore.messagesByChannelId.get(channel.id) ?? []}
+                isLoading={chatStore.loadingInitial.has(channel.id)}
+                isInitialLoading={chatStore.loadingInitial.has(channel.id)}
                 currentUserId={chatStore.currentUserId ?? -1}
-                messageListRef={messageListRef}
+                messageListRef={listRef}
                 onScroll={handleScroll}
                 channel={channel}
             />
+            {showScrollButton && (
+                <button
+                    className={`${styles["scroll-button"]} ${showScrollButton ? styles.visible : ""}`}
+                    onClick={handleScrollToBottom}
+                    title="Scroll to bottom"
+                >
+                    ↓
+                </button>
+            )}
             <MessageInput
-                onSendMessage={(content, files) => chatStore.sendMessage(content, files)}
+                onSendMessage={(c, f) => chatStore.sendMessage(c, f)}
                 isSending={chatStore.isSendingMessage}
             />
         </div>
     );
 };
 
-const ChatWindow = observer(ChatWindowComponent);
-export default ChatWindow;
+export default observer(ChatWindowComponent);

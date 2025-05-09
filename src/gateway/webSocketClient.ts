@@ -96,18 +96,6 @@ export class WebSocketClient {
         }
     }
 
-    public disconnect(): void {
-        Logger.info("Disconnecting WebSocket...");
-        Logger.warn("Disconnect method might not fully disconnect due to reconnect being true");
-    }
-
-    public on<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
-        if (!this.listeners.has(event)) {
-            this.listeners.set(event, []);
-        }
-        this.listeners.get(event)!.push(listener);
-    }
-
     private emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
         const eventListeners = this.listeners.get(event);
         if (eventListeners) {

@@ -11,16 +11,14 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
     const sortedChannels = useMemo(() => {
-        return [...chatStore.channels].sort((a, b) => {
-            const aTime = a?.last_message?.created_at ?? a?.created_at ?? 0;
-            const bTime = b?.last_message?.created_at ?? b?.created_at ?? 0;
-            return bTime - aTime;
-        });
-    }, [chatStore.channels.length]);
-
-    const handleSelectChat = (chat: APIChannel) => {
-        onSelectChat(chat);
-    };
+        return [...chatStore.channels]
+            .filter((chat): chat is APIChannel => !!chat)
+            .sort((a, b) => {
+                const aTime = a.last_message?.created_at ?? a.created_at;
+                const bTime = b.last_message?.created_at ?? b.created_at;
+                return (bTime || 0) - (aTime || 0);
+            });
+    }, [chatStore.channels.length, chatStore.channels]);
 
     useEffect(() => {
         const message = replaceEmojis("😔", "160");
@@ -40,8 +38,6 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
         );
     }
 
-    const activeChatId = chatStore.currentChannelId;
-
     return (
         <div className={styles["chat-list"]}>
             {sortedChannels
@@ -50,9 +46,9 @@ const ChatListComponent = ({ chats, currentUser, onSelectChat }: ChatListProps) 
                     <ChatItem
                         key={chat.id}
                         chat={chat}
-                        isActive={chat.id === activeChatId}
-                        onSelectChat={handleSelectChat}
-                        currentUser={currentUser}
+                        isActive={chat.id === chatStore.currentChannelId}
+                        onSelectChat={onSelectChat}
+                        currentUser={chatStore.currentUserId ?? -1}
                     />
                 ))}
         </div>

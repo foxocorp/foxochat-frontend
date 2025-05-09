@@ -1,28 +1,36 @@
+import { useState, useEffect } from "preact/hooks";
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem";
 import styles from "./MessageGroup.module.css";
 import { MessageGroupProps } from "@interfaces/interfaces";
-import chatStore from "@store/chat/index";
+import { APIMessage } from "@foxogram/api-types";
 
 const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
+    const [isAnimated, setIsAnimated] = useState(false);
+
+    useEffect(() => {
+        const t = setTimeout(() => { setIsAnimated(true); }, 100);
+        return () => { clearTimeout(t); };
+    }, []);
+
     if (messages.length === 0) return null;
 
-    const firstMessage = messages[0];
-    if (!firstMessage) return null;
-
     return (
-        <div className={`${styles["message-group"]}`}>
-            {messages.map((msg) => (
+        <div className={`${styles["message-group"]} ${!isAnimated ? styles["animated-group"] : ""}`}>
+            {messages.map((msg: APIMessage, idx: number) => (
                 <MessageItem
                     key={msg.id}
                     content={msg.content}
                     created_at={msg.created_at}
                     author={msg.author}
                     currentUserId={currentUserId}
-                    showAuthorName={true}
                     attachments={msg.attachments ?? []}
                     status={msg.status}
-                    onRetry={() => chatStore.retryMessage(msg.id)}
-                    onDelete={() => { chatStore.deleteMessage(msg.id); }}
+                    onDelete={() => {}}
+                    onEdit={() => {}}
+                    onReply={() => {}}
+                    onForward={() => {}}
+                    showAuthorName={idx === 0}
+                    showAvatar={idx === messages.length - 1}
                 />
             ))}
         </div>

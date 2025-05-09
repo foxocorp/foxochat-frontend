@@ -8,18 +8,13 @@ import { ChatItemProps } from "@interfaces/interfaces";
 
 const ChatItemComponent = ({ chat, onSelectChat, currentUser, isActive }: ChatItemProps) => {
     const [emojiReplacedName, setEmojiReplacedName] = useState<string>("");
+    const lastMessage = useMemo(() => chat.last_message, [chat.last_message]);
 
     const lastMessageContent = useMemo(() => {
-        const lastMessage = chat.last_message;
-        const authorName = lastMessage?.author.user.username ?? "Unknown user";
-        const isCurrentUserAuthor = lastMessage?.author.id === currentUser;
-
-        return lastMessage
-            ? isCurrentUserAuthor
-                ? `You: ${lastMessage.content}`
-                : `${authorName}: ${lastMessage.content}`
-            : "No messages";
-    }, [chat.last_message, currentUser]);
+        if (!lastMessage) return "No messages";
+        const username = lastMessage.author.user.username || "Unknown";
+        return `${username}: ${lastMessage.content.substring(0, 30)}${lastMessage.content.length > 30 ? "..." : ""}`;
+    }, [lastMessage]);
 
     useEffect(() => {
         const replacedName = replaceEmojis(chat.display_name || chat.name, "64");

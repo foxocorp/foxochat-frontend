@@ -23,9 +23,14 @@
     border-radius: 50%;
     font-size: 18px;
     cursor: pointer;
-    opacity: 0.8;
+    opacity: 0;
+    backdrop-filter: blur(4px);
     transition: opacity 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     box-shadow: 0 4px 8px rgb(0 0 0 / 0.3);
+}
+
+.scroll-button.visible {
+    opacity: 1;
 }
 
 .scroll-button:hover {

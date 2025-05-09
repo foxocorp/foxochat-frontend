@@ -2,7 +2,7 @@
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     padding: 0 8px;
     width: 100%;
 }
@@ -13,10 +13,15 @@
 }
 
 .avatar-container {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
-    align-self: flex-start;
+    align-self: flex-end;
+}
+
+.avatar-placeholder {
+    width: 36px;
+    flex-shrink: 0;
 }
 
 .avatar {
@@ -27,55 +32,34 @@
 }
 
 .default-avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(225deg, #eea7a7 0%, #cd5555 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .message-bubble {
     background: #2f79ff;
     border-radius: 12px;
-    padding: 8px 8px;
-    max-width: 480px;
-    min-width: 120px;
+    padding: 8px 12px;
+    max-width: 70%;
     position: relative;
     display: inline-block;
-
-    img {
-        border-radius: 12px;
-    }
 }
 
 .author .message-bubble {
     background: #2f79ff;
-    border-radius: 12px 12px 2px 12px;
+    border-radius: 12px 12px 0 12px;
 }
 
 .receiver .message-bubble {
     background: rgb(40 40 40 / 0.4);
-    border-radius: 12px 12px 12px 2px;
-}
-
-.media-grid {
-    max-width: 400px;
-    display: grid;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.media-image {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 6px;
+    border-radius: 12px 12px 12px 0;
 }
 
 .text-content {
@@ -85,35 +69,38 @@
 }
 
 .author-name {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: #e0e0e0;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    font-weight: 500;
 }
 
 .message-text {
-    font-size: 0.9rem;
+    font-size: 14px;
     line-height: 1.4;
-    margin-right: 63px;
-    min-height: 1.2em;
+    color: #fff;
 }
 
 .message-footer {
-    position: absolute;
-    bottom: 8px;
-    right: 12px;
     display: flex;
+    justify-content: flex-end;
     gap: 4px;
+    margin-top: 4px;
     align-items: center;
 }
 
 .timestamp {
-    font-size: 0.7rem;
-    color: rgb(255 255 255 / 0.7);
+    font-size: 11px;
+    color: rgb(255 255 255 / 0.6);
+}
+
+.author .timestamp {
+    color: rgb(255 255 255 / 0.8);
 }
 
 .status-icon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     opacity: 0.8;
 }
 
@@ -191,4 +178,17 @@
 .file-icon {
     width: 24px;
     height: 24px;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
