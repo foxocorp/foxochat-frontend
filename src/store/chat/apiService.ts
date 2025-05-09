@@ -3,11 +3,10 @@ import { Logger } from "@utils/logger";
 import type { ChatStore } from "./chatStore";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
 import type { APIChannel, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
+import { observable, runInAction } from "mobx";
 
 interface AuthError {
-    response?: {
-        status?: number;
-    };
+    response?: { status?: number };
     code?: string;
 }
 
@@ -28,8 +27,10 @@ export async function fetchCurrentUser(this: ChatStore): Promise<void> {
     if (this.currentUserId || !getAuthToken()) return;
     try {
         const user = await apiMethods.getCurrentUser();
-        this.setCurrentUser(user.id);
-        this.connectionError = null;
+        runInAction(() => {
+            this.setCurrentUser(user.id);
+            this.connectionError = null;
+        });
     } catch (error) {
         handleAuthError.call(this, error);
     }
@@ -38,146 +39,154 @@ export async function fetchCurrentUser(this: ChatStore): Promise<void> {
 export async function fetchChannelsFromAPI(this: ChatStore): Promise<void> {
     if (!getAuthToken() || this.channels.length > 0 || this.activeRequests.has("channels")) return;
 
-    this.activeRequests.add("channels");
-    this.isLoading = true;
+    runInAction(() => {
+        this.activeRequests.add("channels");
+        this.isLoading = true;
+    });
 
     try {
         const apiChannels: APIChannel[] = await apiMethods.userChannelsList();
-        this.channels = apiChannels.map(createChannelFromAPI).filter(Boolean);
+        runInAction(() => {
+            this.channels = observable.array(
+                apiChannels.map(createChannelFromAPI).filter(Boolean) as APIChannel[],
+            );
+            this.isLoading = false;
+            this.activeRequests.delete("channels");
+        });
     } catch (error) {
+        runInAction(() => {
+            this.isLoading = false;
+            this.activeRequests.delete("channels");
+        });
         handleAuthError.call(this, error);
-    } finally {
-        this.activeRequests.delete("channels");
-        this.isLoading = false;
     }
 }
 
-export async function fetchMessages( this: ChatStore, channelId: number, beforeTimestamp?: number ): Promise<void> {
-    if (
-        !getAuthToken() ||
-        this.activeRequests.has(channelId) ||
-        !this.hasMoreMessagesByChannelId.get(channelId)
-    )
-        return;
+export async function fetchMessages(this: ChatStore, channelId: number, query: RESTGetAPIMessageListQuery = {}): Promise<void> {
+    if (this.activeRequests.has(channelId)) return;
 
-    const isInitial = beforeTimestamp === undefined;
-    if (isInitial) this.isInitialLoad.set(channelId, true);
-    this.activeRequests.add(channelId);
-
-    const controller = new AbortController();
-    this.abortControllers.set(channelId, controller);
-    this.isLoadingHistory = true;
+    runInAction(() => {
+        this.activeRequests.add(channelId);
+        this.isLoadingHistory = true;
+    });
 
     try {
-        const query: RESTGetAPIMessageListQuery = { limit: 50 };
-        if (beforeTimestamp !== undefined) {
-            query.before = beforeTimestamp;
-        }
+        const defaultQuery: RESTGetAPIMessageListQuery = { limit: 50, ...query };
 
-        const newMessages = await apiMethods.listMessages(channelId, query);
-        const ordered = isInitial ? newMessages : [...newMessages].reverse();
+        const newMessages = await apiMethods.listMessages(channelId, defaultQuery);
+        const transformed = newMessages
+            .map(transformToMessage)
+            .sort((a, b) => a.created_at - b.created_at);
 
-        if (ordered.length) {
-            if (isInitial) this.isInitialLoad.set(channelId, false);
+        runInAction(() => {
+            const existing = this.messagesByChannelId.get(channelId) ?? [];
 
-            const existing = new Set(this.messagesByChannelId[channelId]?.map(m => m.id) ?? []);
-            const transformed = ordered
-                .map(transformToMessage)
-                .filter(m => !existing.has(m.id));
+            let updated: any[];
+            if (query.before) {
+                updated = [...existing, ...transformed];
+            } else {
+                updated = [...transformed, ...existing];
+            }
 
-            this.messagesByChannelId[channelId] = isInitial
-                ? transformed
-                : [...(this.messagesByChannelId[channelId] ?? []), ...transformed];
+            const uniqueMessages = removeDuplicateMessages(updated);
 
-            this.hasMoreMessagesByChannelId.set(channelId, newMessages.length === 30);
-        }
+            uniqueMessages.sort((a, b) => a.created_at - b.created_at);
+
+            this.messagesByChannelId.set(channelId, observable.array(uniqueMessages));
+            this.hasMoreMessagesByChannelId.set(channelId, newMessages.length >= 50);
+        });
     } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-            Logger.debug(`Request aborted: ${error.message}`);
-        } else {
-            handleAuthError.call(this, error);
-        }
+        Logger.error(`fetchMessages error: ${JSON.stringify(error)}`);
     } finally {
-        this.activeRequests.delete(channelId);
-        this.abortControllers.delete(channelId);
-        this.isLoadingHistory = false;
+        runInAction(() => {
+            this.activeRequests.delete(channelId);
+            this.isLoadingHistory = false;
+        });
     }
 }
 
-function readFileAsUint8Array(file: File): Promise<Uint8Array> {
-    return new Promise<Uint8Array>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => { resolve(new Uint8Array(reader.result as ArrayBuffer)); };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-    });
-}
+function removeDuplicateMessages(messages: any[]): any[] {
+    const uniqueMessages: Record<number, any> = {};
 
-const apiUrl = import.meta.env.PROD
-    ? "https://api.foxogram.su"
-    : "https://api.dev.foxogram.su";
+    for (const message of messages) {
+        uniqueMessages[message.id] = message;
+    }
+
+    return Object.values(uniqueMessages);
+}
 
 export async function sendMessage(this: ChatStore, content: string, files: File[] = []): Promise<void> {
     if (!this.currentChannelId || !this.currentUserId) return;
 
-    this.isSendingMessage = true;
+    const channelId = this.currentChannelId;
+    const tempId = `temp-${Date.now()}`; // Генерируем временный ID
+
+    // Создаем временное сообщение для оптимистичного обновления
+    const tempMessage: APIMessage = {
+        id: -1, // Временный ID
+        content,
+        author: {
+            id: this.currentUserId,
+            user: {} as APIUser, // Заглушка, должна быть заменена реальными данными
+            channel: {} as APIChannel,
+            permissions: 0,
+            joined_at: 0
+        },
+        channel: { id: channelId } as APIChannel,
+        attachments: [],
+        created_at: Date.now() / 1000,
+        // Добавляем временный идентификатор
+        _tempId: tempId
+    };
+
+    runInAction(() => {
+        this.isSendingMessage = true;
+        this.handleNewMessage(tempMessage);
+    });
 
     try {
-        const trimmedContent = content.trim();
-        const token = getAuthToken();
-        if (!token) throw new Error("No auth token");
-
-        const url = `${apiUrl}/messages/channel/${this.currentChannelId}`;
-        const formData = new FormData();
-        formData.append("content", trimmedContent || " ");
-
-        files.forEach(file => {
-            formData.append("attachments", file);
-        });
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorBody = await response.json().catch(() => ({}));
-            throw new Error(JSON.stringify({
-                status: response.status,
-                ...errorBody,
-            }));
+        let attachmentIds: number[] = [];
+        if (files.length > 0) {
+            const atts = await apiMethods.createMessageAttachments(channelId, files);
+            await Promise.all(
+                atts.map((att, idx) =>
+                    apiMethods.uploadFileToStorage(att.uploadUrl, files[idx]),
+                ),
+            );
+            attachmentIds = atts.map((att) => att.id);
         }
 
-        const responseData = await response.json();
-        const msg = transformToMessage(responseData);
+        const apiMsg = await apiMethods.createMessage(channelId, content, attachmentIds);
+        const message = transformToMessage(apiMsg);
 
-        const existingMessages = this.messagesByChannelId[msg.channel.id] ?? [];
-        if (!existingMessages.some(m => m.id === msg.id)) {
-            this.messagesByChannelId[msg.channel.id] = [...existingMessages, msg];
-            this.updateChannelLastMessage(msg.channel.id, msg);
-        }
-
-        this.playSendMessageSound();
+        runInAction(() => {
+            const messages = this.messagesByChannelId.get(channelId) ?? [];
+            const updated = messages.filter(m => (m as any)._tempId !== tempId);
+            updated.push(message);
+            this.messagesByChannelId.set(channelId, observable.array(updated));
+            this.isSendingMessage = false;
+        });
     } catch (error) {
-        Logger.error(`sendMessage error: ${JSON.stringify(error)}`);
-        this.connectionError = "Failed to send message";
-    } finally {
-        this.isSendingMessage = false;
+        runInAction(() => {
+            const messages = this.messagesByChannelId.get(channelId) || [];
+            this.messagesByChannelId.set(channelId,
+                observable.array(messages.filter(m => (m as any)._tempId !== tempId))
+            );
+            this.isSendingMessage = false;
+            this.connectionError = "Failed to send message";
+        });
+        Logger.error(`Failed to send message: ${error}`);
     }
 }
 
 export async function retryMessage(this: ChatStore, messageId: number): Promise<void> {
-    if (!this.currentChannelId) return;
+    const channelId = this.currentChannelId;
+    if (channelId === null) return;
 
-    const channelMessages = this.messagesByChannelId[this.currentChannelId];
-    const msg = channelMessages?.find(m => m.id === messageId);
+    const msgs = this.messagesByChannelId.get(channelId) ?? [];
+    const msg = msgs.find((m) => m.id === messageId);
     if (!msg) return;
 
-    const attachments = msg.attachments.map(attachment => new File([attachment], "filename", { type: "application/octet-stream" }));
-
-    await this.sendMessage(msg.content, attachments);
+    await this.sendMessage(msg.content, msg.attachments.map((att) => new File([att], "file")));
     this.deleteMessage(messageId);
 }

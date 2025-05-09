@@ -79,9 +79,7 @@ export function transformApiMember(raw: APIMember | undefined): APIMember {
     };
 }
 
-export function transformToMessage(
-    raw: APIMessage | undefined,
-): APIMessage {
+export function transformToMessage(raw: unknown): APIMessage {
     if (!raw || typeof raw !== "object") {
         return {
             id: 0,
@@ -93,7 +91,9 @@ export function transformToMessage(
         };
     }
 
-    const ch = typeof raw.channel === "object" ? raw.channel : undefined;
+    const message = raw as Partial<APIMessage>;
+
+    const ch = typeof message.channel === "object" ? message.channel : undefined;
     const safeChannel: APIChannel = {
         ...FALLBACK_CHANNEL,
         ...(ch ?? {}),
@@ -102,12 +102,12 @@ export function transformToMessage(
     };
 
     return {
-        id: raw.id,
-        content: raw.content,
-        attachments: raw.attachments,
-        author: transformApiMember(raw.author),
+        id: message.id ?? 0,
+        content: message.content ?? "",
+        attachments: message.attachments ?? [],
+        author: transformApiMember(message.author),
         channel: safeChannel,
-        created_at: raw.created_at,
+        created_at: message.created_at ?? 0,
     };
 }
 
