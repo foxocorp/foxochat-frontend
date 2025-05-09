@@ -6,30 +6,6 @@ import {
 } from "@foxogram/api-types";
 import React from "react";
 
-/* === Interface Definitions === */
-
-export interface ConnectionManager {
-    startHeartbeat(
-        interval: number,
-        sendHeartbeat: () => void,
-        onMissed: () => void
-    ): ReturnType<typeof setInterval>;
-    cleanupHeartbeat(id: ReturnType<typeof setInterval> | null): void;
-    scheduleReconnect: (
-        isExplicitClose: boolean,
-        currentAttempts: number,
-        maxReconnectAttempts: number,
-        currentDelay: number,
-        reconnectFn: () => void
-    ) => ReturnType<typeof setTimeout> | null;
-    checkConnectionHealth: (
-        isConnected: boolean,
-        heartbeatAckReceived: boolean,
-        reconnectFn: () => void,
-        delay: number
-    ) => void;
-}
-
 /* === Props Section === */
 
 /**
@@ -39,6 +15,8 @@ export interface ConnectionManager {
 export interface ChatWindowProps {
     channel: APIChannel;
     currentUserId: number;
+    isMobile: boolean;
+    onBack?: () => void;
 }
 
 export interface ChatListProps {
@@ -48,10 +26,12 @@ export interface ChatListProps {
 }
 
 export interface ChatHeaderProps {
-    avatar: string | null;
+    avatar?: string | null;
     displayName?: string | null;
     username: string;
     channelId: number;
+    isMobile: boolean;
+    onBack?: () => void
 }
 
 export interface ChatItemProps {
@@ -92,9 +72,12 @@ export interface Attachment {
 export interface MessageListProps {
     messages: APIMessage[];
     currentUserId: number;
+    isLoading: boolean;
     channel: APIChannel;
     onScroll: (event: Event) => void;
     messageListRef: React.RefObject<HTMLDivElement>;
+    lastMessageRef?: React.RefObject<HTMLDivElement>;
+    isInitialLoading: boolean;
 }
 
 export interface MessageInputProps {

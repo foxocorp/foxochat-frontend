@@ -68,7 +68,6 @@ export const Logger = {
             border: 2px solid #404EED;
             border-radius: 6px;
             padding: 8px 16px;
-            /* эмуляция обводки через 4 тени по углам */
             text-shadow:
               -2px -2px 0 #000,
                2px -2px 0 #000,
@@ -77,7 +76,6 @@ export const Logger = {
         `,
         );
     },
-
 
     group: (label: string, level: LogLevel = LogLevel.Debug) => {
         const tag = `[${LogLevel[level]}]`;
