@@ -1,5 +1,4 @@
-import { API } from "@foxogram/api";
-import { REST } from "@foxogram/rest";
+import { API, REST } from "foxogram.js";
 import {
     ChannelType,
     MemberKey,
@@ -27,7 +26,7 @@ export const removeAuthToken = (): void => {localStorage.removeItem("authToken")
 
 const rest = new REST({ baseURL: apiUrl });
 const token = getAuthToken();
-if (token) rest.setToken(token);
+if (token) rest.token = token;
 
 const foxogramAPI = new API(rest);
 
@@ -35,13 +34,13 @@ export const apiMethods = {
     login: async (email: string, password: string) => {
         const t = await foxogramAPI.auth.login({ email, password });
         setAuthToken(t.access_token);
-        rest.setToken(t.access_token);
+        rest.token = t.access_token;
         return t;
     },
     register: async (username: string, email: string, password: string) => {
         const t = await foxogramAPI.auth.register({ username, email, password });
         setAuthToken(t.access_token);
-        rest.setToken(t.access_token);
+        rest.token = t.access_token;
         return t;
     },
     resendEmailVerification: () => foxogramAPI.auth.resendEmail(),
