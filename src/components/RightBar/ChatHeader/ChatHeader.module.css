@@ -7,6 +7,7 @@
     color: white;
     border-bottom: 1px solid rgb(96 96 96 / 0.5);
     height: 72px;
+    background: var(--background-chat-color);
 }
 
 .back-button {
