@@ -291,6 +291,13 @@ export class ChatStore {
         }
     }
 
+    @action
+    addNewChannel(channel: APIChannel) {
+        if (!this.channels.some(c => c.id === channel.id)) {
+            this.channels.unshift(channel);
+        }
+    }
+
     playSendMessageSound() {
         const audio = new Audio("/sounds/fg_sfx.mp3");
         audio.play().catch((e: unknown) => {
