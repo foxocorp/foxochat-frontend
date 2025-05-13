@@ -119,29 +119,9 @@ export async function sendMessage(this: ChatStore, content: string, files: File[
     if (!this.currentChannelId || !this.currentUserId) return;
 
     const channelId = this.currentChannelId;
-    const tempId = `temp-${Date.now()}`; // Генерируем временный ID
-
-    // Создаем временное сообщение для оптимистичного обновления
-    const tempMessage: APIMessage = {
-        id: -1, // Временный ID
-        content,
-        author: {
-            id: this.currentUserId,
-            user: {} as APIUser, // Заглушка, должна быть заменена реальными данными
-            channel: {} as APIChannel,
-            permissions: 0,
-            joined_at: 0
-        },
-        channel: { id: channelId } as APIChannel,
-        attachments: [],
-        created_at: Date.now() / 1000,
-        // Добавляем временный идентификатор
-        _tempId: tempId
-    };
 
     runInAction(() => {
         this.isSendingMessage = true;
-        this.handleNewMessage(tempMessage);
     });
 
     try {
@@ -153,7 +133,7 @@ export async function sendMessage(this: ChatStore, content: string, files: File[
                     apiMethods.uploadFileToStorage(att.uploadUrl, files[idx]),
                 ),
             );
-            attachmentIds = atts.map((att) => att.id);
+            attachmentIds = atts.map(att => att.id);
         }
 
         const apiMsg = await apiMethods.createMessage(channelId, content, attachmentIds);
@@ -161,17 +141,12 @@ export async function sendMessage(this: ChatStore, content: string, files: File[
 
         runInAction(() => {
             const messages = this.messagesByChannelId.get(channelId) ?? [];
-            const updated = messages.filter(m => (m as any)._tempId !== tempId);
-            updated.push(message);
-            this.messagesByChannelId.set(channelId, observable.array(updated));
+            messages.push(message);
+            this.messagesByChannelId.set(channelId, observable.array(messages));
             this.isSendingMessage = false;
         });
     } catch (error) {
         runInAction(() => {
-            const messages = this.messagesByChannelId.get(channelId) || [];
-            this.messagesByChannelId.set(channelId,
-                observable.array(messages.filter(m => (m as any)._tempId !== tempId))
-            );
             this.isSendingMessage = false;
             this.connectionError = "Failed to send message";
         });

@@ -1,8 +1,7 @@
 .message-item {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 4px;
+    align-items: flex-end;
+    gap: 4px;
     padding: 0 8px;
     width: 100%;
 }
@@ -12,15 +11,10 @@
     margin-left: auto;
 }
 
-.avatar-container {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    align-self: flex-end;
-}
-
+.avatar-container,
 .avatar-placeholder {
     width: 36px;
+    height: 36px;
     flex-shrink: 0;
 }
 
@@ -46,52 +40,64 @@
 .message-bubble {
     background: #2f79ff;
     border-radius: 12px;
-    padding: 8px 12px;
-    max-width: 70%;
+    padding: 8px 8px;
+    max-width: 85%;
+    min-width: 60px;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    display: inline-block;
 }
 
 .author .message-bubble {
-    background: #2f79ff;
     border-radius: 12px 12px 0 12px;
+    background: #2f79ff;
 }
 
 .receiver .message-bubble {
-    background: rgb(40 40 40 / 0.4);
     border-radius: 12px 12px 12px 0;
+    background: rgb(40 40 40 / 0.4);
 }
 
 .text-content {
     display: flex;
+    gap: 2px;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.receiver .text-content {
     flex-direction: column;
-    gap: 4px;
 }
 
 .author-name {
     font-size: 12px;
     color: #e0e0e0;
-    margin-bottom: 2px;
     font-weight: 500;
+    margin-bottom: 2px;
 }
 
 .message-text {
     font-size: 14px;
-    line-height: 1.4;
     color: #fff;
+    overflow-wrap: anywhere;
+    padding-right: 10px;
+    position: relative;
 }
 
 .message-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 4px;
     margin-top: 4px;
-    align-items: center;
+    align-self: flex-end;
 }
 
 .timestamp {
     font-size: 11px;
     color: rgb(255 255 255 / 0.6);
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .author .timestamp {
@@ -102,6 +108,7 @@
     width: 14px;
     height: 14px;
     opacity: 0.8;
+    flex-shrink: 0;
 }
 
 .action-popup {
@@ -173,6 +180,13 @@
     padding: 12px;
     background: rgb(255 255 255 / 0.1);
     border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.file-attachment:hover {
+    background: rgb(255 255 255 / 0.2);
 }
 
 .file-icon {
@@ -191,4 +205,39 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.attachments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.attachment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-attachment {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.video-attachment {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+}
+
+.audio-attachment {
+    width: 100%;
+    min-width: 200px;
+    max-width: 300px;
 }

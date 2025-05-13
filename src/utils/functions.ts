@@ -29,3 +29,10 @@ export async function generateThumbHashFromFile(file: File): Promise<string | nu
     const thumb = rgbaToThumbHash(w, h, data);
     return btoa(String.fromCharCode(...thumb));
 }
+
+export const timestampToHSV = (ts: number): { h: number; s: number } => {
+    const seconds = Math.floor(ts / 1000);
+    const h = seconds % 360;
+    const s = 20 + ((seconds % 1000) / 1000) * 40;
+    return { h, s };
+};

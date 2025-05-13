@@ -2,6 +2,8 @@ import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./MessageItem.module.css";
 import { MessageItemProps } from "@interfaces/interfaces";
+import { APIAttachment } from "@foxogram/api-types";
+
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
 import StateFailed from "@icons/chat/state-failed.svg";
@@ -10,6 +12,8 @@ import ReplyIcon from "@icons/chat/reply.svg";
 import ForwardIcon from "@icons/chat/forward.svg";
 import TrashIcon from "@icons/chat/trash.svg";
 import FileIcon from "@icons/chat/file.svg";
+
+import { timestampToHSV } from "@utils/functions";
 
 interface Props extends MessageItemProps {
     showAuthorName: boolean;
@@ -34,30 +38,41 @@ export default function MessageItem({
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
     useEffect(() => {
-        const down = (e: KeyboardEvent) => { if (e.key === "Shift") setIsShiftPressed(true); };
-        const up = () => { setIsShiftPressed(false); };
-        window.addEventListener("keydown", down);
-        window.addEventListener("keyup", up);
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Shift") setIsShiftPressed(true);
+        };
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === "Shift") setIsShiftPressed(false);
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
         return () => {
-            window.removeEventListener("keydown", down);
-            window.removeEventListener("keyup", up);
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
         };
     }, []);
 
-    const timestampToHSV = (ts: number) => {
-        const seconds = Math.floor(ts / 1000);
-        const h = seconds % 360;
-        const s = 20 + ((seconds % 1000) / 1000) * 40;
-        return { h, s };
+    const safeAuthor = author ?? {
+        user: {
+            id: 0,
+            created_at: Date.now(),
+            display_name: null,
+            username: "",
+            avatar: null,
+        },
     };
-    const safeAuthor = author ?? { user: { created_at: Date.now(), ...author.user } };
     const { h, s } = timestampToHSV(safeAuthor.user.created_at);
     const avatarBg = `hsl(${h}, ${s}%, 50%)`;
 
     const statusIcon = useMemo(() => {
-        if (status === "sending") return StateSending;
-        if (status === "failed") return StateFailed;
-        return StateSent;
+        switch (status) {
+            case "sending":
+                return StateSending;
+            case "failed":
+                return StateFailed;
+            default:
+                return StateSent;
+        }
     }, [status]);
 
     const isMessageAuthor = safeAuthor.user.id === currentUserId;
@@ -76,22 +91,25 @@ export default function MessageItem({
         return name.charAt(0).toUpperCase();
     }, [safeAuthor.user.display_name, safeAuthor.user.username]);
 
-    const validAttachments = (attachments as (string | { url: string })[])
-        .map(att => {
-            const url = typeof att === "string" ? att : att.url;
-            if (!url) return null;
-            const parts = url.split("/");
-            const fn = parts[parts.length - 1];
-            const ext = fn.split(".").pop()?.toLowerCase() ?? "";
-            return { url, filename: fn, ext };
-        })
-        .filter(Boolean);
+    const validAttachments = useMemo(() => {
+        return attachments
+            .map((att: APIAttachment | string): { url: string; filename: string; ext: string } | null => {
+                const url = typeof att === "string" ? att : att.uuid;
+                if (!url) return null;
+
+                const filename = typeof att === "string" ? att.split("/").pop() ?? "file" : att.filename;
+
+                const lastDotIndex = filename.lastIndexOf(".");
+                const ext = lastDotIndex > 0 ? filename.slice(lastDotIndex + 1).toLowerCase() : "";
+
+                return { url, filename, ext };
+            })
+            .filter((att): att is { url: string; filename: string; ext: string } => att !== null);
+    }, [attachments]);
 
     return (
         <div
-            className={`${styles["message-item"]} ${
-                isMessageAuthor ? styles["author"] : styles["receiver"]
-            }`}
+            className={`${styles["message-item"]} ${isMessageAuthor ? styles.author : styles.receiver}`}
             onMouseEnter={() => { setIsHovered(true); }}
             onMouseLeave={() => { setIsHovered(false); }}
         >
@@ -104,14 +122,11 @@ export default function MessageItem({
                     {safeAuthor.user.avatar ? (
                         <img
                             src={safeAuthor.user.avatar}
-                            className={styles["avatar"]}
+                            className={styles.avatar}
                             alt="User avatar"
                         />
                     ) : (
-                        <div
-                            className={styles["default-avatar"]}
-                            style={{ backgroundColor: avatarBg }}
-                        >
+                        <div className={styles["default-avatar"]} style={{ backgroundColor: avatarBg }}>
                             {avatarInitial}
                         </div>
                     )}
@@ -124,20 +139,36 @@ export default function MessageItem({
                 {validAttachments.length > 0 && (
                     <div className={styles["attachments-grid"]}>
                         {validAttachments.map(({ url, filename, ext }, idx) => {
-                            const isImg = ["png","jpg","jpeg","gif","webp"].includes(ext);
-                            const isVid = ["mp4","webm","ogg"].includes(ext);
-                            const isAud = ["mp3","wav","ogg"].includes(ext);
+                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(ext);
+                            const isVid = ["mp4", "webm", "ogg"].includes(ext);
+                            const isAud = ["mp3", "wav", "ogg"].includes(ext);
                             return (
                                 <div key={idx} className={styles["attachment-container"]}>
                                     {isImg ? (
-                                        <img src={url} alt={filename} className={styles["image-attachment"]} />
+                                        <img
+                                            src={url}
+                                            alt={filename}
+                                            className={styles["image-attachment"]}
+                                        />
                                     ) : isVid ? (
-                                        <video controls src={url} className={styles["video-attachment"]} />
+                                        <video
+                                            controls
+                                            src={url}
+                                            className={styles["video-attachment"]}
+                                        />
                                     ) : isAud ? (
-                                        <audio controls src={url} className={styles["audio-attachment"]} />
+                                        <audio
+                                            controls
+                                            src={url}
+                                            className={styles["audio-attachment"]}
+                                        />
                                     ) : (
-                                        <a href={url} download={filename} className={styles["file-attachment"]}>
-                                            <FileIcon className={styles["file-icon"]} />
+                                        <a
+                                            href={url}
+                                            download={filename}
+                                            className={styles["file-attachment"]}
+                                        >
+                                            <img src={FileIcon} className={styles["file-icon"]} alt="File" />
                                             <span>{filename}</span>
                                         </a>
                                     )}
@@ -160,7 +191,6 @@ export default function MessageItem({
                     )}
 
                     <div className={styles["message-footer"]}>
-                        <span className={styles["timestamp"]}>{formattedTime}</span>
                         {isMessageAuthor && (
                             <img
                                 src={statusIcon}
@@ -168,6 +198,7 @@ export default function MessageItem({
                                 alt="Status"
                             />
                         )}
+                        <span className={styles.timestamp}>{formattedTime}</span>
                     </div>
                 </div>
             </div>
