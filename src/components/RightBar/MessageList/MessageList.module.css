@@ -4,9 +4,11 @@
     flex: 1;
     padding: 10px 15px;
     overflow-y: auto;
-    background-color: var(--background-chat-color);
     scroll-behavior: smooth;
     gap: 4px;
+    background:
+            url("/src/assets/svg/background-chat.svg") center/cover no-repeat,
+            var(--background-chat-color);
 }
 
 .sticky-date {
