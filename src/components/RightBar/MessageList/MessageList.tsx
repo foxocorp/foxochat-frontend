@@ -20,59 +20,61 @@ const MessageListComponent = ({
                               }: MessageListProps & { isLoading: boolean }) => {
     if (isLoading || isInitialLoading) {
         return (
-            <div
-                ref={messageListRef}
-                onScroll={onScroll}
-                className={styles["message-list"]}
-            >
+            <div ref={messageListRef} onScroll={onScroll} className={styles["message-list"]}>
                 <MessageLoader />
             </div>
         );
     }
 
-    const groups: { date: string; msgs: typeof messages }[] = [];
-    let grp: typeof messages = [];
-    let lastAuthor = -1;
-    let lastDate = "";
-
+    const dayGroups: { date: string; msgs: typeof messages }[] = [];
+    let currentDay = "";
     for (const msg of messages) {
         const d = dayjs(msg.created_at).format("YYYY-MM-DD");
-        const split =
-            d !== lastDate ||
-            msg.author.user.id !== lastAuthor ||
-            (grp.length && msg.created_at - grp[grp.length - 1].created_at > 300_000);
-
-        if (split) {
-            if (grp.length) groups.push({ date: lastDate, msgs: grp });
-            grp = [msg];
-            lastDate = d;
-            lastAuthor = msg.author.user.id;
+        if (d !== currentDay) {
+            dayGroups.push({ date: d, msgs: [msg] });
+            currentDay = d;
         } else {
-            grp.push(msg);
+            dayGroups[dayGroups.length - 1].msgs.push(msg);
         }
     }
 
-    if (grp.length) groups.push({ date: lastDate, msgs: grp });
-
     return (
-        <div
-            ref={messageListRef}
-            onScroll={onScroll}
-            className={styles["message-list"]}
-        >
-            {groups.map((g) => (
-                <div key={`${g.date}-${g.msgs[0]?.id}`}>
-                    {!dayjs(g.date).isToday() && (
+        <div ref={messageListRef} onScroll={onScroll} className={styles["message-list"]}>
+            {dayGroups.map(({ date, msgs }) => {
+                const groups: { msgs: typeof msgs }[] = [];
+                let grp = msgs.slice(0, 1);
+                let lastAuthor = msgs[0].author.user.id;
+                for (let i = 1; i < msgs.length; i++) {
+                    const msg = msgs[i];
+                    const prev = msgs[i - 1];
+                    const timeoutSplit = msg.created_at - prev.created_at > 300_000;
+                    if (msg.author.user.id !== lastAuthor || timeoutSplit) {
+                        groups.push({ msgs: grp });
+                        grp = [msg];
+                        lastAuthor = msg.author.user.id;
+                    } else {
+                        grp.push(msg);
+                    }
+                }
+                groups.push({ msgs: grp });
+
+                return (
+                    <div key={date}>
                         <div className={styles["sticky-date"]}>
-                            {dayjs(g.date).format("MMMM D, YYYY")}
+                            {dayjs(date).isToday()
+                                ? "Today"
+                                : dayjs(date).format("D MMMM YYYY")}
                         </div>
-                    )}
-                    <MessageGroup
-                        messages={g.msgs}
-                        currentUserId={currentUserId}
-                    />
-                </div>
-            ))}
+                        {groups.map((g, idx) => (
+                            <MessageGroup
+                                key={`${date}-${g.msgs[0].id}-${idx}`}
+                                messages={g.msgs}
+                                currentUserId={currentUserId}
+                            />
+                        ))}
+                    </div>
+                );
+            })}
         </div>
     );
 };
