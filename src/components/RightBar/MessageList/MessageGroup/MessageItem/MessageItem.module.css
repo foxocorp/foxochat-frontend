@@ -84,6 +84,7 @@
     color: #fff;
     overflow-wrap: anywhere;
     position: relative;
+    user-select: text;
 }
 
 .message-footer {
