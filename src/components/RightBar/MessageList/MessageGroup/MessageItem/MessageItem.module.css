@@ -40,7 +40,7 @@
 .message-bubble {
     background: #2f79ff;
     border-radius: 12px;
-    padding: 8px 8px;
+    padding: 8px 12px;
     max-width: 85%;
     min-width: 60px;
     display: flex;
@@ -60,13 +60,16 @@
 
 .text-content {
     display: flex;
-    gap: 2px;
+    gap: 10px;
     word-break: break-word;
     line-height: 1.4;
 }
 
-.receiver .text-content {
-    flex-direction: column;
+.receiver-message-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
 .author-name {
@@ -80,7 +83,6 @@
     font-size: 14px;
     color: #fff;
     overflow-wrap: anywhere;
-    padding-right: 10px;
     position: relative;
 }
 
@@ -211,7 +213,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 8px;
-    margin-bottom: 8px;
+    margin: 8px 0;
 }
 
 .attachment-container {

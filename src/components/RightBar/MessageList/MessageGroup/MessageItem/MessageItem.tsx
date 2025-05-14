@@ -177,29 +177,38 @@ export default function MessageItem({
                         })}
                     </div>
                 )}
-
-                <div className={styles["text-content"]}>
-                    {showAuthorName && !isMessageAuthor && (
-                        <div className={styles["author-name"]}>
-                            {safeAuthor.user.display_name || safeAuthor.user.username}
-                        </div>
-                    )}
-                    {content && (
-                        <div className={styles["message-text"]}>
-                            <ReactMarkdown>{content}</ReactMarkdown>
-                        </div>
-                    )}
-
-                    <div className={styles["message-footer"]}>
-                        {isMessageAuthor && (
-                            <img
-                                src={statusIcon}
-                                className={styles["status-icon"]}
-                                alt="Status"
-                            />
-                        )}
-                        <span className={styles.timestamp}>{formattedTime}</span>
+                {showAuthorName && !isMessageAuthor && (
+                    <div className={styles["author-name"]}>
+                        {safeAuthor.user.display_name || safeAuthor.user.username}
                     </div>
+                )}
+                <div className={styles["text-content"]}>
+                    {content && (
+                        <>
+                            {isMessageAuthor ? (
+                                <>
+                                    <div className={styles["message-text"]}>
+                                        <ReactMarkdown>{content}</ReactMarkdown>
+                                    </div>
+                                    <div className={styles["message-footer"]}>
+                                        <img
+                                            src={statusIcon}
+                                            className={styles["status-icon"]}
+                                            alt="Status"
+                                        />
+                                        <span className={styles.timestamp}>{formattedTime}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className={styles["receiver-message-row"]}>
+                                    <div className={styles["message-text"]}>
+                                        <ReactMarkdown>{content}</ReactMarkdown>
+                                    </div>
+                                    <span className={styles.timestamp}>{formattedTime}</span>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
 
