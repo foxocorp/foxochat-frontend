@@ -60,16 +60,18 @@
 
 .text-content {
     display: flex;
-    gap: 10px;
     word-break: break-word;
     line-height: 1.4;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
 }
 
 .receiver-message-row {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     gap: 8px;
+    display: flex;
 }
 
 .author-name {
@@ -85,6 +87,74 @@
     overflow-wrap: anywhere;
     position: relative;
     user-select: text;
+}
+
+.code-block-wrapper {
+    position: relative;
+    margin: 4px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: rgb(20 20 20 / 66%);;
+}
+
+.code-header {
+    background: rgb(0 0 0 / 0.3);
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #a0a0a0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.language-name {
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.copy-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.copy-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copied-text {
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
+.message-text pre {
+    background: transparent;
+    border-radius: 0 0 6px 6px;
+    padding: 8px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    text-shadow: none;
+}
+
+.message-text code {
+    font-family: "Telegram Mono", "Courier New", Courier, monospace;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: block;
 }
 
 .message-footer {

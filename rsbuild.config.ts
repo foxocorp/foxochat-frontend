@@ -27,13 +27,16 @@ export default {
     },
     resolve: {
         alias: {
+            "@": "./src/",
             "@components": "./src/components",
             "@icons": "./src/assets/svg",
             "@hooks": "./src/hooks/",
             "@services": "./src/services/",
             "@utils": "./src/utils/",
             "@store": "./src/store/",
+            "@lib": "./src/lib/",
             "@interfaces": "./src/interfaces/",
         },
+        modules: ['node_modules', 'src'],
     },
 };
