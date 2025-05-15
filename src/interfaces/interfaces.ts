@@ -5,6 +5,7 @@ import {
     ChannelType,
 } from "@foxogram/api-types";
 import React from "react";
+import type { ContainerNode } from "preact";
 
 /* === Props Section === */
 
@@ -56,6 +57,7 @@ export interface MessageItemProps {
     status?: "sending" | "sent" | "failed";
     onRetry?: () => void;
     onDelete?: () => void;
+    showAvatar: boolean
 }
 
 export interface Attachment {
@@ -117,4 +119,22 @@ export interface Props {
         channelType: ChannelType;
     }) => void;
     type: "group" | "channel";
+}
+
+export interface CopyBubbleProps {
+    show: boolean;
+    text: string;
+    duration?: number;
+    onHide?: () => void;
+}
+
+export interface ActiveBubble {
+    container: ContainerNode;
+    timer: number;
+    props: CopyBubbleProps;
+}
+
+export interface CopyBubbleComponent {
+    (props: CopyBubbleProps): (() => void) | null;
+    activeBubble: ActiveBubble | null;
 }

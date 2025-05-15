@@ -8,6 +8,7 @@ import "@fontsource/inter"; //400
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/200.css";
 import "./style.css";
+import "./scss/style.scss";
 
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
