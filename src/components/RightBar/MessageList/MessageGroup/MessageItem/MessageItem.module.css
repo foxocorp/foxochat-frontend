@@ -97,6 +97,18 @@
     background-color: rgb(20 20 20 / 66%);;
 }
 
+.code-block-wrapper:before {
+    content: " ";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    flex: 0 0 auto;
+    width: .1875rem;
+    background: var(--primary-color, rgb(255, 255, 255));
+    z-index: 1;
+}
+
 .code-header {
     background: rgb(0 0 0 / 0.3);
     padding: 4px 8px;
