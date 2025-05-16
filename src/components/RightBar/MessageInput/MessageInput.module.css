@@ -1,8 +1,8 @@
 .message-input-container {
     display: flex;
-    align-items: flex-end;
+    flex-direction: column;
     background-color: var(--background-chat-color);
-    padding: -1px 15px;
+    padding: 0 15px;
     gap: 8px;
     border-top: 1px solid rgb(96 96 96 / 0.5);
 }
@@ -15,7 +15,7 @@
     border-radius: 14px;
     flex: 1;
     gap: 12px;
-    margin: 10px;
+    margin: 10px 0;
 }
 
 .message-input {
@@ -43,6 +43,11 @@
     cursor: pointer;
 }
 
+.message-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .icon-button {
     display: flex;
     align-items: center;
@@ -59,7 +64,101 @@
     opacity: 0.8;
 }
 
+.icon-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .icon {
     width: 24px;
     height: 24px;
+}
+
+.icon-disabled {
+    width: 24px;
+    height: 24px;
+    opacity: 0.5;
+}
+
+.file-preview-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-top: 15px;
+}
+
+.file-preview-item {
+    position: relative;
+    width: 160px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2f3136;
+    border: 1px solid #202225;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.file-preview-image,
+.file-preview-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-preview-icon {
+    padding: 10px;
+    object-fit: contain;
+    background: #2f3136;
+}
+
+.file-name-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgb(30 33 36 / 0.7);
+    backdrop-filter: blur(3px);
+    padding: 4px 6px;
+    z-index: 1;
+}
+
+.file-name {
+    font-size: 13px;
+    font-weight: 400;
+    max-width: 130px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.remove-file-button {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.remove-file-button:hover {
+    opacity: 0.7;
+}
+
+.trash-icon {
+    width: 14px;
+    height: 14px;
+    filter: invert(0.5);
+}
+
+.message-input-container button:disabled {
+    background: none !important;
 }

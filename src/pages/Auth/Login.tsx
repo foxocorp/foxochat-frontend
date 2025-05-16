@@ -26,11 +26,6 @@ const Login = (): JSX.Element => {
 		return emailRegex.test(email) && email.length >= 4 && email.length <= 64;
 	};
 
-	const validatePassword = (password: string): boolean => {
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,128}$/;
-		return passwordRegex.test(password);
-	};
-
 	const handleLogin = async (): Promise<void> => {
 		setEmailError(false);
 		setPasswordError(false);
@@ -42,7 +37,7 @@ const Login = (): JSX.Element => {
 			isValid = false;
 		}
 
-		if (!password || !validatePassword(password)) {
+		if (!password) {
 			setPasswordError(true);
 			isValid = false;
 		}
@@ -53,10 +48,10 @@ const Login = (): JSX.Element => {
 			const response = await apiMethods.login(email, password);
 			if (response.access_token) {
 				authStore.login(response.access_token);
-				console.log("Successful login");
+				Logger.info("Successful login");
 				location.route("/");
 			} else {
-				console.error("Login error. Please try again.");
+				Logger.error("Login error");
 			}
 		} catch (error) {
 			Logger.error(`Error during login: ${error}`);
@@ -89,11 +84,10 @@ const Login = (): JSX.Element => {
 										placeholder="floofer@coof.fox"
 										value={email}
 										onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
-										onBlur={() => { setEmailError(!validateEmail(email)); }}
 										required
 									/>
 									{emailError && (
-										<span className={`${styles["error-text"]}`} style={{ top: "18%", left: "70px" }}>— Incorrect format</span>
+										<span className={styles["error-text"]} style={{ top: "22%", left: "96px" }}>— Incorrect format</span>
 									)}
 									<label className={styles["login-label"]}>
 										Password<span className={styles["required"]}>*</span>
@@ -107,7 +101,7 @@ const Login = (): JSX.Element => {
 										required
 									/>
 									{passwordError && (
-										<span className={`${styles["error-text"]}`} style={{ top: "39.5%", left: "107px" }}>— Incorrect format</span>
+										<span className={styles["error-text"]} style={{ top: "40.5%", left: "135px" }}>— Incorrect format</span>
 									)}
 								</div>
 							</div>

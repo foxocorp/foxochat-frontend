@@ -1,10 +1,12 @@
 import { pluginPreact } from '@rsbuild/plugin-preact';
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
+import { pluginSass } from '@rsbuild/plugin-sass';
 
 export default {
     plugins: [
         pluginPreact(),
         pluginTypedCSSModules(),
+        pluginSass(),
     ],
     html: {
         template: './index.html',
@@ -15,6 +17,7 @@ export default {
         },
     },
     output: {
+        // cssModules: { namedExport: true },
         copy: [
             {
                 from: "node_modules/foxomoji/dist",
@@ -24,13 +27,16 @@ export default {
     },
     resolve: {
         alias: {
+            "@": "./src/",
             "@components": "./src/components",
             "@icons": "./src/assets/svg",
             "@hooks": "./src/hooks/",
             "@services": "./src/services/",
             "@utils": "./src/utils/",
             "@store": "./src/store/",
+            "@lib": "./src/lib/",
             "@interfaces": "./src/interfaces/",
         },
+        modules: ['node_modules', 'src'],
     },
 };

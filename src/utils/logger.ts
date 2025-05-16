@@ -5,56 +5,83 @@ export enum LogLevel {
     Error = 8,
 }
 
-const colors: Record<LogLevel, string> = {
-    [LogLevel.Info]: "\x1b[32m",
-    [LogLevel.Warn]: "\x1b[33m",
-    [LogLevel.Error]: "\x1b[31m",
-    [LogLevel.Debug]: "\x1b[37m",
+const LEVEL_STYLES: Record<LogLevel, string> = {
+    [LogLevel.Debug]: "color: #bbb; font-weight: normal",
+    [LogLevel.Info]:  "color: #43B581; font-weight: bold",
+    [LogLevel.Warn]:  "color: #FAA61A; font-weight: bold",
+    [LogLevel.Error]: "color: #F04747; font-weight: bold",
 };
 
-const logLevels: Record<string, LogLevel> = {
+const ENV_MASK: Record<string, number> = {
     production: LogLevel.Info | LogLevel.Error,
     development: LogLevel.Debug | LogLevel.Info | LogLevel.Warn | LogLevel.Error,
 };
 
-const currentEnv: string = import.meta.env.MODE;
+const currentMask = ENV_MASK[import.meta.env.MODE] || 0;
 
-const isLogLevelEnabled = (level: LogLevel): boolean => {
-    const envMask = logLevels[currentEnv];
-    return !!envMask && (level & envMask) === level.valueOf();
-};
+function isEnabled(level: LogLevel): boolean {
+    return !!currentMask && (level & currentMask) === level;
+}
 
-const getCallerLocation = (): string => {
-    const error = new Error();
-    const stackLines = error.stack?.split("\n") ?? [];
-
-    const callerLine = stackLines[3] ?? stackLines[2] ?? "";
-    const match = (/at (.+) \((.+):(\d+):(\d+)\)/.exec(callerLine)) ?? (/at (.+):(\d+):(\d+)/.exec(callerLine));
-
-    if (match) {
-        if (match.length === 5) {
-            const [, , file, line, column] = match;
-            return `${file}:${line}:${column}`;
-        }
-        if (match.length === 4) {
-            const [, file, line, column] = match;
-            return `${file}:${line}:${column}`;
-        }
+function getCallerLocation(): string {
+    const stack = new Error().stack?.split("\n") ?? [];
+    const line = (stack[3] ?? stack[2]) ?? "";
+    const m = /at .+\((.+):(\d+):(\d+)\)/.exec(line) ?? /at (.+):(\d+):(\d+)/.exec(line);
+    if (m) {
+        const file = m[1].split("/").pop();
+        const row = m[2];
+        const col = m[3];
+        return `${file}:${row}:${col}`;
     }
+    return "unknown";
+}
 
-    return "unknown location";
-};
+function log(level: LogLevel, method: "debug" | "info" | "warn" | "error", message: any, ...args: any[]) {
+    if (!isEnabled(level)) return;
 
-const logMessage = (level: LogLevel, message: string) => {
-    if (isLogLevelEnabled(level)) {
-        const location = getCallerLocation();
-        console.log(`${colors[level]}[${LogLevel[level]}] ${message} \x1b[90m(${location})\x1b[0m`);
-    }
-};
+    const tag = `[${LogLevel[level]}]`;
+    const loc = `(${getCallerLocation()})`;
+
+    const pattern = `%c${tag}%c ${message}%c ${loc}`;
+
+    const styleTag = LEVEL_STYLES[level] || "";
+    const styleMsg = "color: inherit";
+    const styleLoc = "color: #888; font-size: 0.9em";
+
+    console[method](pattern, styleTag, styleMsg, styleLoc, ...args);
+}
 
 export const Logger = {
-    debug: (message: string) => { logMessage(LogLevel.Debug, message); },
-    info: (message: string) => { logMessage(LogLevel.Info, message); },
-    warn: (message: string) => { logMessage(LogLevel.Warn, message); },
-    error: (message: string) => { logMessage(LogLevel.Error, message); },
+    debug: (msg: any, ...args: any[]) => { log(LogLevel.Debug, "debug", msg, ...args); },
+    info:  (msg: any, ...args: any[]) => { log(LogLevel.Info, "info", msg, ...args); },
+    warn:  (msg: any, ...args: any[]) => { log(LogLevel.Warn, "warn", msg, ...args); },
+    error: (msg: any, ...args: any[]) => { log(LogLevel.Error, "error", msg, ...args); },
+
+    header: (text: string) => {
+        console.log(
+            `%c ${text} `,
+            `
+            font-size: 60px;
+            font-weight: 900;
+            color: #fff;
+            background: #5865F2;
+            border: 2px solid #404EED;
+            border-radius: 6px;
+            padding: 8px 16px;
+            text-shadow:
+              -2px -2px 0 #000,
+               2px -2px 0 #000,
+              -2px  2px 0 #000,
+               2px  2px 0 #000;
+        `,
+        );
+    },
+
+    group: (label: string, level: LogLevel = LogLevel.Debug) => {
+        const tag = `[${LogLevel[level]}]`;
+        const style = LEVEL_STYLES[level] || "";
+        console.group(`%c${tag}%c ${label}`, style, "color: inherit");
+    },
+
+    groupEnd: () => { console.groupEnd(); },
 };

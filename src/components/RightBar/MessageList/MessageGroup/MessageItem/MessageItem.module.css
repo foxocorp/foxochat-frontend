@@ -1,9 +1,8 @@
 .message-item {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 12px;
-    padding: 0 8px;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 1px 8px;
     width: 100%;
 }
 
@@ -12,11 +11,11 @@
     margin-left: auto;
 }
 
-.avatar-container {
-    width: 32px;
-    height: 32px;
+.avatar-container,
+.avatar-placeholder {
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
-    align-self: flex-start;
 }
 
 .avatar {
@@ -27,94 +26,174 @@
 }
 
 .default-avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(225deg, #eea7a7 0%, #cd5555 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .message-bubble {
     background: #2f79ff;
     border-radius: 12px;
-    padding: 8px 8px;
-    max-width: 480px;
-    min-width: 120px;
+    padding: 8px 12px;
+    max-width: 85%;
+    min-width: 60px;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    display: inline-block;
-
-    img {
-        border-radius: 12px;
-    }
 }
 
 .author .message-bubble {
+    border-radius: 12px 12px 0 12px;
     background: #2f79ff;
-    border-radius: 12px 12px 2px 12px;
 }
 
 .receiver .message-bubble {
-    background: rgba(40, 40, 40, 0.4);
-    border-radius: 12px 12px 12px 2px;
-}
-
-.media-grid {
-    max-width: 400px;
-    display: grid;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.media-image {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 6px;
+    border-radius: 12px 12px 12px 0;
+    background: rgb(40 40 40 / 0.4);
 }
 
 .text-content {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    word-break: break-word;
+    line-height: 1.4;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.receiver-message-row {
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+    display: flex;
 }
 
 .author-name {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: #e0e0e0;
-    margin-bottom: 4px;
+    font-weight: 500;
+    margin-bottom: 2px;
 }
 
 .message-text {
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin-right: 63px;
-    min-height: 1.2em;
+    font-size: 14px;
+    color: #fff;
+    overflow-wrap: anywhere;
+    position: relative;
+    user-select: text;
+}
+
+.code-block-wrapper {
+    position: relative;
+    margin: 4px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: rgb(20 20 20 / 66%);;
+}
+
+.code-block-wrapper:before {
+    content: " ";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    flex: 0 0 auto;
+    width: .1875rem;
+    background: var(--primary-color, rgb(255, 255, 255));
+    z-index: 1;
+}
+
+.code-header {
+    background: rgb(0 0 0 / 0.3);
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #a0a0a0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.language-name {
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.copy-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.copy-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copied-text {
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
+.message-text pre {
+    background: transparent;
+    border-radius: 0 0 6px 6px;
+    padding: 8px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    text-shadow: none;
+}
+
+.message-text code {
+    font-family: "Telegram Mono", "Courier New", Courier, monospace;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: block;
 }
 
 .message-footer {
-    position: absolute;
-    bottom: 8px;
-    right: 12px;
     display: flex;
-    gap: 4px;
+    justify-content: flex-end;
     align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    align-self: flex-end;
 }
 
 .timestamp {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    color: rgb(255 255 255 / 0.6);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.author .timestamp {
+    color: rgb(255 255 255 / 0.8);
 }
 
 .status-icon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     opacity: 0.8;
+    flex-shrink: 0;
 }
 
 .action-popup {
@@ -124,7 +203,7 @@
     display: flex;
     gap: 12px;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
 }
 
 .author .action-popup {
@@ -184,11 +263,66 @@
     align-items: center;
     gap: 8px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255 255 255 / 0.1);
     border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.file-attachment:hover {
+    background: rgb(255 255 255 / 0.2);
 }
 
 .file-icon {
     width: 24px;
     height: 24px;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.attachments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.attachment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-attachment {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.video-attachment {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+}
+
+.audio-attachment {
+    width: 100%;
+    min-width: 200px;
+    max-width: 300px;
 }

@@ -8,123 +8,127 @@ import {
     UserType,
     MemberPermissions,
 } from "@foxogram/api-types";
-import { Channel, Member, Message, User, Attachment } from "@interfaces/interfaces";
-import { fallbackMember } from "./constants";
+
+const FALLBACK_USER: APIUser = {
+    id: 0,
+    display_name: "",
+    channels: [],
+    avatar: "",
+    username: "unknown",
+    email: "",
+    flags: UserFlags.Disabled,
+    type: UserType.User,
+    created_at: 0,
+};
+
+const FALLBACK_CHANNEL: APIChannel = {
+    id: 0,
+    name: "",
+    display_name: "",
+    icon: "",
+    type: ChannelType.DM,
+    member_count: 0,
+    owner: FALLBACK_USER,
+    created_at: 0,
+};
 
 export function normalizePermissions(permissions: string | number): number {
     if (typeof permissions === "string") {
-        return parseInt(permissions, 10) || MemberPermissions.SendMessages;
+        const n = parseInt(permissions, 10);
+        return isNaN(n) ? MemberPermissions.SendMessages : n;
     }
     return permissions;
 }
 
-export function normalizeChannelType(
-    type: string | ChannelType | undefined
-): ChannelType {
-    if (typeof type === "string") {
-        const channelType = ChannelType[type as keyof typeof ChannelType];
-        return channelType ?? ChannelType.DM;
+export function normalizeChannelType(type?: string | ChannelType): ChannelType {
+    if (typeof type === "string" && type in ChannelType) {
+        return ChannelType[type as keyof typeof ChannelType];
     }
-    return type ?? ChannelType.DM;
+    return ChannelType.DM;
 }
 
-export function transformApiUserToUser(apiUser?: APIUser): User {
-    if (!apiUser) {
-        return new User({
+export function transformApiUserToUser(u: APIUser | undefined): APIUser {
+    return { ...FALLBACK_USER, ...(u ?? {}) };
+}
+
+export function transformApiMember(raw: APIMember | undefined): APIMember {
+    if (!raw || typeof raw !== "object") {
+        return {
             id: 0,
-            avatar: "",
-            display_name: "Unknown User",
-            username: "unknown",
-            email: "",
-            flags: UserFlags.Disabled,
-            type: UserType.User,
-            created_at: Date.now(),
-            channels: [],
-        });
+            user: FALLBACK_USER,
+            channel: FALLBACK_CHANNEL,
+            permissions: MemberPermissions.SendMessages,
+            joined_at: 0,
+        };
     }
-    return new User({
-        id: apiUser.id || 0,
-        avatar: apiUser.avatar || "",
-        display_name: apiUser.display_name || apiUser.username || "Unknown User",
-        username: apiUser.username || "unknown",
-        email: apiUser.email ?? "",
-        flags: apiUser.flags || UserFlags.Disabled,
-        type: apiUser.type || UserType.User,
-        created_at: apiUser.created_at || Date.now(),
-        channels: apiUser.channels ?? [],
-    });
+
+    const ch = typeof raw.channel === "object" ? raw.channel : undefined;
+    const safeChannel: APIChannel = {
+        ...FALLBACK_CHANNEL,
+        ...(ch ?? {}),
+        type: normalizeChannelType(ch?.type),
+        owner: transformApiUserToUser(ch?.owner),
+    };
+
+    return {
+        id: raw.id,
+        user: transformApiUserToUser(raw.user),
+        channel: safeChannel,
+        permissions: normalizePermissions(raw.permissions),
+        joined_at: raw.joined_at,
+    };
 }
 
-export function transformApiChannel(apiChannel?: APIChannel): Channel {
-    if (!apiChannel) {
-        return new Channel({
+export function transformToMessage(raw: unknown): APIMessage {
+    if (!raw || typeof raw !== "object") {
+        return {
             id: 0,
-            name: "deleted-channel",
-            display_name: "Deleted Channel",
-            icon: "",
-            type: ChannelType.DM,
-            member_count: 0,
-            owner: transformApiUserToUser(),
-            created_at: Date.now(),
-            last_message: null,
-        });
+            content: "",
+            attachments: [],
+            author: transformApiMember(undefined),
+            channel: FALLBACK_CHANNEL,
+            created_at: 0,
+        };
     }
-    return new Channel({
-        id: apiChannel.id || 0,
-        name: apiChannel.name || "unnamed-channel",
-        display_name:
-            apiChannel.display_name || apiChannel.name || "Unnamed Channel",
-        icon: apiChannel.icon || "",
-        type: normalizeChannelType(apiChannel.type),
-        member_count: apiChannel.member_count || 0,
-        owner: transformApiUserToUser(apiChannel.owner),
-        created_at: apiChannel.created_at || Date.now(),
-        last_message: apiChannel.last_message
-            ? transformToMessage(apiChannel.last_message)
-            : null,
-    });
+
+    const message = raw as Partial<APIMessage>;
+
+    const ch = typeof message.channel === "object" ? message.channel : undefined;
+    const safeChannel: APIChannel = {
+        ...FALLBACK_CHANNEL,
+        ...(ch ?? {}),
+        type: normalizeChannelType(ch?.type),
+        owner: transformApiUserToUser(ch?.owner),
+    };
+
+    return {
+        id: message.id ?? 0,
+        content: message.content ?? "",
+        attachments: message.attachments ?? [],
+        author: transformApiMember(message.author),
+        channel: safeChannel,
+        created_at: message.created_at ?? 0,
+    };
 }
 
-export function transformApiMember(apiMember: APIMember): Member {
-    return new Member({
-        ...apiMember,
-        user: transformApiUserToUser(apiMember.user),
-        channel: transformApiChannel(apiMember.channel),
-        permissions: normalizePermissions(apiMember.permissions),
-    });
-}
-
-export function transformToMessage(data: APIMessage): Message {
-    const author: APIMember = data.author || fallbackMember;
-    const attachments: Attachment[] = (data.attachments || []).map((att) => ({
-        id: att.id,
-        content_type: att.content_type,
-        filename: att.filename,
-        flags: att.flags,
-    }));
-    return new Message({
-        ...data,
-        attachments,
-        author: transformApiMember(author),
-        channel: transformApiChannel(data.channel),
-    });
-}
-
-export function createChannelFromAPI(c: APIChannel): Channel | null {
+export function createChannelFromAPI(c: APIChannel): APIChannel | null {
     try {
-        return new Channel({
-            id: c.id || 0,
-            name: c.name || "unnamed-channel",
-            display_name: c.display_name || c.name || "Unnamed Channel",
-            icon: c.icon || "",
+        const channel: APIChannel = {
+            id: c.id,
+            name: c.name,
+            display_name: c.display_name,
+            icon: c.icon,
             type: normalizeChannelType(c.type),
-            member_count: c.member_count || 0,
+            member_count: c.member_count,
             owner: transformApiUserToUser(c.owner),
-            created_at: c.created_at || Date.now(),
-            lastMessage: c.last_message
-                ? new Message(transformToMessage(c.last_message))
-                : null,
-        });
+            created_at: c.created_at,
+        };
+
+        if (c.last_message) {
+            channel.last_message = transformToMessage(c.last_message);
+        }
+
+        return channel;
     } catch (e) {
         console.error("createChannelFromAPI error:", e);
         return null;

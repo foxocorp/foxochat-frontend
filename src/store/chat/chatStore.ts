@@ -1,186 +1,320 @@
-import {
-    action,
-    flow,
-    makeAutoObservable,
-    observable,
-    runInAction,
-} from "mobx";
-
 import * as apiService from "./apiService";
 import * as wsService from "./websocketService";
-import type { WebSocketClient } from "../../gateway/webSocketClient";
-import { Channel, Message, User } from "@interfaces/interfaces";
-import { APIChannel } from "@foxogram/api-types";
+import { action, observable, configure, IObservableArray, runInAction } from "mobx";
 import { apiMethods } from "@services/API/apiMethods";
+import { APIChannel, APIMessage, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
+import type { WebSocketClient } from "@/gateway/webSocketClient";
+import { Logger } from "@utils/logger";
+import { transformToMessage } from "@store/chat/transforms";
+
+configure({ enforceActions: "observed" });
 
 export class ChatStore {
-    @action
-    addNewChannel(apiChannel: APIChannel) {
-        const newChannel = new Channel({
-            id: apiChannel.id,
-            name: apiChannel.name,
-            display_name: apiChannel.display_name,
-            type: apiChannel.type,
-            member_count: apiChannel.member_count,
-            owner: new User(apiChannel.owner),
-            created_at: Date.now(),
-            lastMessage: apiChannel.last_message
-                ? new Message(apiChannel.last_message)
-                : null,
-            createdAt: new Date().toISOString(),
+    @observable accessor messagesByChannelId = observable.map<number, IObservableArray<APIMessage>>();
+    @observable accessor hasMoreMessagesByChannelId = observable.map<number, boolean>();
+    @observable accessor abortControllers = observable.map<number, AbortController>();
+    @observable accessor isInitialLoad = observable.map<number, boolean>();
+
+    @observable accessor channels: APIChannel[] = [];
+    @observable accessor activeRequests = new Set<string | number>();
+
+    @observable accessor currentChannelId: number | null = null;
+    @observable accessor currentUserId: number | null = null;
+    @observable accessor isLoading = false;
+    @observable accessor isSendingMessage = false;
+    @observable accessor connectionError: string | null = null;
+    @observable accessor isWsInitialized = false;
+    @observable accessor isLoadingHistory = false;
+
+    @observable accessor channelScrollPositions = observable.map<number, number>();
+    @observable accessor lastViewedMessageTimestamps = observable.map<number, number>();
+
+    @observable accessor loadingInitial: Set<number> = observable.set<number>();
+
+    wsClient: WebSocketClient | null = null;
+
+    constructor() {
+        this.initializeFromUrl().catch((error: unknown) => {
+            Logger.error(`Failed to initialize from URL: ${error}`);
         });
-
-        this.channels.unshift(newChannel);
     }
+
+    async init() {
+        await this.initializeStore();
+    }
+
+    async initChannel(channelId: number) {
+        if (this.messagesByChannelId.has(channelId)) return;
+
+        this.loadingInitial.add(channelId);
+        await this.fetchMessages(channelId).finally(() => {
+            this.loadingInitial.delete(channelId);
+        });
+    }
+
+    @action.bound
+    setIsSendingMessage(state: boolean) {
+        this.isSendingMessage = state;
+    }
+
     @action
-    handleNewMessage(message: Message) {
+    updateMessagesForChannel(channelId: number, messages: APIMessage[]) {
+        const target = this.messagesByChannelId.get(channelId);
+        if (target) {
+            target.replace(messages);
+        } else {
+            this.messagesByChannelId.set(channelId, observable.array(messages));
+        }
+    }
+
+    @action
+    handleNewMessage(message: APIMessage) {
         const channelId = message.channel.id;
-        const channelIndex = this.channels.findIndex(c => c.id === channelId);
+        let messages = this.messagesByChannelId.get(channelId);
 
-        if (channelIndex > -1) {
-            const updatedChannel = new Channel({
-                ...this.channels[channelIndex],
-                lastMessage: message
-            });
-
-            this.channels.splice(channelIndex, 1);
-            this.channels.unshift(updatedChannel);
+        if (!messages) {
+            messages = observable.array([]);
+            this.messagesByChannelId.set(channelId, messages);
         }
 
-        this.messagesByChannelId[channelId] ??= [];
-        this.messagesByChannelId[channelId].push(message);
+        const existingIndex = messages.findIndex(m =>
+            m.id === message.id ||
+            ((m as any)._tempId && (m as any)._tempId === (message as any)._tempId),
+        );
+
+        if (existingIndex >= 0) {
+            messages[existingIndex] = message;
+        } else {
+            messages.push(message);
+        }
+
+        messages.sort((a, b) => a.created_at - b.created_at);
+
+        const channelIndex = this.channels.findIndex(c => c.id === channelId);
+        if (channelIndex >= 0) {
+            this.channels[channelIndex].last_message = message;
+        }
+
+        if (this.currentChannelId === channelId) {
+            this.playSendMessageSound();
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const container = document.getElementById("message-container");
+                    if (container) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                });
+            });
+        }
+    }
+
+    @action
+    setIsLoading(isLoading: boolean) {
+        this.isLoading = isLoading;
     }
 
     @action
     async joinChannel(channelId: number) {
-        try {
-            const channel = await apiMethods.getChannel(channelId);
-            this.addNewChannel(channel);
+        const joined = await apiMethods.joinChannel(channelId);
+        if (!this.channels.some(c => c.id === channelId)) {
+            this.channels.unshift(joined.channel);
+        }
+        await this.setCurrentChannel(channelId);
+    }
+
+    @action
+    async initializeFromUrl() {
+        const hash = window.location.hash.substring(1);
+        if (!hash || isNaN(Number(hash))) return;
+        const channelId = Number(hash);
+
+        if (!this.channels.length) {
+            await this.fetchChannelsFromAPI();
+        }
+
+        if (this.channels.some(c => c.id === channelId)) {
             await this.setCurrentChannel(channelId);
-        } catch (error) {
-            console.error("Join channel error:", error);
-            throw error;
         }
     }
-    messagesByChannelId: Record<number, Message[]> = {};
-    channels: Channel[] = [];
-    currentChannelId: number | null = null;
-    currentUserId: number | null = null;
-    isLoading = false;
-    isSendingMessage = false;
-    connectionError: string | null = null;
-    wsClient: WebSocketClient | null = null;
-    activeRequests = new Set<string | number>();
-    hasMoreMessagesByChannelId = observable.map<number, boolean>();
-    abortControllers = new Map<number, AbortController>();
-    isWsInitialized = false;
-    isLoadingHistory = false;
-    isInitialLoad = observable.map<number, boolean>();
 
-    constructor() {
-        makeAutoObservable(
-            this,
-            {
-                messagesByChannelId: observable,
-                channels: observable,
-                currentChannelId: observable,
-                currentUserId: observable,
-                isLoading: observable,
-                isSendingMessage: observable,
-                connectionError: observable,
-                isWsInitialized: observable,
-                isInitialLoad: observable,
-
-                fetchChannelsFromAPI: action,
-                handleNewMessage: action,
-                updateMessage: action,
-                deleteMessage: action,
-                setCurrentUser: action,
-
-                initializeStore: flow,
-            },
-            { autoBind: true },
-        );
+    @action
+    setCurrentUser(userId: number) {
+        this.currentUserId = userId;
     }
 
-    fetchCurrentUser = apiService.fetchCurrentUser;
-    fetchChannelsFromAPI = apiService.fetchChannelsFromAPI;
-    fetchMessages = apiService.fetchMessages;
-    sendMessage = apiService.sendMessage;
-    retryMessage = apiService.retryMessage;
-
-    clearAuthAndRedirect = wsService.clearAuthAndRedirect;
-    private initializeWebSocket = wsService.initializeWebSocket;
-    handleHistorySync = wsService.handleHistorySync;
-    setupWebSocketHandlers = wsService.setupWebSocketHandlers;
-
-    setCurrentUser = action((userId: number) => {
-        this.currentUserId = userId;
-    });
-
-    setHasMoreMessages = action((channelId: number, hasMore: boolean) => {
+    @action
+    setHasMoreMessages(channelId: number, hasMore: boolean) {
         this.hasMoreMessagesByChannelId.set(channelId, hasMore);
-    });
+    }
 
-    updateMessage = action((messageId: number, newContent: string) => {
+    @action
+    updateMessage(messageId: number, newContent: string) {
         const cid = this.currentChannelId;
         if (!cid) return;
-        const msgs = this.messagesByChannelId[cid];
-        const idx = msgs?.findIndex(m => m.id === messageId);
-        if (idx == null || idx < 0) return;
-        runInAction(() => {
-            msgs[idx].content = newContent;
-        });
-    });
 
-    deleteMessage = action((messageId: number) => {
+        const msgs = this.messagesByChannelId.get(cid);
+        if (!msgs) return;
+
+        const idx = msgs.findIndex(m => m.id === messageId);
+        if (idx < 0) return;
+
+        const msg = { ...msgs[idx], content: newContent };
+        msgs[idx] = msg;
+    }
+
+    @action
+    deleteMessage(messageId: number) {
         const cid = this.currentChannelId;
         if (!cid) return;
-        runInAction(() => {
-            this.messagesByChannelId[cid] = this.messagesByChannelId[cid].filter(
-                m => m.id !== messageId,
-            );
-        });
-    });
-    
-    updateChannelLastMessage = action((channelId: number, message: Message) => {
-        this.channels = this.channels.map(ch =>
-            ch.id === channelId ? new Channel({ ...ch, lastMessage: message }) : ch,
-        );
-    });
 
-    setCurrentChannel = action(async (channelId: number | null) => {
+        const msgs = this.messagesByChannelId.get(cid);
+        if (!msgs) return;
+
+        const filtered = msgs.filter(m => m.id !== messageId);
+        this.messagesByChannelId.set(cid, observable.array(filtered));
+    }
+
+    @action
+    updateChannelLastMessage() {
+        this.channels = this.channels.filter(c => c !== null);
+    }
+
+    @action
+    async setCurrentChannel(channelId: number | null) {
+        if (this.currentChannelId === channelId) return;
         this.currentChannelId = channelId;
-        if (channelId) {
+
+        if (channelId !== null) {
             localStorage.setItem("currentChannelId", String(channelId));
-            await this.loadChannelData(channelId);
+
+            if (!this.messagesByChannelId.has(channelId)) {
+                this.messagesByChannelId.set(channelId, observable.array([]));
+            }
+
+            this.isLoadingHistory = false;
+            this.activeRequests.delete(channelId);
+            await this.loadChannelData(channelId, true);
         } else {
             localStorage.removeItem("currentChannelId");
         }
-    });
-
-    private loadChannelData = action(async (channelId: number) => {
-        this.setHasMoreMessages(channelId, true);
-        if (!this.messagesByChannelId[channelId]?.length) {
-            await this.fetchMessages(channelId);
-        }
-    });
-
-    playSendMessageSound() {
-        const audio = new Audio("/sounds/fg_sfx.mp3");
-        audio.play().catch((e: unknown) => { console.error(e); });
     }
 
-    *initializeStore() {
+    @action
+    async fetchMessages(channelId: number, query: RESTGetAPIMessageListQuery = {}) {
+        if (this.activeRequests.has(channelId)) return;
+
+        runInAction(() => {
+            this.activeRequests.add(channelId);
+            this.isLoadingHistory = true;
+        });
+
         try {
-            yield this.fetchCurrentUser();
-            yield this.fetchChannelsFromAPI();
-            this.initializeWebSocket();
+            const defaultQuery: RESTGetAPIMessageListQuery = { limit: 50, ...query };
+
+            const newMessages = await apiMethods.listMessages(channelId, defaultQuery);
+            const transformed = newMessages
+                .map(transformToMessage)
+                .sort((a, b) => a.created_at - b.created_at);
+
+            runInAction(() => {
+                const existing = this.messagesByChannelId.get(channelId) || [];
+
+                let updated: APIMessage[];
+                if (query.before) {
+                    updated = [...existing, ...transformed];
+                } else {
+                    updated = [...transformed, ...existing];
+                }
+
+                const uniqueMessages = this.removeDuplicateMessages(updated);
+
+                uniqueMessages.sort((a, b) => a.created_at - b.created_at);
+
+                this.messagesByChannelId.set(channelId, observable.array(uniqueMessages));
+                this.hasMoreMessagesByChannelId.set(channelId, newMessages.length >= 50);
+            });
+        } catch (error) {
+            console.error("Failed to fetch messages:", error);
+        } finally {
+            runInAction(() => {
+                this.activeRequests.delete(channelId);
+                this.isLoadingHistory = false;
+            });
+        }
+    }
+
+    removeDuplicateMessages(messages: APIMessage[]): APIMessage[] {
+        const uniqueMessages: Record<number, APIMessage> = {};
+
+        for (const message of messages) {
+            uniqueMessages[message.id] = message;
+        }
+
+        return Object.values(uniqueMessages);
+    }
+
+    @action
+    async loadChannelData(channelId: number, replace = false) {
+        try {
+            this.isInitialLoad.set(channelId, false);
+
+            const messages = await apiMethods.listMessages(channelId);
+            runInAction(() => {
+                if (replace) {
+                    this.updateMessagesForChannel(channelId, messages);
+                } else {
+                    const list = this.messagesByChannelId.get(channelId) ?? observable.array([]);
+                    list.push(...messages);
+                }
+                this.setHasMoreMessages(channelId, messages.length > 0);
+                this.isInitialLoad.set(channelId, true);
+            });
+        } catch (err) {
+            Logger.error("Failed to load channel data", err);
+        } finally {
+            runInAction(() => {
+                this.activeRequests.delete(channelId);
+            });
+        }
+    }
+
+    @action
+    async initializeStore() {
+        try {
+            await this.fetchCurrentUser();
+            await this.fetchChannelsFromAPI();
+            await this.initializeWebSocket();
         } catch (error) {
             console.error(error);
             this.connectionError = "Initialization error";
         }
     }
+
+    @action
+    addNewChannel(channel: APIChannel) {
+        if (!this.channels.some(c => c.id === channel.id)) {
+            this.channels.unshift(channel);
+        }
+    }
+
+    playSendMessageSound() {
+        const audio = new Audio("/sounds/fg_sfx.mp3");
+        audio.play().catch((e: unknown) => {
+            console.error(e);
+        });
+    }
+
+    fetchCurrentUser = apiService.fetchCurrentUser;
+    fetchChannelsFromAPI = apiService.fetchChannelsFromAPI;
+    sendMessage = apiService.sendMessage;
+    retryMessage = apiService.retryMessage;
+
+    clearAuthAndRedirect = wsService.clearAuthAndRedirect;
+    initializeWebSocket = wsService.initializeWebSocket;
+    handleHistorySync = wsService.handleHistorySync;
+    setupWebSocketHandlers = wsService.setupWebSocketHandlers;
 }
 
 export const chatStore = new ChatStore();
+chatStore.init().catch(console.error);

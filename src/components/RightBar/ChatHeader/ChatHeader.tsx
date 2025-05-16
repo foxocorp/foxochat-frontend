@@ -3,11 +3,6 @@ import { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import styles from "./ChatHeader.module.css";
 
-interface Props extends ChatHeaderProps {
-    isMobile: boolean;
-    onBack: () => void;
-}
-
 const ChatHeader = ({
                         avatar,
                         displayName,
@@ -15,21 +10,24 @@ const ChatHeader = ({
                         channelId,
                         isMobile,
                         onBack,
-                    }: Props) => {
+                    }: ChatHeaderProps) => {
     const nameToDisplay = displayName ?? username;
-    const [participantsCount, setParticipantsCount] = useState(0);
+    const [participantsCount, setParticipantsCount] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchMembers = async () => {
             try {
-                const members = await apiMethods.membersList(channelId);
+                const members = await apiMethods.listChannelMembers(channelId);
                 setParticipantsCount(members.length || 0);
             } catch (error) {
                 console.error("Failed to fetch members:", error);
             }
         };
-        if (channelId) void fetchMembers();
-    }, [channelId]);
+
+        if (channelId && participantsCount === null) {
+            void fetchMembers();
+        }
+    }, [channelId, participantsCount]);
 
     return (
         <div className={styles["chat-header"]}>
@@ -53,7 +51,7 @@ const ChatHeader = ({
                 <p className={styles["chat-header-username"]}>{nameToDisplay}</p>
                 <div className={styles["chat-header-members"]}>
           <span className={styles["members-count"]}>
-            • {participantsCount} Members
+            • {participantsCount !== null ? participantsCount : "0"} Members
           </span>
                 </div>
             </div>

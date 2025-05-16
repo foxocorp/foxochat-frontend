@@ -1,9 +1,10 @@
 import styles from "./EmptyState.module.css";
-import { EmptyStateProps, Channel } from "@interfaces/interfaces";
+import { APIChannel } from "@foxogram/api-types";
+import { EmptyStateProps } from "@interfaces/interfaces";
 
 
 const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
-    const handleChatClick = (chat: Channel) => {
+    const handleChatClick = (chat: APIChannel) => {
         onSelectChat(chat);
     };
 
@@ -21,6 +22,11 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
         const formatter = new Intl.DateTimeFormat("en-US", options);
         return formatter.format(date);
     };
+
+    const getInitial = (chat: APIChannel): string => {
+        return ((chat.display_name[0] ?? chat.name[0]) ?? "?").toUpperCase();
+    };
+
 
     return (
         <div className={styles["empty-container"]}>
@@ -47,8 +53,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     />
                                 ) : (
                                     <div className={styles["default-avatar"]}>
-                                        {chat.display_name.charAt(0).toUpperCase() ||
-                                            chat.name.charAt(0).toUpperCase()}
+                                        {getInitial(chat)}
                                     </div>
                                 )}
                             </div>
@@ -57,13 +62,13 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                                     {chat.display_name || chat.name}
                                 </span>
                                 <span className={styles["message-preview"]}>
-                                    {chat.lastMessage?.content && chat.lastMessage.content.length > 20
-                                        ? `${chat.lastMessage.content.substring(0, 20)}...`
-                                        : chat.lastMessage?.content}</span>
+                                    {chat.last_message?.content && chat.last_message.content.length > 20
+                                        ? `${chat.last_message.content.substring(0, 20)}...`
+                                        : chat.last_message?.content}</span>
                             </div>
                             <span className={styles["timestamp"]}>
-                                {chat.lastMessage
-                                    ? formatTimestamp(chat.lastMessage.created_at)
+                                {chat.last_message
+                                    ? formatTimestamp(chat.last_message.created_at)
                                     : "00:00"}
                             </span>
                         </div>

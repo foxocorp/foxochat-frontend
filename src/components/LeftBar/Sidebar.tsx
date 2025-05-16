@@ -10,6 +10,7 @@ import CreateDropdown from "./CreateDropdown/CreateDropdown";
 import { apiMethods } from "@services/API/apiMethods";
 import { chatStore } from "@store/chat/chatStore";
 import { ChannelType } from "@foxogram/api-types";
+import { observer } from "mobx-react";
 
 const MIN_SIDEBAR_WIDTH = 300;
 const DEFAULT_DESKTOP_WIDTH = 460;
@@ -20,8 +21,7 @@ interface Props extends SidebarProps {
     setChatTransition?: (transition: string) => void;
 }
 
-const Sidebar = ({
-                     chats,
+const SidebarComponent = ({
                      onSelectChat,
                      currentUser,
                      isMobile = false,
@@ -36,6 +36,7 @@ const Sidebar = ({
     const isResizing = useRef(false);
     const startX = useRef(0);
     const startWidth = useRef(DEFAULT_DESKTOP_WIDTH);
+    const channels = chatStore.channels;
 
     const handleCreate = async (data: {
         name: string;
@@ -51,8 +52,8 @@ const Sidebar = ({
                 members: data.members ?? [],
             });
 
-            chatStore.addNewChannel(response.data);
-            await chatStore.setCurrentChannel(response.data.id);
+            chatStore.addNewChannel(response);
+            await chatStore.setCurrentChannel(response.id);
 
             if (isMobile) {
                 setMobileView("chat");
@@ -60,7 +61,6 @@ const Sidebar = ({
             }
         } catch (error) {
             console.error("Creation error:", error);
-            alert(`Failed to create ${data.channelType === "group" ? "group" : "channel"}`);
         }
     };
 
@@ -138,7 +138,7 @@ const Sidebar = ({
 
             <div className={styles["sidebar-chats"]}>
                 <ChatList
-                    chats={chats}
+                    chats={channels}
                     onSelectChat={onSelectChat}
                     currentUser={currentUser}
                 />
@@ -170,4 +170,4 @@ const Sidebar = ({
     );
 };
 
-export default Sidebar;
+export default observer(SidebarComponent);

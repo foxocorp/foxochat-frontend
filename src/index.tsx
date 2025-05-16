@@ -8,12 +8,13 @@ import "@fontsource/inter"; //400
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/200.css";
 import "./style.css";
+import "./scss/style.scss";
 
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
 
 import { Home } from "./pages/Home";
-import { NotFound } from "./pages/_404";
+import { NotFound } from "./pages/404";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
