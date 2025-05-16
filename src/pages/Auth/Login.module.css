@@ -163,10 +163,6 @@
 	animation: slideIn 0.7s ease-in-out forwards;
 }
 
-.login-input[type="password"] + .error-text {
-	top: 20%;
-}
-
 @media (max-width: 375px) {
 	.login-form {
 		width: 90%;

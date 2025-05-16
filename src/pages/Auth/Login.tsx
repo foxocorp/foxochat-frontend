@@ -37,7 +37,7 @@ const Login = (): JSX.Element => {
 			isValid = false;
 		}
 
-		if (!password || !password) {
+		if (!password) {
 			setPasswordError(true);
 			isValid = false;
 		}
@@ -51,7 +51,7 @@ const Login = (): JSX.Element => {
 				Logger.info("Successful login");
 				location.route("/");
 			} else {
-				console.error("Login error. Please try again.");
+				Logger.error("Login error");
 			}
 		} catch (error) {
 			Logger.error(`Error during login: ${error}`);
@@ -84,11 +84,10 @@ const Login = (): JSX.Element => {
 										placeholder="floofer@coof.fox"
 										value={email}
 										onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
-										onBlur={() => { setEmailError(!validateEmail(email)); }}
 										required
 									/>
 									{emailError && (
-										<span className={`${styles["error-text"]}`} style={{ top: "18%", left: "70px" }}>— Incorrect format</span>
+										<span className={styles["error-text"]} style={{ top: "22%", left: "96px" }}>— Incorrect format</span>
 									)}
 									<label className={styles["login-label"]}>
 										Password<span className={styles["required"]}>*</span>
@@ -102,7 +101,7 @@ const Login = (): JSX.Element => {
 										required
 									/>
 									{passwordError && (
-										<span className={`${styles["error-text"]}`} style={{ top: "39.5%", left: "107px" }}>— Incorrect format</span>
+										<span className={styles["error-text"]} style={{ top: "40.5%", left: "135px" }}>— Incorrect format</span>
 									)}
 								</div>
 							</div>

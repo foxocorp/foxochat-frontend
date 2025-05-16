@@ -182,7 +182,9 @@ const Register = () => {
                                         required
                                         autoComplete="nope"
                                     />
-                                    {usernameError && <span className={styles["error-text"]}>— Incorrect format</span>}
+                                    {usernameError &&
+                                        <span className={styles["error-text"]} style={{ top: "20%", left: "140px" }}>— Incorrect format</span>
+                                    }
                                     <label className={styles["register-label"]}>
                                         Email<span className={styles["required"]}>*</span>
                                     </label>
@@ -194,7 +196,9 @@ const Register = () => {
                                         onInput={handleEmailInput}
                                         required
                                     />
-                                    {emailError && <span className={styles["error-text"]}>— Incorrect format</span>}
+                                    {emailError &&
+                                        <span className={styles["error-text"]} style={{ top: "37.5%", left: "97px" }}>— Incorrect format</span>
+                                    }
                                     <label className={styles["register-label"]}>
                                         Password<span className={styles["required"]}>*</span>
                                     </label>
@@ -206,7 +210,9 @@ const Register = () => {
                                         onInput={handlePasswordInput}
                                         required
                                     />
-                                    {passwordError && <span className={styles["error-text"]}>— Incorrect format</span>}
+                                    {passwordError &&
+                                        <span className={styles["error-text"]} style={{ top: "54.5%", left: "135px" }}>— Incorrect format</span>
+                                    }
                                 </div>
                             </div>
                         </div>

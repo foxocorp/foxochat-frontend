@@ -171,16 +171,25 @@
 	border: 1px solid rgb(165 63 63 / 0.5);
 }
 
+@keyframes slideIn {
+	0% {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
 .error-text {
 	color: var(--error-dark);
 	font-weight: 300;
 	font-size: 14px;
-	margin-left: 105px;
 	opacity: 0;
-	transform: translateX(-10px);
-	transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+	transform: translateX(-30px);
 	position: absolute;
-	top: 41%;
+	animation: slideIn 0.7s ease-in-out forwards;
 }
 
 .input-error + .error-text {
