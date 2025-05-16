@@ -159,6 +159,6 @@
     filter: invert(0.5);
 }
 
-button:disabled {
+.message-input-container button:disabled {
     background: none !important;
 }
