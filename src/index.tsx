@@ -7,7 +7,7 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter"; //400
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/200.css";
-import "./style.css";
+import "./style.scss";
 import "./scss/style.scss";
 
 import { render } from "preact";
