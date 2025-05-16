@@ -7,6 +7,7 @@ import fileIcon from "@icons/chat/file.svg";
 import { MessageInputProps } from "@interfaces/interfaces";
 import chatStore from "@store/chat/index";
 import { Logger } from "@utils/logger";
+import { autorun } from "mobx";
 import React from "react";
 
 const MAX_FILES = 10;
@@ -19,7 +20,7 @@ const MessageInput = ({}: MessageInputProps) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const generateFileId = (file: unknown) =>
+    const generateFileId = (file: File) =>
         `${file.name}-${file.size}-${file.lastModified}`;
 
     const handleSend = async () => {
@@ -29,12 +30,11 @@ const MessageInput = ({}: MessageInputProps) => {
             setMessage("");
             setFiles([]);
             setFilePreviews(new Map());
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
+            fileInputRef.current && (fileInputRef.current.value = "");
             await chatStore.sendMessage(message, files);
+            textareaRef.current?.focus();
         } catch (error) {
-            Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
+            Logger.error(error instanceof Error ? error.message : "Unknown error");
         }
     };
 
@@ -78,9 +78,7 @@ const MessageInput = ({}: MessageInputProps) => {
     };
 
     const handleSendMedia = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
+        fileInputRef.current?.click();
     };
 
     const handleRemoveFile = (index: number, fileId: string) => {
@@ -117,9 +115,16 @@ const MessageInput = ({}: MessageInputProps) => {
     }, [message]);
 
     useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.focus();
-        }
+        textareaRef.current?.focus();
+    }, []);
+
+    useEffect(() => {
+        const dispose = autorun(() => {
+            chatStore.currentChannelId;
+            setTimeout(() => textareaRef.current?.focus(), 0);
+        });
+
+        return () => { dispose(); };
     }, []);
 
     return (
@@ -148,7 +153,6 @@ const MessageInput = ({}: MessageInputProps) => {
                                     <button
                                         onClick={() => handleRemoveFile(index, fileId)}
                                         className={styles["remove-file-button"]}
-                                        aria-label={`Remove ${file.name}`}
                                     >
                                         <img src={trashIcon} alt="Remove" className={styles["trash-icon"]} />
                                     </button>
@@ -163,29 +167,24 @@ const MessageInput = ({}: MessageInputProps) => {
                     onClick={handleSendMedia}
                     className={styles["icon-button"]}
                     disabled={chatStore.isSendingMessage}
-                    aria-label="Attach media"
                 >
                     <img src={mediaIcon} alt="Media" className={styles["icon"]} />
                 </button>
                 <textarea
                     ref={textareaRef}
                     value={message}
-                    onInput={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        setMessage(e.target.value);
-                    }}
+                    onInput={(e: React.ChangeEvent<HTMLTextAreaElement>) => { setMessage(e.target.value); }}
                     placeholder="Write your message..."
                     className={styles["message-input"]}
                     onKeyDown={handleKeyDown}
                     rows={1}
                     disabled={chatStore.isSendingMessage}
-                    aria-label="Message input"
                 />
                 <input
                     type="file"
                     multiple
                     accept="image/*,video/*,application/pdf"
                     onChange={handleFileChange}
-                    className={styles["file-input"]}
                     ref={fileInputRef}
                     style={{ display: "none" }}
                 />
@@ -193,7 +192,6 @@ const MessageInput = ({}: MessageInputProps) => {
                     onClick={() => void handleSend()}
                     className={styles["icon-button"]}
                     disabled={chatStore.isSendingMessage}
-                    aria-label="Send message"
                 >
                     <img
                         src={sendIcon}
