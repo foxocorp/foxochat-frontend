@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "preact/hooks";
-import styles from "./MessageInput.module.css";
+import style from "./MessageInput.module.scss";
 import mediaIcon from "@icons/chat/media.svg";
 import sendIcon from "@icons/chat/paperplane.svg";
 import trashIcon from "@icons/chat/trash.svg";
@@ -128,33 +128,33 @@ const MessageInput = ({}: MessageInputProps) => {
     }, []);
 
     return (
-        <div className={styles["message-input-container"]}>
+        <div className={style.messageInputContainer}>
             {files.length > 0 && (
-                <div className={styles["file-preview-list"]}>
+                <div className={style.filePreviewList}>
                     {files.map((file, index) => {
                         const fileId = generateFileId(file);
                         return (
-                            <div key={fileId} className={styles["file-preview-item"]}>
+                            <div key={fileId} className={style.filePreviewItem}>
                                 {file.type.startsWith("image/") && filePreviews.has(fileId) ? (
                                     <img
                                         src={filePreviews.get(fileId)}
                                         alt={file.name}
-                                        className={styles["file-preview-image"]}
+                                        className={style.filePreviewImage}
                                     />
                                 ) : (
                                     <img
                                         src={fileIcon}
                                         alt="File Icon"
-                                        className={styles["file-preview-icon"]}
+                                        className={style.filePreviewIcon}
                                     />
                                 )}
-                                <div className={styles["file-name-container"]}>
-                                    <span className={styles["file-name"]}>{file.name}</span>
+                                <div className={style.fileNameContainer}>
+                                    <span className={style.fileName}>{file.name}</span>
                                     <button
-                                        onClick={() => handleRemoveFile(index, fileId)}
-                                        className={styles["remove-file-button"]}
+                                        onClick={() => { handleRemoveFile(index, fileId); }}
+                                        className={style.removeFileButton}
                                     >
-                                        <img src={trashIcon} alt="Remove" className={styles["trash-icon"]} />
+                                        <img src={trashIcon} alt="Remove" className={style.trashIcon} />
                                     </button>
                                 </div>
                             </div>
@@ -162,20 +162,20 @@ const MessageInput = ({}: MessageInputProps) => {
                     })}
                 </div>
             )}
-            <div className={styles["message-input-background"]} ref={containerRef}>
+            <div className={style.messageInputBackground} ref={containerRef}>
                 <button
                     onClick={handleSendMedia}
-                    className={styles["icon-button"]}
+                    className={style.iconButton}
                     disabled={chatStore.isSendingMessage}
                 >
-                    <img src={mediaIcon} alt="Media" className={styles["icon"]} />
+                    <img src={mediaIcon} alt="Media" className={style.icon} />
                 </button>
                 <textarea
                     ref={textareaRef}
                     value={message}
                     onInput={(e: React.ChangeEvent<HTMLTextAreaElement>) => { setMessage(e.target.value); }}
                     placeholder="Write your message..."
-                    className={styles["message-input"]}
+                    className={style.messageInput}
                     onKeyDown={handleKeyDown}
                     rows={1}
                     disabled={chatStore.isSendingMessage}
@@ -190,13 +190,13 @@ const MessageInput = ({}: MessageInputProps) => {
                 />
                 <button
                     onClick={() => void handleSend()}
-                    className={styles["icon-button"]}
+                    className={style.iconButton}
                     disabled={chatStore.isSendingMessage}
                 >
                     <img
                         src={sendIcon}
                         alt="Send"
-                        className={chatStore.isSendingMessage ? styles["icon-disabled"] : styles["icon"]}
+                        className={chatStore.isSendingMessage ? style.iconDisabled : style.icon}
                     />
                 </button>
             </div>

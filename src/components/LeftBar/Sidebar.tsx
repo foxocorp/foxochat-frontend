@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { SidebarProps } from "@interfaces/interfaces";
-import styles from "./Sidebar.module.css";
+import styles from "./Sidebar.module.scss";
 import SearchBar from "./SearchBar/SearchBar";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
 import UserInfo from "./UserInfo/UserInfo";
@@ -15,19 +15,13 @@ import { observer } from "mobx-react";
 const MIN_SIDEBAR_WIDTH = 300;
 const DEFAULT_DESKTOP_WIDTH = 460;
 
-interface Props extends SidebarProps {
-    isMobile?: boolean;
-    setMobileView?: (view: "list" | "chat") => void;
-    setChatTransition?: (transition: string) => void;
-}
-
 const SidebarComponent = ({
-                     onSelectChat,
-                     currentUser,
-                     isMobile = false,
-                     setMobileView = () => {},
-                     setChatTransition = () => {},
-                 }: Props) => {
+                              onSelectChat,
+                              currentUser,
+                              isMobile = false,
+                              setMobileView = () => {},
+                              setChatTransition = () => {},
+                          }: SidebarProps) => {
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showCreateDropdown, setShowCreateDropdown] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState<"group" | "channel" | null>(null);
@@ -95,14 +89,20 @@ const SidebarComponent = ({
             setWidth(window.innerWidth);
         } else {
             const savedWidth = parseInt(localStorage.getItem("sidebarWidth") ?? "", 10);
-            setWidth(isNaN(savedWidth) ? DEFAULT_DESKTOP_WIDTH : savedWidth);
+            const finalWidth = isNaN(savedWidth) ? DEFAULT_DESKTOP_WIDTH : savedWidth;
+            setWidth(finalWidth);
+            startWidth.current = finalWidth;
         }
     }, [isMobile]);
 
     useEffect(() => {
-        const handleResize = () => { setMaxWidth(Math.min(600, window.innerWidth * 0.8)); };
+        const handleResize = () => {
+            setMaxWidth(Math.min(600, window.innerWidth * 0.8));
+        };
         window.addEventListener("resize", handleResize);
-        return () => { window.removeEventListener("resize", handleResize); };
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
     }, []);
 
     return (
@@ -111,17 +111,17 @@ const SidebarComponent = ({
             className={styles.sidebar}
             style={isMobile ? { width: "100%" } : { width: `${width}px` }}
         >
-            <div className={styles["sidebar-header"]}>
-                <div className={styles["header-controls"]}>
+            <div className={styles.sidebarHeader}>
+                <div className={styles.headerControls}>
                     <SearchBar
-                        onJoinChannel={ async (channelId: number | null ) => {
+                        onJoinChannel={async (channelId: number | null) => {
                             await chatStore.setCurrentChannel(channelId);
                             if (isMobile) {
                                 setMobileView("chat");
                             }
                         }}
                     />
-                    <div className={styles["create-wrapper"]}>
+                    <div className={styles.createWrapper}>
                         <CreateButton onClick={() => { setShowCreateDropdown(!showCreateDropdown); }} />
                         {showCreateDropdown && (
                             <CreateDropdown
@@ -136,7 +136,7 @@ const SidebarComponent = ({
                 </div>
             </div>
 
-            <div className={styles["sidebar-chats"]}>
+            <div className={styles.sidebarChats}>
                 <ChatList
                     chats={channels}
                     onSelectChat={onSelectChat}
@@ -144,7 +144,7 @@ const SidebarComponent = ({
                 />
             </div>
 
-            <div className={styles["sidebar-footer"]}>
+            <div className={styles.sidebarFooter}>
                 <UserInfo
                     username={currentUser.toString()}
                     avatar="/favicon-96x96.png"

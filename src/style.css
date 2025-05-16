@@ -4,6 +4,7 @@
 }
 
 :root {
+	--background-color: #000000;
 	--background-chat-color: #141414;
 	--background-chat-list-color: #1e1e1e;
 	--background-chat-input: #1a1a1a;
@@ -27,7 +28,7 @@
 body {
 	font-family: "Inter", sans-serif;
 	color: var(--primary-color);
-	background-color: #000000;
+	background-color: var(--background-color);
 }
 
 ::-webkit-scrollbar {

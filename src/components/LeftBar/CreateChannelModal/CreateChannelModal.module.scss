@@ -2,7 +2,7 @@
     position: fixed;
     inset: 0;
     backdrop-filter: blur(25px);
-    background: rgb(0 0 0 / 0.02);
+    background: rgba(0, 0, 0, 0.02);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -10,21 +10,26 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-}
 
-.overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-}
+    &.show {
+        opacity: 1;
+        pointer-events: auto;
 
-.overlay.hide {
-    opacity: 0;
-    pointer-events: none;
+        .modal {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    &.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 .modal {
-    background: rgb(8 8 8 / 0.5);
-    border: 1.5px solid rgb(96 96 96 / 0.5);
+    background: rgba(8, 8, 8, 0.5);
+    border: 1.5px solid rgba(96, 96, 96, 0.5);
     border-radius: 8px;
     padding: 24px 32px;
     width: 380px;
@@ -32,11 +37,6 @@
     flex-direction: column;
     gap: 16px;
     transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.overlay.show .modal {
-    transform: translateY(0);
-    opacity: 1;
 }
 
 .title {
@@ -71,14 +71,13 @@
     padding: 0 12px;
     font-size: 14px;
     color: #ffffff;
-    background: rgb(0 0 0 / 0.25);
+    background: rgba(0, 0, 0, 0.25);
     border: 1px solid #333333;
     border-radius: 6px;
-}
 
-.input::placeholder,
-.select option[disabled] {
-    color: #777777;
+    &::placeholder {
+        color: #777777;
+    }
 }
 
 .select {
@@ -86,6 +85,10 @@
     background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 6 5-6' stroke='%23AAA' stroke-width='2' fill='none'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
+
+    option[disabled] {
+        color: #777777;
+    }
 }
 
 .create {
@@ -103,11 +106,11 @@
     justify-content: space-between;
     padding: 0 16px;
     cursor: pointer;
-}
 
-.create:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 }
 
 .icon {
@@ -118,8 +121,8 @@
 .dropdown-toggle {
     height: 40px;
     padding: 0 12px;
-    color: rgb(96 96 96 / 0.7);
-    background: rgb(0 0 0 / 0.25);
+    color: rgba(96, 96, 96, 0.7);
+    background: rgba(0, 0, 0, 0.25);
     border: 1px solid #333;
     border-radius: 6px;
     display: flex;
@@ -141,8 +144,8 @@
     top: calc(100% + 4px);
     left: 0;
     width: 100%;
-    background: rgb(0, 0, 0);
-    color: rgb(236 236 236 / 0.5);
+    background: #000000;
+    color: rgba(236, 236, 236, 0.5);
     border: 1px solid #333;
     border-radius: 6px;
     list-style: none;
@@ -155,12 +158,12 @@
     font-weight: 400;
     font-size: 16px;
     padding: 8px 12px;
-    color: rgb(236, 236, 236, 0.5);
+    color: rgba(236, 236, 236, 0.5);
     cursor: pointer;
-}
 
-.dropdown-item:hover {
-    background: #333;
+    &:hover {
+        background: #333;
+    }
 }
 
 .selected {

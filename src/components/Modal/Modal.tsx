@@ -1,5 +1,5 @@
 import { useEffect } from "preact/hooks";
-import styles from "./Modal.module.css";
+import style from "./Modal.module.scss";
 import { Button } from "@components/Base/Buttons/Button";
 import { JSX } from "preact";
 
@@ -23,14 +23,14 @@ export const Modal = ({ title, description, onClose, actionButtons = [], icon }:
     }, [onClose]);
 
     return (
-        <div className={`${styles["overlay"]} ${styles["visible"]}`} onClick={onClose}>
-            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
-                <h2 className={styles["title"]}>{title}</h2>
-                <div className={styles["description"]}>
+        <div className={`${style.overlay} ${style.visible}`} onClick={onClose}>
+            <div className={style.modal} onClick={(e) => { e.stopPropagation(); }}>
+                <h2 className={style.title}>{title}</h2>
+                <div className={style.description}>
                     <span>{typeof description === "object" ? JSON.stringify(description) : description}</span>
                 </div>
-                <div className={styles["actions"]}>
-                    {actionButtons.length > 0 ? (actionButtons) : (
+                <div className={style.actions}>
+                    {actionButtons.length > 0 ? actionButtons : (
                         <Button onClick={onClose} fontWeight={500} variant="primary" icon={icon}>
                             Close
                         </Button>

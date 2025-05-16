@@ -1,4 +1,4 @@
-.chat-window {
+.chatWindow {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -9,7 +9,7 @@
     user-select: none;
 }
 
-.scroll-button {
+.scrollButton {
     position: fixed;
     height: 50px;
     width: 50px;
@@ -28,21 +28,17 @@
     box-shadow: 0 4px 8px rgb(0 0 0 / 0.3);
 }
 
-.scroll-button.visible {
+.visible {
     opacity: 1;
 }
 
-.scroll-button:hover {
+.scrollButton:hover {
     opacity: 1;
     transform: scale(1.1);
     box-shadow: 0 6px 12px rgb(0 0 0 / 0.4);
 }
 
-.scroll-button:active {
+.scrollButton:active {
     transform: scale(1);
     box-shadow: 0 4px 8px rgb(0 0 0 / 0.3);
-}
-
-.scroll-button:hover {
-    opacity: 1;
 }

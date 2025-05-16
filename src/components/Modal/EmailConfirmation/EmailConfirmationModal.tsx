@@ -1,9 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "preact/hooks";
 import { Button } from "@components/Base/Buttons/Button";
-import { useEmailVerification } from "./EmailConfirmation";
+import { useCodeVerification } from "@hooks/useCodeVerification";
 
-import styles from "./EmailConfirmationModal.module.css";
+import style from "./EmailConfirmationModal.module.scss";
 import TimerIcon from "@icons/timer.svg";
 
 interface EmailConfirmationModalProps {
@@ -22,24 +22,20 @@ export const EmailConfirmationModal = ({
                                            onResendCode,
                                        }: EmailConfirmationModalProps) => {
     const {
-        code,
-        error,
-        isResendDisabled,
-        time,
-        handleBackspace,
+        state,
+        handleInputChange,
+        handleKeyDown,
+        handlePaste,
         handleVerify,
         handleResendCode,
-        handlePaste,
-        handleInputChange,
-    } = useEmailVerification(onVerify, onResendCode);
+        formatTime,
+    } = useCodeVerification({ onVerify, onResendCode });
 
     const [isErrorVisible, setIsErrorVisible] = useState(false);
 
-    const formatTime = (time: number) => {
-        const minutes = Math.floor(time / 60);
-        const seconds = time % 60;
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    };
+    useEffect(() => {
+        setIsErrorVisible(!!state.errorMessage);
+    }, [state.errorMessage]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -49,14 +45,8 @@ export const EmailConfirmationModal = ({
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
+        return () => { window.removeEventListener("keydown", handleKeyDown); };
     }, [isOpen, onClose]);
-
-    useEffect(() => {
-        setIsErrorVisible(error);
-    }, [error]);
 
     const closeModal = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
@@ -64,52 +54,70 @@ export const EmailConfirmationModal = ({
     };
 
     return (
-        <div className={`${styles["overlay"]} ${isOpen ? styles["visible"] : ""}`} onClick={closeModal}>
-            <div className={styles["modal"]} onClick={(e) => { e.stopPropagation(); }}>
-                <h2 className={styles["title"]}>Check your email</h2>
-                <p className={styles["description"]}>{email ?? "Failed to receive mail"}</p>
-                <div className={`${styles["code-input-container"]} ${error ? styles["error"] : ""}`}>
-                    {code.map((digit, index) => (
+        <div
+            className={`${style.overlay} ${isOpen ? style.visible : ""}`}
+            onClick={closeModal}
+        >
+            <div className={style.modal} onClick={(e) => { e.stopPropagation(); }}>
+                <h2 className={style.title}>Check your email</h2>
+                <p className={style.description}>{email ?? "Failed to receive mail"}</p>
+                <div
+                    className={`${style.codeInputContainer} ${state.errorMessage ? style.error : ""}`}
+                >
+                    {state.code.map((digit, index) => (
                         <input
                             key={index}
                             placeholder="0"
-                            className={`${styles["code-input"]} ${styles["input-with-placeholder"]} ${error ? styles["error"] : ""}`}
+                            className={`${style.codeInput} ${style.inputWithPlaceholder} ${
+                                state.errorMessage ? style.error : ""
+                            }`}
                             value={digit}
                             maxLength={1}
                             onInput={(e) => { handleInputChange(e, index); }}
                             onPaste={handlePaste}
-                            onKeyDown={(e) => { handleBackspace(e, index); }}
+                            onKeyDown={(e) => { handleKeyDown(e, index); }}
                         />
                     ))}
                 </div>
                 {isErrorVisible && (
-                    <div className={`${styles["line"]} ${styles["error-line"]}`}>
+                    <div className={style.line}>
                         Code is invalid
                     </div>
                 )}
-                <div className={styles["actions"]}>
+                <div className={style.actions}>
                     <Button
-                        onClick={() => handleVerify().catch(() => { setIsErrorVisible(true); })}
+                        onClick={() =>
+                            handleVerify().catch(() => { setIsErrorVisible(true); })
+                        }
                         variant="primary"
                         width={318}
-                        disabled={code.some((digit) => !digit)}
+                        fontWeight={600}
+                        disabled={state.code.some((digit) => !digit)}
                     >
                         Confirm
                     </Button>
-                    <div className={styles["resend-text"]}>
-                        {isResendDisabled ? (
+                    <div className={style.resendText}>
+                        {state.isResendDisabled ? (
                             <>
                                 <span>Time until you can resend code</span>
-                                <div className={styles["timer-container"]}>
-                                    <span className={styles["timer"]}>{formatTime(time)}</span>
-                                    <img className={styles["timer-icon"]} src={TimerIcon} alt="Timer" />
+                                <div className={style.timerContainer}>
+                                    <span className={style.timer}>{formatTime(state.timer)}</span>
+                                    <img
+                                        className={style.timerIcon}
+                                        src={TimerIcon}
+                                        alt="Timer"
+                                    />
                                 </div>
                             </>
                         ) : (
                             <span>
                                 Didn’t receive code?{" "}
-                                <a onClick={() => handleResendCode().catch(() => { setIsErrorVisible(true); })}
-                                   className={styles["resend-link"]}>
+                                <a
+                                    onClick={() =>
+                                        handleResendCode().catch(() => { setIsErrorVisible(true); })
+                                    }
+                                    className={style.resendLink}
+                                >
                                     Send again
                                 </a>
                             </span>

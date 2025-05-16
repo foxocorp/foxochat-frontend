@@ -1,6 +1,6 @@
 import { useLocation } from "preact-iso";
 import { useEffect, useState } from "preact/hooks";
-import styles from "./Register.module.css";
+import styles from "./Register.module.scss";
 
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
@@ -17,9 +17,8 @@ const Register = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [usernameError, setUsernameError] = useState(false);
-    const [emailError, setEmailError] = useState(false);
-    const [passwordError, setPasswordError] = useState(false);
+    const [errors, setErrors] = useState({ username: false, email: false, password: false });
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
@@ -29,7 +28,6 @@ const Register = () => {
 
     useEffect(() => {
         const errorMessage = location.query["error"];
-
         if (errorMessage) {
             switch (errorMessage) {
                 case "email-confirmation-failed":
@@ -56,50 +54,38 @@ const Register = () => {
         return emailRegex.test(email) && email.length >= 4 && email.length <= 64;
     };
 
-    const validateInputs = (): boolean => {
+    const handleRegister = async () => {
+        const newErrors = { username: false, email: false, password: false };
         let isValid = true;
 
         if (!username.trim() || !validateUsername(username)) {
-            setUsernameError(true);
+            newErrors.username = true;
             isValid = false;
-        } else {
-            setUsernameError(false);
         }
-
         if (!email.trim() || !validateEmail(email)) {
-            setEmailError(true);
+            newErrors.email = true;
             isValid = false;
-        } else {
-            setEmailError(false);
+        }
+        if (!password.trim()) {
+            newErrors.password = true;
+            isValid = false;
         }
 
-        if (!password.trim() || !password) {
-            setPasswordError(true);
-            isValid = false;
-        } else {
-            setPasswordError(false);
-        }
-
-        return isValid;
-    };
-
-    const handleRegister = async () => {
-        if (!validateInputs()) return;
+        setErrors(newErrors);
+        if (!isValid) return;
 
         try {
             const token = await apiMethods.register(username, email, password);
-
             if (token.access_token) {
                 authStore.login(token.access_token);
                 setIsModalOpen(true);
             } else {
-                console.error("Registration failed");
                 setModalMessage("Registration failed. Please try again.");
                 setIsErrorModalOpen(true);
             }
         } catch (error) {
             Logger.error(error instanceof Error ? error.message : "An unknown error occurred");
-            setModalMessage(error.message);
+            setModalMessage(error instanceof Error ? error.message : "An unknown error occurred");
             setIsErrorModalOpen(true);
         }
     };
@@ -122,33 +108,34 @@ const Register = () => {
         }
     };
 
-    const handleUsernameInput = (e: Event) => {
-        const value = (e.target as HTMLInputElement).value;
-        setUsername(value);
-        setUsernameError(value === "" && usernameError);
-    };
-
-    const handleEmailInput = (e: Event) => {
-        const value = (e.target as HTMLInputElement).value;
-        setEmail(value);
-        setEmailError(value === "" && emailError);
-    };
-
-    const handlePasswordInput = (e: Event) => {
-        const value = (e.target as HTMLInputElement).value;
-        setPassword(value);
-        setPasswordError(value === "" && passwordError);
+    const renderError = (field: keyof typeof errors) => {
+        if (!errors[field]) return null;
+        const errorPositions = {
+            username: { top: "19.5%", left: "140px" },
+            email: { top: "36%", left: "97px" },
+            password: { top: "53%", left: "135px" },
+        };
+        return (
+            <span className={styles.errorText} style={errorPositions[field]}>
+                — Incorrect format
+            </span>
+        );
     };
 
     return (
-        <div className={styles["register-container"]}>
+        <div className={styles.registerContainer}>
             {isErrorModalOpen && modalMessage && (
                 <Modal
                     title="Error"
                     description={modalMessage}
                     onClose={() => { setIsErrorModalOpen(false); }}
                     actionButtons={[
-                        <Button key="close-button" onClick={() => { setIsErrorModalOpen(false); }} variant="primary" icon={arrowLeftIcon}>
+                        <Button
+                            key="close-button"
+                            onClick={() => { setIsErrorModalOpen(false); }}
+                            variant="primary"
+                            icon={arrowLeftIcon}
+                        >
                             Close
                         </Button>,
                     ]}
@@ -163,78 +150,67 @@ const Register = () => {
                     onResendCode={handleResendEmail}
                 />
             )}
-            <div className={styles["register-form"]}>
-                <div className={styles["register-form-header"]}>
-                    <div className={styles["register-form-title"]}>
-                        <div className={styles["form"]}>
-                            <div className={styles["register-title"]}>Register</div>
-                            <div className={styles["form-register"]}>
-                                <div className={styles["register"]}>
-                                    <label className={styles["register-label"]}>
-                                        Username<span className={styles["required"]}>*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={`${styles["register-input"]} ${usernameError ? styles["input-error"] : ""}`}
-                                        placeholder="floof_fox"
-                                        value={username}
-                                        onInput={handleUsernameInput}
-                                        required
-                                        autoComplete="nope"
-                                    />
-                                    {usernameError &&
-                                        <span className={styles["error-text"]} style={{ top: "20%", left: "140px" }}>— Incorrect format</span>
-                                    }
-                                    <label className={styles["register-label"]}>
-                                        Email<span className={styles["required"]}>*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className={`${styles["register-input"]} ${emailError ? styles["input-error"] : ""}`}
-                                        placeholder="floofer@coof.fox"
-                                        value={email}
-                                        onInput={handleEmailInput}
-                                        required
-                                    />
-                                    {emailError &&
-                                        <span className={styles["error-text"]} style={{ top: "37.5%", left: "97px" }}>— Incorrect format</span>
-                                    }
-                                    <label className={styles["register-label"]}>
-                                        Password<span className={styles["required"]}>*</span>
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className={`${styles["register-input"]} ${passwordError ? styles["input-error"] : ""}`}
-                                        placeholder="your floof password :3"
-                                        value={password}
-                                        onInput={handlePasswordInput}
-                                        required
-                                    />
-                                    {passwordError &&
-                                        <span className={styles["error-text"]} style={{ top: "54.5%", left: "135px" }}>— Incorrect format</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        <div className={styles["register-button"]}>
-                            <Button key="register-button"
-                                    variant="primary"
-                                    fontSize={20}
-                                    fontWeight={600}
-                                    onClick={() => {
-                                        void handleRegister();
-                                    }}
-                                    icon={arrowLeftIcon}>
-                                Register
-                            </Button>
-                        </div>
-                        <div className={styles["divider"]} />
-                        <div className={styles["action-buttons"]}>
-                            <Button variant="secondary" onClick={() => { location.route("/auth/login"); }} icon={alreadyHaveAccountIcon}>
-                                Already have an account?
-                            </Button>
-                        </div>
-                    </div>
+            <div className={styles.registerForm}>
+                <div className={styles.registerTitle}>Register</div>
+                <div className={styles.registerFormContent}>
+                    <label className={styles.registerLabel}>
+                        Username<span className={styles.required}>*</span>
+                    </label>
+                    <input
+                        type="text"
+                        className={`${styles.registerInput} ${errors.username ? styles.inputError : ""}`}
+                        placeholder="floof_fox"
+                        value={username}
+                        onInput={(e) => { setUsername((e.target as HTMLInputElement).value); }}
+                        required
+                        autoComplete="nope"
+                    />
+                    {renderError("username")}
+                    <label className={styles.registerLabel}>
+                        Email<span className={styles.required}>*</span>
+                    </label>
+                    <input
+                        type="email"
+                        className={`${styles.registerInput} ${errors.email ? styles.inputError : ""}`}
+                        placeholder="floofer@coof.fox"
+                        value={email}
+                        onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
+                        required
+                    />
+                    {renderError("email")}
+                    <label className={styles.registerLabel}>
+                        Password<span className={styles.required}>*</span>
+                    </label>
+                    <input
+                        type="password"
+                        className={`${styles.registerInput} ${errors.password ? styles.inputError : ""}`}
+                        placeholder="your floof password :3"
+                        value={password}
+                        onInput={(e) => { setPassword((e.target as HTMLInputElement).value); }}
+                        required
+                    />
+                    {renderError("password")}
+                    <Button
+                        key="register-button"
+                        variant="primary"
+                        fontSize={20}
+                        fontWeight={600}
+                        onClick={handleRegister}
+                        icon={arrowLeftIcon}
+                        className={styles.registerButton}
+                    >
+                        Register
+                    </Button>
+                    <div className={styles.divider} />
+                    <Button
+                        key="login-button"
+                        variant="secondary"
+                        onClick={() => { location.route("/auth/login"); }}
+                        icon={alreadyHaveAccountIcon}
+                        className={styles.buttonWithGap}
+                    >
+                        Already have an account?
+                    </Button>
                 </div>
             </div>
         </div>

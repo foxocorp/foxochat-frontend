@@ -1,5 +1,5 @@
 import { ComponentChildren, JSX } from "preact";
-import "./Buttons.css";
+import styles from "./Buttons.module.scss";
 
 interface ButtonProps {
 	children: ComponentChildren;
@@ -7,7 +7,7 @@ interface ButtonProps {
 	fontSize?: number | string;
 	fontWeight?: number | string;
 	onClick?: () => void | Promise<void>;
-	variant?: "primary" | "secondary" | "danger" | "default";
+	variant?: "primary" | "secondary" | "danger" | "default" | "branded";
 	icon?: string | undefined;
 	disabled?: boolean;
 	type?: "button" | "submit" | "reset";
@@ -28,7 +28,15 @@ export function Button({
 						   style,
 						   className = "",
 					   }: ButtonProps) {
-	const buttonClass = `button-${variant} ${disabled ? "button-disabled" : ""} ${className}`.trim();
+	const variantClass = {
+		primary: styles.buttonPrimary,
+		branded: styles.buttonBranded,
+		secondary: styles.buttonSecondary,
+		danger: styles.buttonDanger,
+		default: "",
+	}[variant];
+
+	const buttonClass = `${variantClass} ${disabled ? styles.buttonDisabled ?? "" : ""} ${className}`.trim();
 
 	const buttonStyle: JSX.CSSProperties = Object.assign(
 		{},
@@ -41,9 +49,7 @@ export function Button({
 	);
 
 	const handleClick = () => {
-		if (onClick) {
-			void onClick();
-		}
+		if (onClick) void onClick();
 	};
 
 	return (
@@ -54,7 +60,7 @@ export function Button({
 			disabled={disabled}
 			type={type}>
 			{children}
-			{icon && <img src={icon} alt="icon" className="button-icon" />}
+			{icon && <img src={icon} alt="icon" className={styles.buttonIcon} />}
 		</button>
 	);
 }

@@ -1,4 +1,4 @@
-.create-button {
+.createButton {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -6,33 +6,31 @@
     width: 53px;
     height: 53px;
     padding: 10px 16px;
-    background: rgb(0 0 0 / 0.25);
+    background: rgba(0, 0, 0, 0.25);
     border: none;
     color: white;
     font-weight: 500;
     cursor: pointer;
     transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        border-radius: 9px;
+    }
 }
 
-.create-button:hover {
-    opacity: 0.9;
-}
-
-.plus-icon {
+.plusIcon {
     font-size: 1.2rem;
     line-height: 1;
 }
 
-.button-text {
+.buttonText {
     white-space: nowrap;
-}
 
-@media (max-width: 768px) {
-    .button-text {
+    @media (max-width: 768px) {
         display: none;
-    }
-
-    .create-button {
-        border-radius: 9px;
     }
 }

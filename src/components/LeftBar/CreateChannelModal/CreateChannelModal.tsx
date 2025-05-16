@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "preact/hooks";
 import CreateIcon from "@icons/chat/create-black.svg";
-import styles from "./CreateChannelModal.module.css";
+import styles from "./CreateChannelModal.module.scss";
 import { ChannelType } from "@foxogram/api-types";
 import { Props } from "@interfaces/interfaces";
 

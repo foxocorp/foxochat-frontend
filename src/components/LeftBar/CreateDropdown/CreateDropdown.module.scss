@@ -23,8 +23,8 @@
     text-align: left;
     cursor: pointer;
     transition: background 0.2s ease;
-}
 
-.item:hover {
-    background: rgb(40 40 40);
+    &:hover {
+        background: rgb(40 40 40);
+    }
 }

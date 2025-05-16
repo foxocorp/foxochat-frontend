@@ -1,6 +1,6 @@
 import { useState, useEffect } from "preact/hooks";
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem";
-import styles from "./MessageGroup.module.css";
+import styles from "./MessageGroup.module.scss";
 import { MessageGroupProps } from "@interfaces/interfaces";
 import { APIMessage } from "@foxogram/api-types";
 
@@ -8,14 +8,18 @@ const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
     const [isAnimated, setIsAnimated] = useState(false);
 
     useEffect(() => {
-        const t = setTimeout(() => { setIsAnimated(true); }, 100);
-        return () => { clearTimeout(t); };
+        const t = setTimeout(() => {
+            setIsAnimated(true);
+        }, 100);
+        return () => {
+            clearTimeout(t);
+        };
     }, []);
 
     if (messages.length === 0) return null;
 
     return (
-        <div className={`${styles["message-group"]} ${!isAnimated ? styles["animated-group"] : ""}`}>
+        <div className={`${styles.messageGroup} ${!isAnimated ? styles.animatedGroup : ""}`}>
             {messages.map((msg: APIMessage, idx: number) => (
                 <MessageItem
                     key={msg.id}

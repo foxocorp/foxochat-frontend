@@ -1,14 +1,17 @@
 import { useState } from "preact/hooks";
 import { JSX } from "preact";
-import styles from "./Login.module.css";
-import { Button } from "@components/Base/Buttons/Button";
+import { useLocation } from "preact-iso";
+
+import styles from "./Login.module.scss";
+import { Button } from "@components/Base";
 import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
+
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import resetPasswordIcon from "@icons/navigation/reset-password.svg";
 import newUserIcon from "@icons/navigation/new-user.svg";
+
 import { apiMethods } from "@services/API/apiMethods";
 import { useAuthStore } from "@store/authenticationStore";
-import { useLocation } from "preact-iso";
 import { Logger } from "@utils/logger";
 
 const Login = (): JSX.Element => {
@@ -67,66 +70,67 @@ const Login = (): JSX.Element => {
 	};
 
 	return (
-		<div className={styles["login-container"]}>
-			<div className={styles["login-form"]}>
-				<div className={styles["login-form-header"]}>
-					<div className={styles["login-form-title"]}>
-						<div className={styles["form"]}>
-							<div className={styles["login-title"]}>Log in</div>
-							<div className={styles["form-login"]}>
-								<div className={styles["login"]}>
-									<label className={styles["login-label"]}>
-										Email<span className={styles["required"]}>*</span>
-									</label>
-									<input
-										type="email"
-										className={`${styles["login-input"]} ${emailError ? styles["input-error"] : ""}`}
-										placeholder="floofer@coof.fox"
-										value={email}
-										onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
-										required
-									/>
-									{emailError && (
-										<span className={styles["error-text"]} style={{ top: "22%", left: "96px" }}>— Incorrect format</span>
-									)}
-									<label className={styles["login-label"]}>
-										Password<span className={styles["required"]}>*</span>
-									</label>
-									<input
-										type="password"
-										className={`${styles["login-input"]} ${passwordError ? styles["input-error"] : ""}`}
-										placeholder="your floof password :3"
-										value={password}
-										onInput={(e) => { setPassword((e.target as HTMLInputElement).value); }}
-										required
-									/>
-									{passwordError && (
-										<span className={styles["error-text"]} style={{ top: "40.5%", left: "135px" }}>— Incorrect format</span>
-									)}
-								</div>
-							</div>
-						</div>
-						<div className={styles["login-button"]}>
-							<Button
-								key="login-button"
-								variant="primary"
-								fontSize={20}
-								fontWeight={600}
-								onClick={handleLogin}
-								icon={arrowLeftIcon}>
-								Log in
-							</Button>
-						</div>
-						<div className={styles["divider"]} />
-						<div className={styles["action-buttons"]}>
-							<Button key="reset-password-button" variant="secondary" onClick={openPasswordResetModal} icon={resetPasswordIcon}>
-								Reset your password
-							</Button>
-							<Button key="create-account-button" variant="secondary" onClick={() => {location.route("/auth/register");}} icon={newUserIcon}>
-								Create new account
-							</Button>
-						</div>
-					</div>
+		<div className={styles.loginContainer}>
+			<div className={styles.loginForm}>
+				<div className={styles.loginTitle}>Log in</div>
+				<div className={styles.loginFormContent}>
+					<label className={styles.loginLabel}>
+						Email<span className={styles.required}>*</span>
+					</label>
+					<input
+						type="email"
+						className={`${styles.loginInput} ${emailError ? styles.inputError : ""}`}
+						placeholder="floofer@coof.fox"
+						value={email}
+						onInput={(e) => { setEmail((e.target as HTMLInputElement).value); }}
+						required
+					/>
+					{emailError && (
+						<span className={styles.errorText} style={{ top: "21%", left: "96px" }}>— Incorrect format</span>
+					)}
+					<label className={styles.loginLabel}>
+						Password<span className={styles.required}>*</span>
+					</label>
+					<input
+						type="password"
+						className={`${styles.loginInput} ${passwordError ? styles.inputError : ""}`}
+						placeholder="your floof password :3"
+						value={password}
+						onInput={(e) => { setPassword((e.target as HTMLInputElement).value); }}
+						required
+					/>
+					{passwordError && (
+						<span className={styles.errorText} style={{ top: "39.5%", left: "135px" }}>— Incorrect format</span>
+					)}
+					<Button
+						key="login-button"
+						variant="primary"
+						fontSize={20}
+						fontWeight={600}
+						onClick={handleLogin}
+						icon={arrowLeftIcon}
+						className={styles.loginButton}
+					>
+						Log in
+					</Button>
+					<div className={styles.divider} />
+					<Button
+						className={styles.buttonWithGap}
+						key="reset-password-button"
+						variant="secondary"
+						onClick={openPasswordResetModal}
+						icon={resetPasswordIcon}
+					>
+						Reset your password
+					</Button>
+					<Button
+						key="create-account-button"
+						variant="secondary"
+						onClick={() => {location.route("/auth/register");}}
+						icon={newUserIcon}
+					>
+						Create new account
+					</Button>
 				</div>
 			</div>
 			<PasswordResetModal

@@ -1,58 +1,55 @@
 import { useEffect, useState } from "preact/hooks";
-import { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
-import styles from "./ChatHeader.module.css";
+import style from "./ChatHeader.module.scss";
+import { timestampToHSV } from "@utils/functions";
+import { ChatHeaderProps } from "@interfaces/interfaces";
 
-const ChatHeader = ({
-                        avatar,
-                        displayName,
-                        username,
-                        channelId,
-                        isMobile,
-                        onBack,
-                    }: ChatHeaderProps) => {
-    const nameToDisplay = displayName ?? username;
+const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
+    const { id, name, display_name, icon, created_at } = chat;
+    const nameToDisplay = display_name ?? name;
     const [participantsCount, setParticipantsCount] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchMembers = async () => {
             try {
-                const members = await apiMethods.listChannelMembers(channelId);
+                const members = await apiMethods.listChannelMembers(id);
                 setParticipantsCount(members.length || 0);
             } catch (error) {
                 console.error("Failed to fetch members:", error);
             }
         };
 
-        if (channelId && participantsCount === null) {
+        if (id && participantsCount === null) {
             void fetchMembers();
         }
-    }, [channelId, participantsCount]);
+    }, [id, participantsCount]);
+
+    const { h, s } = timestampToHSV(created_at);
+    const v = 70;
+    const backgroundColor = `hsl(${h}, ${s}%, ${v}%)`;
 
     return (
-        <div className={styles["chat-header"]}>
+        <div className={style.chatHeader}>
             {isMobile && onBack && (
-                <button className={styles["back-button"]} onClick={onBack}>
+                <button className={style.backButton} onClick={onBack}>
                     ←
                 </button>
             )}
-            {avatar ? (
+            {icon ? (
                 <img
-                    src={avatar}
+                    src={icon}
                     alt={`${nameToDisplay}'s avatar`}
-                    className={styles["chat-header-avatar"]}
+                    className={style.chatHeaderAvatar}
                 />
             ) : (
-                <div className={styles["default-avatar"]}>
+                <div className={style.defaultAvatar} style={{ backgroundColor }}>
                     {nameToDisplay.charAt(0).toUpperCase()}
                 </div>
             )}
-            <div className={styles["chat-header-info"]}>
-                <p className={styles["chat-header-username"]}>{nameToDisplay}</p>
-                <div className={styles["chat-header-members"]}>
-          <span className={styles["members-count"]}>
-            • {participantsCount !== null ? participantsCount : "0"} Members
-          </span>
+            <div className={style.chatHeaderInfo}>
+                <p className={style.chatHeaderUsername}>{nameToDisplay}</p>
+                <div className={style.chatHeaderMembers}>
+                    <span>• {participantsCount ?? "0"} Members</span>
                 </div>
             </div>
         </div>

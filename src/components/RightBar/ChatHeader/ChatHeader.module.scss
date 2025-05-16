@@ -1,4 +1,4 @@
-.chat-header {
+.chatHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -10,7 +10,7 @@
     background: var(--background-chat-color);
 }
 
-.back-button {
+.backButton {
     background: none;
     border: none;
     color: var(--primary-color);
@@ -19,23 +19,23 @@
     cursor: pointer;
 }
 
-.chat-header-avatar {
+.chatHeaderAvatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin-right: 12px;
 }
 
-.chat-header-info {
+.chatHeaderInfo {
     flex-grow: 1;
 }
 
-.chat-header-username {
+.chatHeaderUsername {
     font-weight: 400;
     font-size: 18px;
 }
 
-.chat-header-members {
+.chatHeaderMembers {
     margin-top: 2px;
     font-weight: 300;
     font-size: 16px;
@@ -43,7 +43,7 @@
     line-height: 1;
 }
 
-.chat-header-edit {
+.chatHeaderEdit {
     background: none;
     border: none;
     color: var(--primary-color);
@@ -51,8 +51,7 @@
     cursor: pointer;
 }
 
-.default-avatar {
-    background: linear-gradient(225deg, #eea7a7 0%, #cd5555 100%);
+.defaultAvatar {
     color: white;
     font-weight: bold;
     font-size: 20px;

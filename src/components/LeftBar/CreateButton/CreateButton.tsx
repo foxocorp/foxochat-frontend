@@ -1,4 +1,4 @@
-import styles from "./CreateButton.module.css";
+import styles from "./CreateButton.module.scss";
 import CreateIcon from "@icons/chat/create.svg";
 
 interface CreateButtonProps {
@@ -8,11 +8,11 @@ interface CreateButtonProps {
 const CreateButton = ({ onClick }: CreateButtonProps) => {
     return (
         <button
-            className={styles["create-button"]}
+            className={styles.createButton}
             onClick={onClick}
             aria-label="Create new channel or group"
         >
-            <img className={styles["plus-icon"]} src={CreateIcon} />
+            <img className={styles.plusIcon} src={CreateIcon} />
         </button>
     );
 };

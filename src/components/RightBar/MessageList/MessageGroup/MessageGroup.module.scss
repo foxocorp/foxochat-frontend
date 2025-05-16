@@ -1,24 +1,21 @@
-.message-group {
+.messageGroup {
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-bottom: 8px;
-}
-
-.message-group-header {
-    font-size: 14px;
-    color: #b0b0b0;
-    margin-bottom: 4px;
-}
-
-.animated-group {
-    opacity: 0;
-    transform: translateY(12px);
+    opacity: 1;
+    transform: translateY(0);
     transition: opacity 300ms ease, transform 300ms ease;
 }
 
-.message-group {
-    opacity: 1;
-    transform: translateY(0);
+.messageGroupHeader {
+    font-size: 14px;
+    color: rgb(176 176 176 / 1);
+    margin-bottom: 4px;
+}
+
+.animatedGroup {
+    opacity: 0;
+    transform: translateY(12px);
     transition: opacity 300ms ease, transform 300ms ease;
 }

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-import styles from "./MessageItem.module.css";
+import styles from "./MessageItem.module.scss";
 import type { MessageItemProps } from "@interfaces/interfaces";
 import type { APIAttachment } from "@foxogram/api-types";
 import { wrapRichText } from "@lib/richTextProcessor/wrapRichText";
 import { getDisplayName } from "@/codeLanguages";
 import { timestampToHSV } from "@utils/functions";
+import sanitizeHtml from "sanitize-html";
 
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
@@ -20,9 +21,9 @@ import { Logger } from "@utils/logger";
 import { CopyBubble } from "@components/chat/bubbles";
 
 interface PreComponentProps {
-    children: string | { props: { dangerouslySetInnerHTML?: { __html: string }; children?: string } }
-    className?: string
-    language?: string
+    children: string | { props: { dangerouslySetInnerHTML?: { __html: string }; children?: string } };
+    className?: string;
+    language?: string;
 }
 
 const PreComponent = ({ children, className, language }: PreComponentProps) => {
@@ -31,13 +32,13 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
     const duration = 1500;
 
     const codeText = useMemo(() => {
-        if (typeof children === "string") return children;
+        if (typeof children === "string") return sanitizeHtml(children, { allowedTags: [], allowedAttributes: {} });
         if (children.props.dangerouslySetInnerHTML?.__html) {
             const div = document.createElement("div");
-            div.innerHTML = children.props.dangerouslySetInnerHTML.__html;
+            div.innerHTML = sanitizeHtml(children.props.dangerouslySetInnerHTML.__html, { allowedTags: [], allowedAttributes: {} });
             return div.textContent ?? "";
         }
-        return children.props.children ?? "";
+        return sanitizeHtml(children.props.children ?? "", { allowedTags: [], allowedAttributes: {} });
     }, [children]);
 
     const handleCopy = async () => {
@@ -52,19 +53,19 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
     };
 
     return (
-        <div className={styles["code-block-wrapper"]}>
-            <div className={styles["code-header"]}>
-                <span className={styles["language-name"]}>{displayLanguage}</span>
+        <div className={styles.codeBlockWrapper}>
+            <div className={styles.codeHeader}>
+                <span className={styles.languageName}>{displayLanguage}</span>
                 <button
-                    className={styles["copy-button"]}
+                    className={styles.copyButton}
                     onClick={handleCopy}
                     aria-label="Copy code"
                 >
-                    <img src={CopyIcon} alt="Copy" className={styles["copy-icon"]} />
+                    <img src={CopyIcon} alt="Copy" className={styles.copyIcon} />
                 </button>
             </div>
             <pre className={className}>
-                <code dangerouslySetInnerHTML={{ __html: codeText }} />
+                <code>{codeText}</code> {/* Убрали dangerouslySetInnerHTML */}
             </pre>
             <CopyBubble
                 show={isCopied}
@@ -117,10 +118,16 @@ export default function MessageItem({
 
         try {
             const html = wrapRichText(content, { highlight: true });
-            setHtmlContent(html);
+            setHtmlContent(sanitizeHtml(html, {
+                allowedTags: ["pre", "code"],
+                allowedAttributes: {
+                    pre: ["class"],
+                    code: [],
+                },
+            }));
         } catch (error) {
             Logger.error("Error processing content:", error);
-            setHtmlContent(content);
+            setHtmlContent(sanitizeHtml(content, { allowedTags: [], allowedAttributes: {} }));
         }
     }, [content]);
 
@@ -173,42 +180,42 @@ export default function MessageItem({
 
         const processNode = (node: Node): void => {
             if (node.nodeType === Node.TEXT_NODE && node.textContent) {
-                elements.push(<span key={`text-${nodeIndex++}`} dangerouslySetInnerHTML={{ __html: node.textContent }} />);
+                elements.push(<span key={`text-${nodeIndex++}`}>{node.textContent}</span>); // Экранировано
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const element = node as Element;
                 if (element.tagName.toLowerCase() === "pre" && element.className.startsWith("language-")) {
                     const language = element.className.replace("language-", "");
                     const codeElement = element.querySelector("code");
                     if (codeElement) {
-                        const code = codeElement.innerHTML || "";
+                        const code = codeElement.textContent || ""; // Берем текст, а не innerHTML
                         elements.push(
                             <PreComponent key={`pre-${nodeIndex++}`} className={element.className} language={language}>
-                                {{ props: { dangerouslySetInnerHTML: { __html: code } } }}
+                                {code}
                             </PreComponent>,
                         );
                     } else {
                         elements.push(<span key={`empty-${nodeIndex++}`} />);
                     }
                 } else {
-                    Array.from(element.childNodes).forEach((child) => { processNode(child); });
+                    Array.from(element.childNodes).forEach(processNode);
                 }
             }
         };
 
-        Array.from(doc.body.firstChild?.childNodes).forEach(processNode);
+        Array.from(doc.body.firstChild?.childNodes || []).forEach(processNode);
         return elements;
     };
 
     return (
         <div
-            className={`${styles["message-item"]} ${isMessageAuthor ? styles.author : styles.receiver}`}
+            className={`${styles.messageItem} ${isMessageAuthor ? styles.author : styles.receiver}`}
             onMouseEnter={() => { setIsHovered(true); }}
             onMouseLeave={() => { setIsHovered(false); }}
         >
             {showAvatar ? (
                 <div
-                    className={`${styles["avatar-container"]} ${
-                        isMessageAuthor ? styles["avatar-author"] : styles["avatar-other"]
+                    className={`${styles.avatarContainer} ${
+                        isMessageAuthor ? styles.avatarAuthor : styles.avatarOther
                     }`}
                 >
                     {author.user.avatar ? (
@@ -218,33 +225,33 @@ export default function MessageItem({
                             alt="User avatar"
                         />
                     ) : (
-                        <div className={styles["default-avatar"]} style={{ backgroundColor: avatarBg }}>
+                        <div className={styles.defaultAvatar} style={{ backgroundColor: avatarBg }}>
                             {avatarInitial}
                         </div>
                     )}
                 </div>
             ) : (
-                <div className={styles["avatar-placeholder"]} />
+                <div className={styles.avatarPlaceholder} />
             )}
 
-            <div className={styles["message-bubble"]}>
+            <div className={styles.messageBubble}>
                 {validAttachments.length > 0 && (
-                    <div className={styles["attachments-grid"]}>
+                    <div className={styles.attachmentsGrid}>
                         {validAttachments.map(({ url, filename, ext }, idx) => {
                             const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(ext);
                             const isVid = ["mp4", "webm", "ogg"].includes(ext);
                             const isAud = ["mp3", "wav", "ogg"].includes(ext);
                             return (
-                                <div key={idx} className={styles["attachment-container"]}>
+                                <div key={idx} className={styles.attachmentContainer}>
                                     {isImg ? (
-                                        <img src={url || "/placeholder.svg"} alt={filename} className={styles["image-attachment"]} />
+                                        <img src={url || "/placeholder.svg"} alt={filename} className={styles.imageAttachment} />
                                     ) : isVid ? (
-                                        <video controls src={url} className={styles["video-attachment"]} />
+                                        <video controls src={url} className={styles.videoAttachment} />
                                     ) : isAud ? (
-                                        <audio controls src={url} className={styles["audio-attachment"]} />
+                                        <audio controls src={url} className={styles.audioAttachment} />
                                     ) : (
-                                        <a href={url} download={filename} className={styles["file-attachment"]}>
-                                            <img src={FileIcon || "/placeholder.svg"} className={styles["file-icon"]} alt="File" />
+                                        <a href={url} download={filename} className={styles.fileAttachment}>
+                                            <img src={FileIcon || "/placeholder.svg"} className={styles.fileIcon} alt="File" />
                                             <span>{filename}</span>
                                         </a>
                                     )}
@@ -254,22 +261,22 @@ export default function MessageItem({
                     </div>
                 )}
                 {showAuthorName && !isMessageAuthor && (
-                    <div className={styles["author-name"]}>{author.user.display_name || author.user.username}</div>
+                    <div className={styles.authorName}>{author.user.display_name || author.user.username}</div>
                 )}
-                <div className={styles["text-content"]}>
+                <div className={styles.textContent}>
                     {content && (
                         <>
                             {isMessageAuthor ? (
                                 <>
-                                    <div className={styles["message-text"]}>{renderContent(htmlContent)}</div>
-                                    <div className={styles["message-footer"]}>
-                                        <img src={statusIcon || "/placeholder.svg"} className={styles["status-icon"]} alt="Status" />
+                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                                    <div className={styles.messageFooter}>
+                                        <img src={statusIcon || "/placeholder.svg"} className={styles.statusIcon} alt="Status" />
                                         <span className={styles.timestamp}>{formattedTime}</span>
                                     </div>
                                 </>
                             ) : (
-                                <div className={styles["receiver-message-row"]}>
-                                    <div className={styles["message-text"]}>{renderContent(htmlContent)}</div>
+                                <div className={styles.receiverMessageRow}>
+                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
                                     <span className={styles.timestamp}>{formattedTime}</span>
                                 </div>
                             )}
@@ -279,7 +286,7 @@ export default function MessageItem({
             </div>
 
             {isHovered && isShiftPressed && (
-                <div className={styles["action-popup"]}>
+                <div className={styles.actionPopup}>
                     {isMessageAuthor && (
                         <button onClick={onEdit} aria-label="Edit">
                             <img src={EditIcon || "/placeholder.svg"} alt="Edit" width={24} height={24} />

@@ -48,7 +48,7 @@ export async function fetchChannelsFromAPI(this: ChatStore): Promise<void> {
         const apiChannels: APIChannel[] = await apiMethods.userChannelsList();
         runInAction(() => {
             this.channels = observable.array(
-                apiChannels.map(createChannelFromAPI).filter(Boolean) as APIChannel[],
+                apiChannels.map(channel => observable.object(createChannelFromAPI(channel))).filter(Boolean) as APIChannel[],
             );
             this.isLoading = false;
             this.activeRequests.delete("channels");

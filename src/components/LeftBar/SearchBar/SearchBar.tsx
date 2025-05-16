@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "preact/hooks";
-import styles from "./SearchBar.module.css";
+import styles from "./SearchBar.module.scss";
 import searchIcon from "@icons/navigation/magnifying-glass.svg";
 import React from "react";
 import { chatStore } from "@store/chat/chatStore";
-import { apiMethods } from "@services/API/apiMethods";
 
 const platformMatchers: Record<string, RegExp> = {
     windows: /windows nt/i,
@@ -67,7 +66,9 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
         const input = inputRef.current;
         if (input) {
             input.addEventListener("keypress", handleKeyPress);
-            return () => { input.removeEventListener("keypress", handleKeyPress); };
+            return () => {
+                input.removeEventListener("keypress", handleKeyPress);
+            };
         }
     }, [query]);
 
@@ -115,18 +116,17 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
         }
     };
 
-
     return (
-        <div className={styles["search-container"]}>
-            <div className={`${styles["search-bar"]} ${isSearchActive ? styles["active"] : ""} ${isBorderInactive ? styles["inactive-border"] : ""}`}>
-                <img src={searchIcon} alt="Search" className={styles["search-icon"]} />
+        <div className={styles.searchContainer}>
+            <div className={`${styles.searchBar} ${isSearchActive ? styles.active : ""} ${isBorderInactive ? styles.inactiveBorder : ""}`}>
+                <img src={searchIcon} alt="Search" className={styles.searchIcon} />
                 <input
                     ref={inputRef}
                     type="text"
                     value={query}
                     onInput={handleChange}
                     placeholder={`Search or enter channel ID (${getShortcut(platform)})`}
-                    className={`${styles["search-input"]} ${isSearchActive ? styles["active-input"] : ""}`}
+                    className={`${styles.searchInput} ${isSearchActive ? styles.activeInput : ""}`}
                 />
             </div>
         </div>

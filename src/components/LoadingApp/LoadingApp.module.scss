@@ -1,4 +1,4 @@
-.loading-overlay {
+.loadingOverlay {
 	position: fixed;
 	inset: 0;
 	display: flex;
@@ -21,7 +21,7 @@
 	justify-content: center;
 }
 
-.loading-bar {
+.loadingBar {
 	width: 170px;
 	height: 5px;
 	background: #484848;
@@ -30,7 +30,7 @@
 	position: relative;
 }
 
-.loading-bar::after {
+.loadingBar::after {
 	content: "";
 	position: absolute;
 	top: 0;

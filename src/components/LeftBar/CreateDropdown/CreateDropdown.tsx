@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "preact/hooks";
-import styles from "./CreateDropdown.module.css";
+import styles from "./CreateDropdown.module.scss";
 
 interface CreateDropdownProps {
     onSelect: (type: "group" | "channel") => void;

@@ -293,8 +293,9 @@ export class ChatStore {
 
     @action
     addNewChannel(channel: APIChannel) {
-        if (!this.channels.some(c => c.id === channel.id)) {
-            this.channels.unshift(channel);
+        const observableChannel = observable.object(channel);
+        if (!this.channels.some(c => c.id === observableChannel.id)) {
+            this.channels.unshift(observableChannel);
         }
     }
 

@@ -1,4 +1,4 @@
-.search-bar {
+.searchBar {
     display: flex;
     justify-content: flex-start;
     background: rgb(0 0 0 / 0.25);
@@ -10,33 +10,33 @@
     transition: background-color 0.3s ease, border 0.3s ease;
 }
 
-.search-container {
+.searchContainer {
     display: flex;
     gap: 12px;
     width: 100%;
     align-items: center;
 }
 
-.search-bar.inactive-border {
+.inactiveBorder {
     border: 2px solid rgb(0 0 0 / 0.1);
     transition: border-color 1s ease-in-out;
 }
 
-.search-icon {
+.searchIcon {
     width: 20px;
     height: 20px;
     margin-right: 8px;
 }
 
-.search-input {
+.searchInput {
     width: 100%;
     height: 100%;
     background: none;
     border: none;
     outline: none;
     transition: border 0.3s ease;
-}
 
-.search-input::placeholder {
-    color: rgb(96 96 96 / 0.7);
+    &::placeholder {
+        color: rgb(96 96 96 / 0.7);
+    }
 }

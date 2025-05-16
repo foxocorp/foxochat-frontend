@@ -27,6 +27,7 @@ export interface ChatListProps {
 }
 
 export interface ChatHeaderProps {
+    chat: APIChannel;
     avatar?: string | null;
     displayName?: string | null;
     username: string;
@@ -108,6 +109,9 @@ export interface SidebarProps {
     chats: APIChannel[];
     onSelectChat: (chat: APIChannel) => void;
     currentUser: number;
+    isMobile?: boolean;
+    setMobileView?: (view: "list" | "chat") => void;
+    setChatTransition?: (transition: string) => void;
 }
 
 export interface Props {

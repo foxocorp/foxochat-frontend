@@ -1,4 +1,4 @@
-.message-list {
+.messageList {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -11,7 +11,7 @@
             var(--background-chat-color);
 }
 
-.sticky-date {
+.stickyDate {
     scroll-margin-top: 50px;
     display: flex;
     justify-content: center;
@@ -20,7 +20,7 @@
     font-size: 14px;
     position: sticky;
     top: 0;
-    background: #0A0A0A8C;
+    background: rgb(10 10 10 / 0.55);
     padding: 17px 15px;
     border-radius: 0.9375rem;
     text-align: center;
@@ -31,7 +31,7 @@
     backdrop-filter: blur(25px);
 }
 
-.sticky-date span {
+.stickyDate span {
     margin: 0;
     padding: 0;
     pointer-events: none;
@@ -39,6 +39,6 @@
     transition: opacity 0.3s;
 }
 
-.empty-state {
+.emptyState {
     color: var(--primary-color);
 }

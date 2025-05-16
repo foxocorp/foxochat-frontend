@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState, useLayoutEffect } from "preact/hooks";
+import { useEffect, useRef, useState, useLayoutEffect, useMemo } from "preact/hooks";
 import { observer } from "mobx-react";
 import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "./ChatHeader/ChatHeader";
-import styles from "./ChatWindow.module.css";
+import styles from "./ChatWindow.module.scss";
 import chatStore from "@store/chat/index";
 import { ChatWindowProps } from "@interfaces/interfaces";
 import { autorun } from "mobx";
 import { Logger } from "@utils/logger";
+import { APIChannel } from "@foxogram/api-types";
 
 const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => {
     const listRef = useRef<HTMLDivElement>(null);
@@ -17,6 +18,16 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
 
     const isProgrammaticHashChange = useRef(false);
     const lastValidChannelId = useRef<number | null>(null);
+
+    const sortedChannels = useMemo(() => {
+        return [...chatStore.channels]
+            .filter((chat): chat is APIChannel => !!chat)
+            .sort((a, b) => {
+                const aTime = a.last_message?.created_at ?? a.created_at;
+                const bTime = b.last_message?.created_at ?? b.created_at;
+                return (bTime || 0) - (aTime || 0);
+            });
+    }, [chatStore.channels]);
 
     useEffect(() => {
         if (channel.id) {
@@ -41,6 +52,18 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
     }, [channel.id]);
 
     useEffect(() => {
+        const restoreLastValidChannel = () => {
+            isProgrammaticHashChange.current = true;
+            if (lastValidChannelId.current !== null) {
+                window.location.hash = `#${lastValidChannelId.current}`;
+            } else {
+                window.location.hash = "";
+            }
+            setTimeout(() => {
+                isProgrammaticHashChange.current = false;
+            }, 100);
+        };
+
         const handleHashChange = () => {
             if (isProgrammaticHashChange.current) return;
 
@@ -73,18 +96,6 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
                 .catch(() => {
                     restoreLastValidChannel();
                 });
-        };
-
-        const restoreLastValidChannel = () => {
-            isProgrammaticHashChange.current = true;
-            if (lastValidChannelId.current !== null) {
-                window.location.hash = `#${lastValidChannelId.current}`;
-            } else {
-                window.location.hash = "";
-            }
-            setTimeout(() => {
-                isProgrammaticHashChange.current = false;
-            }, 100);
         };
 
         window.addEventListener("hashchange", handleHashChange);
@@ -174,8 +185,9 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
     };
 
     return (
-        <div className={styles["chat-window"]}>
+        <div className={styles.chatWindow}>
             <ChatHeader
+                chat={channel}
                 avatar={channel.icon}
                 username={channel.name}
                 displayName={channel.display_name}
@@ -194,9 +206,10 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
             />
             {showScrollButton && (
                 <button
-                    className={`${styles["scroll-button"]} ${showScrollButton ? styles.visible : ""}`}
+                    className={`${styles.scrollButton} ${showScrollButton ? styles.visible : ""}`}
                     onClick={handleScrollToBottom}
                     title="Scroll to bottom"
+                    type="button"
                 >
                     ↓
                 </button>

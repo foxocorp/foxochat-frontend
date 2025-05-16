@@ -27,6 +27,7 @@
 		"preact": "^10.26.6",
 		"preact-iso": "^2.9.1",
 		"prismjs": "^1.30.0",
+		"sanitize-html": "^2.17.0",
 		"thumbhash": "^0.1.1"
 	},
 	"devDependencies": {
@@ -38,6 +39,7 @@
 		"@tauri-apps/cli": "^2.5.0",
 		"@tsconfig/strictest": "^2.0.5",
 		"@types/markdown-it": "^14.1.2",
+		"@types/sanitize-html": "^2.16.0",
 		"@types/ws": "^8.18.1",
 		"autoprefixer": "^10.4.21",
 		"eslint": "^9.26.0",

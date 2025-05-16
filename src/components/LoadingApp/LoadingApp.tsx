@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
-import styles from "./LoadingApp.module.css";
-import foxogramLogo from "../../assets/foxogram.svg";
+import styles from "./LoadingApp.module.scss";
+import foxogramLogo from "../../../public/foxogram.svg";
 
 const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void, isLoading: boolean }) => {
 	useEffect(() => {
@@ -14,10 +14,10 @@ const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void, isLoading: boo
 	}
 
 	return (
-		<div className={styles["loading-overlay"]}>
-			<img src={foxogramLogo} alt="Logo" className={styles["logo"]} />
-			<div className={styles["loading"]}>
-				<div className={styles["loading-bar"]} />
+		<div className={styles.loadingOverlay}>
+			<img src={foxogramLogo} alt="Logo" className={styles.logo} />
+			<div className={styles.loading}>
+				<div className={styles.loadingBar} />
 			</div>
 		</div>
 	);

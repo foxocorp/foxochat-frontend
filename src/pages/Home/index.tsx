@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import { observer } from "mobx-react";
 
-import "./style.css";
+import "./style.scss";
 
 import Loading from "@components/LoadingApp/LoadingApp";
 import Sidebar from "@components/LeftBar/Sidebar";
@@ -109,7 +109,15 @@ const HomeComponent = () => {
 	}, [token, location]);
 
 	if (isLoading || !initialLoadDone) {
-		return <Loading isLoading />;
+		return (
+			<Loading
+				isLoading={isLoading || !initialLoadDone}
+				onLoaded={() => {
+					const loader = document.getElementById("loading-static");
+					if (loader) loader.remove();
+				}}
+			/>
+		);
 	}
 
 	if (isMobile) {

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
-import styles from "./MessageList.module.css";
+import styles from "./MessageList.module.scss";
 import MessageLoader from "@components/RightBar/MessageList/MessageLoader/MessageLoader";
 import type { MessageListProps } from "@interfaces/interfaces";
 import dayjs from "dayjs";
@@ -20,7 +20,7 @@ const MessageListComponent = ({
                               }: MessageListProps & { isLoading: boolean }) => {
     if (isLoading || isInitialLoading) {
         return (
-            <div ref={messageListRef} onScroll={onScroll} className={styles["message-list"]}>
+            <div ref={messageListRef} onScroll={onScroll} className={styles.messageList}>
                 <MessageLoader />
             </div>
         );
@@ -39,7 +39,7 @@ const MessageListComponent = ({
     }
 
     return (
-        <div ref={messageListRef} onScroll={onScroll} className={styles["message-list"]}>
+        <div ref={messageListRef} onScroll={onScroll} className={styles.messageList}>
             {dayGroups.map(({ date, msgs }) => {
                 const groups: { msgs: typeof msgs }[] = [];
                 let grp = msgs.slice(0, 1);
@@ -60,10 +60,8 @@ const MessageListComponent = ({
 
                 return (
                     <div key={date}>
-                        <div className={styles["sticky-date"]}>
-                            {dayjs(date).isToday()
-                                ? "Today"
-                                : dayjs(date).format("D MMMM YYYY")}
+                        <div className={styles.stickyDate}>
+                            {dayjs(date).isToday() ? "Today" : dayjs(date).format("D MMMM YYYY")}
                         </div>
                         {groups.map((g, idx) => (
                             <MessageGroup
