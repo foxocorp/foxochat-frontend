@@ -5,7 +5,8 @@ export const initWebSocket = (
     token: string | null,
     onUnauthorized?: () => void,
 ): WebSocketClient => {
-    const gatewayUrl = import.meta.env.PROD
+    const isProd = window.location.hostname === "foxogram.su";
+    const gatewayUrl = isProd
         ? "wss://gateway.foxogram.su"
         : "wss://gateway.dev.foxogram.su";
 
