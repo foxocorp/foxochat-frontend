@@ -11,7 +11,7 @@ import {
 } from "@foxogram/api-types";
 import { generateThumbHashFromFile } from "@utils/functions";
 
-const isProd = window.location.hostname === "foxogram.su";
+const isProd = window.location.hostname === "app.foxogram.su";
 const apiUrl = isProd
     ? "https://api.foxogram.su"
     : "https://api.dev.foxogram.su";
