@@ -3,7 +3,7 @@ import * as wsService from "./websocketService";
 import { action, observable, configure, IObservableArray, runInAction } from "mobx";
 import { apiMethods } from "@services/API/apiMethods";
 import { APIChannel, APIMessage, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
-import type { WebSocketClient } from "../../gateway/webSocketClient";
+import type { WebSocketClient } from "@/gateway/webSocketClient";
 import { Logger } from "@utils/logger";
 import { transformToMessage } from "@store/chat/transforms";
 
@@ -284,7 +284,7 @@ export class ChatStore {
         try {
             await this.fetchCurrentUser();
             await this.fetchChannelsFromAPI();
-            this.initializeWebSocket();
+            await this.initializeWebSocket();
         } catch (error) {
             console.error(error);
             this.connectionError = "Initialization error";
