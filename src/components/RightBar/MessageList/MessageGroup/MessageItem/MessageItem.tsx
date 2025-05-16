@@ -32,31 +32,19 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
 
     const codeText = useMemo(() => {
         if (typeof children === "string") return children;
-        return (children.props.dangerouslySetInnerHTML?.__html ?? children.props.children) ?? "";
+        if (children.props.dangerouslySetInnerHTML?.__html) {
+            const div = document.createElement("div");
+            div.innerHTML = children.props.dangerouslySetInnerHTML.__html;
+            return div.textContent ?? "";
+        }
+        return children.props.children ?? "";
     }, [children]);
 
     const handleCopy = async () => {
-        if (isCopied) {
-            return;
-        }
-
-        let text = "";
-        if (typeof children === "string") {
-            text = children;
-        } else if (children.props.dangerouslySetInnerHTML?.__html) {
-            text = children.props.dangerouslySetInnerHTML.__html
-                .replace(/<[^>]+>/g, "")
-                .replace(/</g, "<")
-                .replace(/>/g, ">")
-                .replace(/"/g, "\"")
-                .replace(/'/g, "'")
-                .replace(/&/g, "&");
-        } else if (children.props.children) {
-            text = children.props.children;
-        }
+        if (isCopied || !codeText) return;
 
         try {
-            await navigator.clipboard.writeText(text);
+            await navigator.clipboard.writeText(codeText);
             setIsCopied(true);
         } catch (error) {
             Logger.error("Copy failed:", error);
@@ -76,15 +64,13 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
                 </button>
             </div>
             <pre className={className}>
-        <code dangerouslySetInnerHTML={{ __html: codeText }} />
-      </pre>
+                <code dangerouslySetInnerHTML={{ __html: codeText }} />
+            </pre>
             <CopyBubble
                 show={isCopied}
                 text="Code copied to clipboard!"
                 duration={duration}
-                onHide={() => {
-                    setIsCopied(false);
-                }}
+                onHide={() => { setIsCopied(false); }}
             />
         </div>
     );
