@@ -69,9 +69,10 @@ export interface MessageItemProps {
 }
 
 export interface Attachment {
-    id: string;
-    content_type: string;
+    id: number;
+    uuid: string;
     filename: string;
+    content_type: string;
     flags: number;
 }
 
