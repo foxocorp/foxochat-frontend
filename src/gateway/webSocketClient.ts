@@ -9,10 +9,11 @@ interface EventMap {
     "MESSAGE_DELETE": { id: number };
 }
 
+
 export class WebSocketClient {
     public readonly client: Client;
     private readonly gatewayUrl: string;
-    private readonly listeners = new Map<keyof EventMap,((data: EventMap[keyof EventMap]) => void)[]>();
+    private readonly listeners: { [K in keyof EventMap]?: ((data: EventMap[K]) => void)[]; } = {};
 
     constructor(
         private readonly getToken: () => string | null,
@@ -65,6 +66,14 @@ export class WebSocketClient {
             Logger.error("WebSocket error:", error);
             this.emit("error", error);
         });
+
+        this.client.on("MESSAGE_CREATE", (data: EventMap["MESSAGE_CREATE"]) => {
+            this.emit("MESSAGE_CREATE", data);
+        });
+
+        this.client.on("MESSAGE_DELETE", (data: EventMap["MESSAGE_DELETE"]) => {
+            this.emit("MESSAGE_DELETE", data);
+        });
     }
 
     public async connect(): Promise<void> {
@@ -96,12 +105,29 @@ export class WebSocketClient {
         }
     }
 
-    private emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
-        const eventListeners = this.listeners.get(event);
-        if (eventListeners) {
-            for (const listener of eventListeners) {
-                listener(data);
-            }
+
+    private ensureListener<K extends keyof EventMap>(event: K): ((data: EventMap[K]) => void)[] {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        return this.listeners[event];
+    }
+
+    public on<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        this.ensureListener(event).push(listener);
+    }
+
+    public off<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        const list = this.listeners[event];
+        if (list) {
+            this.listeners[event] = list.filter((l) => l !== listener);
         }
     }
+
+    private emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
+        for (const listener of this.ensureListener(event)) {
+            listener(data);
+        }
+    }
+
 }
