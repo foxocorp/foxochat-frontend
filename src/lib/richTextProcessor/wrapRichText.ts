@@ -1,76 +1,53 @@
 import MarkdownIt from "markdown-it";
+import sanitizeHtml from "sanitize-html";
 import { highlightCode, getLanguageByAlias, detectLanguage } from "@/codeLanguages";
 import { Logger } from "@utils/logger";
 
 interface WrapRichTextOptions {
-    noLinks?: boolean
-    noLineBreaks?: boolean
-    highlight?: boolean
+    noLineBreaks?: boolean;
+    highlight?: boolean;
 }
 
-const languageDetectionCache = new Map<string, string>();
+const md = new MarkdownIt({
+    html: false,
+    xhtmlOut: false,
+    breaks: true,
+    linkify: true,
+    typographer: true,
+    highlight: (str: string, lang: string) => {
+        const cleanedStr = str.replace(/```\s*$/, "").trim();
+        const language = lang.toLowerCase() || detectLanguage(cleanedStr);
+        const resolvedLang = getLanguageByAlias(language) ?? language;
+        return highlightCode(cleanedStr, resolvedLang);
+    },
+});
 
 export const wrapRichText = (text: string, options: WrapRichTextOptions = {}): string => {
-    const { noLinks = false, noLineBreaks = false, highlight = true } = options;
+    const { noLineBreaks = false } = options;
 
-    let processedText = text;
-    const codeBlockRegex = /```([a-zA-Z]*)\n([\s\S]*?)```/g;
+    let processedText: string;
 
-    processedText = processedText.replace(codeBlockRegex, (_match, lang, code) => {
-        return `\`\`\`${lang}\n${code.trim()}\n\`\`\``;
-    });
+    try {
+        processedText = md.render(text);
+        processedText = processedText.replace(/```/g, "");
+    } catch (error) {
+        Logger.error("Markdown rendering failed:", error);
+        processedText = text;
+    }
 
-    const md = new MarkdownIt({
-        html: false,
-        linkify: !noLinks,
-        breaks: !noLineBreaks,
-        highlight: (str: string, lang: string) => {
-            if (!highlight) {
-                return `<pre class="language-text"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-            }
-
-            if (lang) {
-                const language = getLanguageByAlias(lang.toLowerCase()) ?? lang.toLowerCase();
-                return highlightCode(str, language);
-            }
-
-            const codeHash = hashCode(str);
-            if (languageDetectionCache.has(codeHash)) {
-                const cachedLang = languageDetectionCache.get(codeHash)!;
-                return highlightCode(str, cachedLang);
-            }
-
-            setTimeout(async () => {
-                try {
-                    const detectedLang = await detectLanguage(str);
-                    languageDetectionCache.set(codeHash, detectedLang);
-                } catch (error) {
-                    Logger.error("Failed to detect a language:", error);
-                }
-            }, 0);
-
-            return `<pre class="language-text"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    processedText = sanitizeHtml(processedText, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(["pre", "code", "span"]),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            pre: ["class"],
+            code: ["class"],
+            span: ["class"],
         },
     });
 
-    try {
-        let result = md.render(processedText);
-        if (result.startsWith("<p>") && result.endsWith("</p>\n") && result.split("</p>").length === 2) {
-            result = result.slice(3, -5);
-        }
-        return result;
-    } catch (error) {
-        // console.error("Failed to render Markdown:", error);
-        return md.utils.escapeHtml(processedText);
+    if (noLineBreaks) {
+        processedText = processedText.replace(/<br\s*\/?>/gi, " ");
     }
-};
 
-function hashCode(str: string): string {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash;
-    }
-    return hash.toString(16);
-}
+    return processedText;
+};
