@@ -1,0 +1,368 @@
+.mediaViewerWhole {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    opacity: 1;
+  }
+
+  &.isZooming {
+    .zoomContainer {
+      display: flex;
+    }
+
+    .mediaViewerCaption {
+      display: none;
+    }
+  }
+}
+
+.mediaViewerBackdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(5px);
+  transition: opacity 0.3s ease;
+  opacity: 0;
+
+  .mediaViewerWhole.active & {
+    opacity: 1;
+  }
+}
+
+.mediaViewerContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mediaViewerTopbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 15px;
+  background-color: rgb(0 0 0 / 0.3);
+  backdrop-filter: blur(5px);
+  border-bottom: .5px solid rgb(96 96 96 / .5);
+  color: var(--primary-color);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.mediaViewerAppear {
+    opacity: 1;
+  }
+}
+
+.mediaViewerTopbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mediaViewerAuthor {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  margin-right: 10px;
+}
+
+.avatarPhoto {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.mediaViewerName {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.mediaViewerDate {
+  font-size: 12px;
+  color: var(--gray-color);
+}
+
+.mediaViewerButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.btnIcon {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.onlyHandhelds {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.mediaViewerMovers {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mediaViewerMover {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.mediaViewerAspecter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail,
+.video {
+  max-width: 80vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+
+  @media (min-width: 769px) {
+    max-width: 1200px;
+    max-height: 800px;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+}
+
+.mediaViewerSwitcher {
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &:hover,
+  &:active {
+    opacity: 1;
+  }
+}
+
+.mediaViewerSwitcherLeft {
+  left: 0;
+}
+
+.mediaViewerSwitcherRight {
+  right: 0;
+}
+
+.mediaViewerSwitcher.hide {
+  display: none;
+}
+
+.mediaViewerPrevButton,
+.mediaViewerNextButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  background-color: rgb(0 0 0 / 0.5);
+  border-radius: 50%;
+  padding: 10px;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.zoomContainer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background-color: rgb(0 0 0 / 0.5);
+  padding: 5px 10px;
+  border-radius: 20px;
+  z-index: 10;
+
+  &.isVisible {
+    display: flex;
+  }
+}
+
+.progressLine {
+  width: 100px;
+  height: 4px;
+  background-color: rgb(255 255 255 / 0.3);
+  border-radius: 2px;
+  position: relative;
+}
+
+.progressLineFilled {
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+  position: relative;
+}
+
+.progressLineFilled::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgb(0 0 0 / 0.5);
+}
+
+.progressLineSeek {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.progressLineSeek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+.progressLineSeek::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+.mediaViewerCaption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgb(0 0 0 / 0.5);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  z-index: 9;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  .mediaViewerWhole.active & {
+    opacity: 1;
+  }
+
+  &.hide {
+    display: none;
+  }
+}
+
+.scrollableY {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.mediaViewerWhole {
+  overflow: hidden;
+}
+
+.mediaViewerMover {
+  transition: transform 0.1s ease;
+  will-change: transform;
+}
+
+.mediaViewerMover.resetting {
+  transition: transform 0.3s ease;
+}
+
+.mediaViewerMover.isZooming {
+  cursor: grab;
+}
+
+.mediaViewerMover.isZooming:active {
+  cursor: grabbing;
+}
