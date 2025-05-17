@@ -1,7 +1,9 @@
+import { JSX } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import parse from "html-react-parser";
 import styles from "./MessageItem.module.scss";
 import type { Attachment, MessageItemProps, PreComponentProps } from "@interfaces/interfaces";
+
 import { wrapRichText } from "@lib/richTextProcessor/wrapRichText";
 import { getDisplayName } from "@/codeLanguages";
 import { fetchFileAndGenerateThumbHash, timestampToHSV } from "@utils/functions";
@@ -16,16 +18,17 @@ import ForwardIcon from "@icons/chat/forward.svg";
 import TrashIcon from "@icons/chat/trash.svg";
 import FileIcon from "@icons/chat/file.svg";
 import CopyIcon from "@icons/navigation/copy.svg";
-import { JSX } from "preact";
+
 import { Logger } from "@utils/logger";
 import { CopyBubble } from "@components/Chat/Bubbles";
+import { MediaViewer } from "@components/MediaViewer/MediaViewer";
 
 const PreComponent = ({ className, language, codeHtml, codeText }: PreComponentProps) => {
     const displayLanguage = getDisplayName(language ?? "text");
-    const [isCopied, setIsCopied] = useState(false);
+    const [isCopied, setIsCopied] = useState<boolean>(false);
     const duration = 1500;
 
-    const handleCopy = async () => {
+    const handleCopy = async (): Promise<void> => {
         if (isCopied || !codeText) return;
 
         try {
@@ -39,31 +42,33 @@ const PreComponent = ({ className, language, codeHtml, codeText }: PreComponentP
     useEffect(() => {
         let timer: number;
         if (isCopied) {
-            timer = setTimeout(() => { setIsCopied(false); }, duration);
+            timer = setTimeout(() => {
+                setIsCopied(false);
+            }, duration);
         }
-        return () => { clearTimeout(timer); };
+        return () => {
+            clearTimeout(timer);
+        };
     }, [isCopied, duration]);
 
     return (
         <div className={styles.codeBlockWrapper}>
             <div className={styles.codeHeader}>
                 <span className={styles.languageName}>{displayLanguage}</span>
-                <button
-                    className={styles.copyButton}
-                    onClick={handleCopy}
-                    aria-label="Copy code"
-                >
+                <button className={styles.copyButton} onClick={handleCopy} aria-label="Copy code">
                     <img src={CopyIcon} alt="Copy" className={styles.copyIcon} />
                 </button>
             </div>
             <pre className={className}>
-                <code>{parse(codeHtml)}</code>
-            </pre>
+        <code>{parse(codeHtml)}</code>
+      </pre>
             <CopyBubble
                 show={isCopied}
                 text="Code copied to clipboard!"
                 duration={duration}
-                onHide={() => { setIsCopied(false); }}
+                onHide={() => {
+                    setIsCopied(false);
+                }}
             />
         </div>
     );
@@ -83,17 +88,19 @@ export default function MessageItem({
                                         onReply,
                                         onForward,
                                     }: MessageItemProps) {
-    const [isHovered, setIsHovered] = useState(false);
-    const [isShiftPressed, setIsShiftPressed] = useState(false);
-    const [htmlContent, setHtmlContent] = useState("");
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [isShiftPressed, setIsShiftPressed] = useState<boolean>(false);
+    const [htmlContent, setHtmlContent] = useState<string>("");
     const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
     const [thumbHashes, setThumbHashes] = useState<Record<string, string | null>>({});
+    const [isMediaViewerOpen, setIsMediaViewerOpen] = useState<boolean>(false);
+    const [mediaViewerIndex, setMediaViewerIndex] = useState<number>(0);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
+        const handleKeyDown = (e: KeyboardEvent): void => {
             if (e.key === "Shift") setIsShiftPressed(true);
         };
-        const handleKeyUp = (e: KeyboardEvent) => {
+        const handleKeyUp = (e: KeyboardEvent): void => {
             if (e.key === "Shift") setIsShiftPressed(false);
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -105,7 +112,7 @@ export default function MessageItem({
     }, []);
 
     useEffect(() => {
-        const processContent = () => {
+        const processContent = (): void => {
             if (!content) {
                 setHtmlContent("");
                 return;
@@ -124,11 +131,14 @@ export default function MessageItem({
     }, [content]);
 
     useEffect(() => {
-        const loadThumbHashes = async () => {
+        const loadThumbHashes = async (): Promise<void> => {
             const newThumbHashes: Record<string, string | null> = {};
             for (const att of attachments) {
-                if (att.uuid && !thumbHashes[att.uuid] && ["png", "jpg", "jpeg", "gif", "webp"]
-                        .includes(att.content_type.split("/")[1] ?? "")) {
+                if (
+                    att.uuid &&
+                    !thumbHashes[att.uuid] &&
+                    ["png", "jpg", "jpeg", "gif", "webp"].includes(att.content_type.split("/")[1] ?? "")
+                ) {
                     const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
                     newThumbHashes[att.uuid] = await fetchFileAndGenerateThumbHash(url, att.content_type);
                 }
@@ -168,26 +178,30 @@ export default function MessageItem({
         const rawAttachments = Array.isArray(attachments) ? attachments.slice() : [];
 
         return rawAttachments
-            .map((att: Attachment): Attachment & { url: string; thumbUrl?: string } | null => {
-                const rawAtt = { ...att };
+            .map(
+                (att: Attachment): (Attachment & { url: string; thumbUrl?: string }) | null => {
+                    const rawAtt = { ...att };
 
-                if (!rawAtt.uuid || !rawAtt.content_type) {
-                    Logger.warn("Invalid attachment (missing uuid or content_type):", rawAtt);
-                    return null;
-                }
+                    if (!rawAtt.uuid || !rawAtt.content_type) {
+                        Logger.warn("Invalid attachment (missing uuid or content_type):", rawAtt);
+                        return null;
+                    }
 
-                const extParts = rawAtt.content_type.split("/");
-                const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
-                const url = `https://cdn.foxogram.su/attachments/${rawAtt.uuid}`;
-                const filename = rawAtt.filename ?? `${rawAtt.uuid}.${ext}`;
-                const thumbUrl = thumbHashes[rawAtt.uuid] ? thumbHashToDataURL(atob(thumbHashes[rawAtt.uuid] || "")) : undefined;
+                    const extParts = rawAtt.content_type.split("/");
+                    const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
+                    const url = `https://cdn.foxogram.su/attachments/${rawAtt.uuid}`;
+                    const filename = rawAtt.filename ?? `${rawAtt.uuid}.${ext}`;
+                    const thumbUrl = thumbHashes[rawAtt.uuid]
+                        ? thumbHashToDataURL(atob(thumbHashes[rawAtt.uuid] || ""))
+                        : undefined;
 
-                return { ...rawAtt, url, filename, thumbUrl };
-            })
+                    return { ...rawAtt, url, filename, thumbUrl };
+                },
+            )
             .filter((att): att is Attachment & { url: string; thumbUrl?: string } => att !== null);
     }, [attachments, thumbHashes]);
 
-    const renderContent = (html: string) => {
+    const renderContent = (html: string): JSX.Element[] => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
         const elements: JSX.Element[] = [];
@@ -229,125 +243,166 @@ export default function MessageItem({
         return elements;
     };
 
-    const handleImageLoad = (uuid: string) => {
+    const handleImageLoad = (uuid: string): void => {
         setLoadedImages((prev) => ({ ...prev, [uuid]: true }));
     };
 
+    const handleMediaClick = (index: number): void => {
+        setMediaViewerIndex(index);
+        setIsMediaViewerOpen(true);
+    };
+
+    const handleDeleteAttachment = (attachment: Attachment): void => {
+        Logger.info("Delete attachment:", attachment.uuid);
+        if (onDelete) {
+            onDelete();
+        }
+    };
+
     return (
-        <div
-            className={`${styles.messageItem} ${isMessageAuthor ? styles.author : styles.receiver}`}
-            onMouseEnter={() => { setIsHovered(true); }}
-            onMouseLeave={() => { setIsHovered(false); }}
-        >
-            {showAvatar ? (
-                <div
-                    className={`${styles.avatarContainer} ${
-                        isMessageAuthor ? styles.avatarAuthor : styles.avatarOther
-                    }`}
-                >
-                    {author.user.avatar ? (
-                        <img
-                            src={author.user.avatar}
-                            className={styles.avatar}
-                            alt="User avatar"
-                        />
-                    ) : (
-                        <div className={styles.defaultAvatar} style={{ backgroundColor: avatarBg }}>
-                            {avatarInitial}
+        <>
+            <div
+                className={`${styles.messageItem} ${isMessageAuthor ? styles.author : styles.receiver}`}
+                onMouseEnter={() => {
+                    setIsHovered(true);
+                }}
+                onMouseLeave={() => {
+                    setIsHovered(false);
+                }}
+            >
+                {showAvatar ? (
+                    <div
+                        className={`${styles.avatarContainer} ${
+                            isMessageAuthor ? styles.avatarAuthor : styles.avatarOther
+                        }`}
+                    >
+                        {author.user.avatar ? (
+                            <img src={author.user.avatar} className={styles.avatar} alt="User avatar" />
+                        ) : (
+                            <div className={styles.defaultAvatar} style={{ backgroundColor: avatarBg }}>
+                                {avatarInitial}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className={styles.avatarPlaceholder} />
+                )}
+
+                <div className={styles.messageBubble}>
+                    {validAttachments.length > 0 && (
+                        <div className={styles.attachmentsGrid}>
+                            {validAttachments.map((att, idx) => {
+                                const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(
+                                    att.content_type.split("/")[1] ?? "",
+                                );
+                                const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+                                const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+                                const isLoaded = loadedImages[att.uuid] ?? !isImg;
+
+                                return (
+                                    <div key={idx} className={styles.attachmentContainer}>
+                                        {isImg ? (
+                                            <img
+                                                src={isLoaded ? att.url : att.thumbUrl ?? att.url}
+                                                alt={att.filename}
+                                                className={`${styles.imageAttachment} ${isLoaded ? styles.loaded : styles.blurred}`}
+                                                onLoad={() => {
+                                                    handleImageLoad(att.uuid);
+                                                }}
+                                                onError={() => {
+                                                    handleImageLoad(att.uuid);
+                                                }}
+                                                onClick={() => { handleMediaClick(idx); }}
+                                                style={{ cursor: "pointer" }}
+                                            />
+                                        ) : isVid ? (
+                                            <video
+                                                controls
+                                                src={att.url}
+                                                className={styles.videoAttachment}
+                                                onClick={() => { handleMediaClick(idx); }}
+                                                style={{ cursor: "pointer" }}
+                                            />
+                                        ) : isAud ? (
+                                            <audio controls src={att.url} className={styles.audioAttachment} />
+                                        ) : (
+                                            <a href={att.url} download={att.filename} className={styles.fileAttachment}>
+                                                <img src={FileIcon} className={styles.fileIcon} alt="File" />
+                                                <span>{att.filename}</span>
+                                            </a>
+                                        )}
+                                        {!content && idx === validAttachments.length - 1 && (
+                                            <div className={styles.attachmentFooter}>
+                                                {isMessageAuthor && (
+                                                    <img src={statusIcon} className={styles.statusIcon} alt="Status" />
+                                                )}
+                                                <span
+                                                    className={`${styles.attachmentTimestamp} ${isMessageAuthor ? styles.author : ""}`}
+                                                >
+                          {formattedTime}
+                        </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                    {showAuthorName && !isMessageAuthor && (
+                        <div className={styles.authorName}>{author.user.display_name || author.user.username}</div>
+                    )}
+                    {content && (
+                        <div className={styles.textContent}>
+                            {isMessageAuthor ? (
+                                <>
+                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                                    <div className={styles.messageFooter}>
+                                        <img src={statusIcon} className={styles.statusIcon} alt="Status" />
+                                        <span className={styles.timestamp}>{formattedTime}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className={styles.receiverMessageRow}>
+                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                                    <span className={styles.timestamp}>{formattedTime}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
-            ) : (
-                <div className={styles.avatarPlaceholder} />
-            )}
 
-            <div className={styles.messageBubble}>
-                {validAttachments.length > 0 && (
-                    <div className={styles.attachmentsGrid}>
-                        {validAttachments.map((att, idx) => {
-                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(att.content_type.split("/")[1] ?? "");
-                            const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
-                            const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
-                            const isLoaded = loadedImages[att.uuid] ?? !isImg;
-
-                            return (
-                                <div key={idx} className={styles.attachmentContainer}>
-                                    {isImg ? (
-                                        <img
-                                            src={isLoaded ? att.url : att.thumbUrl ?? att.url}
-                                            alt={att.filename}
-                                            className={`${styles.imageAttachment} ${isLoaded ? styles.loaded : styles.blurred}`}
-                                            onLoad={() => { handleImageLoad(att.uuid); }}
-                                            onError={() => { handleImageLoad(att.uuid); }}
-                                        />
-                                    ) : isVid ? (
-                                        <video controls src={att.url} className={styles.videoAttachment} />
-                                    ) : isAud ? (
-                                        <audio controls src={att.url} className={styles.audioAttachment} />
-                                    ) : (
-                                        <a href={att.url} download={att.filename} className={styles.fileAttachment}>
-                                            <img src={FileIcon} className={styles.fileIcon} alt="File" />
-                                            <span>{att.filename}</span>
-                                        </a>
-                                    )}
-                                    {!content && idx === validAttachments.length - 1 && (
-                                        <div className={styles.attachmentFooter}>
-                                            {isMessageAuthor && (
-                                                <img src={statusIcon} className={styles.statusIcon} alt="Status" />
-                                            )}
-                                            <span className={`${styles.attachmentTimestamp} ${isMessageAuthor ? styles.author : ""}`}>
-                                                {formattedTime}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-                {showAuthorName && !isMessageAuthor && (
-                    <div className={styles.authorName}>{author.user.display_name || author.user.username}</div>
-                )}
-                {content && (
-                    <div className={styles.textContent}>
-                        {isMessageAuthor ? (
-                            <>
-                                <div className={styles.messageText}>{renderContent(htmlContent)}</div>
-                                <div className={styles.messageFooter}>
-                                    <img src={statusIcon} className={styles.statusIcon} alt="Status" />
-                                    <span className={styles.timestamp}>{formattedTime}</span>
-                                </div>
-                            </>
-                        ) : (
-                            <div className={styles.receiverMessageRow}>
-                                <div className={styles.messageText}>{renderContent(htmlContent)}</div>
-                                <span className={styles.timestamp}>{formattedTime}</span>
-                            </div>
+                {isHovered && isShiftPressed && (
+                    <div className={styles.actionPopup}>
+                        {isMessageAuthor && (
+                            <button onClick={onEdit} aria-label="Edit">
+                                <img src={EditIcon} alt="Edit" width={24} height={24} />
+                            </button>
+                        )}
+                        <button onClick={onReply} aria-label="Reply">
+                            <img src={ReplyIcon} alt="Reply" width={24} height={24} />
+                        </button>
+                        <button onClick={onForward} aria-label="Forward">
+                            <img src={ForwardIcon} alt="Forward" width={24} height={24} />
+                        </button>
+                        {isMessageAuthor && (
+                            <button onClick={onDelete} aria-label="Delete">
+                                <img src={TrashIcon} alt="Delete" width={24} height={24} />
+                            </button>
                         )}
                     </div>
                 )}
             </div>
 
-            {isHovered && isShiftPressed && (
-                <div className={styles.actionPopup}>
-                    {isMessageAuthor && (
-                        <button onClick={onEdit} aria-label="Edit">
-                            <img src={EditIcon} alt="Edit" width={24} height={24} />
-                        </button>
-                    )}
-                    <button onClick={onReply} aria-label="Reply">
-                        <img src={ReplyIcon} alt="Reply" width={24} height={24} />
-                    </button>
-                    <button onClick={onForward} aria-label="Forward">
-                        <img src={ForwardIcon} alt="Forward" width={24} height={24} />
-                    </button>
-                    {isMessageAuthor && (
-                        <button onClick={onDelete} aria-label="Delete">
-                            <img src={TrashIcon} alt="Delete" width={24} height={24} />
-                        </button>
-                    )}
-                </div>
-            )}
-        </div>
+            <MediaViewer
+                isOpen={isMediaViewerOpen}
+                attachments={validAttachments}
+                initialIndex={mediaViewerIndex}
+                authorName={author.user.display_name || author.user.username}
+                authorAvatar={author.user.avatar}
+                createdAt={created_at}
+                onClose={() => { setIsMediaViewerOpen(false); }}
+                onDelete={handleDeleteAttachment}
+            />
+        </>
     );
 }
