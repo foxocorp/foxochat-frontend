@@ -4,7 +4,8 @@ import styles from "./MessageItem.module.scss";
 import type { Attachment, MessageItemProps, PreComponentProps } from "@interfaces/interfaces";
 import { wrapRichText } from "@lib/richTextProcessor/wrapRichText";
 import { getDisplayName } from "@/codeLanguages";
-import { timestampToHSV } from "@utils/functions";
+import { fetchFileAndGenerateThumbHash, timestampToHSV } from "@utils/functions";
+import { thumbHashToDataURL } from "thumbhash";
 
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
@@ -85,6 +86,8 @@ export default function MessageItem({
     const [isHovered, setIsHovered] = useState(false);
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [htmlContent, setHtmlContent] = useState("");
+    const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+    const [thumbHashes, setThumbHashes] = useState<Record<string, string | null>>({});
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -120,6 +123,21 @@ export default function MessageItem({
         processContent();
     }, [content]);
 
+    useEffect(() => {
+        const loadThumbHashes = async () => {
+            const newThumbHashes: Record<string, string | null> = {};
+            for (const att of attachments) {
+                if (att.uuid && !thumbHashes[att.uuid] && ["png", "jpg", "jpeg", "gif", "webp"]
+                        .includes(att.content_type.split("/")[1] ?? "")) {
+                    const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
+                    newThumbHashes[att.uuid] = await fetchFileAndGenerateThumbHash(url, att.content_type);
+                }
+            }
+            setThumbHashes((prev) => ({ ...prev, ...newThumbHashes }));
+        };
+        void loadThumbHashes();
+    }, [attachments, thumbHashes]);
+
     const { h, s } = timestampToHSV(author.user.created_at);
     const avatarBg = `hsl(${h}, ${s}%, 50%)`;
 
@@ -147,21 +165,27 @@ export default function MessageItem({
     }, [author.user.display_name, author.user.username]);
 
     const validAttachments = useMemo(() => {
-        return attachments
-            .map((att: Attachment): Attachment & { url: string } | null => {
-                if (!att.uuid || !att.content_type) {
-                    Logger.warn("Invalid attachment:", att);
+        const rawAttachments = Array.isArray(attachments) ? attachments.slice() : [];
+
+        return rawAttachments
+            .map((att: Attachment): Attachment & { url: string; thumbUrl?: string } | null => {
+                const rawAtt = { ...att };
+
+                if (!rawAtt.uuid || !rawAtt.content_type) {
+                    Logger.warn("Invalid attachment (missing uuid or content_type):", rawAtt);
                     return null;
                 }
-                const extParts = att.content_type.split("/");
-                const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
-                const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
-                const filename = att.filename ?? `${att.uuid}.${ext}`;
 
-                return { ...att, url, filename };
+                const extParts = rawAtt.content_type.split("/");
+                const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
+                const url = `https://cdn.foxogram.su/attachments/${rawAtt.uuid}`;
+                const filename = rawAtt.filename ?? `${rawAtt.uuid}.${ext}`;
+                const thumbUrl = thumbHashes[rawAtt.uuid] ? thumbHashToDataURL(atob(thumbHashes[rawAtt.uuid] || "")) : undefined;
+
+                return { ...rawAtt, url, filename, thumbUrl };
             })
-            .filter((att): att is Attachment & { url: string } => att !== null);
-    }, [attachments]);
+            .filter((att): att is Attachment & { url: string; thumbUrl?: string } => att !== null);
+    }, [attachments, thumbHashes]);
 
     const renderContent = (html: string) => {
         const parser = new DOMParser();
@@ -205,6 +229,10 @@ export default function MessageItem({
         return elements;
     };
 
+    const handleImageLoad = (uuid: string) => {
+        setLoadedImages((prev) => ({ ...prev, [uuid]: true }));
+    };
+
     return (
         <div
             className={`${styles.messageItem} ${isMessageAuthor ? styles.author : styles.receiver}`}
@@ -237,13 +265,21 @@ export default function MessageItem({
                 {validAttachments.length > 0 && (
                     <div className={styles.attachmentsGrid}>
                         {validAttachments.map((att, idx) => {
-                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(att.content_type.split("/")[1] || "");
-                            const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] || "");
-                            const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] || "");
+                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(att.content_type.split("/")[1] ?? "");
+                            const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+                            const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+                            const isLoaded = loadedImages[att.uuid] ?? !isImg;
+
                             return (
                                 <div key={idx} className={styles.attachmentContainer}>
                                     {isImg ? (
-                                        <img src={att.url} alt={att.filename} className={styles.imageAttachment} />
+                                        <img
+                                            src={isLoaded ? att.url : att.thumbUrl ?? att.url}
+                                            alt={att.filename}
+                                            className={`${styles.imageAttachment} ${isLoaded ? styles.loaded : styles.blurred}`}
+                                            onLoad={() => { handleImageLoad(att.uuid); }}
+                                            onError={() => { handleImageLoad(att.uuid); }}
+                                        />
                                     ) : isVid ? (
                                         <video controls src={att.url} className={styles.videoAttachment} />
                                     ) : isAud ? (
@@ -254,6 +290,16 @@ export default function MessageItem({
                                             <span>{att.filename}</span>
                                         </a>
                                     )}
+                                    {!content && idx === validAttachments.length - 1 && (
+                                        <div className={styles.attachmentFooter}>
+                                            {isMessageAuthor && (
+                                                <img src={statusIcon} className={styles.statusIcon} alt="Status" />
+                                            )}
+                                            <span className={`${styles.attachmentTimestamp} ${isMessageAuthor ? styles.author : ""}`}>
+                                                {formattedTime}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -262,26 +308,24 @@ export default function MessageItem({
                 {showAuthorName && !isMessageAuthor && (
                     <div className={styles.authorName}>{author.user.display_name || author.user.username}</div>
                 )}
-                <div className={styles.textContent}>
-                    {content && (
-                        <>
-                            {isMessageAuthor ? (
-                                <>
-                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
-                                    <div className={styles.messageFooter}>
-                                        <img src={statusIcon} className={styles.statusIcon} alt="Status" />
-                                        <span className={styles.timestamp}>{formattedTime}</span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className={styles.receiverMessageRow}>
-                                    <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                {content && (
+                    <div className={styles.textContent}>
+                        {isMessageAuthor ? (
+                            <>
+                                <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                                <div className={styles.messageFooter}>
+                                    <img src={statusIcon} className={styles.statusIcon} alt="Status" />
                                     <span className={styles.timestamp}>{formattedTime}</span>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </div>
+                            </>
+                        ) : (
+                            <div className={styles.receiverMessageRow}>
+                                <div className={styles.messageText}>{renderContent(htmlContent)}</div>
+                                <span className={styles.timestamp}>{formattedTime}</span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {isHovered && isShiftPressed && (
