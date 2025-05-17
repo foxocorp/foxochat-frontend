@@ -74,6 +74,7 @@ export interface Attachment {
     filename: string;
     content_type: string;
     flags: number;
+    thumbhash?: string;
 }
 
 /**
