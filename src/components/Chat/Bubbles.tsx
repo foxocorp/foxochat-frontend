@@ -1,5 +1,5 @@
 import { render, type ContainerNode } from "preact";
-import styles from "@components/Chat/Bubbles/bubbles.module.scss";
+import styles from "@components/Chat/Bubbles/Bubbles.module.scss";
 import { CopyBubbleProps, CopyBubbleComponent } from "@interfaces/interfaces";
 
 export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, onHide }: CopyBubbleProps) => {
