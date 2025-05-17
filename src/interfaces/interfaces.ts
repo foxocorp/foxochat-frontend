@@ -136,8 +136,8 @@ export interface Props {
 export interface CopyBubbleProps {
     show: boolean;
     text: string;
-    duration?: number;
-    onHide?: () => void;
+    duration?: number | undefined;
+    onHide?: (() => void) | undefined;
 }
 
 export interface ActiveBubble {
