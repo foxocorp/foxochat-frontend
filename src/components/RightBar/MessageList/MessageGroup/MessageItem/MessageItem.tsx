@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import parse from "html-react-parser";
 import styles from "./MessageItem.module.scss";
-import type { MessageItemProps, PreComponentProps } from "@interfaces/interfaces";
-import type { APIAttachment } from "@foxogram/api-types";
+import type { Attachment, MessageItemProps, PreComponentProps } from "@interfaces/interfaces";
 import { wrapRichText } from "@lib/richTextProcessor/wrapRichText";
 import { getDisplayName } from "@/codeLanguages";
 import { timestampToHSV } from "@utils/functions";
@@ -18,7 +17,7 @@ import FileIcon from "@icons/chat/file.svg";
 import CopyIcon from "@icons/navigation/copy.svg";
 import { JSX } from "preact";
 import { Logger } from "@utils/logger";
-import { CopyBubble } from "@components/chat/bubbles";
+import { CopyBubble } from "@components/Chat/Bubbles";
 
 const PreComponent = ({ className, language, codeHtml, codeText }: PreComponentProps) => {
     const displayLanguage = getDisplayName(language ?? "text");
@@ -149,17 +148,19 @@ export default function MessageItem({
 
     const validAttachments = useMemo(() => {
         return attachments
-            .map((att: APIAttachment | string): { url: string; filename: string; ext: string } | null => {
-                const url = typeof att === "string" ? att : att.uuid;
-                if (!url) return null;
+            .map((att: Attachment): Attachment & { url: string } | null => {
+                if (!att.uuid || !att.content_type) {
+                    Logger.warn("Invalid attachment:", att);
+                    return null;
+                }
+                const extParts = att.content_type.split("/");
+                const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
+                const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
+                const filename = att.filename ?? `${att.uuid}.${ext}`;
 
-                const filename = typeof att === "string" ? (att.split("/").pop() ?? "file") : att.filename;
-                const lastDotIndex = filename.lastIndexOf(".");
-                const ext = lastDotIndex > 0 ? filename.slice(lastDotIndex + 1).toLowerCase() : "";
-
-                return { url, filename, ext };
+                return { ...att, url, filename };
             })
-            .filter((att): att is { url: string; filename: string; ext: string } => att !== null);
+            .filter((att): att is Attachment & { url: string } => att !== null);
     }, [attachments]);
 
     const renderContent = (html: string) => {
@@ -235,22 +236,22 @@ export default function MessageItem({
             <div className={styles.messageBubble}>
                 {validAttachments.length > 0 && (
                     <div className={styles.attachmentsGrid}>
-                        {validAttachments.map(({ url, filename, ext }, idx) => {
-                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(ext);
-                            const isVid = ["mp4", "webm", "ogg"].includes(ext);
-                            const isAud = ["mp3", "wav", "ogg"].includes(ext);
+                        {validAttachments.map((att, idx) => {
+                            const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(att.content_type.split("/")[1] || "");
+                            const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] || "");
+                            const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] || "");
                             return (
                                 <div key={idx} className={styles.attachmentContainer}>
                                     {isImg ? (
-                                        <img src={url} alt={filename} className={styles.imageAttachment} />
+                                        <img src={att.url} alt={att.filename} className={styles.imageAttachment} />
                                     ) : isVid ? (
-                                        <video controls src={url} className={styles.videoAttachment} />
+                                        <video controls src={att.url} className={styles.videoAttachment} />
                                     ) : isAud ? (
-                                        <audio controls src={url} className={styles.audioAttachment} />
+                                        <audio controls src={att.url} className={styles.audioAttachment} />
                                     ) : (
-                                        <a href={url} download={filename} className={styles.fileAttachment}>
+                                        <a href={att.url} download={att.filename} className={styles.fileAttachment}>
                                             <img src={FileIcon} className={styles.fileIcon} alt="File" />
-                                            <span>{filename}</span>
+                                            <span>{att.filename}</span>
                                         </a>
                                     )}
                                 </div>
