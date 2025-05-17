@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
+import parse from "html-react-parser";
 import styles from "./MessageItem.module.scss";
-import type { MessageItemProps } from "@interfaces/interfaces";
+import type { MessageItemProps, PreComponentProps } from "@interfaces/interfaces";
 import type { APIAttachment } from "@foxogram/api-types";
 import { wrapRichText } from "@lib/richTextProcessor/wrapRichText";
 import { getDisplayName } from "@/codeLanguages";
 import { timestampToHSV } from "@utils/functions";
-import sanitizeHtml from "sanitize-html";
 
 import StateSending from "@icons/chat/state-sending.svg";
 import StateSent from "@icons/chat/state-sent.svg";
@@ -20,26 +20,10 @@ import { JSX } from "preact";
 import { Logger } from "@utils/logger";
 import { CopyBubble } from "@components/chat/bubbles";
 
-interface PreComponentProps {
-    children: string | { props: { dangerouslySetInnerHTML?: { __html: string }; children?: string } };
-    className?: string;
-    language?: string;
-}
-
-const PreComponent = ({ children, className, language }: PreComponentProps) => {
+const PreComponent = ({ className, language, codeHtml, codeText }: PreComponentProps) => {
     const displayLanguage = getDisplayName(language ?? "text");
     const [isCopied, setIsCopied] = useState(false);
     const duration = 1500;
-
-    const codeText = useMemo(() => {
-        if (typeof children === "string") return sanitizeHtml(children, { allowedTags: [], allowedAttributes: {} });
-        if (children.props.dangerouslySetInnerHTML?.__html) {
-            const div = document.createElement("div");
-            div.innerHTML = sanitizeHtml(children.props.dangerouslySetInnerHTML.__html, { allowedTags: [], allowedAttributes: {} });
-            return div.textContent ?? "";
-        }
-        return sanitizeHtml(children.props.children ?? "", { allowedTags: [], allowedAttributes: {} });
-    }, [children]);
 
     const handleCopy = async () => {
         if (isCopied || !codeText) return;
@@ -51,6 +35,14 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
             Logger.error("Copy failed:", error);
         }
     };
+
+    useEffect(() => {
+        let timer: number;
+        if (isCopied) {
+            timer = setTimeout(() => { setIsCopied(false); }, duration);
+        }
+        return () => { clearTimeout(timer); };
+    }, [isCopied, duration]);
 
     return (
         <div className={styles.codeBlockWrapper}>
@@ -65,7 +57,7 @@ const PreComponent = ({ children, className, language }: PreComponentProps) => {
                 </button>
             </div>
             <pre className={className}>
-                <code>{codeText}</code> {/* Убрали dangerouslySetInnerHTML */}
+                <code>{parse(codeHtml)}</code>
             </pre>
             <CopyBubble
                 show={isCopied}
@@ -111,24 +103,22 @@ export default function MessageItem({
     }, []);
 
     useEffect(() => {
-        if (!content) {
-            setHtmlContent("");
-            return;
-        }
+        const processContent = () => {
+            if (!content) {
+                setHtmlContent("");
+                return;
+            }
 
-        try {
-            const html = wrapRichText(content, { highlight: true });
-            setHtmlContent(sanitizeHtml(html, {
-                allowedTags: ["pre", "code"],
-                allowedAttributes: {
-                    pre: ["class"],
-                    code: [],
-                },
-            }));
-        } catch (error) {
-            Logger.error("Error processing content:", error);
-            setHtmlContent(sanitizeHtml(content, { allowedTags: [], allowedAttributes: {} }));
-        }
+            try {
+                const html = wrapRichText(content, { highlight: true });
+                setHtmlContent(html);
+            } catch (error) {
+                Logger.error("Error processing content:", error);
+                setHtmlContent(content);
+            }
+        };
+
+        processContent();
     }, [content]);
 
     const { h, s } = timestampToHSV(author.user.created_at);
@@ -180,29 +170,37 @@ export default function MessageItem({
 
         const processNode = (node: Node): void => {
             if (node.nodeType === Node.TEXT_NODE && node.textContent) {
-                elements.push(<span key={`text-${nodeIndex++}`}>{node.textContent}</span>); // Экранировано
+                elements.push(<span key={`text-${nodeIndex++}`}>{node.textContent}</span>);
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const element = node as Element;
                 if (element.tagName.toLowerCase() === "pre" && element.className.startsWith("language-")) {
                     const language = element.className.replace("language-", "");
                     const codeElement = element.querySelector("code");
                     if (codeElement) {
-                        const code = codeElement.textContent || ""; // Берем текст, а не innerHTML
+                        const codeHtml = codeElement.innerHTML;
+                        const codeText = codeElement.textContent ?? "";
+                        Logger.debug(`[renderContent] Rendering code block for language "${language}": ${codeHtml}`);
                         elements.push(
-                            <PreComponent key={`pre-${nodeIndex++}`} className={element.className} language={language}>
-                                {code}
-                            </PreComponent>,
+                            <PreComponent
+                                key={`pre-${nodeIndex++}`}
+                                className={element.className}
+                                language={language}
+                                codeHtml={codeHtml}
+                                codeText={codeText}
+                            />,
                         );
                     } else {
                         elements.push(<span key={`empty-${nodeIndex++}`} />);
                     }
+                } else if (element.tagName.toLowerCase() === "br") {
+                    elements.push(<br key={`br-${nodeIndex++}`} />);
                 } else {
                     Array.from(element.childNodes).forEach(processNode);
                 }
             }
         };
 
-        Array.from(doc.body.firstChild?.childNodes || []).forEach(processNode);
+        Array.from(doc.body.firstChild?.childNodes ?? []).forEach(processNode);
         return elements;
     };
 
@@ -244,14 +242,14 @@ export default function MessageItem({
                             return (
                                 <div key={idx} className={styles.attachmentContainer}>
                                     {isImg ? (
-                                        <img src={url || "/placeholder.svg"} alt={filename} className={styles.imageAttachment} />
+                                        <img src={url} alt={filename} className={styles.imageAttachment} />
                                     ) : isVid ? (
                                         <video controls src={url} className={styles.videoAttachment} />
                                     ) : isAud ? (
                                         <audio controls src={url} className={styles.audioAttachment} />
                                     ) : (
                                         <a href={url} download={filename} className={styles.fileAttachment}>
-                                            <img src={FileIcon || "/placeholder.svg"} className={styles.fileIcon} alt="File" />
+                                            <img src={FileIcon} className={styles.fileIcon} alt="File" />
                                             <span>{filename}</span>
                                         </a>
                                     )}
@@ -270,7 +268,7 @@ export default function MessageItem({
                                 <>
                                     <div className={styles.messageText}>{renderContent(htmlContent)}</div>
                                     <div className={styles.messageFooter}>
-                                        <img src={statusIcon || "/placeholder.svg"} className={styles.statusIcon} alt="Status" />
+                                        <img src={statusIcon} className={styles.statusIcon} alt="Status" />
                                         <span className={styles.timestamp}>{formattedTime}</span>
                                     </div>
                                 </>
@@ -289,18 +287,18 @@ export default function MessageItem({
                 <div className={styles.actionPopup}>
                     {isMessageAuthor && (
                         <button onClick={onEdit} aria-label="Edit">
-                            <img src={EditIcon || "/placeholder.svg"} alt="Edit" width={24} height={24} />
+                            <img src={EditIcon} alt="Edit" width={24} height={24} />
                         </button>
                     )}
                     <button onClick={onReply} aria-label="Reply">
-                        <img src={ReplyIcon || "/placeholder.svg"} alt="Reply" width={24} height={24} />
+                        <img src={ReplyIcon} alt="Reply" width={24} height={24} />
                     </button>
                     <button onClick={onForward} aria-label="Forward">
-                        <img src={ForwardIcon || "/placeholder.svg"} alt="Forward" width={24} height={24} />
+                        <img src={ForwardIcon} alt="Forward" width={24} height={24} />
                     </button>
                     {isMessageAuthor && (
                         <button onClick={onDelete} aria-label="Delete">
-                            <img src={TrashIcon || "/placeholder.svg"} alt="Delete" width={24} height={24} />
+                            <img src={TrashIcon} alt="Delete" width={24} height={24} />
                         </button>
                     )}
                 </div>

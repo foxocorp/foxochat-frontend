@@ -118,7 +118,7 @@ export default tseslint.config(
 			"prefer-spread": 1,
 			"prefer-template": 1,
 			quotes: [2, "double"],
-			"quote-props": [2, "as-needed"],
+			"quote-props": "off",
 			radix: 1, // parseInt(x, 10)
 			"unicode-bom": 2,
 			"valid-jsdoc": 0,

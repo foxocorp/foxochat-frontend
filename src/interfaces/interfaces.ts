@@ -48,6 +48,13 @@ export interface MessageGroupProps {
     currentUserId: number;
 }
 
+export interface PreComponentProps {
+    className?: string;
+    language?: string;
+    codeHtml: string;
+    codeText: string;
+}
+
 export interface MessageItemProps {
     content: string;
     created_at: number;
