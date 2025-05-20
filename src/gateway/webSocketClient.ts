@@ -1,19 +1,19 @@
-import { Client, GatewayCloseCodes } from "foxogram.js";
+import { Client } from "foxogram.js";
 import { Logger, LogLevel } from "@utils/logger";
+import { GatewayDispatchEvents } from "@foxogram/gateway-types";
 
 interface EventMap {
     connected: undefined;
     error: Error;
     close: CloseEvent;
-    "MESSAGE_CREATE": { id: number; channel: { id: number }; content: string; created_at: number };
-    "MESSAGE_DELETE": { id: number };
+    MESSAGE_CREATE: any;
+    MESSAGE_DELETE: any;
 }
 
-
 export class WebSocketClient {
-    public readonly client: Client;
+    public readonly client;
+    private readonly listeners: { [K in keyof EventMap]?: ((data: EventMap[K]) => void)[] } = {};
     private readonly gatewayUrl: string;
-    private readonly listeners: { [K in keyof EventMap]?: ((data: EventMap[K]) => void)[]; } = {};
 
     constructor(
         private readonly getToken: () => string | null,
@@ -33,6 +33,7 @@ export class WebSocketClient {
                 reconnectTimeout: 3000,
             },
         });
+
         this.setupEventHandlers();
     }
 
@@ -54,7 +55,7 @@ export class WebSocketClient {
         this.client.on("closed", (code: number) => {
             Logger.error(`Connection closed: ${code}`);
             const closeEvent = new CloseEvent("close", { code });
-            if (code === GatewayCloseCodes.Unauthorized) {
+            if (code === 4003) {
                 Logger.warn("Unauthorized, triggering onUnauthorized");
                 this.onUnauthorized?.();
             }
@@ -67,18 +68,28 @@ export class WebSocketClient {
             this.emit("error", error);
         });
 
-        this.client.on("MESSAGE_CREATE", (data: EventMap["MESSAGE_CREATE"]) => {
-            this.emit("MESSAGE_CREATE", data);
-        });
+        this.client.on("dispatch", (event: { t: string; d: any }) => {
+            Logger.info("[GATEWAY EVENT]", event.t, event.d);
 
-        this.client.on("MESSAGE_DELETE", (data: EventMap["MESSAGE_DELETE"]) => {
-            this.emit("MESSAGE_DELETE", data);
+            const eventType = event.t as GatewayDispatchEvents;
+
+            switch (eventType) {
+                case GatewayDispatchEvents.MessageCreate:
+                    this.emit("MESSAGE_CREATE", event.d);
+                    console.log(event.t);
+                    break;
+                case GatewayDispatchEvents.MessageDelete:
+                    this.emit("MESSAGE_DELETE", event.d);
+                    break;
+                default:
+                    console.warn("Unhandled gateway event:", event.t);
+            }
         });
     }
 
     public async connect(): Promise<void> {
         Logger.header("NEW CONNECTION");
-        Logger.group(`WebSocket Session — ${this.gatewayUrl}`, LogLevel.Info);
+        Logger.group(`WebSocket Session — ${this.gatewayUrl}`);
         Logger.info("[WS] Attempting connect");
 
         const token = this.getToken();
@@ -89,12 +100,12 @@ export class WebSocketClient {
         }
 
         const start = performance.now();
-        Logger.info(`[FAST CONNECT] ${this.gatewayUrl}`, LogLevel.Info);
+        Logger.info(`[FAST CONNECT] ${this.gatewayUrl}`);
 
         try {
             await this.client.login(token);
             const duration = performance.now() - start;
-            Logger.info(`[FAST CONNECT] connected in ${duration.toFixed(2)}ms`, LogLevel.Info);
+            Logger.info(`[FAST CONNECT] connected in ${duration.toFixed(2)}ms`);
         } catch (err: unknown) {
             Logger.error("Failed to login:", err);
             Logger.groupEnd();
@@ -123,29 +134,9 @@ export class WebSocketClient {
         }
     }
 
-
-    private ensureListener<K extends keyof EventMap>(event: K): ((data: EventMap[K]) => void)[] {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
-        }
-        return this.listeners[event];
-    }
-
-    public on<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
-        this.ensureListener(event).push(listener);
-    }
-
-    public off<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
-        const list = this.listeners[event];
-        if (list) {
-            this.listeners[event] = list.filter((l) => l !== listener);
-        }
-    }
-
     private emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
         for (const listener of this.ensureListener(event)) {
             listener(data);
         }
     }
-
 }
