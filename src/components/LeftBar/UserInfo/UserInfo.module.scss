@@ -114,20 +114,20 @@
     border-radius: 4px;
 
     &.userAvatar {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
     }
 
     &.username {
         width: 100px;
-        height: 18px;
+        height: 12px;
         margin-bottom: 4px;
     }
 
     &.status {
         width: 60px;
-        height: 14px;
+        height: 12px;
     }
 
     &.actionIcon {
@@ -135,6 +135,7 @@
         height: 31px;
         margin-left: 20px;
         margin-right: 5px;
+        border-radius: 50%;
     }
 }
 
