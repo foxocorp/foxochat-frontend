@@ -295,8 +295,10 @@ export default function MessageItem({
                                 const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(
                                     att.content_type.split("/")[1] ?? "",
                                 );
+
                                 const isVideo = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
                                 const isAudio = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+        
                                 const isLoaded = loadedImages[att.uuid] ?? !isImg;
 
                                 return (

@@ -123,6 +123,25 @@ export class WebSocketClient {
         }
     }
 
+
+    private ensureListener<K extends keyof EventMap>(event: K): ((data: EventMap[K]) => void)[] {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        return this.listeners[event];
+    }
+
+    public on<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        this.ensureListener(event).push(listener);
+    }
+
+    public off<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        const list = this.listeners[event];
+        if (list) {
+            this.listeners[event] = list.filter((l) => l !== listener);
+        }
+    }
+
     private emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
         for (const listener of this.ensureListener(event)) {
             listener(data);
