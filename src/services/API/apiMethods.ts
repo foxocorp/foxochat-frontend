@@ -47,7 +47,7 @@ export const apiMethods = {
     resendEmailVerification: () => foxogramAPI.auth.resendEmail(),
     resetPassword: (email: string) => foxogramAPI.auth.resetPassword({ email }),
     confirmResetPassword: (email: string, code: string, new_password: string) => foxogramAPI.auth.resetPasswordConfirm({ email, code, new_password }),
-    verifyEmail: (code: string) => foxogramAPI.auth.verifyEmail({ code }),
+    verifyEmail: (code: string) => foxogramAPI.auth.verifyEmail({ otp: code }),
     getCurrentUser: async (): Promise<APIUser> => {
         const t = getAuthToken();
         if (!t) throw new Error("Authorization required");
