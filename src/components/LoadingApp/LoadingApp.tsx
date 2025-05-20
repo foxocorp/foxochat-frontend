@@ -1,21 +1,30 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import styles from "./LoadingApp.module.scss";
-import foxogramLogo from "../../../public/foxogram.svg";
+import FoxogramLogo from "../../../public/foxogram.svg";
 
-const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void, isLoading: boolean }) => {
+const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void; isLoading: boolean }) => {
+	const [isLogoLoaded, setIsLogoLoaded] = useState(false);
+
 	useEffect(() => {
-		if (!isLoading) {
+		const img = new Image();
+		img.src = FoxogramLogo;
+		img.onload = () => { setIsLogoLoaded(true); };
+		img.onerror = () => { setIsLogoLoaded(true); };
+	}, []);
+
+	useEffect(() => {
+		if (!isLoading && isLogoLoaded) {
 			onLoaded();
 		}
-	}, [isLoading, onLoaded]);
+	}, [isLoading, isLogoLoaded, onLoaded]);
 
-	if (!isLoading) {
+	if (!isLoading || !isLogoLoaded) {
 		return null;
 	}
 
 	return (
 		<div className={styles.loadingOverlay}>
-			<img src={foxogramLogo} alt="Logo" className={styles.logo} />
+			<img src={FoxogramLogo} alt="Foxogram Logo" className={styles.logo} />
 			<div className={styles.loading}>
 				<div className={styles.loadingBar} />
 			</div>

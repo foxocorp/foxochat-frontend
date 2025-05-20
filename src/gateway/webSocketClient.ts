@@ -89,19 +89,37 @@ export class WebSocketClient {
         }
 
         const start = performance.now();
-        Logger.group(`[FAST CONNECT] ${this.gatewayUrl}`, LogLevel.Info);
+        Logger.info(`[FAST CONNECT] ${this.gatewayUrl}`, LogLevel.Info);
 
         try {
             await this.client.login(token);
-            const duration = Math.round(performance.now() - start);
-            Logger.groupEnd();
-            Logger.group(`[FAST CONNECT] connected in ${duration}ms`, LogLevel.Info);
-            Logger.groupEnd();
+            const duration = performance.now() - start;
+            Logger.info(`[FAST CONNECT] connected in ${duration.toFixed(2)}ms`, LogLevel.Info);
         } catch (err: unknown) {
             Logger.error("Failed to login:", err);
             Logger.groupEnd();
             this.onUnauthorized?.();
             throw err;
+        } finally {
+            Logger.groupEnd();
+        }
+    }
+
+    private ensureListener<K extends keyof EventMap>(event: K): ((data: EventMap[K]) => void)[] {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        return this.listeners[event];
+    }
+
+    public on<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        this.ensureListener(event).push(listener);
+    }
+
+    public off<K extends keyof EventMap>(event: K, listener: (data: EventMap[K]) => void): void {
+        const list = this.listeners[event];
+        if (list) {
+            this.listeners[event] = list.filter((l) => l !== listener);
         }
     }
 

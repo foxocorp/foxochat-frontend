@@ -295,8 +295,10 @@ export default function MessageItem({
                                 const isImg = ["png", "jpg", "jpeg", "gif", "webp"].includes(
                                     att.content_type.split("/")[1] ?? "",
                                 );
-                                const isVid = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
-                                const isAud = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+
+                                const isVideo = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+                                const isAudio = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
+        
                                 const isLoaded = loadedImages[att.uuid] ?? !isImg;
 
                                 return (
@@ -315,7 +317,7 @@ export default function MessageItem({
                                                 onClick={() => { handleMediaClick(idx); }}
                                                 style={{ cursor: "pointer" }}
                                             />
-                                        ) : isVid ? (
+                                        ) : isVideo ? (
                                             <video
                                                 controls
                                                 src={att.url}
@@ -323,7 +325,7 @@ export default function MessageItem({
                                                 onClick={() => { handleMediaClick(idx); }}
                                                 style={{ cursor: "pointer" }}
                                             />
-                                        ) : isAud ? (
+                                        ) : isAudio ? (
                                             <audio controls src={att.url} className={styles.audioAttachment} />
                                         ) : (
                                             <a href={att.url} download={att.filename} className={styles.fileAttachment}>

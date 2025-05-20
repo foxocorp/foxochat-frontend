@@ -9,49 +9,49 @@
 }
 
 .logo {
-	width: 160px;
-	margin-bottom: 50px;
+	width: 120px;
+	margin-bottom: 40px;
 }
 
 .loading {
 	position: absolute;
-	bottom: 100px;
+	bottom: 80px;
 	width: 100%;
 	display: flex;
 	justify-content: center;
 }
 
 .loadingBar {
-	width: 170px;
-	height: 5px;
-	background: #484848;
-	border-radius: 15px;
+	width: 200px;
+	height: 4px;
+	background: rgb(255  255 255 / 0.15);
+	border-radius: 12px;
 	overflow: hidden;
 	position: relative;
+	box-shadow: 0 0 10px rgb(0 0 0 / 0.5);
 }
 
 .loadingBar::after {
 	content: "";
 	position: absolute;
 	top: 0;
-	left: -100%;
-	width: 100%;
+	left: -50%;
+	width: 50%;
 	height: 100%;
-	background: var(--primary-color);
-	animation: loading 3s infinite ease-in-out;
+	background: linear-gradient(
+									to right,
+									transparent,
+									rgb(255 255 255 / 0.8),
+									transparent
+	);
+	animation: loading 1.5s infinite ease-in-out;
 }
 
 @keyframes loading {
 	0% {
-		left: -100%;
-	}
-	25% {
-		left: 0;
+		left: -50%;
 	}
 	50% {
-		left: 0;
-	}
-	75% {
 		left: 100%;
 	}
 	100% {
