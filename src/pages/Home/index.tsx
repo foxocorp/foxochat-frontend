@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "preact/hooks";
+import { useEffect, useState, useCallback, useMemo, useRef } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import { observer } from "mobx-react";
 
@@ -14,110 +14,154 @@ import { APIChannel } from "@foxogram/api-types";
 import chatStore from "@store/chat/index";
 import { Logger } from "@utils/logger";
 
+interface FetchError extends Error {
+	status?: number;
+	url?: string;
+	retryAfter?: number;
+}
+
 const HomeComponent = () => {
 	const location = useLocation();
 	const token = getAuthToken();
 	const [initialLoadDone, setInitialLoadDone] = useState(false);
 	const isMounted = useRef(true);
+	const abortController = useRef(new AbortController());
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
 
 	const { channels, currentUserId, currentChannelId, isLoading } = chatStore;
-	const selectedChat = channels.find(c => c.id === currentChannelId) ?? null;
+	const selectedChat = useMemo(
+		() => channels.find((c) => c.id === currentChannelId) ?? null,
+		[channels, currentChannelId],
+	);
 
-	useEffect(() => {
-		const handleResize = () => {
-			setIsMobile(window.innerWidth < 768);
-			if (window.innerWidth < 768) setMobileView("list");
+	const debounce = <T extends unknown[]>(fn: (...args: T) => void, ms: number) => {
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
+		const debounced = (...args: T) => {
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(() => { fn(...args); }, ms);
 		};
-		window.addEventListener("resize", handleResize);
-		return () => { window.removeEventListener("resize", handleResize); };
-	}, []);
+		debounced.cancel = () => { clearTimeout(timeoutId); };
+		return debounced;
+	};
+
+	const handleResize = useCallback(
+		debounce(() => {
+			const newIsMobile = window.innerWidth < 768;
+			setIsMobile(newIsMobile);
+			if (newIsMobile) setMobileView("list");
+		}, 100),
+		[],
+	);
 
 	useEffect(() => {
-		if (!token) {
-			localStorage.removeItem("authToken");
-			location.route("/auth/login");
-			return;
-		}
-		void (async () => {
+		window.addEventListener("resize", handleResize);
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			handleResize.cancel();
+		};
+	}, [handleResize]);
+
+	const retryRequest = async <T,>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> => {
+		for (let i = 0; i < retries; i++) {
 			try {
-				if (!chatStore.channels.length) {
-					await chatStore.fetchChannelsFromAPI();
+				return await fn();
+			} catch (err: unknown) {
+				if (err instanceof Error) {
+					if (err.name === "AbortError") throw err;
+					const e = err as FetchError;
+					if (e.status === 429) {
+						const retryAfter = e.retryAfter ?? 1000;
+						Logger.warn(`Rate limit exceeded, retrying after ${retryAfter}ms`);
+						await new Promise((resolve) => setTimeout(resolve, retryAfter));
+						continue;
+					}
 				}
-			} catch (err) {
-				Logger.error(`Channels fetch failed: ${err}`);
-				localStorage.removeItem("authToken");
-				location.route("/auth/login");
+				if (i === retries - 1) throw err;
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
-		})();
-	}, [token, location]);
+		}
+		throw new Error("Retry limit reached");
+	};
 
 	const initApp = useCallback(async () => {
 		if (!token) {
-			localStorage.removeItem("authToken");
+			Logger.warn("No auth token found, redirecting to login");
 			location.route("/auth/login");
 			return;
 		}
+
+		await new Promise((resolve) => setTimeout(resolve, 500));
+
 		try {
 			Logger.debug("Initializing application...");
-			const user = await apiMethods.getCurrentUser();
+
+			const user = await retryRequest(() => apiMethods.getCurrentUser());
 			chatStore.setCurrentUser(user.id);
-			await chatStore.fetchChannelsFromAPI();
-			setInitialLoadDone(true);
-		} catch (err) {
-			Logger.error(`Application initialization failed: ${err}`);
-			localStorage.removeItem("authToken");
-			location.route("/auth/login");
+
+			const fetchedChannels = await retryRequest(() => chatStore.fetchChannelsFromAPI());
+			chatStore.channels.replace(fetchedChannels);
+
+			const channelIds = chatStore.channels.map((c) => c.id);
+			if (new Set(channelIds).size !== channelIds.length) {
+				Logger.error("Duplicate channel IDs detected!");
+			}
+
+			if (isMounted.current) {
+				setInitialLoadDone(true);
+			}
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				if (err.name === "AbortError") {
+					Logger.debug("Request aborted due to component unmount");
+					return;
+				}
+				Logger.error(`App init failed: ${err.message}`);
+			}
+			if ((err as FetchError).status === 401) {
+				Logger.warn("Unauthorized, redirecting to login");
+				location.route("/auth/login");
+			}
 		}
 	}, [token, location]);
 
 	useEffect(() => {
 		isMounted.current = true;
-		initApp().catch((e: unknown) => { Logger.error(`Error while initializing application: ${e}`); });
+		void initApp();
 		return () => {
 			isMounted.current = false;
+			abortController.current.abort();
+			abortController.current = new AbortController();
 		};
 	}, [initApp]);
 
-	const handleSelectChat = useCallback(async (chat: APIChannel) => {
-		await chatStore.setCurrentChannel(chat.id);
-		if (isMobile) {
-			setMobileView("chat");
-			setChatTransition("slide-in");
-		}
-	}, [isMobile]);
+	const handleSelectChat = useCallback(
+		async (chat: APIChannel) => {
+			await chatStore.setCurrentChannel(chat.id);
+			if (isMobile) {
+				setMobileView("chat");
+				setChatTransition("slide-in");
+			}
+		},
+		[isMobile],
+	);
 
 	const handleBackToList = useCallback(() => {
 		setChatTransition("slide-out");
-		setTimeout(async () => {
-			await chatStore.setCurrentChannel(null);
-			setMobileView("list");
-			setChatTransition("");
-		}, 300);
+		requestAnimationFrame(() => {
+			setTimeout(async () => {
+				await chatStore.setCurrentChannel(null);
+				if (isMounted.current) {
+					setMobileView("list");
+					setChatTransition("");
+				}
+			}, 300);
+		});
 	}, []);
 
-	useEffect(() => {
-		if (!chatStore.channels.length) {
-			void chatStore.fetchChannelsFromAPI();
-		}
-		const ids = chatStore.channels.map(c => c.id);
-		if (new Set(ids).size !== ids.length) {
-			Logger.error("Duplicate channel IDs detected!");
-		}
-	}, [token, location]);
-
 	if (isLoading || !initialLoadDone) {
-		return (
-			<Loading
-				isLoading={isLoading || !initialLoadDone}
-				onLoaded={() => {
-					const loader = document.getElementById("loading-static");
-					if (loader) loader.remove();
-				}}
-			/>
-		);
+		return <Loading isLoading={true} onLoaded={() => undefined} />;
 	}
 
 	if (isMobile) {
@@ -126,12 +170,12 @@ const HomeComponent = () => {
 				<div className="sidebar-wrapper visible">
 					<Sidebar
 						chats={channels}
-						onSelectChat={handleSelectChat}
+						onSelectChat={(chat) => void handleSelectChat(chat)}
 						currentUser={currentUserId ?? -1}
 						isMobile
 					/>
 				</div>
-				{mobileView === "chat" && selectedChat && (
+				{mobileView === "chat" && selectedChat ? (
 					<div className={`chat-container ${chatTransition} visible`}>
 						<ChatWindow
 							channel={selectedChat}
@@ -140,7 +184,7 @@ const HomeComponent = () => {
 							isMobile
 						/>
 					</div>
-				)}
+				) : null}
 			</div>
 		);
 	}
@@ -149,7 +193,7 @@ const HomeComponent = () => {
 		<div className="home-container">
 			<Sidebar
 				chats={channels}
-				onSelectChat={handleSelectChat}
+				onSelectChat={(chat) => void handleSelectChat(chat)}
 				currentUser={currentUserId ?? -1}
 				isMobile={false}
 			/>
@@ -163,7 +207,7 @@ const HomeComponent = () => {
 				) : (
 					<EmptyState
 						chats={channels}
-						onSelectChat={handleSelectChat}
+						onSelectChat={(chat) => void handleSelectChat(chat)}
 						selectedChat={null}
 					/>
 				)}
