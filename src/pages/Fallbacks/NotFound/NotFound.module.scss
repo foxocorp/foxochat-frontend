@@ -1,6 +1,7 @@
 .error-page {
   background: radial-gradient(50% 50% at 50% 50%, #0f0f0f 0%, #000 100%);
 }
+
 .error-page-wrapper {
   position: relative;
   background-image: url("/src/assets/svg/grid-background.svg"), url("/src/assets/svg/noise-effect.svg");
@@ -27,7 +28,7 @@
     flex-direction: column;
     gap: 40px;
     padding: 0 15px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 
