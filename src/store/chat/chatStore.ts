@@ -15,7 +15,7 @@ export class ChatStore {
     @observable accessor abortControllers = observable.map<number, AbortController>();
     @observable accessor isInitialLoad = observable.map<number, boolean>();
 
-    @observable accessor channels: APIChannel[] = [];
+    @observable accessor channels: IObservableArray<APIChannel> = observable.array([]);
     @observable accessor activeRequests = new Set<string | number>();
 
     @observable accessor currentChannelId: number | null = null;
@@ -69,39 +69,46 @@ export class ChatStore {
 
     @action
     handleNewMessage(message: APIMessage) {
+        Logger.info("Handling new message:", message);
+
         const channelId = message.channel.id;
         let messages = this.messagesByChannelId.get(channelId);
 
         if (!messages) {
+            Logger.info("No existing messages for channel, creating new array...");
             messages = observable.array([]);
             this.messagesByChannelId.set(channelId, messages);
         }
 
-        const existingIndex = messages.findIndex(m =>
-            m.id === message.id ||
-            ((m as any)._tempId && (m as any)._tempId === (message as any)._tempId),
-        );
-
+        const existingIndex = messages.findIndex(m => m.id === message.id);
         if (existingIndex >= 0) {
-            messages[existingIndex] = message;
+            Logger.info("Message already exists, updating...");
+            messages.splice(existingIndex, 1, message);
         } else {
+            Logger.info("Adding new message...");
             messages.push(message);
         }
 
-        messages.sort((a, b) => a.created_at - b.created_at);
+        runInAction(() => {
+            Logger.info("Sorting messages...");
+            messages.replace([...messages].sort((a, b) => a.created_at - b.created_at));
+        });
 
         const channelIndex = this.channels.findIndex(c => c.id === channelId);
         if (channelIndex >= 0) {
+            Logger.info("Updating last message in channel...");
             this.channels[channelIndex].last_message = message;
         }
 
         if (this.currentChannelId === channelId) {
+            Logger.info("Playing send message sound...");
             this.playSendMessageSound();
 
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     const container = document.getElementById("message-container");
                     if (container) {
+                        Logger.info("Scrolling to bottom...");
                         container.scrollTop = container.scrollHeight;
                     }
                 });
