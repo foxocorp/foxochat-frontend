@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "rsbuild dev",
-		"build": "rsbuild build",
+		"build": "rsbuild build && node generate-sw.js",
 		"preview": "rsbuild preview",
 		"tauri": "tauri",
 		"dev-desktop": "tauri dev",
@@ -29,11 +29,16 @@
 		"preact-iso": "^2.9.1",
 		"prismjs": "^1.30.0",
 		"sanitize-html": "^2.17.0",
-		"thumbhash": "^0.1.1"
+		"thumbhash": "^0.1.1",
+		"web-push": "^3.6.7",
+		"workbox-expiration": "^7.3.0",
+		"workbox-precaching": "^7.3.0",
+		"workbox-routing": "^7.3.0",
+		"workbox-strategies": "^7.3.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.27.0",
-		"@rsbuild/core": "^1.3.20",
+		"@rsbuild/core": "^1.3.21",
 		"@rsbuild/plugin-preact": "^1.3.1",
 		"@rsbuild/plugin-sass": "^1.3.1",
 		"@rsbuild/plugin-typed-css-modules": "^1.0.2",
@@ -49,7 +54,9 @@
 		"postcss": "^8.5.3",
 		"sass": "^1.89.0",
 		"typescript": "^5.8.3",
-		"typescript-eslint": "^8.32.1"
+		"typescript-eslint": "^8.32.1",
+		"workbox-build": "^7.3.0",
+		"workbox-window": "^7.3.0"
 	},
 	"browserslist": [
 		"last 4 versions"

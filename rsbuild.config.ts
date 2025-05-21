@@ -15,6 +15,9 @@ export default {
         entry: {
             index: './src/index.tsx',
         },
+        define: {
+            "import.meta.env.MODE": JSON.stringify(process.env.MODE || "production"),
+        },
     },
     output: {
         cssModules: {
@@ -24,7 +27,10 @@ export default {
             {
                 from: "node_modules/foxomoji/dist",
                 to: "foxomoji"
-            }
+            },
+            { from: "public/manifest.json", to: "manifest.json" },
+            { from: "public/favicon-96x96.png", to: "favicon-96x96.png" },
+            { from: "public/web-app-manifest-512x512.png", to: "web-app-manifest-512x512.png" },
         ]
     },
     resolve: {

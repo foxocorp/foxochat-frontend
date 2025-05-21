@@ -55,7 +55,7 @@ const PreComponent = ({ className, language, codeHtml, codeText }: PreComponentP
         <div className={styles.codeBlockWrapper}>
             <div className={styles.codeHeader}>
                 <span className={styles.languageName}>{displayLanguage}</span>
-                <button className={styles.copyButton} onClick={handleCopy} aria-label="Copy code">
+                <button className={styles.copyButton} onClick={() => handleCopy} aria-label="Copy code">
                     <img src={CopyIcon} alt="Copy" className={styles.copyIcon} />
                 </button>
             </div>
@@ -131,7 +131,7 @@ export default function MessageItem({
     }, [content]);
 
     useEffect(() => {
-        const loadThumbHashes = async (): Promise<void> => {
+        const loadThumbHashes = async () => {
             const newThumbHashes: Record<string, string | null> = {};
             for (const att of attachments) {
                 if (
@@ -177,27 +177,38 @@ export default function MessageItem({
     const validAttachments = useMemo(() => {
         const rawAttachments = Array.isArray(attachments) ? attachments.slice() : [];
 
+        const decodeThumbHash = (value: string | null | undefined): string | undefined => {
+            if (!value || value.length === 0) return undefined;
+            try {
+                const binaryString = atob(value as unknown as string);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return thumbHashToDataURL(bytes);
+            } catch (error) {
+                Logger.warn(`Failed to decode thumbhash for uuid: ${error}`);
+                return undefined;
+            }
+        };
+
         return rawAttachments
-            .map(
-                (att: Attachment): (Attachment & { url: string; thumbUrl?: string }) | null => {
-                    const rawAtt = { ...att };
+            .map((att: Attachment): (Attachment & { url: string; thumbUrl?: string }) | null => {
+                const rawAtt = { ...att };
 
-                    if (!rawAtt.uuid || !rawAtt.content_type) {
-                        Logger.warn("Invalid attachment (missing uuid or content_type):", rawAtt);
-                        return null;
-                    }
+                const extParts = rawAtt.content_type.split("/");
+                const ext = extParts.length > 1 ? extParts[1]?.toLowerCase() ?? extParts[0]?.toLowerCase() ?? "" : extParts[0]?.toLowerCase() ?? "";
+                const url = `https://cdn.foxogram.su/attachments/${rawAtt.uuid}`;
+                const filename = rawAtt.filename || `${rawAtt.uuid}.${ext}`;
+                const thumbUrl = decodeThumbHash(thumbHashes[rawAtt.uuid]);
 
-                    const extParts = rawAtt.content_type.split("/");
-                    const ext = extParts.length > 1 ? extParts[1].toLowerCase() : extParts[0].toLowerCase() || "";
-                    const url = `https://cdn.foxogram.su/attachments/${rawAtt.uuid}`;
-                    const filename = rawAtt.filename ?? `${rawAtt.uuid}.${ext}`;
-                    const thumbUrl = thumbHashes[rawAtt.uuid]
-                        ? thumbHashToDataURL(atob(thumbHashes[rawAtt.uuid] || ""))
-                        : undefined;
-
-                    return { ...rawAtt, url, filename, thumbUrl };
-                },
-            )
+                return {
+                    ...rawAtt,
+                    url,
+                    filename,
+                    ...(thumbUrl !== undefined ? { thumbUrl } : {}),
+                };
+            })
             .filter((att): att is Attachment & { url: string; thumbUrl?: string } => att !== null);
     }, [attachments, thumbHashes]);
 
@@ -277,7 +288,11 @@ export default function MessageItem({
                         }`}
                     >
                         {author.user.avatar ? (
-                            <img src={author.user.avatar} className={styles.avatar} alt="User avatar" />
+                            <img
+                                src={`https://cdn.foxogram.su/attachments/${author.user.avatar.uuid}`}
+                                className={styles.avatar}
+                                alt={`${author.user.username} Avatar`}
+                            />
                         ) : (
                             <div className={styles.defaultAvatar} style={{ backgroundColor: avatarBg }}>
                                 {avatarInitial}
@@ -298,7 +313,7 @@ export default function MessageItem({
 
                                 const isVideo = ["mp4", "webm", "ogg"].includes(att.content_type.split("/")[1] ?? "");
                                 const isAudio = ["mp3", "wav", "ogg"].includes(att.content_type.split("/")[1] ?? "");
-        
+
                                 const isLoaded = loadedImages[att.uuid] ?? !isImg;
 
                                 return (
@@ -314,7 +329,9 @@ export default function MessageItem({
                                                 onError={() => {
                                                     handleImageLoad(att.uuid);
                                                 }}
-                                                onClick={() => { handleMediaClick(idx); }}
+                                                onClick={() => {
+                                                    handleMediaClick(idx);
+                                                }}
                                                 style={{ cursor: "pointer" }}
                                             />
                                         ) : isVideo ? (
@@ -322,7 +339,9 @@ export default function MessageItem({
                                                 controls
                                                 src={att.url}
                                                 className={styles.videoAttachment}
-                                                onClick={() => { handleMediaClick(idx); }}
+                                                onClick={() => {
+                                                    handleMediaClick(idx);
+                                                }}
                                                 style={{ cursor: "pointer" }}
                                             />
                                         ) : isAudio ? (

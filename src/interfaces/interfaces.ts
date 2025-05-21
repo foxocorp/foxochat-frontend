@@ -151,3 +151,8 @@ export interface CopyBubbleComponent {
     (props: CopyBubbleProps): (() => void) | null;
     activeBubble: ActiveBubble | null;
 }
+
+export interface RouteConfig {
+    path: string;
+    component: preact.FunctionComponent<any>;
+}
