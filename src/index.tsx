@@ -63,7 +63,7 @@ export function App() {
     async function registerServiceWorker() {
         if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
             try {
-                const wb = new Workbox("public/sw.js");
+                const wb = new Workbox("/sw.js");
                 wb.addEventListener("waiting", async () => {
                     await wb.messageSW({ type: "SKIP_WAITING" });
                 });
