@@ -6,7 +6,7 @@ import { ExpirationPlugin } from "workbox-expiration";
 precacheAndRoute(self.__WB_MANIFEST);
 
 registerRoute(
-    ({ url }) => url.origin === "https://cdn.foxogram.su" && url.pathname.startsWith("/attachments"),
+    ({ url }) => url.origin === "https://cdn.foxogram.su " && url.pathname.startsWith("/attachments"),
     new StaleWhileRevalidate({
         cacheName: "attachments-cache",
         plugins: [

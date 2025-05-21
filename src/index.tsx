@@ -23,6 +23,8 @@ import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 
 import { RouteConfig } from "@interfaces/interfaces";
 
+import { Logger } from "@utils/logger";
+
 export const routes: RouteConfig[] = [
     { path: "/", component: Home },
     { path: "/auth/login", component: Login },
@@ -31,22 +33,13 @@ export const routes: RouteConfig[] = [
     { path: "*", component: NotFound },
 ];
 
-export async function App() {
-    if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
-        const wb = new Workbox("../sw.js");
-        wb.addEventListener("waiting", async () => {
-            await wb.messageSW({ type: "SKIP_WAITING" });
-        });
-
-        await wb.register();
-    }
-
+export function App() {
     return (
         <LocationProvider>
             <main>
                 <Router>
                     {routes.map(({ path, component }) => (
-                        <Route key={ path } path={ path } component={ component } />
+                        <Route key={path} path={path} component={component} />
                     ))}
                 </Router>
             </main>
@@ -54,8 +47,30 @@ export async function App() {
     );
 }
 
+async function registerServiceWorker() {
+    if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
+        try {
+            const wb = new Workbox("../sw.js");
+            wb.addEventListener("waiting", async () => {
+                await wb.messageSW({ type: "SKIP_WAITING" });
+            });
+
+            await wb.register();
+            Logger.info("Service Worker registered successfully");
+        } catch (error) {
+            Logger.error("Failed to register Service Worker:", error);
+        }
+    }
+}
+
 const appContainer = document.getElementById("app");
 if (!appContainer) {
     throw new Error("Container #app not found");
 }
 render(<App />, appContainer);
+
+registerServiceWorker().then(() => {
+    Logger.info("Service Worker registration completed");
+}).catch((error: unknown) => {
+    Logger.error("Failed to register Service Worker:", error);
+});
