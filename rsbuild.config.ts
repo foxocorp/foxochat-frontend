@@ -31,7 +31,8 @@ export default {
             { from: "public/manifest.json", to: "manifest.json" },
             { from: "public/favicon-96x96.png", to: "favicon-96x96.png" },
             { from: "public/web-app-manifest-512x512.png", to: "web-app-manifest-512x512.png" },
-            { from: "sw.js", to: "sw.js" },
+            { from: "dist/sw.js", to: "sw.js" },
+            { from: "node_modules/workbox-*/**/*.js", to: "" },
         ]
     },
     resolve: {
