@@ -1,7 +1,7 @@
 import { generateSW } from "workbox-build";
 
 generateSW({
-    swDest: "dist/sw.js",
+    swDest: "dist/public/sw.js",
     globDirectory: "dist",
     globPatterns: ["**/*.{html,js,css}"],
     skipWaiting: true,
