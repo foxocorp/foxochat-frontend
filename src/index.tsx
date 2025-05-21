@@ -7,6 +7,7 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter"; //400
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/200.css";
+
 import "./style.scss";
 import "./scss/style.scss";
 
@@ -19,20 +20,32 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 
+import { RouteConfig } from "@interfaces/interfaces";
+
+export const routes: RouteConfig[] = [
+    { path: "/", component: Home },
+    { path: "/auth/login", component: Login },
+    { path: "/auth/register", component: Register },
+    { path: "/auth/email/verify", component: EmailConfirmationHandler },
+    { path: "*", component: NotFound },
+];
+
 export function App() {
     return (
         <LocationProvider>
             <main>
                 <Router>
-                    <Route path="/" component={Home} />
-                    <Route path="/auth/login" component={Login} />
-                    <Route path="/auth/register" component={Register} />
-                    <Route path="/auth/email/verify" component={EmailConfirmationHandler} />
-                    <Route default component={NotFound} />
+                    {routes.map(({ path, component }) => (
+                        <Route key={ path } path={ path } component={ component } />
+                    ))}
                 </Router>
             </main>
         </LocationProvider>
     );
 }
 
-render(<App />, document.getElementById("app") ?? document.body);
+const appContainer = document.getElementById("app");
+if (!appContainer) {
+    throw new Error("Container #app not found");
+}
+render(<App />, appContainer);
