@@ -23,26 +23,28 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
       - name: Install Node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'npm'
-          cache-dependency-path: ./package.json
+          cache: 'pnpm'
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@1ff72ee08e3cb84d84adba594e0a297990fc1ed3 # stable
+        uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # stable
 
       - name: Rust Cache
-        uses: swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+        uses: swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # v2.7.8
         with:
           workspaces: './src-tauri -> target'
 
       - name: Install Frontend Dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build Desktop
-        uses: tauri-apps/tauri-action@fd1ea0d8e31d0f8670cf14c79c076d85caf9fb53 # v0.5.19
+        uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
