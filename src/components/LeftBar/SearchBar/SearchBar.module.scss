@@ -35,6 +35,7 @@
     border: none;
     outline: none;
     transition: border 0.3s ease;
+    color: var(--primary-color);
 
     &::placeholder {
         color: rgb(96 96 96 / 0.7);
