@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "rsbuild dev",
-		"build": "rsbuild build && node generate-sw.js",
+		"build": "node generate-sw.js && rsbuild build",
 		"preview": "rsbuild preview",
 		"tauri": "tauri",
 		"dev-desktop": "tauri dev",
