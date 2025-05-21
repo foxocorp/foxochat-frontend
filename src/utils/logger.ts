@@ -61,7 +61,7 @@ export const Logger = {
         console.log(
             `%c ${text} `,
             `
-            font-size: 60px;
+            font-size: 50px;
             font-weight: 900;
             color: #fff;
             background: #5865F2;
