@@ -13,6 +13,7 @@ import "./scss/style.scss";
 
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
+import { Workbox } from "workbox-window";
 
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/404";
@@ -30,7 +31,16 @@ export const routes: RouteConfig[] = [
     { path: "*", component: NotFound },
 ];
 
-export function App() {
+export async function App() {
+    if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
+        const wb = new Workbox("../sw.js");
+        wb.addEventListener("waiting", async () => {
+            await wb.messageSW({ type: "SKIP_WAITING" });
+        });
+
+        await wb.register();
+    }
+
     return (
         <LocationProvider>
             <main>
