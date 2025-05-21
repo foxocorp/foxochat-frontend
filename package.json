@@ -4,6 +4,7 @@
 	"scripts": {
 		"dev": "rsbuild dev",
 		"build": "rsbuild build",
+		"build-pwa": "node generate-sw.js",
 		"preview": "rsbuild preview",
 		"tauri": "tauri",
 		"dev-desktop": "tauri dev",
