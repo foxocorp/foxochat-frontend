@@ -12,14 +12,15 @@ export function clearAuthAndRedirect(): void {
 }
 
 export async function initializeWebSocket(this: AppStore): Promise<void> {
-    const token = getAuthToken();
-    if (!token) {
-        Logger.error("No auth token provided");
-        throw new Error("No auth token provided");
-    }
-
     if (this.wsClient && this.isWsInitialized) {
         Logger.info("WebSocket already initialized");
+        return;
+    }
+
+    const token = getAuthToken();
+
+    if (!token) {
+        Logger.info("No token found, skipping WebSocket initialization");
         return;
     }
 

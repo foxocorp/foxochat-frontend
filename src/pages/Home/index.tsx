@@ -10,10 +10,32 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 import { APIChannel } from "@foxogram/api-types";
 import appStore from "@store/app";
 
+function useAuthRedirect(redirectTo = "/auth/login") {
+	const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		function checkAuth() {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				window.location.href = redirectTo;
+			} else {
+				setAuthorized(true);
+			}
+		}
+		checkAuth();
+	}, [redirectTo]);
+
+	return authorized;
+}
+
 const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
+
+	const authorized = useAuthRedirect();
+
+	if (authorized === null) return null;
 
 	const { channels, currentUserId, currentChannelId } = appStore;
 	const selectedChat = useMemo(
