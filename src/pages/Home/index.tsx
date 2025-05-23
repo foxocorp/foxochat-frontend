@@ -9,21 +9,19 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 
 import { APIChannel } from "@foxogram/api-types";
 import appStore from "@store/app";
+import { useAuthStore } from "@store/authenticationStore";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
+	const authStore = useAuthStore();
 	const [authorized, setAuthorized] = useState<boolean | null>(null);
 
 	useEffect(() => {
-		function checkAuth() {
-			const token = localStorage.getItem("authToken");
-			if (!token) {
-				window.location.href = redirectTo;
-			} else {
-				setAuthorized(true);
-			}
+		if (!authStore.isAuthenticated) {
+			window.location.href = redirectTo;
+		} else {
+			setAuthorized(true);
 		}
-		checkAuth();
-	}, [redirectTo]);
+	}, [authStore.isAuthenticated, redirectTo]);
 
 	return authorized;
 }

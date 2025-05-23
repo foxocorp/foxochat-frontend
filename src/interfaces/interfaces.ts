@@ -154,5 +154,5 @@ export interface CopyBubbleComponent {
 
 export interface RouteConfig {
     path: string;
-    component: preact.FunctionComponent<unknown>;
+    component: preact.FunctionComponent<any>;
 }

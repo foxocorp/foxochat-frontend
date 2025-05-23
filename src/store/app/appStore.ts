@@ -162,7 +162,7 @@ export class AppStore {
         const idx = msgs.findIndex(m => m.id === messageId);
         if (idx < 0) return;
 
-        msgs[idx] = { ...msgs[idx], content: newContent } as APIMessage;
+        msgs.splice(idx, 1, { ...msgs[idx], content: newContent });
     }
 
     @action

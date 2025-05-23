@@ -13,6 +13,7 @@ import newUserIcon from "@icons/navigation/new-user.svg";
 import { apiMethods } from "@services/API/apiMethods";
 import { useAuthStore } from "@store/authenticationStore";
 import { Logger } from "@utils/logger";
+import appStore from "@store/app";
 
 const Login = (): JSX.Element => {
 	const [email, setEmail] = useState<string>("");
@@ -53,6 +54,7 @@ const Login = (): JSX.Element => {
 				authStore.login(response.access_token);
 				Logger.info("Successful login");
 				location.route("/");
+				await appStore.initializeStore();
 			} else {
 				Logger.error("Login error");
 			}
