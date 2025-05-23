@@ -103,7 +103,7 @@ export default tseslint.config(
 			/**
 			 * General JavaScript stylistic rules (disabled)
 			 */
-			semi: 2,
+			semi: "off",
 			strict: [2, "never"], // assume type=module output (cli default)
 			"object-curly-spacing": [2, "always"],
 			"rest-spread-spacing": 0,

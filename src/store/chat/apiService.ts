@@ -36,8 +36,10 @@ export async function fetchCurrentUser(this: ChatStore): Promise<void> {
     }
 }
 
-export async function fetchChannelsFromAPI(this: ChatStore): Promise<void> {
-    if (!getAuthToken() || this.channels.length > 0 || this.activeRequests.has("channels")) return;
+export async function fetchChannelsFromAPI(this: ChatStore): Promise<APIChannel[]> {
+    if (!getAuthToken() || this.channels.length > 0 || this.activeRequests.has("channels")) {
+        return this.channels;
+    }
 
     runInAction(() => {
         this.activeRequests.add("channels");
@@ -46,19 +48,24 @@ export async function fetchChannelsFromAPI(this: ChatStore): Promise<void> {
 
     try {
         const apiChannels: APIChannel[] = await apiMethods.userChannelsList();
+
         runInAction(() => {
             this.channels = observable.array(
-                apiChannels.map(channel => observable.object(createChannelFromAPI(channel))).filter(Boolean) as APIChannel[],
+                apiChannels
+                    .map(channel => observable.object(createChannelFromAPI(channel)))
+                    .filter(Boolean) as APIChannel[],
             );
-            this.isLoading = false;
-            this.activeRequests.delete("channels");
         });
+
+        return this.channels;
     } catch (error) {
+        handleAuthError.call(this, error);
+        throw error;
+    } finally {
         runInAction(() => {
             this.isLoading = false;
             this.activeRequests.delete("channels");
         });
-        handleAuthError.call(this, error);
     }
 }
 

@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+public/sw.js*
+public/workbox-*.js*
 
 # Editor directories and files
 .vscode/*
