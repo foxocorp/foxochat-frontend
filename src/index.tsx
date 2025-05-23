@@ -1,12 +1,3 @@
-if (import.meta.env.MODE !== "production") {
-    await import("preact/debug");
-}
-
-import "@fontsource/inter";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-
-import "./style.scss";
 import "./scss/style.scss";
 
 import { render, Component, ComponentChild, ErrorInfo } from "preact";
@@ -22,7 +13,7 @@ import Register from "./pages/Auth/Register";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 import Loading from "@components/LoadingApp/LoadingApp";
 
-import { RouteConfig } from "@interfaces/interfaces";
+import { RouteConfig, ErrorBoundaryProps, ErrorBoundaryState } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";
 
@@ -51,10 +42,10 @@ async function registerServiceWorker() {
     }
 }
 
-class ErrorBoundary extends Component<{ children: ComponentChild }, { hasError: boolean }> {
-    override state = { hasError: false };
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+    override state: ErrorBoundaryState = { hasError: false };
 
-    static override getDerivedStateFromError() {
+    static override getDerivedStateFromError(): ErrorBoundaryState {
         return { hasError: true };
     }
 
@@ -62,33 +53,40 @@ class ErrorBoundary extends Component<{ children: ComponentChild }, { hasError: 
         Logger.error("Uncaught error in app:", error, info);
     }
 
-    render() {
+    override render() {
         if (this.state.hasError) return <Maintenance />;
         return this.props.children;
     }
 }
 
+enum InitializationStatus {
+    Loading = "loading",
+    Success = "success",
+    Error = "error",
+    Unauthorized = "unauthorized",
+}
+
 function InitializationCheck({ children }: { children: ComponentChild }) {
-    const [status, setStatus] = useState<"loading" | "success" | "error" | "unauthorized">("loading");
+    const [status, setStatus] = useState<InitializationStatus>(InitializationStatus.Loading);
     const isAuthenticated = authStore.isAuthenticated;
 
     useEffect(() => {
         if (!isAuthenticated) {
-            setStatus("unauthorized");
+            setStatus(InitializationStatus.Unauthorized);
             return;
         }
 
         async function init() {
-            setStatus("loading");
+            setStatus(InitializationStatus.Loading);
             try {
                 await appStore.initializeStore();
-                setStatus("success");
+                setStatus(InitializationStatus.Success);
             } catch (error) {
                 Logger.error("Initialization failed:", error);
                 setStatus(
                     appStore.currentUserId && !appStore.connectionError?.includes("WebSocket")
-                        ? "success"
-                        : "error",
+                        ? InitializationStatus.Success
+                        : InitializationStatus.Error,
                 );
             }
         }
@@ -96,10 +94,20 @@ function InitializationCheck({ children }: { children: ComponentChild }) {
         void init();
     }, [isAuthenticated]);
 
-    if (status === "loading") return <Loading isLoading onLoaded={() => undefined} />;
-    if (status === "unauthorized") return <>{children}</>;
-    if (status === "error" || (appStore.connectionError && !appStore.currentUserId)) return <Maintenance />;
-    return <>{children}</>;
+    switch (status) {
+        case InitializationStatus.Loading:
+            return <Loading isLoading onLoaded={() => undefined} />;
+        case InitializationStatus.Unauthorized:
+            return children;
+        case InitializationStatus.Error:
+            if (appStore.connectionError && !appStore.currentUserId) {
+                return <Maintenance />;
+            }
+            return children;
+        case InitializationStatus.Success:
+        default:
+            return children;
+    }
 }
 
 function Routes() {

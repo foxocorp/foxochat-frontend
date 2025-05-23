@@ -5,7 +5,7 @@ import {
     ChannelType,
 } from "@foxogram/api-types";
 import React from "react";
-import type { ContainerNode } from "preact";
+import { ComponentChild, ContainerNode } from "preact";
 
 /* === Props Section === */
 
@@ -155,4 +155,12 @@ export interface CopyBubbleComponent {
 export interface RouteConfig {
     path: string;
     component: preact.FunctionComponent<any>;
+}
+
+export interface ErrorBoundaryProps {
+    children: ComponentChild;
+}
+
+export interface ErrorBoundaryState {
+    hasError: boolean;
 }

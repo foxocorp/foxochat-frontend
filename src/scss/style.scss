@@ -1,4 +1,10 @@
 @import "variables";
 
+@import "@fontsource/inter";
+@import "@fontsource/inter/500";
+@import "@fontsource/inter/600";
+
+@import "../style";
+
 @import "components/prism";
-@import "prismjs/themes/prism-okaidia.css";
+@import "prismjs/themes/prism-okaidia";
