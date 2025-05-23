@@ -2,23 +2,21 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import styles from "./ChatList.module.scss";
 import ChatItem from "./ChatItem/ChatItem";
 import { ChatListProps } from "@interfaces/interfaces";
-import { APIChannel } from "@foxogram/api-types";
 import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
-import chatStore from "@store/chat";
+import appStore from "@store/app";
 
 const ChatListComponent = ({ chats, onSelectChat }: ChatListProps) => {
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
     const sortedChannels = useMemo(() => {
-        return [...chatStore.channels]
-            .filter((chat): chat is APIChannel => !!chat)
+        return [...appStore.channels]
             .sort((a, b) => {
                 const aTime = a.last_message?.created_at ?? a.created_at;
                 const bTime = b.last_message?.created_at ?? b.created_at;
                 return (bTime || 0) - (aTime || 0);
             });
-    }, [chatStore.channels]);
+    }, [appStore.channels]);
 
     useEffect(() => {
         const message = replaceEmojis("😔", "160");
@@ -45,9 +43,9 @@ const ChatListComponent = ({ chats, onSelectChat }: ChatListProps) => {
                     <ChatItem
                         key={chat.id}
                         chat={chat}
-                        isActive={chat.id === chatStore.currentChannelId}
+                        isActive={chat.id === appStore.currentChannelId}
                         onSelectChat={onSelectChat}
-                        currentUser={chatStore.currentUserId ?? -1}
+                        currentUser={appStore.currentUserId ?? -1}
                     />
                 ))}
         </div>

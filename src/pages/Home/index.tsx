@@ -1,36 +1,41 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from "preact/hooks";
-import { useLocation } from "preact-iso";
+import { useEffect, useState, useCallback, useMemo } from "preact/hooks";
 import { observer } from "mobx-react";
 
 import "./style.scss";
 
-import Loading from "@components/LoadingApp/LoadingApp";
 import Sidebar from "@components/LeftBar/Sidebar";
 import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 
-import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { APIChannel } from "@foxogram/api-types";
-import chatStore from "@store/chat/index";
-import { Logger } from "@utils/logger";
+import appStore from "@store/app";
+import { useAuthStore } from "@store/authenticationStore";
 
-interface FetchError extends Error {
-	status?: number;
-	url?: string;
-	retryAfter?: number;
+function useAuthRedirect(redirectTo = "/auth/login") {
+	const authStore = useAuthStore();
+	const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		if (!authStore.isAuthenticated) {
+			window.location.href = redirectTo;
+		} else {
+			setAuthorized(true);
+		}
+	}, [authStore.isAuthenticated, redirectTo]);
+
+	return authorized;
 }
 
 const HomeComponent = () => {
-	const location = useLocation();
-	const token = getAuthToken();
-	const [initialLoadDone, setInitialLoadDone] = useState(false);
-	const isMounted = useRef(true);
-	const abortController = useRef(new AbortController());
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
 
-	const { channels, currentUserId, currentChannelId, isLoading } = chatStore;
+	const authorized = useAuthRedirect();
+
+	if (authorized === null) return null;
+
+	const { channels, currentUserId, currentChannelId } = appStore;
 	const selectedChat = useMemo(
 		() => channels.find((c) => c.id === currentChannelId) ?? null,
 		[channels, currentChannelId],
@@ -63,82 +68,9 @@ const HomeComponent = () => {
 		};
 	}, [handleResize]);
 
-	const retryRequest = async <T,>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> => {
-		for (let i = 0; i < retries; i++) {
-			try {
-				return await fn();
-			} catch (err: unknown) {
-				if (err instanceof Error) {
-					if (err.name === "AbortError") throw err;
-					const e = err as FetchError;
-					if (e.status === 429) {
-						const retryAfter = e.retryAfter ?? 1000;
-						Logger.warn(`Rate limit exceeded, retrying after ${retryAfter}ms`);
-						await new Promise((resolve) => setTimeout(resolve, retryAfter));
-						continue;
-					}
-				}
-				if (i === retries - 1) throw err;
-				await new Promise((resolve) => setTimeout(resolve, delay));
-			}
-		}
-		throw new Error("Retry limit reached");
-	};
-
-	const initApp = useCallback(async () => {
-		if (!token) {
-			Logger.warn("No auth token found, redirecting to login");
-			location.route("/auth/login");
-			return;
-		}
-
-		await new Promise((resolve) => setTimeout(resolve, 500));
-
-		try {
-			Logger.debug("Initializing application...");
-
-			const user = await retryRequest(() => apiMethods.getCurrentUser());
-			chatStore.setCurrentUser(user.id);
-
-			const fetchedChannels = await retryRequest(() => chatStore.fetchChannelsFromAPI());
-			chatStore.channels.replace(fetchedChannels);
-
-			const channelIds = chatStore.channels.map((c) => c.id);
-			if (new Set(channelIds).size !== channelIds.length) {
-				Logger.error("Duplicate channel IDs detected!");
-			}
-
-			if (isMounted.current) {
-				setInitialLoadDone(true);
-			}
-		} catch (err: unknown) {
-			if (err instanceof Error) {
-				if (err.name === "AbortError") {
-					Logger.debug("Request aborted due to component unmount");
-					return;
-				}
-				Logger.error(`App init failed: ${err.message}`);
-			}
-			if ((err as FetchError).status === 401) {
-				Logger.warn("Unauthorized, redirecting to login");
-				location.route("/auth/login");
-			}
-		}
-	}, [token, location]);
-
-	useEffect(() => {
-		isMounted.current = true;
-		void initApp();
-		return () => {
-			isMounted.current = false;
-			abortController.current.abort();
-			abortController.current = new AbortController();
-		};
-	}, [initApp]);
-
 	const handleSelectChat = useCallback(
 		async (chat: APIChannel) => {
-			await chatStore.setCurrentChannel(chat.id);
+			await appStore.setCurrentChannel(chat.id);
 			if (isMobile) {
 				setMobileView("chat");
 				setChatTransition("slide-in");
@@ -151,18 +83,12 @@ const HomeComponent = () => {
 		setChatTransition("slide-out");
 		requestAnimationFrame(() => {
 			setTimeout(async () => {
-				await chatStore.setCurrentChannel(null);
-				if (isMounted.current) {
-					setMobileView("list");
-					setChatTransition("");
-				}
+				await appStore.setCurrentChannel(null);
+				setMobileView("list");
+				setChatTransition("");
 			}, 300);
 		});
 	}, []);
-
-	if (isLoading || !initialLoadDone) {
-		return <Loading isLoading={true} onLoaded={() => undefined} />;
-	}
 
 	if (isMobile) {
 		return (

@@ -8,7 +8,7 @@ import CreateButton from "./CreateButton/CreateButton";
 import CreateChannelModal from "./CreateChannelModal/CreateChannelModal";
 import CreateDropdown from "./CreateDropdown/CreateDropdown";
 import { apiMethods } from "@services/API/apiMethods";
-import { chatStore } from "@store/chat/chatStore";
+import appStore from "@store/app";
 import { ChannelType } from "@foxogram/api-types";
 import { observer } from "mobx-react";
 
@@ -19,8 +19,8 @@ const SidebarComponent = ({
                               onSelectChat,
                               currentUser,
                               isMobile = false,
-                              setMobileView = () => {},
-                              setChatTransition = () => {},
+                              setMobileView = () => undefined,
+                              setChatTransition = () => undefined,
                           }: SidebarProps) => {
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showCreateDropdown, setShowCreateDropdown] = useState(false);
@@ -30,7 +30,7 @@ const SidebarComponent = ({
     const isResizing = useRef(false);
     const startX = useRef(0);
     const startWidth = useRef(DEFAULT_DESKTOP_WIDTH);
-    const channels = chatStore.channels;
+    const channels = appStore.channels;
 
     const handleCreate = async (data: {
         name: string;
@@ -43,11 +43,10 @@ const SidebarComponent = ({
                 name: data.name,
                 display_name: data.displayName,
                 type: data.channelType,
-                members: data.members ?? [],
             });
 
-            chatStore.addNewChannel(response);
-            await chatStore.setCurrentChannel(response.id);
+            appStore.addNewChannel(response);
+            await appStore.setCurrentChannel(response.id);
 
             if (isMobile) {
                 setMobileView("chat");
@@ -115,7 +114,7 @@ const SidebarComponent = ({
                 <div className={styles.headerControls}>
                     <SearchBar
                         onJoinChannel={async (channelId: number | null) => {
-                            await chatStore.setCurrentChannel(channelId);
+                            await appStore.setCurrentChannel(channelId);
                             if (isMobile) {
                                 setMobileView("chat");
                             }
@@ -163,7 +162,7 @@ const SidebarComponent = ({
                 <CreateChannelModal
                     type={showCreateModal}
                     onClose={() => { setShowCreateModal(null); }}
-                    onCreate={handleCreate}
+                    onCreate={() => handleCreate}
                 />
             )}
         </div>

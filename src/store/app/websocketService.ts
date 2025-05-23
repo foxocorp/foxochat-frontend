@@ -1,25 +1,31 @@
 import { getAuthToken } from "@services/API/apiMethods";
-import { initWebSocket } from "../../gateway/initWebSocket";
+import { initWebSocket } from "@/gateway/initWebSocket";
 import { GatewayDispatchEvents } from "@foxogram/gateway-types";
 import { Logger } from "@utils/logger";
-import type { ChatStore } from "./chatStore";
+import { AppStore } from "./appStore";
 import { runInAction } from "mobx";
-import { transformToMessage } from "@store/chat/transforms";
+import { transformToMessage } from "@store/app/transforms";
 
 export function clearAuthAndRedirect(): void {
     localStorage.removeItem("authToken");
     window.location.href = "/auth/login";
 }
 
-export async function initializeWebSocket(this: ChatStore): Promise<void> {
-    const token = getAuthToken();
-    if (!token) return;
+export async function initializeWebSocket(this: AppStore): Promise<void> {
+    if (this.wsClient && this.isWsInitialized) {
+        Logger.info("WebSocket already initialized");
+        return;
+    }
 
-    if (this.wsClient && this.isWsInitialized) return;
+    const token = getAuthToken();
+
+    if (!token) {
+        Logger.info("No token found, skipping WebSocket initialization");
+        return;
+    }
 
     if (!this.wsClient) {
         Logger.info("Initializing WebSocket connection...");
-
         this.wsClient = initWebSocket(token, () => {
             Logger.info("WebSocket unauthorized, clearing auth");
             clearAuthAndRedirect();
@@ -35,9 +41,17 @@ export async function initializeWebSocket(this: ChatStore): Promise<void> {
         });
 
         this.wsClient.client.on("socketError", (error: unknown) => {
-            Logger.error("WebSocket error:", error);
+            Logger.error("WebSocket socketError:", error);
             runInAction(() => {
-                this.connectionError = "Connection error";
+                this.connectionError = `Socket error: ${error instanceof Error ? error.message : String(error)}`;
+            });
+        });
+
+        this.wsClient.client.on("closed", (code: number) => {
+            Logger.error(`WebSocket closed with code: ${code}`);
+            runInAction(() => {
+                this.isWsInitialized = false;
+                this.connectionError = `Connection closed with code ${code}`;
             });
         });
 
@@ -45,13 +59,18 @@ export async function initializeWebSocket(this: ChatStore): Promise<void> {
     }
 
     try {
+        Logger.info("Attempting to connect WebSocket...");
         await this.wsClient.connect();
+        Logger.info("WebSocket connect method completed");
     } catch (err: unknown) {
         Logger.error("Failed to connect WebSocket:", err);
+        runInAction(() => {
+            this.connectionError = `Failed to connect WebSocket: ${err instanceof Error ? err.message : String(err)}`;
+        });
     }
 }
 
-export function handleHistorySync(this: ChatStore): void {
+export function handleHistorySync(this: AppStore): void {
     if (!this.currentChannelId) return;
 
     Logger.info("Syncing message history for channel:", this.currentChannelId);
@@ -61,7 +80,7 @@ export function handleHistorySync(this: ChatStore): void {
     });
 }
 
-export function setupWebSocketHandlers(this: ChatStore): void {
+export function setupWebSocketHandlers(this: AppStore): void {
     if (!this.wsClient) return;
 
     this.wsClient.client.on(GatewayDispatchEvents.MessageCreate, (data: unknown) => {
@@ -103,9 +122,7 @@ export function setupWebSocketHandlers(this: ChatStore): void {
             } else if (typeof data === "string") {
                 try {
                     const parsed = JSON.parse(data) as { id: number };
-                    if (parsed && typeof parsed.id === "number") {
-                        messageId = parsed.id;
-                    }
+                    messageId = parsed.id;
                 } catch {
                     Logger.warn("Failed to parse delete message data");
                     return;

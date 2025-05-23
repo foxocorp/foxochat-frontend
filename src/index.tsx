@@ -1,17 +1,15 @@
-import "preact/debug"; // Disable in production
+if (import.meta.env.MODE !== "production") {
+    await import("preact/debug");
+}
 
-import "@fontsource/inter/900.css";
-import "@fontsource/inter/800.css";
-import "@fontsource/inter/600.css";
+import "@fontsource/inter";
 import "@fontsource/inter/500.css";
-import "@fontsource/inter"; //400
-import "@fontsource/inter/300.css";
-import "@fontsource/inter/200.css";
+import "@fontsource/inter/600.css";
 
 import "./style.scss";
 import "./scss/style.scss";
 
-import { render } from "preact";
+import { render, Component, ComponentChild, ErrorInfo } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { Workbox } from "workbox-window";
@@ -22,10 +20,15 @@ import { Maintenance } from "./pages/Fallbacks/Maintenance/Maintenance";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
+import Loading from "@components/LoadingApp/LoadingApp";
 
 import { RouteConfig } from "@interfaces/interfaces";
-import { chatStore } from "@store/chat/chatStore";
+import appStore from "@store/app";
 import { Logger } from "@utils/logger";
+
+import { useAuthStore } from "@store/authenticationStore";
+
+const authStore = useAuthStore();
 
 export const routes: RouteConfig[] = [
     { path: "/", component: Home },
@@ -35,70 +38,98 @@ export const routes: RouteConfig[] = [
     { path: "*", component: NotFound },
 ];
 
-function InitializationCheck({ children }: { children: preact.ComponentChildren }) {
-    const [isInitialized, setIsInitialized] = useState(false);
+async function registerServiceWorker() {
+    if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
+        try {
+            const wb = new Workbox("/sw.js");
+            wb.addEventListener("waiting", () => wb.messageSW({ type: "SKIP_WAITING" }));
+            await wb.register();
+            Logger.info("Service Worker registered successfully");
+        } catch (error) {
+            Logger.error("Failed to register Service Worker:", error);
+        }
+    }
+}
 
-    useEffect(() => {
-        const checkInitialization = async () => {
-            try {
-                await chatStore.initializeStore();
-                setIsInitialized(true);
-            } catch (error) {
-                Logger.error("Initialization failed:", error);
-                setIsInitialized(false);
-            }
-        };
+class ErrorBoundary extends Component<{ children: ComponentChild }, { hasError: boolean }> {
+    override state = { hasError: false };
 
-        void checkInitialization();
-    }, []);
-
-    if (!isInitialized || chatStore.connectionError || !chatStore.isWsInitialized) {
-        return <Maintenance />;
+    static override getDerivedStateFromError() {
+        return { hasError: true };
     }
 
+    override componentDidCatch(error: Error, info: ErrorInfo) {
+        Logger.error("Uncaught error in app:", error, info);
+    }
+
+    render() {
+        if (this.state.hasError) return <Maintenance />;
+        return this.props.children;
+    }
+}
+
+function InitializationCheck({ children }: { children: ComponentChild }) {
+    const [status, setStatus] = useState<"loading" | "success" | "error" | "unauthorized">("loading");
+    const isAuthenticated = authStore.isAuthenticated;
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setStatus("unauthorized");
+            return;
+        }
+
+        async function init() {
+            setStatus("loading");
+            try {
+                await appStore.initializeStore();
+                setStatus("success");
+            } catch (error) {
+                Logger.error("Initialization failed:", error);
+                setStatus(
+                    appStore.currentUserId && !appStore.connectionError?.includes("WebSocket")
+                        ? "success"
+                        : "error",
+                );
+            }
+        }
+
+        void init();
+    }, [isAuthenticated]);
+
+    if (status === "loading") return <Loading isLoading onLoaded={() => undefined} />;
+    if (status === "unauthorized") return <>{children}</>;
+    if (status === "error" || (appStore.connectionError && !appStore.currentUserId)) return <Maintenance />;
     return <>{children}</>;
 }
 
+function Routes() {
+    return (
+        <Router>
+            {routes.map(({ path, component }) => (
+                <Route key={path} path={path} component={component} />
+            ))}
+        </Router>
+    );
+}
+
 export function App() {
-    async function registerServiceWorker() {
-        if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
-            try {
-                const wb = new Workbox("/sw.js");
-                wb.addEventListener("waiting", async () => {
-                    await wb.messageSW({ type: "SKIP_WAITING" });
-                });
-
-                await wb.register();
-                Logger.info("Service Worker registered successfully");
-            } catch (error) {
-                Logger.error("Failed to register Service Worker:", error);
-            }
-        }
-    }
-
     useEffect(() => {
-        registerServiceWorker().catch((error: unknown) => {
-            Logger.error("Failed to register Service Worker:", error);
-        });
+        void registerServiceWorker();
     }, []);
 
     return (
-        <LocationProvider>
-            <InitializationCheck>
-                <main>
-                    <Router>
-                        {routes.map(({ path, component }) => (
-                            <Route key={path} path={path} component={component} />
-                        ))}
-                    </Router>
-                </main>
-            </InitializationCheck>
-        </LocationProvider>
+        <ErrorBoundary>
+            <LocationProvider>
+                <InitializationCheck>
+                    <main>
+                        <Routes />
+                    </main>
+                </InitializationCheck>
+            </LocationProvider>
+        </ErrorBoundary>
     );
 }
 
 const appContainer = document.getElementById("app");
-if (!appContainer) {
-    throw new Error("Container #app not found");
-}
+if (!appContainer) throw new Error("Container #app not found");
 render(<App />, appContainer);

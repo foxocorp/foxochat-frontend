@@ -1,6 +1,6 @@
 import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
-import type { ChatStore } from "./chatStore";
+import { AppStore } from "./appStore";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
 import type { APIChannel, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
 import { observable, runInAction } from "mobx";
@@ -14,7 +14,7 @@ function isAuthError(err: unknown): err is AuthError {
     return typeof err === "object" && err !== null && ("response" in err || "code" in err);
 }
 
-function handleAuthError(this: ChatStore, error: unknown) {
+function handleAuthError(this: AppStore, error: unknown) {
     if (isAuthError(error) && (error.response?.status === 401 || error.code === "UNAUTHORIZED")) {
         Logger.error(`Auth error: ${JSON.stringify(error)}`);
         this.clearAuthAndRedirect();
@@ -23,7 +23,7 @@ function handleAuthError(this: ChatStore, error: unknown) {
     }
 }
 
-export async function fetchCurrentUser(this: ChatStore): Promise<void> {
+export async function fetchCurrentUser(this: AppStore): Promise<void> {
     if (this.currentUserId || !getAuthToken()) return;
     try {
         const user = await apiMethods.getCurrentUser();
@@ -36,7 +36,7 @@ export async function fetchCurrentUser(this: ChatStore): Promise<void> {
     }
 }
 
-export async function fetchChannelsFromAPI(this: ChatStore): Promise<APIChannel[]> {
+export async function fetchChannelsFromAPI(this: AppStore): Promise<APIChannel[]> {
     if (!getAuthToken() || this.channels.length > 0 || this.activeRequests.has("channels")) {
         return this.channels;
     }
@@ -69,7 +69,7 @@ export async function fetchChannelsFromAPI(this: ChatStore): Promise<APIChannel[
     }
 }
 
-export async function fetchMessages(this: ChatStore, channelId: number, query: RESTGetAPIMessageListQuery = {}): Promise<void> {
+export async function fetchMessages(this: AppStore, channelId: number, query: RESTGetAPIMessageListQuery = {}): Promise<void> {
     if (this.activeRequests.has(channelId)) return;
 
     runInAction(() => {
@@ -122,7 +122,7 @@ function removeDuplicateMessages(messages: any[]): any[] {
     return Object.values(uniqueMessages);
 }
 
-export async function sendMessage(this: ChatStore, content: string, files: File[] = []): Promise<void> {
+export async function sendMessage(this: AppStore, content: string, files: File[] = []): Promise<void> {
     if (!this.currentChannelId || !this.currentUserId) return;
 
     const channelId = this.currentChannelId;
@@ -161,7 +161,7 @@ export async function sendMessage(this: ChatStore, content: string, files: File[
     }
 }
 
-export async function retryMessage(this: ChatStore, messageId: number): Promise<void> {
+export async function retryMessage(this: AppStore, messageId: number): Promise<void> {
     const channelId = this.currentChannelId;
     if (channelId === null) return;
 
