@@ -1,15 +1,15 @@
 import * as apiService from "./apiService";
 import * as wsService from "./websocketService";
-import { action, observable, configure, IObservableArray, runInAction } from "mobx";
+import { action, configure, IObservableArray, observable, runInAction } from "mobx";
 import { apiMethods } from "@services/API/apiMethods";
 import { APIChannel, APIMessage, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
 import type { WebSocketClient } from "@/gateway/webSocketClient";
 import { Logger } from "@utils/logger";
-import { transformToMessage } from "@store/chat/transforms";
+import { transformToMessage } from "./transforms";
 
 configure({ enforceActions: "observed" });
 
-export class ChatStore {
+export class AppStore {
     @observable accessor messagesByChannelId = observable.map<number, IObservableArray<APIMessage>>();
     @observable accessor hasMoreMessagesByChannelId = observable.map<number, boolean>();
     @observable accessor abortControllers = observable.map<number, AbortController>();
@@ -37,10 +37,6 @@ export class ChatStore {
         this.initializeFromUrl().catch((error: unknown) => {
             Logger.error(`Failed to initialize from URL: ${error}`);
         });
-    }
-
-    async init() {
-        await this.initializeStore();
     }
 
     async initChannel(channelId: number) {
@@ -166,8 +162,7 @@ export class ChatStore {
         const idx = msgs.findIndex(m => m.id === messageId);
         if (idx < 0) return;
 
-        const msg = { ...msgs[idx], content: newContent };
-        msgs[idx] = msg;
+        msgs[idx] = { ...msgs[idx], content: newContent } as APIMessage;
     }
 
     @action
@@ -225,7 +220,7 @@ export class ChatStore {
                 .sort((a, b) => a.created_at - b.created_at);
 
             runInAction(() => {
-                const existing = this.messagesByChannelId.get(channelId) || [];
+                const existing = this.messagesByChannelId.get(channelId) ?? [];
 
                 let updated: APIMessage[];
                 if (query.before) {
@@ -242,7 +237,7 @@ export class ChatStore {
                 this.hasMoreMessagesByChannelId.set(channelId, newMessages.length >= 50);
             });
         } catch (error) {
-            console.error("Failed to fetch messages:", error);
+            Logger.error("Failed to fetch messages:", error);
         } finally {
             runInAction(() => {
                 this.activeRequests.delete(channelId);
@@ -289,12 +284,20 @@ export class ChatStore {
     @action
     async initializeStore() {
         try {
+            this.setIsLoading(true);
+            Logger.info("Starting store initialization...");
             await this.fetchCurrentUser();
+            Logger.info("Current user fetched successfully");
             await this.fetchChannelsFromAPI();
+            Logger.info("Channels fetched successfully");
             await this.initializeWebSocket();
+            Logger.info("WebSocket initialized successfully");
         } catch (error) {
-            console.error(error);
+            Logger.error("Initialization failed:", error);
             this.connectionError = "Initialization error";
+            throw error;
+        } finally {
+            this.setIsLoading(false);
         }
     }
 
@@ -323,6 +326,3 @@ export class ChatStore {
     handleHistorySync = wsService.handleHistorySync;
     setupWebSocketHandlers = wsService.setupWebSocketHandlers;
 }
-
-export const chatStore = new ChatStore();
-chatStore.init().catch(console.error);
