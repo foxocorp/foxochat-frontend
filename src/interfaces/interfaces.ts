@@ -28,12 +28,12 @@ export interface ChatListProps {
 
 export interface ChatHeaderProps {
     chat: APIChannel;
-    avatar?: string | null;
-    displayName?: string | null;
+    avatar?: string | null | undefined;
+    displayName?: string | null | undefined;
     username: string;
     channelId: number;
     isMobile: boolean;
-    onBack?: () => void
+    onBack?: (() => void) | undefined;
 }
 
 export interface ChatItemProps {
@@ -65,7 +65,7 @@ export interface MessageItemProps {
     status?: "sending" | "sent" | "failed";
     onRetry?: () => void;
     onDelete?: () => void;
-    showAvatar: boolean
+    showAvatar: boolean;
 }
 
 export interface Attachment {
@@ -154,5 +154,5 @@ export interface CopyBubbleComponent {
 
 export interface RouteConfig {
     path: string;
-    component: preact.FunctionComponent<any>;
+    component: preact.FunctionComponent<unknown>;
 }
