@@ -6,7 +6,7 @@ import { ChatHeaderProps } from "@interfaces/interfaces";
 
 const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
     const { id, name, display_name, icon, created_at } = chat;
-    const nameToDisplay = display_name ?? name;
+    const nameToDisplay = display_name || name;
     const [participantsCount, setParticipantsCount] = useState<number | null>(null);
 
     useEffect(() => {
@@ -37,7 +37,7 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
             )}
             {icon ? (
                 <img
-                    src={icon}
+                    src={icon.uuid}
                     alt={`${nameToDisplay}'s avatar`}
                     className={style.chatHeaderAvatar}
                 />

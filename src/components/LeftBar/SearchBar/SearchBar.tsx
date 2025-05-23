@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "preact/hooks";
 import styles from "./SearchBar.module.scss";
 import searchIcon from "@icons/navigation/magnifying-glass.svg";
 import React from "react";
-import { chatStore } from "@store/chat/chatStore";
+import appStore from "@store/app";
 
 const platformMatchers: Record<string, RegExp> = {
     windows: /windows nt/i,
@@ -51,7 +51,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
         if (!trimmed || !Number.isInteger(channelId)) return;
 
         try {
-            await chatStore.joinChannel(channelId);
+            await appStore.joinChannel(channelId);
             await onJoinChannel(channelId);
 
             setQuery("");
@@ -64,12 +64,16 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 
     useEffect(() => {
         const input = inputRef.current;
-        if (input) {
-            input.addEventListener("keypress", handleKeyPress);
-            return () => {
-                input.removeEventListener("keypress", handleKeyPress);
-            };
-        }
+        if (!input) return;
+
+        const listener = (e: KeyboardEvent) => {
+            void handleKeyPress(e);
+        };
+
+        input.addEventListener("keypress", listener);
+        return () => {
+            input.removeEventListener("keypress", listener);
+        };
     }, [query]);
 
     useEffect(() => {

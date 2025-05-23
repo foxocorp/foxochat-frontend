@@ -5,7 +5,7 @@ import sendIcon from "@icons/chat/paperplane.svg";
 import trashIcon from "@icons/chat/trash.svg";
 import fileIcon from "@icons/chat/file.svg";
 import { MessageInputProps } from "@interfaces/interfaces";
-import chatStore from "@store/chat/index";
+import appStore from "@store/app";
 import { Logger } from "@utils/logger";
 import { autorun } from "mobx";
 import React from "react";
@@ -24,14 +24,14 @@ const MessageInput = ({}: MessageInputProps) => {
         `${file.name}-${file.size}-${file.lastModified}`;
 
     const handleSend = async () => {
-        if ((!message.trim() && !files.length) || chatStore.isSendingMessage) return;
+        if ((!message.trim() && !files.length) || appStore.isSendingMessage) return;
 
         try {
             setMessage("");
             setFiles([]);
             setFilePreviews(new Map());
             fileInputRef.current && (fileInputRef.current.value = "");
-            await chatStore.sendMessage(message, files);
+            await appStore.sendMessage(message, files);
             textareaRef.current?.focus();
         } catch (error) {
             Logger.error(error instanceof Error ? error.message : "Unknown error");
@@ -120,7 +120,7 @@ const MessageInput = ({}: MessageInputProps) => {
 
     useEffect(() => {
         const dispose = autorun(() => {
-            chatStore.currentChannelId;
+            appStore.currentChannelId;
             setTimeout(() => textareaRef.current?.focus(), 0);
         });
 
@@ -166,7 +166,7 @@ const MessageInput = ({}: MessageInputProps) => {
                 <button
                     onClick={handleSendMedia}
                     className={style.iconButton}
-                    disabled={chatStore.isSendingMessage}
+                    disabled={appStore.isSendingMessage}
                 >
                     <img src={mediaIcon} alt="Media" className={style.icon} />
                 </button>
@@ -178,7 +178,7 @@ const MessageInput = ({}: MessageInputProps) => {
                     className={style.messageInput}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    disabled={chatStore.isSendingMessage}
+                    disabled={appStore.isSendingMessage}
                 />
                 <input
                     type="file"
@@ -191,12 +191,12 @@ const MessageInput = ({}: MessageInputProps) => {
                 <button
                     onClick={() => void handleSend()}
                     className={style.iconButton}
-                    disabled={chatStore.isSendingMessage}
+                    disabled={appStore.isSendingMessage}
                 >
                     <img
                         src={sendIcon}
                         alt="Send"
-                        className={chatStore.isSendingMessage ? style.iconDisabled : style.icon}
+                        className={appStore.isSendingMessage ? style.iconDisabled : style.icon}
                     />
                 </button>
             </div>

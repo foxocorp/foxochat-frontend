@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState, useLayoutEffect, useMemo } from "preact/hooks";
+import { useEffect, useRef, useState, useLayoutEffect } from "preact/hooks";
 import { observer } from "mobx-react";
 import MessageList from "./MessageList/MessageList";
 import MessageInput from "./MessageInput/MessageInput";
 import ChatHeader from "./ChatHeader/ChatHeader";
 import styles from "./ChatWindow.module.scss";
-import chatStore from "@store/chat/index";
+import appStore from "@store/app";
 import { ChatWindowProps } from "@interfaces/interfaces";
 import { autorun } from "mobx";
 import { Logger } from "@utils/logger";
-import { APIChannel } from "@foxogram/api-types";
 
 const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => {
     const listRef = useRef<HTMLDivElement>(null);
@@ -18,16 +17,6 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
 
     const isProgrammaticHashChange = useRef(false);
     const lastValidChannelId = useRef<number | null>(null);
-
-    const sortedChannels = useMemo(() => {
-        return [...chatStore.channels]
-            .filter((chat): chat is APIChannel => !!chat)
-            .sort((a, b) => {
-                const aTime = a.last_message?.created_at ?? a.created_at;
-                const bTime = b.last_message?.created_at ?? b.created_at;
-                return (bTime || 0) - (aTime || 0);
-            });
-    }, [chatStore.channels]);
 
     useEffect(() => {
         if (channel.id) {
@@ -70,7 +59,7 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
             const hash = window.location.hash.substring(1);
             if (!hash) {
                 if (lastValidChannelId.current !== null) {
-                    chatStore.setCurrentChannel(null).catch(console.error);
+                    appStore.setCurrentChannel(null).catch(console.error);
                 }
                 return;
             }
@@ -83,13 +72,13 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
 
             if (channelId === lastValidChannelId.current) return;
 
-            const channelExists = chatStore.channels.some(c => c.id === channelId);
+            const channelExists = appStore.channels.some(c => c.id === channelId);
             if (!channelExists) {
                 restoreLastValidChannel();
                 return;
             }
 
-            chatStore.setCurrentChannel(channelId)
+            appStore.setCurrentChannel(channelId)
                 .then(() => {
                     lastValidChannelId.current = channelId;
                 })
@@ -106,34 +95,34 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
 
     useEffect(() => {
         (async () => {
-            await chatStore.initChannel(channel.id);
+            await appStore.initChannel(channel.id);
         })().catch((error: unknown) => { Logger.error(error); });
     }, [channel.id]);
 
     useEffect(() => {
         return () => {
             if (listRef.current) {
-                chatStore.channelScrollPositions.set(channel.id, listRef.current.scrollTop);
+                appStore.channelScrollPositions.set(channel.id, listRef.current.scrollTop);
             }
-            const messages = chatStore.messagesByChannelId.get(channel.id);
+            const messages = appStore.messagesByChannelId.get(channel.id);
             if (messages && messages.length > 0) {
-                chatStore.lastViewedMessageTimestamps.set(channel.id, messages[messages.length - 1].created_at);
+                appStore.lastViewedMessageTimestamps.set(channel.id, messages[messages.length - 1].created_at);
             }
         };
     }, [channel.id]);
 
     useLayoutEffect(() => {
-        const messages = chatStore.messagesByChannelId.get(channel.id);
+        const messages = appStore.messagesByChannelId.get(channel.id);
         if (messages && messages.length > 0 && listRef.current) {
             listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "auto" });
             lastScrollAtBottom.current = true;
             setShowScrollButton(false);
         }
-    }, [channel.id, chatStore.messagesByChannelId.get(channel.id)]);
+    }, [channel.id, appStore.messagesByChannelId.get(channel.id)]);
 
     useEffect(() => {
         const stop = autorun(() => {
-            const messages = chatStore.messagesByChannelId.get(channel.id);
+            const messages = appStore.messagesByChannelId.get(channel.id);
             if (!messages) return;
 
             if (messages.length > prevMessageCount.current && lastScrollAtBottom.current) {
@@ -157,16 +146,16 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
         lastScrollAtBottom.current = nearBottom;
         setShowScrollButton(!nearBottom);
 
-        const messages = chatStore.messagesByChannelId.get(channel.id);
-        if (!messages?.length || chatStore.activeRequests.has(channel.id)) return;
+        const messages = appStore.messagesByChannelId.get(channel.id);
+        if (!messages?.length || appStore.activeRequests.has(channel.id)) return;
         if (el.scrollTop > 100) return;
 
-        const hasMore = chatStore.hasMoreMessagesByChannelId.get(channel.id);
+        const hasMore = appStore.hasMoreMessagesByChannelId.get(channel.id);
         if (!hasMore) return;
 
         const prevHeight = el.scrollHeight;
 
-        await chatStore.fetchMessages(channel.id, {
+        await appStore.fetchMessages(channel.id, {
             before: messages[0].created_at,
         });
 
@@ -188,7 +177,7 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
         <div className={styles.chatWindow}>
             <ChatHeader
                 chat={channel}
-                avatar={channel.icon}
+                avatar={channel.icon?.uuid ?? null}
                 username={channel.name}
                 displayName={channel.display_name}
                 channelId={channel.id}
@@ -196,17 +185,17 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
                 onBack={isMobile ? onBack : undefined}
             />
             <MessageList
-                messages={chatStore.messagesByChannelId.get(channel.id) ?? []}
-                isLoading={chatStore.loadingInitial.has(channel.id)}
-                isInitialLoading={chatStore.loadingInitial.has(channel.id)}
-                currentUserId={chatStore.currentUserId ?? -1}
+                messages={appStore.messagesByChannelId.get(channel.id) ?? []}
+                isLoading={appStore.loadingInitial.has(channel.id)}
+                isInitialLoading={appStore.loadingInitial.has(channel.id)}
+                currentUserId={appStore.currentUserId ?? -1}
                 messageListRef={listRef}
-                onScroll={handleScroll}
+                onScroll={() => handleScroll}
                 channel={channel}
             />
             {showScrollButton && (
                 <button
-                    className={`${styles.scrollButton} ${showScrollButton ? styles.visible : ""}`}
+                    className={`${styles.scrollButton} ${styles.visible}`}
                     onClick={handleScrollToBottom}
                     title="Scroll to bottom"
                     type="button"
@@ -215,8 +204,8 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
                 </button>
             )}
             <MessageInput
-                onSendMessage={(c, f) => chatStore.sendMessage(c, f)}
-                isSending={chatStore.isSendingMessage}
+                onSendMessage={(c, f) => appStore.sendMessage(c, f)}
+                isSending={appStore.isSendingMessage}
             />
         </div>
     );
