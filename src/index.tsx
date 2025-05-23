@@ -1,18 +1,15 @@
-import "preact/debug"; // Disable in production
+if (import.meta.env.MODE !== "production") {
+    await import("preact/debug");
+}
 
-import "@fontsource/inter/900.css";
-import "@fontsource/inter/800.css";
-import "@fontsource/inter/600.css";
+import "@fontsource/inter";
 import "@fontsource/inter/500.css";
-import "@fontsource/inter"; //400
-import "@fontsource/inter/300.css";
-import "@fontsource/inter/200.css";
-
+import "@fontsource/inter/600.css";
 import "./style.scss";
 import "./scss/style.scss";
 
-import { render } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { render, Component, ComponentChild } from "preact";
+import { useState, useEffect, useMemo } from "preact/hooks";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { Workbox } from "workbox-window";
 
@@ -22,9 +19,10 @@ import { Maintenance } from "./pages/Fallbacks/Maintenance/Maintenance";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
+import Loading from "@components/LoadingApp/LoadingApp";
 
 import { RouteConfig } from "@interfaces/interfaces";
-import { chatStore } from "@store/chat/chatStore";
+import appStore from "@store/app";
 import { Logger } from "@utils/logger";
 
 export const routes: RouteConfig[] = [
@@ -35,24 +33,64 @@ export const routes: RouteConfig[] = [
     { path: "*", component: NotFound },
 ];
 
+async function registerServiceWorker() {
+    if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
+        try {
+            const wb = new Workbox("/sw.js");
+            wb.addEventListener("waiting", async () => {
+                await wb.messageSW({ type: "SKIP_WAITING" });
+            });
+            await wb.register();
+            Logger.info("Service Worker registered successfully");
+        } catch (error) {
+            Logger.error("Failed to register Service Worker:", error);
+        }
+    }
+}
+
+class ErrorBoundary extends Component<{ children: ComponentChild }> {
+    override state = { hasError: false };
+
+    static override getDerivedStateFromError() {
+        return { hasError: true };
+    }
+
+    override componentDidCatch(error: Error) {
+        Logger.error("Uncaught error in app:", error);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return <Maintenance />;
+        }
+        return this.props.children;
+    }
+}
+
 function InitializationCheck({ children }: { children: preact.ComponentChildren }) {
-    const [isInitialized, setIsInitialized] = useState(false);
+    const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
     useEffect(() => {
-        const checkInitialization = async () => {
+        void (async () => {
             try {
-                await chatStore.initializeStore();
-                setIsInitialized(true);
+                await appStore.initializeStore();
+                setStatus("success");
             } catch (error) {
                 Logger.error("Initialization failed:", error);
-                setIsInitialized(false);
+                setStatus(
+                    appStore.currentUserId && !appStore.connectionError?.includes("WebSocket")
+                        ? "success"
+                        : "error",
+                );
             }
-        };
-
-        void checkInitialization();
+        })();
     }, []);
 
-    if (!isInitialized || chatStore.connectionError || !chatStore.isWsInitialized) {
+    if (status === "loading") {
+        return <Loading isLoading={true} onLoaded={() => undefined} />;
+    }
+
+    if (status === "error" || (appStore.connectionError && !appStore.currentUserId)) {
         return <Maintenance />;
     }
 
@@ -60,40 +98,30 @@ function InitializationCheck({ children }: { children: preact.ComponentChildren 
 }
 
 export function App() {
-    async function registerServiceWorker() {
-        if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
-            try {
-                const wb = new Workbox("/sw.js");
-                wb.addEventListener("waiting", async () => {
-                    await wb.messageSW({ type: "SKIP_WAITING" });
-                });
-
-                await wb.register();
-                Logger.info("Service Worker registered successfully");
-            } catch (error) {
-                Logger.error("Failed to register Service Worker:", error);
-            }
-        }
-    }
-
     useEffect(() => {
         registerServiceWorker().catch((error: unknown) => {
             Logger.error("Failed to register Service Worker:", error);
         });
     }, []);
 
+    const routeComponents = useMemo(
+        () =>
+            routes.map(({ path, component }) => (
+                <Route key={path} path={path} component={component} />
+            )),
+        [],
+    );
+
     return (
-        <LocationProvider>
-            <InitializationCheck>
-                <main>
-                    <Router>
-                        {routes.map(({ path, component }) => (
-                            <Route key={path} path={path} component={component} />
-                        ))}
-                    </Router>
-                </main>
-            </InitializationCheck>
-        </LocationProvider>
+        <ErrorBoundary>
+            <LocationProvider>
+                <InitializationCheck>
+                    <main>
+                        <Router>{routeComponents}</Router>
+                    </main>
+                </InitializationCheck>
+            </LocationProvider>
+        </ErrorBoundary>
     );
 }
 
