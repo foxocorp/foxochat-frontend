@@ -15,7 +15,7 @@ function useAuthRedirect(redirectTo = "/auth/login") {
 
 	useEffect(() => {
 		function checkAuth() {
-			const token = localStorage.getItem("token");
+			const token = localStorage.getItem("authToken");
 			if (!token) {
 				window.location.href = redirectTo;
 			} else {
