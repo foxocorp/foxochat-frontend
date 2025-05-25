@@ -9,7 +9,10 @@ import { ChatWindowProps } from "@interfaces/interfaces";
 import { autorun } from "mobx";
 import { Logger } from "@utils/logger";
 
-const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => {
+const ChatWindowComponent = ({
+                                 channel,
+                                 isMobile,
+                                 onBack }: ChatWindowProps) => {
     const listRef = useRef<HTMLDivElement>(null);
     const lastScrollAtBottom = useRef(true);
     const prevMessageCount = useRef(0);
@@ -95,8 +98,16 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
 
     useEffect(() => {
         (async () => {
+            Logger.debug("Initializing channel:", channel.id);
             await appStore.initChannel(channel.id);
-        })().catch((error: unknown) => { Logger.error(error); });
+            const messages = appStore.messagesByChannelId.get(channel.id);
+            Logger.debug("Messages after initChannel:", messages);
+            if (!messages || messages.length === 0) {
+                Logger.warn("No messages loaded for channel:", channel.id);
+            }
+        })().catch((error: unknown) => {
+            Logger.error("Error in initChannel:", error);
+        });
     }, [channel.id]);
 
     useEffect(() => {
@@ -114,11 +125,12 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
     useLayoutEffect(() => {
         const messages = appStore.messagesByChannelId.get(channel.id);
         if (messages && messages.length > 0 && listRef.current) {
-            listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "auto" });
-            lastScrollAtBottom.current = true;
-            setShowScrollButton(false);
+            const savedScrollPosition = appStore.channelScrollPositions.get(channel.id) || listRef.current.scrollHeight;
+            listRef.current.scrollTo({ top: savedScrollPosition, behavior: "auto" });
+            lastScrollAtBottom.current = savedScrollPosition === listRef.current.scrollHeight;
+            setShowScrollButton(!lastScrollAtBottom.current);
         }
-    }, [channel.id, appStore.messagesByChannelId.get(channel.id)]);
+    }, [channel.id, appStore.messagesByChannelId.get(channel.id)?.length]);
 
     useEffect(() => {
         const stop = autorun(() => {
@@ -137,8 +149,8 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
             prevMessageCount.current = messages.length;
         });
 
-        return () => { stop(); };
-    }, [channel.id]);
+        return () => stop();
+    }, [channel.id, lastScrollAtBottom.current]);
 
     const handleScroll = async (e: Event) => {
         const el = e.currentTarget as HTMLDivElement;
@@ -177,7 +189,7 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
         <div className={styles.chatWindow}>
             <ChatHeader
                 chat={channel}
-                avatar={channel.icon?.uuid ?? null}
+                avatar={`https://cdn.foxogram.su/attachments/${channel.icon?.uuid}`}
                 username={channel.name}
                 displayName={channel.display_name}
                 channelId={channel.id}
@@ -190,7 +202,7 @@ const ChatWindowComponent = ({ channel, isMobile, onBack }: ChatWindowProps) => 
                 isInitialLoading={appStore.loadingInitial.has(channel.id)}
                 currentUserId={appStore.currentUserId ?? -1}
                 messageListRef={listRef}
-                onScroll={() => handleScroll}
+                onScroll={handleScroll}
                 channel={channel}
             />
             {showScrollButton && (

@@ -1,15 +1,19 @@
 import { render, type ContainerNode } from "preact";
-import styles from "@components/Chat/Bubbles/Bubbles.module.scss";
+import styles from "./Bubbles.module.scss";
 import { CopyBubbleProps, CopyBubbleComponent } from "@interfaces/interfaces";
 
-export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, onHide }: CopyBubbleProps) => {
+const CopyBubble: CopyBubbleComponent = ({
+                                                    show,
+                                                    text,
+                                                    duration = 1500,
+                                                    onHide }: CopyBubbleProps) => {
     const staticBubble = CopyBubble.activeBubble;
 
     if (staticBubble) {
         if (!show) {
             render(null, staticBubble.container);
-            if (document.body.contains(staticBubble.container)) {
-                document.body.removeChild(staticBubble.container);
+            if (document.body.contains(staticBubble.container as Node)) {
+                document.body.removeChild(staticBubble.container as Node);
             }
             clearTimeout(staticBubble.timer);
             CopyBubble.activeBubble = null;
@@ -26,8 +30,8 @@ export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, o
             );
             staticBubble.timer = window.setTimeout(() => {
                 render(null, staticBubble.container);
-                if (document.body.contains(staticBubble.container)) {
-                    document.body.removeChild(staticBubble.container);
+                if (document.body.contains(staticBubble.container as Node)) {
+                    document.body.removeChild(staticBubble.container as Node);
                 }
                 CopyBubble.activeBubble = null;
                 onHide?.();
@@ -41,7 +45,7 @@ export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, o
     if (!show) return null;
 
     const container: ContainerNode = document.createElement("div");
-    document.body.appendChild(container);
+    document.body.appendChild(container as Node);
 
     render(
         <div className={styles["bubble"]} style={{ animationDuration: `${duration}ms` }}>
@@ -52,8 +56,8 @@ export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, o
 
     const timer = window.setTimeout(() => {
         render(null, container);
-        if (document.body.contains(container)) {
-            document.body.removeChild(container);
+        if (document.body.contains(container as Node)) {
+            document.body.removeChild(container as Node);
         }
         CopyBubble.activeBubble = null;
         onHide?.();
@@ -63,12 +67,14 @@ export const CopyBubble: CopyBubbleComponent = ({ show, text, duration = 1500, o
 
     return () => {
         render(null, container);
-        if (document.body.contains(container)) {
-            document.body.removeChild(container);
+        if (document.body.contains(container as Node)) {
+            document.body.removeChild(container as Node);
         }
         clearTimeout(timer);
         CopyBubble.activeBubble = null;
     };
 };
 
-CopyBubble.activeBubble = null;
+CopyBubble.activeBubble = null
+
+export default CopyBubble;

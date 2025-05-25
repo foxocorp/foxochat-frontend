@@ -37,7 +37,7 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
             )}
             {icon ? (
                 <img
-                    src={icon.uuid}
+                    src={`https://cdn.foxogram.su/attachments/${icon.uuid}`}
                     alt={`${nameToDisplay}'s avatar`}
                     className={style.chatHeaderAvatar}
                 />

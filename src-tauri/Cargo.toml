@@ -8,7 +8,15 @@ repository = "https://github.com/foxocorp/foxogram-frontend"
 edition = "2021"
 rust-version = "1.83.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
 
 [lib]
 name = "app_lib"

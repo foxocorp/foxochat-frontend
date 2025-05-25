@@ -2,6 +2,8 @@ import { pluginPreact } from '@rsbuild/plugin-preact';
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
 import { pluginSass } from '@rsbuild/plugin-sass';
 
+const isDevelopment = import.meta.env.MODE == "development";
+
 export default {
     plugins: [
         pluginPreact(),
@@ -16,8 +18,9 @@ export default {
             index: './src/index.tsx',
         },
         define: {
-            "import.meta.env.MODE": JSON.stringify(process.env.MODE || "production"),
+            "import.meta.env.MODE": JSON.stringify(import.meta.env.MODE || "production"),
         },
+        reEntry: isDevelopment ? ["preact/debug"] : [],
     },
     output: {
         cssModules: {

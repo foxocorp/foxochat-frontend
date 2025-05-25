@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "preact/hooks";
 import styles from "./CreateDropdown.module.scss";
+import { memo } from "preact/compat";
 
 interface CreateDropdownProps {
     onSelect: (type: "group" | "channel") => void;
@@ -34,4 +35,4 @@ const CreateDropdown = ({ onSelect, onClose }: CreateDropdownProps) => {
     );
 };
 
-export default CreateDropdown;
+export default memo(CreateDropdown);

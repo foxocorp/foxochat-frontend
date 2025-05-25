@@ -3,8 +3,11 @@ import CreateIcon from "@icons/chat/create-black.svg";
 import styles from "./CreateChannelModal.module.scss";
 import { ChannelType } from "@foxogram/api-types";
 import { Props } from "@interfaces/interfaces";
+import { memo } from "preact/compat";
 
-export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
+const CreateChannelModal = ({ onClose,
+                                onCreate,
+                                type }: Props) => {
     const [name, setName] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [members, setMembers] = useState("");
@@ -80,7 +83,9 @@ export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
                         className={styles.input}
                         placeholder={isGroup ? "Group display name" : "Channel display name"}
                         value={displayName}
-                        onInput={(e) => { setDisplayName((e.target as HTMLInputElement).value); }}
+                        onInput={(e) => {
+                            setDisplayName((e.target as HTMLInputElement).value);
+                        }}
                         required
                     />
                 </div>
@@ -93,7 +98,9 @@ export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
                         className={styles.input}
                         placeholder={isGroup ? "Unique group name" : "Unique channel name"}
                         value={name}
-                        onInput={(e) => { setName((e.target as HTMLInputElement).value); }}
+                        onInput={(e) => {
+                            setName((e.target as HTMLInputElement).value);
+                        }}
                         required
                     />
                 </div>
@@ -105,7 +112,9 @@ export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
                             className={styles.input}
                             placeholder="@Foxogram @Foxocorp"
                             value={members}
-                            onInput={(e) => { setMembers((e.target as HTMLInputElement).value); }}
+                            onInput={(e) => {
+                                setMembers((e.target as HTMLInputElement).value);
+                            }}
                         />
                     </div>
                 )}
@@ -117,9 +126,11 @@ export default function CreateChannelModal({ onClose, onCreate, type }: Props) {
                     onClick={handleSubmit}
                 >
                     <span>{isCreating ? "Creating..." : "Create"}</span>
-                    <img src={CreateIcon} alt="Create" className={styles.icon} />
+                    <img src={CreateIcon} alt="Create" className={styles.icon}/>
                 </button>
             </div>
         </div>
     );
 }
+
+export default memo(CreateChannelModal);

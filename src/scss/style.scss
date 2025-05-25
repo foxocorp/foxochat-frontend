@@ -1,4 +1,34 @@
 @import "variables";
 
+@import "@fontsource/inter";
+@import "@fontsource/inter/500";
+@import "@fontsource/inter/600";
+
+@import "components/global";
+@import "components/normalize";
+@import "components/typography";
+
 @import "components/prism";
-@import "prismjs/themes/prism-okaidia.css";
+@import "prismjs/themes/prism-okaidia";
+
+:root {
+  --background-color: #000000;
+  --background-chat-color: #141414;
+  --background-chat-list-color: #1e1e1e;
+  --background-chat-input: #1a1a1a;
+
+  --primary-color: #ececec;
+  --branded-color: #4a89ff;
+  --secondary-color: rgb(14 14 14 / 0.25);
+  --danger-color: #f24747;
+
+  --secondary-text-color: #707579;
+  --primary-text-color: #fff;
+
+  --error-dark: #a53f3f;
+  --error-input-dark: rgb(165 63 63 / 0.5);
+
+  --gray-color: rgb(236 236 236 / 0.5);
+
+  --font-weight-bold: 500;
+}

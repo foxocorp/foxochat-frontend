@@ -18,6 +18,7 @@ public/workbox-*.js*
 .vscode/*
 !.vscode/extensions.json
 .idea
+!.idea/biome.xml
 !.idea/codeStyles
 *.suo
 *.ntvs*
