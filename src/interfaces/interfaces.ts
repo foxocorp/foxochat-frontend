@@ -1,11 +1,11 @@
 import {
     APIChannel,
     APIMember,
-    APIMessage,
+    APIMessage, APIUser,
     ChannelType,
 } from "@foxogram/api-types";
 import React from "react";
-import { ComponentChild, ContainerNode } from "preact";
+import { ComponentChild, ContainerNode, type JSX } from "preact";
 
 /* === Props Section === */
 
@@ -56,16 +56,19 @@ export interface PreComponentProps {
 }
 
 export interface MessageItemProps {
-    content: string;
-    created_at: number;
-    author: APIMember;
-    currentUserId: number;
-    showAuthorName: boolean;
-    attachments: Attachment[];
-    status?: "sending" | "sent" | "failed";
-    onRetry?: () => void;
-    onDelete?: () => void;
-    showAvatar: boolean;
+    content: string,
+    created_at: number,
+    author: APIMember,
+    currentUserId: number,
+    showAuthorName: boolean,
+    attachments: Attachment[],
+    status?: "sending" | "sent" | "failed",
+    onRetry?: () => void,
+    onDelete?: () => void,
+    showAvatar: boolean,
+    onEdit?: () => void,
+    onReply?: () => void,
+    onForward?: () => void
 }
 
 export interface Attachment {
@@ -100,7 +103,7 @@ export interface MessageInputProps {
 
 /**
  * Other Props
-*/
+ */
 
 export interface EmptyStateProps {
     chats: APIChannel[];
@@ -149,6 +152,7 @@ export interface ActiveBubble {
 
 export interface CopyBubbleComponent {
     (props: CopyBubbleProps): (() => void) | null;
+
     activeBubble: ActiveBubble | null;
 }
 
@@ -163,4 +167,52 @@ export interface ErrorBoundaryProps {
 
 export interface ErrorBoundaryState {
     hasError: boolean;
+}
+
+export interface MediaViewerProps {
+    isOpen: boolean;
+    attachments: Attachment[];
+    initialIndex: number;
+    authorName: string;
+    authorAvatar?: string | null | undefined;
+    createdAt: number;
+    onClose: () => void;
+    onDelete?: (attachment: Attachment) => void;
+}
+
+export interface ActionPopupProps {
+    isMessageAuthor: boolean;
+    onEdit: () => void;
+    onReply: () => void;
+    onForward: () => void;
+    onDelete: () => void;
+}
+
+export interface AttachmentsProps {
+    validAttachments: (Attachment & { url: string; filename: string; thumbUrl?: string })[];
+    loadedImages: Record<string, boolean>;
+    isMessageAuthor: boolean;
+    content: string | null;
+    formattedTime: string;
+    statusIcon: string;
+    onImageLoad: (uuid: string) => void;
+    onMediaClick: (index: number) => void;
+}
+
+export interface MessageContentProps {
+    content: string | null;
+    htmlContent: string;
+    isMessageAuthor: boolean;
+    showAuthorName: boolean;
+    authorName: string;
+    formattedTime: string;
+    statusIcon: string;
+    renderContent: (html: string | null | undefined) => JSX.Element[];
+}
+
+export interface AvatarProps {
+    author: { user: APIUser };
+    showAvatar: boolean;
+    avatarBg: string;
+    avatarInitial: string;
 }
