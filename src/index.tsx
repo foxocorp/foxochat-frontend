@@ -1,5 +1,5 @@
 import "./scss/style.scss";
-
+import "preact/debug"
 import { render, Component, ComponentChild, ErrorInfo } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { LocationProvider, Router, Route } from "preact-iso";
