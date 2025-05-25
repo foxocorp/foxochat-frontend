@@ -3,6 +3,7 @@ import styles from "./SearchBar.module.scss";
 import searchIcon from "@icons/navigation/magnifying-glass.svg";
 import React from "react";
 import appStore from "@store/app";
+import { memo } from "preact/compat";
 
 const platformMatchers: Record<string, RegExp> = {
     windows: /windows nt/i,
@@ -137,4 +138,4 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
     );
 };
 
-export default SearchBar;
+export default memo(SearchBar);

@@ -6,17 +6,20 @@ import { replaceEmojis } from "@utils/emoji";
 import { observer } from "mobx-react";
 import appStore from "@store/app";
 
-const ChatListComponent = ({ chats, onSelectChat }: ChatListProps) => {
+interface ExtendedChatListProps extends ChatListProps {
+    isCollapsed?: boolean;
+}
+
+const ChatListComponent = ({ chats, onSelectChat, isCollapsed = false }: ExtendedChatListProps) => {
     const [noChatsMessage, setNoChatsMessage] = useState<string>("");
 
     const sortedChannels = useMemo(() => {
-        return [...appStore.channels]
-            .sort((a, b) => {
-                const aTime = a.last_message?.created_at ?? a.created_at;
-                const bTime = b.last_message?.created_at ?? b.created_at;
-                return (bTime || 0) - (aTime || 0);
-            });
-    }, [appStore.channels]);
+        return [...appStore.channels].sort((a, b) => {
+            const aTime = a.last_message?.created_at ?? a.created_at;
+            const bTime = b.last_message?.created_at ?? b.created_at;
+            return (bTime || 0) - (aTime || 0);
+        });
+    }, [appStore.channels.length]);
 
     useEffect(() => {
         const message = replaceEmojis("😔", "160");
@@ -24,6 +27,8 @@ const ChatListComponent = ({ chats, onSelectChat }: ChatListProps) => {
     }, []);
 
     if (chats.length === 0) {
+        if (isCollapsed) return null;
+
         return (
             <div className={styles.noChatsContainer}>
                 <div
@@ -37,20 +42,19 @@ const ChatListComponent = ({ chats, onSelectChat }: ChatListProps) => {
     }
 
     return (
-        <div className={styles.chatList}>
-            {sortedChannels
-                .map(chat => (
-                    <ChatItem
-                        key={chat.id}
-                        chat={chat}
-                        isActive={chat.id === appStore.currentChannelId}
-                        onSelectChat={onSelectChat}
-                        currentUser={appStore.currentUserId ?? -1}
-                    />
-                ))}
+        <div className={`${styles.chatList} ${isCollapsed ? styles.collapsed : ""}`}>
+            {sortedChannels.map((chat) => (
+                <ChatItem
+                    key={chat.id}
+                    chat={chat}
+                    isActive={chat.id === appStore.currentChannelId}
+                    onSelectChat={onSelectChat}
+                    currentUser={appStore.currentUserId ?? -1}
+                    isCollapsed={isCollapsed}
+                />
+            ))}
         </div>
     );
 };
 
-const ChatList = observer(ChatListComponent);
-export default ChatList;
+export default observer(ChatListComponent);

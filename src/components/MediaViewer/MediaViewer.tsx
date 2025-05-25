@@ -1,7 +1,7 @@
-import React, { createPortal } from "preact/compat";
+import React, { createPortal, memo } from "preact/compat";
 import { useState, useEffect, useRef } from "preact/hooks";
 import styles from "./MediaViewer.module.scss";
-import type { Attachment } from "@interfaces/interfaces";
+import { MediaViewerProps } from "@interfaces/interfaces";
 
 import CloseIcon from "@icons/navigation/close.svg";
 import ShareIcon from "@icons/chat/share.svg";
@@ -13,18 +13,7 @@ import NextIcon from "@icons/chat/next.svg";
 import DeleteIcon from "@icons/chat/trash.svg";
 import { timestampToHSV } from "@utils/functions";
 
-interface MediaViewerProps {
-    isOpen: boolean;
-    attachments: Attachment[];
-    initialIndex: number;
-    authorName: string;
-    authorAvatar?: string;
-    createdAt: number;
-    onClose: () => void;
-    onDelete?: (attachment: Attachment) => void;
-}
-
-export const MediaViewer = ({
+const MediaViewer = ({
                                 isOpen,
                                 attachments,
                                 initialIndex,
@@ -46,6 +35,7 @@ export const MediaViewer = ({
     const viewerRef = useRef<HTMLDivElement>(null);
     const mediaRef = useRef<HTMLImageElement | HTMLVideoElement>(null);
     const zoomInputRef = useRef<HTMLInputElement>(null);
+    const avatarUrl = authorAvatar ? `https://cdn.foxogram.su/attachments/${authorAvatar}` : undefined;
 
     const { h, s } = timestampToHSV(createdAt);
     const v = 70;
@@ -408,8 +398,8 @@ export const MediaViewer = ({
                         </button>
                         <div className={styles.mediaViewerAuthor}>
                             <div className={styles.avatar} style={{ backgroundColor }}>
-                                {authorAvatar ? (
-                                    <img src={authorAvatar} className={styles.avatarPhoto} alt="Avatar" />
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} className={styles.avatarPhoto} alt="Avatar" />
                                 ) : (
                                     <div className={styles.avatarPlaceholder}>{authorName.charAt(0)}</div>
                                 )}
@@ -549,3 +539,5 @@ export const MediaViewer = ({
 
     return createPortal(viewerContent, document.body);
 };
+
+export default memo(MediaViewer);

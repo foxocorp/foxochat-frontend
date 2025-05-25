@@ -55,7 +55,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
                             <div>
                                 {chat.icon ? (
                                     <img
-                                        src={chat.icon}
+                                        src={`https://cdn.foxogram.su/attachments/${chat.icon.uuid}`}
                                         alt={chat.name}
                                         className={style.avatar}
                                     />

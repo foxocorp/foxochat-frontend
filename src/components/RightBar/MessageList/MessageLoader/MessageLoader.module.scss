@@ -1,22 +1,87 @@
+$transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
 .loaderWrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     padding: 16px;
+    position: relative;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity $transition, transform $transition;
 }
 
-.spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top: 3px solid #fff;
+.loaderWrapper.isVisible {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity $transition, transform $transition;
+}
+
+.youSpinMeRound {
+    width: 54px;
+    height: 54px;
+    position: relative;
+}
+
+.preloaderCircular {
+    animation: none;
+    height: 100%;
+    width: 100%;
+    transform-origin: center center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    background-color: rgb(0 0 0 / 0.3);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to {
+.loaderWrapper.isVisible .preloaderCircular {
+    animation: rotate 1.2s linear infinite;
+}
+
+.preloaderPathNew {
+    stroke-dasharray: 1, 201.06;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke: #fff;
+    stroke-width: 3.5;
+}
+
+.loaderWrapper.isVisible .preloaderPathNew {
+    animation: dashNew 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    100% {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes dashNew {
+    0% {
+        stroke-dasharray: 1, 201.06;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 150.8, 201.06;
+        stroke-dashoffset: -50.26;
+    }
+    100% {
+        stroke-dasharray: 150.8, 201.06;
+        stroke-dashoffset: -201.06;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .loaderWrapper.isVisible .preloaderCircular {
+        animation: rotate 1.2s linear infinite;
+    }
+
+    .loaderWrapper.isVisible .preloaderPathNew {
+        animation: dashNew 1.5s ease-in-out infinite;
     }
 }
