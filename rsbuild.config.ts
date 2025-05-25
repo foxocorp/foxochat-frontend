@@ -18,7 +18,7 @@ export default {
             index: './src/index.tsx',
         },
         define: {
-            "import.meta.env.MODE": JSON.stringify(process.env.MODE || "production"),
+            "import.meta.env.MODE": JSON.stringify(import.meta.env.MODE || "production"),
         },
         reEntry: isDevelopment ? ["preact/debug"] : [],
     },
