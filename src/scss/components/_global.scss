@@ -9,6 +9,29 @@ body {
   background-color: var(--background-color);
 }
 
+.emoji {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  font-size: var(--emoji-size);
+  width: var(--emoji-size);
+  height: var(--emoji-size);
+}
+
+.emoji-native {
+  font-family: apple color emoji, segoe ui emoji, noto color emoji, android emoji, emojisymbols, emojione mozilla, twemoji mozilla, segoe ui symbol;
+  display: inline !important;
+  vertical-align: unset !important;
+  line-height: 1 !important;
+}
+
+.emoji-image {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 2px;
+  object-fit: contain;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   background-color: rgb(0 0 0 / 0.1);
