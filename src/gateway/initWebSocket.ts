@@ -1,23 +1,23 @@
-import { WebSocketClient } from "./webSocketClient";
 import { GatewayCloseCodes } from "@foxogram/gateway-types";
+import { WebSocketClient } from "./webSocketClient";
 
 export const initWebSocket = (
-    token: string | null,
-    onUnauthorized?: () => void,
+	token: string | null,
+	onUnauthorized?: () => void,
 ): WebSocketClient => {
-    const isProd = window.location.hostname === "app.foxogram.su";
-    const gatewayUrl = isProd
-        ? "wss://gateway.foxogram.su"
-        : "wss://gateway.dev.foxogram.su";
+	const isProd = window.location.hostname === "app.foxogram.su";
+	const gatewayUrl = isProd
+		? "wss://api.foxogram.su"
+		: "wss://api.dev.foxogram.su";
 
-    return new WebSocketClient(
-        () => token,
-        gatewayUrl,
-        (event) => {
-            if (event.code === Number(GatewayCloseCodes.Unauthorized)) {
-                onUnauthorized?.();
-            }
-        },
-        onUnauthorized,
-    );
+	return new WebSocketClient(
+		() => token,
+		gatewayUrl,
+		(event) => {
+			if (event.code === Number(GatewayCloseCodes.Unauthorized)) {
+				onUnauthorized?.();
+			}
+		},
+		onUnauthorized,
+	);
 };
