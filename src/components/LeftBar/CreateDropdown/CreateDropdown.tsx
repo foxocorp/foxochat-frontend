@@ -1,11 +1,7 @@
 import { useRef, useEffect } from "preact/hooks";
+import { CreateDropdownProps } from "@interfaces/interfaces"
 import styles from "./CreateDropdown.module.scss";
 import { memo } from "preact/compat";
-
-interface CreateDropdownProps {
-    onSelect: (type: "group" | "channel") => void;
-    onClose: () => void;
-}
 
 const CreateDropdown = ({ onSelect, onClose }: CreateDropdownProps) => {
     const dropdownRef = useRef<HTMLDivElement>(null);

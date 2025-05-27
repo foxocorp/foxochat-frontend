@@ -1,13 +1,9 @@
 import { ChannelType } from "@foxogram/api-types";
-import { ChatItemProps } from "@interfaces/interfaces";
+import { ExtendedChatItemProps } from "@interfaces/interfaces";
 import { renderEmojisToJSX } from "@utils/emoji";
 import { observer } from "mobx-react";
 import ChatAvatar from "./ChatAvatar";
 import styles from "./ChatItem.module.scss";
-
-interface ExtendedChatItemProps extends ChatItemProps {
-	isCollapsed?: boolean;
-}
 
 const ChatItemComponent = ({
 	chat,

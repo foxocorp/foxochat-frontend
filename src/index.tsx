@@ -52,8 +52,8 @@ async function registerServiceWorker() {
 			);
 			await wb.register();
 			Logger.info("Service Worker registered successfully");
-		} catch (error) {
-			Logger.error("Failed to register Service Worker:", error);
+		} catch (error: unknown) {
+			Logger.error(`Failed to register Service Worker: ${error}`);
 		}
 	}
 }
@@ -66,7 +66,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	}
 
 	override componentDidCatch(error: Error, info: ErrorInfo) {
-		Logger.error("Uncaught error in app:", error, info);
+		Logger.error(`Uncaught error in app: ${error}, ${info}`);
 	}
 
 	override render() {
@@ -99,8 +99,8 @@ function InitializationCheck({ children }: { children: ComponentChild }) {
 			try {
 				await appStore.initializeStore();
 				setStatus(InitializationStatus.Success);
-			} catch (error) {
-				Logger.error("Initialization failed:", error);
+			} catch (error: unknown) {
+				Logger.error(`Initialization failed: ${error}`);
 				setStatus(
 					appStore.currentUserId &&
 						!appStore.connectionError?.includes("WebSocket")

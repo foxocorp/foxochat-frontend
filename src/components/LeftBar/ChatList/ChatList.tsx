@@ -1,14 +1,10 @@
-import { ChatListProps } from "@interfaces/interfaces";
+import { ExtendedChatListProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { renderEmojisToJSX } from "@utils/emoji";
 import { observer } from "mobx-react";
 import { useMemo } from "preact/hooks";
 import ChatItem from "./ChatItem/ChatItem";
 import styles from "./ChatList.module.scss";
-
-interface ExtendedChatListProps extends ChatListProps {
-	isCollapsed?: boolean;
-}
 
 const ChatListComponent = ({
 	chats,
