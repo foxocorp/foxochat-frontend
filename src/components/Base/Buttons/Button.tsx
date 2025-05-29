@@ -1,33 +1,20 @@
-import { ComponentChildren, JSX } from "preact";
+import { ButtonProps } from "@interfaces/interfaces";
+import { JSX } from "preact";
 import styles from "./Buttons.module.scss";
 
-interface ButtonProps {
-	children: ComponentChildren;
-	width?: number | string;
-	fontSize?: number | string;
-	fontWeight?: number | string;
-	onClick?: () => void | Promise<void>;
-	variant?: "primary" | "secondary" | "danger" | "default" | "branded";
-	icon?: string | undefined;
-	disabled?: boolean;
-	type?: "button" | "submit" | "reset";
-	style?: JSX.CSSProperties;
-	className?: string;
-}
-
 export function Button({
-						   children,
-						   width = 368,
-						   fontSize = 16,
-						   fontWeight,
-						   onClick,
-						   variant = "default",
-						   icon,
-						   disabled = false,
-						   type = "button",
-						   style,
-						   className = "",
-					   }: ButtonProps) {
+	children,
+	width = 368,
+	fontSize = 16,
+	fontWeight,
+	onClick,
+	variant = "default",
+	icon,
+	disabled = false,
+	type = "button",
+	style,
+	className = "",
+}: ButtonProps) {
 	const variantClass = {
 		primary: styles.buttonPrimary,
 		branded: styles.buttonBranded,
@@ -36,7 +23,8 @@ export function Button({
 		default: "",
 	}[variant];
 
-	const buttonClass = `${variantClass} ${disabled ? styles.buttonDisabled ?? "" : ""} ${className}`.trim();
+	const buttonClass =
+		`${variantClass} ${disabled ? (styles.buttonDisabled ?? "") : ""} ${className}`.trim(); //TODO Add style for disabled button
 
 	const buttonStyle: JSX.CSSProperties = Object.assign(
 		{},
@@ -58,7 +46,8 @@ export function Button({
 			style={buttonStyle}
 			onClick={handleClick}
 			disabled={disabled}
-			type={type}>
+			type={type}
+		>
 			{children}
 			{icon && <img src={icon} alt="icon" className={styles.buttonIcon} />}
 		</button>

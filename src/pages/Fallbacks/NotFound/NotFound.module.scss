@@ -1,8 +1,8 @@
-.error-page {
+.errorPage {
   background: radial-gradient(50% 50% at 50% 50%, #0f0f0f 0%, #000 100%);
 }
 
-.error-page-wrapper {
+.errorPageWrapper {
   position: relative;
   background-image: url("/src/assets/svg/grid-background.svg"), url("/src/assets/svg/noise-effect.svg");
   background-size: cover;

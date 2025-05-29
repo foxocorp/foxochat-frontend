@@ -1,15 +1,25 @@
 import { useEffect, useState } from "preact/hooks";
-import styles from "./LoadingApp.module.scss";
 import FoxogramLogo from "../../../public/foxogram.svg";
+import styles from "./LoadingApp.module.scss";
 
-const Loading = ({ onLoaded, isLoading }: { onLoaded: () => void; isLoading: boolean }) => {
+const Loading = ({
+	onLoaded,
+	isLoading,
+}: {
+	onLoaded: () => void;
+	isLoading: boolean;
+}) => {
 	const [isLogoLoaded, setIsLogoLoaded] = useState(false);
 
 	useEffect(() => {
 		const img = new Image();
 		img.src = FoxogramLogo;
-		img.onload = () => { setIsLogoLoaded(true); };
-		img.onerror = () => { setIsLogoLoaded(true); };
+		img.onload = () => {
+			setIsLogoLoaded(true);
+		};
+		img.onerror = () => {
+			setIsLogoLoaded(true);
+		};
 	}, []);
 
 	useEffect(() => {
