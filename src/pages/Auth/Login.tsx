@@ -105,6 +105,13 @@ const Login = (): JSX.Element => {
 		setPasswordResetModalOpen(false);
 	};
 
+	const handleKeyDown = (e: KeyboardEvent): void => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			void handleLogin();
+		}
+	};
+
 	const renderError = (field: "email" | "password") => {
 		if (field === "email" && !emailError) return null;
 		if (field === "password" && !passwordError) return null;
@@ -128,7 +135,7 @@ const Login = (): JSX.Element => {
 
 	return (
 		<div className={styles.loginContainer}>
-			<div className={styles.loginForm}>
+			<div className={styles.loginForm} onKeyDown={handleKeyDown}>
 				<div className={styles.loginTitle}>Log in</div>
 				<div className={styles.loginFormContent}>
 					<label className={styles.loginLabel}>

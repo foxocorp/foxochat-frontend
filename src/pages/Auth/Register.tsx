@@ -141,8 +141,15 @@ const Register = () => {
 		);
 	};
 
+	const handleKeyDown = (e: KeyboardEvent): void => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			void handleRegister();
+		}
+	};
+
 	return (
-		<div className={styles.registerContainer}>
+		<div className={styles.registerContainer} onKeyDown={handleKeyDown}>
 			{isErrorModalOpen && modalMessage && (
 				<Modal
 					title="Error"
