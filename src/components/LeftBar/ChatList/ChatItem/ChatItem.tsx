@@ -34,7 +34,7 @@ const ChatItemComponent = ({
 			{!isCollapsed && (
 				<div className={styles.chatInfo}>
 					<p className={styles.chatName}>
-						{renderEmojisToJSX(chat.display_name || chat.name, "64")}
+						{renderEmojisToJSX(chat.display_name || chat.name)}
 					</p>
 					<p className={styles.chatMessage}>{lastMessageContent}</p>
 				</div>

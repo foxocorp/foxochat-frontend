@@ -10,7 +10,7 @@ const EmptyChat = () => {
 					Would you like to fix it? Start the conversation first!
 				</p>
 			</div>
-			<span className={styles.icon}>{renderEmojisToJSX("🤔", "160")}</span>
+			<span className={styles.icon}>{renderEmojisToJSX("🤔")}</span>
 		</div>
 	);
 };
