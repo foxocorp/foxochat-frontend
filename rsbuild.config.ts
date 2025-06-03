@@ -21,7 +21,9 @@ export default {
 		reEntry: isDevelopment ? ["preact/debug"] : [],
 	},
 	output: {
-		cssModules: {},
+		cssModules: {
+			namedExport: true,
+		},
 		copy: [{ from: "node_modules/workbox-*/**/*.js", to: "workbox/" }],
 	},
 	resolve: {
