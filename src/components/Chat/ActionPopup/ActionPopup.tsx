@@ -1,10 +1,10 @@
-import * as styles from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem.module.scss";
 import EditIcon from "@icons/chat/edit-message.svg";
 import ForwardIcon from "@icons/chat/forward.svg";
 import ReplyIcon from "@icons/chat/reply.svg";
 import TrashIcon from "@icons/chat/trash.svg";
 import { ActionPopupProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
+import * as styles from "./ActionPopup.module.scss";
 
 const ActionPopup = ({
 	isMessageAuthor,

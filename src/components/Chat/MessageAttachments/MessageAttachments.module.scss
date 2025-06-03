@@ -1,0 +1,96 @@
+.attachmentsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.attachmentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  max-width: 300px;
+}
+
+.attachmentFooter {
+  backdrop-filter: blur(40px);
+  background: rgb(0 0 0 / 0.3);
+  border-radius: 20%;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 7px;
+  display: flex;
+  position: absolute;
+  bottom: 7px;
+  right: 7px;
+}
+
+.attachmentTimestamp {
+  font-size: 11px;
+  color: rgb(255 255 255 / 0.6);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.author .attachmentTimestamp {
+  color: rgb(255 255 255 / 0.8);
+}
+
+.imageAttachment {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.imageAttachment.blurred {
+  filter: blur(10px);
+  transition: filter 0.3s ease;
+}
+
+.imageAttachment.loaded {
+  filter: none;
+}
+
+.videoAttachment {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+}
+
+.audioAttachment {
+  width: 100%;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.fileAttachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgb(255 255 255 / 0.1);
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.fileAttachment:hover {
+  background: rgb(255 255 255 / 0.2);
+}
+
+.fileIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.statusIcon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+  flex-shrink: 0;
+}

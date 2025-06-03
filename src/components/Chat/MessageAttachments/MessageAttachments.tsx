@@ -1,7 +1,7 @@
-import * as styles from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem.module.scss";
 import FileIcon from "@icons/chat/file.svg";
 import { AttachmentsProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
+import * as styles from "./MessageAttachments.module.scss";
 
 const Attachments = ({
 	validAttachments,
