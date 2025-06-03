@@ -5,10 +5,14 @@ export const initWebSocket = (
 	token: string | null,
 	onUnauthorized?: () => void,
 ): WebSocketClient => {
-	const isProd = window.location.hostname === "app.foxogram.su";
-	const gatewayUrl = isProd
-		? "wss://api.foxogram.su"
-		: "wss://api.dev.foxogram.su";
+	const hostname = window.location.hostname;
+
+	const gatewayUrl =
+		hostname === "localhost" || hostname.endsWith("dev.foxogram.su")
+			? "wss://api.dev.foxogram.su"
+			: hostname.endsWith("foxogram.su")
+				? "wss://api.foxogram.su"
+				: "wss://api.dev.foxogram.su";
 
 	return new WebSocketClient(
 		() => token,
