@@ -71,7 +71,7 @@ const Login = (): JSX.Element => {
 
 			let errorMsg = "— An unexpected error occurred";
 
-			const exception = error as any;
+			const exception = error.exception as any;
 			if (exception && exception.message) {
 				errorMsg = `— ${exception.message}`;
 				if (exception.message.toLowerCase().includes("email")) {
