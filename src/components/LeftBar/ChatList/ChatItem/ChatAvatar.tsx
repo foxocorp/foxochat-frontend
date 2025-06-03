@@ -1,7 +1,7 @@
 import { ChatAvatarProps } from "@interfaces/interfaces";
 import { timestampToHSV } from "@utils/functions";
 import { memo } from "preact/compat";
-import styles from "./ChatItem.module.scss";
+import * as styles from "./ChatItem.module.scss";
 
 const ChatAvatar = ({ chat }: ChatAvatarProps) => {
 	const ts = chat.created_at;

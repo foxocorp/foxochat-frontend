@@ -4,7 +4,7 @@ import { useState } from "preact/hooks";
 
 import { Button } from "@components/Base";
 import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
-import styles from "./Login.module.scss";
+import * as styles from "./Login.module.scss";
 
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
 import newUserIcon from "@icons/navigation/new-user.svg";

@@ -1,6 +1,6 @@
 import { ButtonProps } from "@interfaces/interfaces";
 import { JSX } from "preact";
-import styles from "./Buttons.module.scss";
+import * as styles from "./Buttons.module.scss";
 
 export function Button({
 	children,
@@ -24,7 +24,7 @@ export function Button({
 	}[variant];
 
 	const buttonClass =
-		`${variantClass} ${disabled ? (styles.buttonDisabled ?? "") : ""} ${className}`.trim(); //TODO Add style for disabled button
+		`${variantClass} ${disabled ? (styles.buttonDisabled ?? "") : ""} ${className}`.trim();
 
 	const buttonStyle: JSX.CSSProperties = Object.assign(
 		{},

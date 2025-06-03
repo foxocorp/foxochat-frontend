@@ -2,7 +2,7 @@ import { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import { timestampToHSV } from "@utils/functions";
 import { useEffect, useState } from "preact/hooks";
-import style from "./ChatHeader.module.scss";
+import * as style from "./ChatHeader.module.scss";
 
 const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 	const { id, name, display_name, icon, created_at } = chat;

@@ -1,7 +1,7 @@
 import { EmptyStateProps } from "@interfaces/interfaces";
 import { timestampToHSV } from "@utils/functions";
 import { APIChannel } from "foxogram.js";
-import style from "./EmptyState.module.scss";
+import * as style from "./EmptyState.module.scss";
 
 const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
 	const handleChatClick = (chat: APIChannel) => {

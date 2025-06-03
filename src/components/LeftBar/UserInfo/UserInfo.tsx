@@ -8,7 +8,7 @@ import { timestampToHSV } from "@utils/functions";
 import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "preact/hooks";
-import styles from "./UserInfo.module.scss";
+import * as styles from "./UserInfo.module.scss";
 
 const statusTextMap: Record<string, string> = {
 	online: "Online",

@@ -1,7 +1,7 @@
 import CreateIcon from "@icons/chat/create.svg";
 import { CreateButtonProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
-import styles from "./CreateButton.module.scss";
+import * as styles from "./CreateButton.module.scss";
 
 const CreateButton = ({ onClick }: CreateButtonProps) => {
 	return (

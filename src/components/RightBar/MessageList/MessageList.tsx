@@ -9,7 +9,7 @@ import isToday from "dayjs/plugin/isToday";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { observer } from "mobx-react";
 import { useEffect, useMemo } from "preact/hooks";
-import styles from "./MessageList.module.scss";
+import * as styles from "./MessageList.module.scss";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(isToday);

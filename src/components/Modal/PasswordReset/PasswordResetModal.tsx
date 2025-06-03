@@ -2,7 +2,7 @@ import { Button } from "@components/Base/Buttons/Button";
 import TimerIcon from "@icons/timer.svg";
 import { APIOk } from "foxogram.js";
 import { usePasswordReset } from "./PasswordReset";
-import style from "./PasswordResetModal.module.scss";
+import * as style from "./PasswordResetModal.module.scss";
 
 interface PasswordResetModalProps {
 	isOpen: boolean;

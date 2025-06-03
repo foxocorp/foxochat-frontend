@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import { SidebarProps } from "@interfaces/interfaces";
-import styles from "./Sidebar.module.scss";
+import * as styles from "./Sidebar.module.scss";
 import SearchBar from "./SearchBar/SearchBar";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
 import UserInfo from "./UserInfo/UserInfo";
@@ -20,211 +20,230 @@ const COLLAPSE_THRESHOLD = MIN_SIDEBAR_WIDTH * 0.9;
 const STORAGE_COLLAPSED_VALUE = 0;
 
 const SidebarComponent = ({
-                              onSelectChat,
-                              currentUser,
-                              isMobile = false,
-                              setMobileView = () => undefined,
-                              setChatTransition = () => undefined,
-                          }: SidebarProps) => {
-    const sidebarRef = useRef<HTMLDivElement>(null);
-    const [showCreateDropdown, setShowCreateDropdown] = useState(false);
-    const [showCreateModal, setShowCreateModal] = useState<"group" | "channel" | null>(null);
-    const initialMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.8);
-    const currentWidthRef = useRef<number>(0);
+	onSelectChat,
+	currentUser,
+	isMobile = false,
+	setMobileView = () => undefined,
+	setChatTransition = () => undefined,
+}: SidebarProps) => {
+	const sidebarRef = useRef<HTMLDivElement>(null);
+	const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+	const [showCreateModal, setShowCreateModal] = useState<
+		"group" | "channel" | null
+	>(null);
+	const initialMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.8);
+	const currentWidthRef = useRef<number>(0);
 
-    const [width, setWidth] = useState(() => {
-        if (isMobile) {
-            const mobileWidth = window.innerWidth;
-            localStorage.setItem("sidebarWidth", String(mobileWidth));
-            currentWidthRef.current = mobileWidth;
-            return mobileWidth;
-        }
-        const savedWidth = parseInt(localStorage.getItem("sidebarWidth") ?? "", 10);
-        let initialWidth: number;
-        if (isNaN(savedWidth)) {
-            initialWidth = DEFAULT_DESKTOP_WIDTH;
-        } else if (savedWidth === STORAGE_COLLAPSED_VALUE) {
-            initialWidth = COLLAPSED_WIDTH;
-        } else {
-            initialWidth = Math.max(MIN_SIDEBAR_WIDTH, Math.min(savedWidth, initialMaxWidth));
-        }
-        localStorage.setItem("sidebarWidth", String(savedWidth === STORAGE_COLLAPSED_VALUE ? STORAGE_COLLAPSED_VALUE : initialWidth));
-        currentWidthRef.current = initialWidth;
-        return initialWidth;
-    });
-    const [maxWidth, setMaxWidth] = useState(initialMaxWidth);
+	const [width, setWidth] = useState(() => {
+		if (isMobile) {
+			const mobileWidth = window.innerWidth;
+			localStorage.setItem("sidebarWidth", String(mobileWidth));
+			currentWidthRef.current = mobileWidth;
+			return mobileWidth;
+		}
+		const savedWidth = parseInt(localStorage.getItem("sidebarWidth") ?? "", 10);
+		let initialWidth: number;
+		if (isNaN(savedWidth)) {
+			initialWidth = DEFAULT_DESKTOP_WIDTH;
+		} else if (savedWidth === STORAGE_COLLAPSED_VALUE) {
+			initialWidth = COLLAPSED_WIDTH;
+		} else {
+			initialWidth = Math.max(
+				MIN_SIDEBAR_WIDTH,
+				Math.min(savedWidth, initialMaxWidth),
+			);
+		}
+		localStorage.setItem(
+			"sidebarWidth",
+			String(
+				savedWidth === STORAGE_COLLAPSED_VALUE
+					? STORAGE_COLLAPSED_VALUE
+					: initialWidth,
+			),
+		);
+		currentWidthRef.current = initialWidth;
+		return initialWidth;
+	});
+	const [maxWidth, setMaxWidth] = useState(initialMaxWidth);
 
-    const isResizing = useRef(false);
-    const startX = useRef(0);
-    const startWidthRef = useRef(width);
+	const isResizing = useRef(false);
+	const startX = useRef(0);
+	const startWidthRef = useRef(width);
 
-    const channels = appStore.channels;
+	const channels = appStore.channels;
 
-    const handleCreate = async (data: {
-        name: string;
-        displayName: string;
-        channelType: ChannelType;
-        members?: string[];
-    }) => {
-        try {
-            const response = await apiMethods.createChannel({
-                name: data.name,
-                display_name: data.displayName,
-                type: data.channelType,
-            });
+	const handleCreate = async (data: {
+		name: string;
+		displayName: string;
+		channelType: ChannelType;
+		members?: string[];
+	}) => {
+		try {
+			const response = await apiMethods.createChannel({
+				name: data.name,
+				display_name: data.displayName,
+				type: data.channelType,
+			});
 
-            appStore.addNewChannel(response);
-            await appStore.setCurrentChannel(response.id);
+			appStore.addNewChannel(response);
+			await appStore.setCurrentChannel(response.id);
 
-            if (isMobile) {
-                setMobileView("chat");
-                setChatTransition("slide-in");
-            }
-        } catch (error) {
-            console.error("Creation error:", error);
-        }
-    };
+			if (isMobile) {
+				setMobileView("chat");
+				setChatTransition("slide-in");
+			}
+		} catch (error) {
+			console.error("Creation error:", error);
+		}
+	};
 
-    const handleMouseDown = (e: MouseEvent) => {
-        if (isMobile) return;
-        e.preventDefault();
-        isResizing.current = true;
-        startX.current = e.clientX;
-        startWidthRef.current = currentWidthRef.current;
-        document.addEventListener("mousemove", handleDocumentMouseMove);
-        document.addEventListener("mouseup", handleDocumentMouseUp);
-    };
+	const handleMouseDown = (e: MouseEvent) => {
+		if (isMobile) return;
+		e.preventDefault();
+		isResizing.current = true;
+		startX.current = e.clientX;
+		startWidthRef.current = currentWidthRef.current;
+		document.addEventListener("mousemove", handleDocumentMouseMove);
+		document.addEventListener("mouseup", handleDocumentMouseUp);
+	};
 
-    const handleDocumentMouseMove = (e: MouseEvent) => {
-        if (!isResizing.current || isMobile) return;
+	const handleDocumentMouseMove = (e: MouseEvent) => {
+		if (!isResizing.current || isMobile) return;
 
-        const delta = e.clientX - startX.current;
-        let newWidth = startWidthRef.current + delta;
+		const delta = e.clientX - startX.current;
+		let newWidth = startWidthRef.current + delta;
 
-        if (startWidthRef.current === COLLAPSED_WIDTH && newWidth > COLLAPSED_WIDTH) {
-            newWidth = Math.max(MIN_SIDEBAR_WIDTH, newWidth);
-        }
+		if (
+			startWidthRef.current === COLLAPSED_WIDTH &&
+			newWidth > COLLAPSED_WIDTH
+		) {
+			newWidth = Math.max(MIN_SIDEBAR_WIDTH, newWidth);
+		}
 
-        newWidth = Math.max(COLLAPSE_THRESHOLD, Math.min(newWidth, maxWidth));
+		newWidth = Math.max(COLLAPSE_THRESHOLD, Math.min(newWidth, maxWidth));
 
-        currentWidthRef.current = newWidth;
-        setWidth(newWidth);
-        localStorage.setItem("sidebarWidth", String(newWidth));
-    };
+		currentWidthRef.current = newWidth;
+		setWidth(newWidth);
+		localStorage.setItem("sidebarWidth", String(newWidth));
+	};
 
-    const handleDocumentMouseUp = () => {
-        if (!isResizing.current) return;
-        isResizing.current = false;
+	const handleDocumentMouseUp = () => {
+		if (!isResizing.current) return;
+		isResizing.current = false;
 
-        let finalWidth = currentWidthRef.current;
-        let storageWidth = finalWidth;
-        if (finalWidth >= COLLAPSE_THRESHOLD && finalWidth < MIN_SIDEBAR_WIDTH) {
-            finalWidth = COLLAPSED_WIDTH;
-            storageWidth = STORAGE_COLLAPSED_VALUE;
-        }
+		let finalWidth = currentWidthRef.current;
+		let storageWidth = finalWidth;
+		if (finalWidth >= COLLAPSE_THRESHOLD && finalWidth < MIN_SIDEBAR_WIDTH) {
+			finalWidth = COLLAPSED_WIDTH;
+			storageWidth = STORAGE_COLLAPSED_VALUE;
+		}
 
-        currentWidthRef.current = finalWidth;
-        setWidth(finalWidth);
-        localStorage.setItem("sidebarWidth", String(storageWidth));
+		currentWidthRef.current = finalWidth;
+		setWidth(finalWidth);
+		localStorage.setItem("sidebarWidth", String(storageWidth));
 
-        document.removeEventListener("mousemove", handleDocumentMouseMove);
-        document.removeEventListener("mouseup", handleDocumentMouseUp);
-    };
+		document.removeEventListener("mousemove", handleDocumentMouseMove);
+		document.removeEventListener("mouseup", handleDocumentMouseUp);
+	};
 
-    useEffect(() => {
-        const handleResize = () => {
-            const newMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.5);
-            setMaxWidth(newMaxWidth);
-            if (currentWidthRef.current > newMaxWidth && currentWidthRef.current !== COLLAPSED_WIDTH) {
-                const adjustedWidth = newMaxWidth;
-                currentWidthRef.current = adjustedWidth;
-                setWidth(adjustedWidth);
-                localStorage.setItem("sidebarWidth", String(adjustedWidth));
-            }
-        };
+	useEffect(() => {
+		const handleResize = () => {
+			const newMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.5);
+			setMaxWidth(newMaxWidth);
+			if (
+				currentWidthRef.current > newMaxWidth &&
+				currentWidthRef.current !== COLLAPSED_WIDTH
+			) {
+				const adjustedWidth = newMaxWidth;
+				currentWidthRef.current = adjustedWidth;
+				setWidth(adjustedWidth);
+				localStorage.setItem("sidebarWidth", String(adjustedWidth));
+			}
+		};
 
-        if (isMobile) {
-            const mobileWidth = window.innerWidth;
-            currentWidthRef.current = mobileWidth;
-            setWidth(mobileWidth);
-            localStorage.setItem("sidebarWidth", String(mobileWidth));
-        }
+		if (isMobile) {
+			const mobileWidth = window.innerWidth;
+			currentWidthRef.current = mobileWidth;
+			setWidth(mobileWidth);
+			localStorage.setItem("sidebarWidth", String(mobileWidth));
+		}
 
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [isMobile]);
+		handleResize();
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, [isMobile]);
 
-    const isCollapsed = parseInt(localStorage.getItem("sidebarWidth") ?? "", 10) === STORAGE_COLLAPSED_VALUE;
+	const isCollapsed =
+		parseInt(localStorage.getItem("sidebarWidth") ?? "", 10) ===
+		STORAGE_COLLAPSED_VALUE;
 
-    return (
-        <div
-            ref={sidebarRef}
-            className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
-            style={isMobile ? { width: "100%" } : { width: `${width}px` }}
-        >
-            {!isCollapsed && (
-                <div className={styles.sidebarHeader}>
-                    <div className={styles.headerControls}>
-                        <SearchBar
-                            onJoinChannel={async (channelId: number | null) => {
-                                await appStore.setCurrentChannel(channelId);
-                                if (isMobile) {
-                                    setMobileView("chat");
-                                }
-                            }}
-                        />
-                        <div className={styles.createWrapper}>
-                            <CreateButton onClick={() => setShowCreateDropdown(!showCreateDropdown)} />
-                            {showCreateDropdown && (
-                                <CreateDropdown
-                                    onSelect={(type) => {
-                                        setShowCreateDropdown(false);
-                                        setShowCreateModal(type);
-                                    }}
-                                    onClose={() => setShowCreateDropdown(false)}
-                                />
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+	return (
+		<div
+			ref={sidebarRef}
+			className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
+			style={isMobile ? { width: "100%" } : { width: `${width}px` }}
+		>
+			{!isCollapsed && (
+				<div className={styles.sidebarHeader}>
+					<div className={styles.headerControls}>
+						<SearchBar
+							onJoinChannel={async (channelId: number | null) => {
+								await appStore.setCurrentChannel(channelId);
+								if (isMobile) {
+									setMobileView("chat");
+								}
+							}}
+						/>
+						<div className={styles.createWrapper}>
+							<CreateButton
+								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+							/>
+							{showCreateDropdown && (
+								<CreateDropdown
+									onSelect={(type) => {
+										setShowCreateDropdown(false);
+										setShowCreateModal(type);
+									}}
+									onClose={() => setShowCreateDropdown(false)}
+								/>
+							)}
+						</div>
+					</div>
+				</div>
+			)}
 
-            <div className={styles.sidebarChats}>
-                <ChatList
-                    chats={channels}
-                    onSelectChat={onSelectChat}
-                    currentUser={currentUser}
-                    isCollapsed={isCollapsed}
-                />
-            </div>
+			<div className={styles.sidebarChats}>
+				<ChatList
+					chats={channels}
+					onSelectChat={onSelectChat}
+					currentUser={currentUser}
+					isCollapsed={isCollapsed}
+				/>
+			</div>
 
-            {!isCollapsed && (
-                <div className={styles.sidebarFooter}>
-                    <UserInfo
-                        username={currentUser.toString()}
-                        avatar="/favicon-96x96.png"
-                        status="Online"
-                    />
-                </div>
-            )}
+			{!isCollapsed && (
+				<div className={styles.sidebarFooter}>
+					<UserInfo
+						username={currentUser.toString()}
+						avatar="/favicon-96x96.png"
+						status="Online"
+					/>
+				</div>
+			)}
 
-            {!isMobile && (
-                <div
-                    className={styles.resizer}
-                    onMouseDown={handleMouseDown}
-                />
-            )}
+			{!isMobile && (
+				<div className={styles.resizer} onMouseDown={handleMouseDown} />
+			)}
 
-            {showCreateModal && (
-                <CreateChannelModal
-                    type={showCreateModal}
-                    onClose={() => setShowCreateModal(null)}
-                    onCreate={handleCreate}
-                />
-            )}
-        </div>
-    );
+			{showCreateModal && (
+				<CreateChannelModal
+					type={showCreateModal}
+					onClose={() => setShowCreateModal(null)}
+					onCreate={handleCreate}
+				/>
+			)}
+		</div>
+	);
 };
 
 export default observer(SidebarComponent);

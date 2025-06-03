@@ -5,7 +5,7 @@ import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import ChatHeader from "./ChatHeader/ChatHeader";
-import styles from "./ChatWindow.module.scss";
+import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
 import MessageList from "./MessageList/MessageList";
 

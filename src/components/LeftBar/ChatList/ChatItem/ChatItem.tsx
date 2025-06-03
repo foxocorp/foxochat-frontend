@@ -3,7 +3,7 @@ import { renderEmojisToJSX } from "@utils/emoji";
 import { ChannelType } from "foxogram.js";
 import { observer } from "mobx-react";
 import ChatAvatar from "./ChatAvatar";
-import styles from "./ChatItem.module.scss";
+import * as styles from "./ChatItem.module.scss";
 
 const ChatItemComponent = ({
 	chat,

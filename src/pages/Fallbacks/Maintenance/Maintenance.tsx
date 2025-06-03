@@ -1,6 +1,6 @@
 import { Button } from "@components/Base/Buttons/Button";
 import HammerIcon from "@icons/errors/hammer.svg";
-import styles from "./Maintenance.module.scss";
+import * as styles from "./Maintenance.module.scss";
 
 export function Maintenance() {
 	const statusPage = () => {

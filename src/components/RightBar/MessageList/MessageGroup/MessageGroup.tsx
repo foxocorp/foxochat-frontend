@@ -4,7 +4,7 @@ import { MessageGroupProps } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
 import { memo } from "preact/compat";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
-import styles from "./MessageGroup.module.scss";
+import * as styles from "./MessageGroup.module.scss";
 
 const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
 	const [isAnimated, setIsAnimated] = useState(false);

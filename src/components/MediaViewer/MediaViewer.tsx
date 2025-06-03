@@ -1,7 +1,7 @@
 import { MediaViewerProps } from "@interfaces/interfaces";
 import React, { createPortal, memo } from "preact/compat";
 import { useEffect, useRef, useState } from "preact/hooks";
-import styles from "./MediaViewer.module.scss";
+import * as styles from "./MediaViewer.module.scss";
 
 import DownloadIcon from "@icons/chat/download.svg";
 import NextIcon from "@icons/chat/next.svg";

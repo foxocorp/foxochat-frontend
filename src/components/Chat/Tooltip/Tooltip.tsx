@@ -2,7 +2,7 @@ import { TooltipProps } from "@interfaces/interfaces";
 import clsx from "clsx";
 import { JSX } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
-import styles from "./Tooltip.module.scss";
+import * as styles from "./Tooltip.module.scss";
 
 const tryPositions: Array<"top" | "bottom" | "left" | "right"> = [
 	"top",

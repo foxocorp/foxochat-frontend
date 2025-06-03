@@ -1,7 +1,7 @@
 import { Button } from "@components/Base/Buttons/Button";
 import handIcon from "@icons/errors/hand-error.svg";
 import { useLocation } from "preact-iso";
-import styles from "./NotFound.module.scss";
+import * as styles from "./NotFound.module.scss";
 
 export function NotFound({ path }: { path: string }) {
 	const location = useLocation();

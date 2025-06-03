@@ -1,5 +1,5 @@
 import { renderEmojisToJSX } from "@utils/emoji";
-import styles from "./EmptyChat.module.scss";
+import * as styles from "./EmptyChat.module.scss";
 
 const EmptyChat = () => {
 	return (

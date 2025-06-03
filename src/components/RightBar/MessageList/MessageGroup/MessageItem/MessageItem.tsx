@@ -25,7 +25,7 @@ import { JSX } from "preact";
 import { memo } from "preact/compat";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { thumbHashToDataURL } from "thumbhash";
-import styles from "./MessageItem.module.scss";
+import * as styles from "./MessageItem.module.scss";
 
 const PreComponent = function PreComponent({
 	className,
