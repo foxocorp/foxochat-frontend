@@ -1,0 +1,41 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.bubble {
+  position: fixed;
+  z-index: 1000;
+  background-color: rgb(40 40 40 / 0.95);
+  color: white;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 180ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.4, 1);
+  will-change: opacity, transform;
+  user-select: none;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
+
+  &.top {
+    transform: scale(1) translateY(-4px);
+  }
+
+  &.bottom {
+    transform: scale(1) translateY(4px);
+  }
+
+  &.left {
+    transform: scale(1) translateX(-4px);
+  }
+
+  &.right {
+    transform: scale(1) translateX(4px);
+  }
+}

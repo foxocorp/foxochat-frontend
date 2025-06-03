@@ -23,7 +23,7 @@ const CopyBubble: CopyBubbleComponent = ({
         if (staticBubble.props.text !== text || staticBubble.props.duration !== duration) {
             clearTimeout(staticBubble.timer);
             render(
-                <div className={styles["bubble"]} style={{ animationDuration: `${duration}ms` }}>
+                <div className={styles.bubble} style={{ animationDuration: `${duration}ms` }}>
                     <span>{text}</span>
                 </div>,
                 staticBubble.container,
@@ -48,7 +48,7 @@ const CopyBubble: CopyBubbleComponent = ({
     document.body.appendChild(container as Node);
 
     render(
-        <div className={styles["bubble"]} style={{ animationDuration: `${duration}ms` }}>
+        <div className={styles.bubble} style={{ animationDuration: `${duration}ms` }}>
             <span>{text}</span>
         </div>,
         container,

@@ -265,3 +265,10 @@ export interface ButtonProps {
 	style?: JSX.CSSProperties;
 	className?: string;
 }
+
+export interface TooltipProps {
+	children: JSX.Element;
+	text: string;
+	className?: string;
+	position?: "top" | "bottom" | "left" | "right" | "auto";
+}

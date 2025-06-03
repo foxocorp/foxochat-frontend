@@ -1,149 +1,149 @@
 .userInfo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px;
-    color: var(--primary-color, #000000);
-    border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  color: var(--primary-color, #000000);
+  border-radius: 8px;
 }
 
 .userAvatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    margin-right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 12px;
 }
 
 .defaultAvatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 20px;
-    margin-right: 10px;
-    flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;
 }
 
 .userDetails {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
 }
 
 .username {
-    font-weight: 500;
-    font-size: 18px;
-    margin: 0;
-    line-height: 1.2;
+  font-weight: 500;
+  font-size: 18px;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .status {
-    font-size: 14px;
-    color: var(--branded-color, #0088cc);
-    perspective: 600px;
-    position: relative;
-    overflow: hidden;
-    height: 20px;
+  font-size: 14px;
+  color: var(--branded-color, #0088cc);
+  perspective: 600px;
+  position: relative;
+  overflow: hidden;
+  height: 20px;
 }
 
 .statusText {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    backface-visibility: hidden;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  backface-visibility: hidden;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-block;
 }
 
 .statusText.exit {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-    pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  pointer-events: none;
 }
 
 .statusText.enter {
-    opacity: 0;
-    transform: translateY(10px) scale(0.95);
-    animation: fadeInUp 0.4s forwards cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  animation: fadeInUp 0.4s forwards cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 
 .userActions {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .actionIcon {
+  width: 31px;
+  height: 31px;
+  margin-left: 20px;
+  margin-right: 5px;
+  opacity: .5;
+  //transition: opacity 0.2s ease;
+
+  //&:hover {
+  //  opacity: 0.7;
+  //}
+}
+
+.skeleton {
+  background: linear-gradient(
+                  90deg,
+                  #e0e0e0 25%,
+                  #f0f0f0 50%,
+                  #e0e0e0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+
+  &.userAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+  }
+
+  &.username {
+    width: 100px;
+    height: 12px;
+    margin-bottom: 4px;
+  }
+
+  &.status {
+    width: 60px;
+    height: 12px;
+  }
+
+  &.actionIcon {
     width: 31px;
     height: 31px;
     margin-left: 20px;
     margin-right: 5px;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-        opacity: 0.7;
-    }
-}
-
-.skeleton {
-    background: linear-gradient(
-                    90deg,
-                    #e0e0e0 25%,
-                    #f0f0f0 50%,
-                    #e0e0e0 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite linear;
-    border-radius: 4px;
-
-    &.userAvatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-    }
-
-    &.username {
-        width: 100px;
-        height: 12px;
-        margin-bottom: 4px;
-    }
-
-    &.status {
-        width: 60px;
-        height: 12px;
-    }
-
-    &.actionIcon {
-        width: 31px;
-        height: 31px;
-        margin-left: 20px;
-        margin-right: 5px;
-        border-radius: 50%;
-    }
+    border-radius: 50%;
+  }
 }
 
 @keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

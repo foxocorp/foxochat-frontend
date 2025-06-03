@@ -12,7 +12,7 @@ import StateSent from "@icons/chat/state-sent.svg";
 import StateFailed from "@icons/chat/state-failed.svg";
 import CopyIcon from "@icons/navigation/copy.svg";
 import { Logger } from "@utils/logger";
-import CopyBubble from "@components/Chat/Bubbles/Bubbles";
+import CopyBubble from "@components/Chat/Bubbles/CopyBubble/Bubbles";
 import MediaViewer from "@components/MediaViewer/MediaViewer";
 import Avatar from "@components/Chat/MessageAvatar/MessageAvatar";
 import Attachments from "@components/Chat/MessageAttachments/MessageAttachments";
