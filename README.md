@@ -1,1 +1,1 @@
-<img src=".github/assets/title.png" alt="Frontend Foxogram Floof.">
+<img src="https://cdn.foxogram.su/static/git/foxogram-frontend/title.png" alt="Frontend Foxogram Floof.">
