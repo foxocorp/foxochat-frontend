@@ -2,7 +2,7 @@ import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
 import { AppStore } from "./appStore";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
-import type { APIChannel, RESTGetAPIMessageListQuery } from "@foxogram/api-types";
+import type { APIChannel, RESTGetAPIMessageListQuery } from "foxogram.js";
 import { observable, runInAction } from "mobx";
 
 interface AuthError {

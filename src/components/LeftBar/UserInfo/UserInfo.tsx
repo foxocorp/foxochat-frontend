@@ -1,5 +1,5 @@
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
-import { APIAttachment } from "@foxogram/api-types";
+import { APIAttachment } from "foxogram.js";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
 import settingsIcon from "@icons/navigation/settings.svg";
 import { UserInfoProps } from "@interfaces/interfaces";

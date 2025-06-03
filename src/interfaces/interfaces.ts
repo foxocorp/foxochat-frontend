@@ -4,7 +4,7 @@ import {
 	APIMessage,
 	APIUser,
 	ChannelType,
-} from "@foxogram/api-types";
+} from "foxogram.js";
 import {
 	ComponentChild,
 	ComponentChildren,

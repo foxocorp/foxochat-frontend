@@ -9,7 +9,7 @@ import CreateChannelModal from "./CreateChannelModal/CreateChannelModal";
 import CreateDropdown from "./CreateDropdown/CreateDropdown";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
-import { ChannelType } from "@foxogram/api-types";
+import { ChannelType } from "foxogram.js";
 import { observer } from "mobx-react";
 
 const MIN_SIDEBAR_WIDTH = 310;

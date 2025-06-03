@@ -15,7 +15,6 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 		const fetchMembers = async () => {
 			try {
 				const members = await apiMethods.listChannelMembers(id);
-				console.log(id);
 				setParticipantsCount(members.length || 0);
 			} catch (error) {
 				console.error("Failed to fetch members:", error);

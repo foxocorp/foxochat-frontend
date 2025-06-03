@@ -300,7 +300,7 @@ const MessageItem = ({
 			const elements: JSX.Element[] = [];
 
 			if (!doc.body.firstChild) {
-				Logger.warn("No valid HTML content in renderContent:", html);
+				Logger.warn(`No valid HTML content in renderContent: ${html}`);
 				return [<span key="empty">Invalid content</span>];
 			}
 

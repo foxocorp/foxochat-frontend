@@ -1,4 +1,5 @@
-import {
+import { generateThumbHashFromFile } from "@utils/functions";
+import Client, {
 	APIChannel,
 	APIMessage,
 	APIUser,
@@ -7,9 +8,7 @@ import {
 	RESTGetAPIMessageListQuery,
 	RESTPostAPIMessageBody,
 	RESTPutAPIMessageAttachmentsBody,
-} from "@foxogram/api-types";
-import { generateThumbHashFromFile } from "@utils/functions";
-import Client from "foxogram.js";
+} from "foxogram.js";
 
 export const getAuthToken = (): string | null =>
 	localStorage.getItem("authToken");

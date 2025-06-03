@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, useMemo } from "preact/hooks";
 import { observer } from "mobx-react";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
 import "./style.scss";
 
@@ -7,9 +7,9 @@ import Sidebar from "@components/LeftBar/Sidebar";
 import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 
-import { APIChannel } from "@foxogram/api-types";
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
+import { APIChannel } from "foxogram.js";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -41,13 +41,20 @@ const HomeComponent = () => {
 		[channels, currentChannelId],
 	);
 
-	const debounce = <T extends unknown[]>(fn: (...args: T) => void, ms: number) => {
+	const debounce = <T extends unknown[]>(
+		fn: (...args: T) => void,
+		ms: number,
+	) => {
 		let timeoutId: ReturnType<typeof setTimeout> | undefined;
 		const debounced = (...args: T) => {
 			clearTimeout(timeoutId);
-			timeoutId = setTimeout(() => { fn(...args); }, ms);
+			timeoutId = setTimeout(() => {
+				fn(...args);
+			}, ms);
 		};
-		debounced.cancel = () => { clearTimeout(timeoutId); };
+		debounced.cancel = () => {
+			clearTimeout(timeoutId);
+		};
 		return debounced;
 	};
 

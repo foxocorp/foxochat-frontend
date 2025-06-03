@@ -1,5 +1,5 @@
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem";
-import { APIMessage } from "@foxogram/api-types";
+import { APIMessage } from "foxogram.js";
 import { MessageGroupProps } from "@interfaces/interfaces";
 import { Logger } from "@utils/logger";
 import { memo } from "preact/compat";

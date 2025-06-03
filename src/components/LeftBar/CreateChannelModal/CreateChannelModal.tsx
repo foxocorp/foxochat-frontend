@@ -1,4 +1,4 @@
-import { ChannelType } from "@foxogram/api-types";
+import { ChannelType } from "foxogram.js";
 import CreateIcon from "@icons/chat/create-black.svg";
 import { Props } from "@interfaces/interfaces";
 import { memo } from "preact/compat";

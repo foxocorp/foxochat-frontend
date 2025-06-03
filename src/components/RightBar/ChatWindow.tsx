@@ -1,4 +1,3 @@
-import { APIChannel, APIMessage } from "@foxogram/api-types";
 import { ChatWindowProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";
@@ -101,15 +100,15 @@ const ChatWindowComponent = ({
 
 	useEffect(() => {
 		(async () => {
-			Logger.debug("Initializing channel:", channel.id);
+			Logger.debug(`Initializing channel: ${channel.id}`);
 			await appStore.initChannel(channel.id);
 			const messages = appStore.messagesByChannelId.get(channel.id);
-			Logger.debug("Messages after initChannel:", messages);
+			Logger.debug(`Messages after initChannel: ${messages}`);
 			if (!messages || messages.length === 0) {
-				Logger.warn("No messages loaded for channel:", channel.id);
+				Logger.warn(`No messages loaded for channel: ${channel.id}`);
 			}
 		})().catch((error: unknown) => {
-			Logger.error("Error in initChannel:", error);
+			Logger.error(`Error in initChannel: ${error}`);
 		});
 	}, [channel.id]);
 

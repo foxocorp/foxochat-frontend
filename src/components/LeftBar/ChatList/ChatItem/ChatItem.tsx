@@ -1,6 +1,6 @@
-import { ChannelType } from "@foxogram/api-types";
 import { ExtendedChatItemProps } from "@interfaces/interfaces";
 import { renderEmojisToJSX } from "@utils/emoji";
+import { ChannelType } from "foxogram.js";
 import { observer } from "mobx-react";
 import ChatAvatar from "./ChatAvatar";
 import styles from "./ChatItem.module.scss";

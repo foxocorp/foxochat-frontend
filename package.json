@@ -14,10 +14,6 @@
 	},
 	"dependencies": {
 		"@fontsource/inter": "^5.2.5",
-		"@foxogram/api": "^0.1.16",
-		"@foxogram/api-types": "^0.1.18",
-		"@foxogram/gateway-types": "^0.1.7",
-		"@foxogram/rest": "^0.1.14",
 		"@tauri-apps/plugin-updater": "^2.7.1",
 		"@types/prismjs": "^1.26.5",
 		"clsx": "^2.1.1",
