@@ -31,15 +31,15 @@ class AuthenticationStore {
 		}
 	}
 
-	private getTokenFromLocalStorage() {
+	public getTokenFromLocalStorage() {
 		return localStorage.getItem("authToken");
 	}
 
-	private saveTokenToLocalStorage(token: string) {
+	protected saveTokenToLocalStorage(token: string) {
 		localStorage.setItem("authToken", token);
 	}
 
-	private clearTokenFromLocalStorage() {
+	protected clearTokenFromLocalStorage() {
 		localStorage.removeItem("authToken");
 	}
 }

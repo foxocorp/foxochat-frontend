@@ -1,5 +1,6 @@
+import { client } from "@services/FoxogramClient";
 import { generateThumbHashFromFile } from "@utils/functions";
-import Client, {
+import {
 	APIChannel,
 	APIMessage,
 	APIUser,
@@ -15,23 +16,6 @@ export const getAuthToken = (): string | null =>
 const setAuthToken = (token: string): void =>
 	localStorage.setItem("authToken", token);
 export const removeAuthToken = (): void => localStorage.removeItem("authToken");
-
-const hostname = window.location.hostname;
-
-const apiUrl =
-	hostname === "localhost" || hostname.endsWith("dev.foxogram.su")
-		? "https://api.dev.foxogram.su"
-		: hostname.endsWith("foxogram.su")
-			? "https://api.foxogram.su"
-			: "https://api.dev.foxogram.su";
-
-const client = new Client({
-	api: {
-		rest: {
-			baseURL: apiUrl,
-		},
-	},
-});
 
 const token = getAuthToken();
 if (token) {

@@ -1,5 +1,6 @@
-import { initWebSocket } from "@/gateway/initWebSocket";
+import { WebSocketClient } from "@/gateway/webSocketClient";
 import { getAuthToken } from "@services/API/apiMethods";
+import { client } from "@services/FoxogramClient";
 import { transformToMessage } from "@store/app/transforms";
 import { Logger } from "@utils/logger";
 import { GatewayDispatchEvents } from "foxogram.js";
@@ -26,10 +27,20 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 
 	if (!this.wsClient) {
 		Logger.info("Initializing WebSocket connection...");
-		this.wsClient = initWebSocket(token, () => {
-			Logger.info("WebSocket unauthorized, clearing auth");
-			clearAuthAndRedirect();
-		});
+		this.wsClient = new WebSocketClient(
+			client,
+			() => token,
+			(event) => {
+				if (event.code === 4003) {
+					Logger.info("WebSocket unauthorized, clearing auth");
+					clearAuthAndRedirect();
+				}
+			},
+			() => {
+				Logger.info("WebSocket unauthorized (login failed), clearing auth");
+				clearAuthAndRedirect();
+			},
+		);
 
 		this.wsClient.client.on("ready", () => {
 			Logger.info("WebSocket connected successfully");
@@ -114,7 +125,7 @@ export function setupWebSocketHandlers(this: AppStore): void {
 					}
 				});
 			} catch (err) {
-				Logger.error(`Error processing WebSocket message: ${err}`)
+				Logger.error(`Error processing WebSocket message: ${err}`);
 			}
 		},
 	);
