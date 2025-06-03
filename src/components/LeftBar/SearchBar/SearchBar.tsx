@@ -4,7 +4,7 @@ import appStore from "@store/app";
 import { memo } from "preact/compat";
 import { useEffect, useRef, useState } from "preact/hooks";
 import React from "react";
-import styles from "./SearchBar.module.scss";
+import * as styles from "./SearchBar.module.scss";
 
 const platformMatchers: Record<string, RegExp> = {
 	windows: /windows nt/i,
@@ -38,7 +38,6 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 	const [query, setQuery] = useState("");
 	const [platform] = useState(getPlatform());
 	const [isSearchActive, setSearchActive] = useState(false);
-	const [isBorderInactive, setBorderInactive] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleKeyPress = async (e: KeyboardEvent) => {
@@ -93,12 +92,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 
 		const activateSearch = () => {
 			setSearchActive(true);
-			setBorderInactive(false);
 			inputRef.current?.focus();
-
-			setTimeout(() => {
-				setBorderInactive(true);
-			}, 1000);
 		};
 
 		const deactivateSearch = () => {
@@ -123,7 +117,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 	return (
 		<div className={styles.searchContainer}>
 			<div
-				className={`${styles.searchBar} ${isSearchActive ? styles.active : ""} ${isBorderInactive ? styles.inactiveBorder : ""}`}
+				className={`${styles.searchBar} ${isSearchActive ? styles.active : ""}`}
 			>
 				<img src={searchIcon} alt="Search" className={styles.searchIcon} />
 				<input
@@ -132,7 +126,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 					value={query}
 					onInput={handleChange}
 					placeholder={`Search or enter channel ID (${getShortcut(platform)})`}
-					className={`${styles.searchInput} ${isSearchActive ? styles.activeInput : ""}`}
+					className={`${styles.searchInput}`}
 				/>
 			</div>
 		</div>
