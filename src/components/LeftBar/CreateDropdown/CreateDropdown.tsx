@@ -1,3 +1,5 @@
+import MegaphoneIcon from "@icons/navigation/megaphone.svg";
+import PersonIcon from "@icons/navigation/person.svg";
 import { CreateDropdownProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import { useEffect, useRef } from "preact/hooks";
@@ -31,6 +33,7 @@ const CreateDropdown = ({ onSelect, onClose }: CreateDropdownProps) => {
 						onSelect("group");
 					}}
 				>
+					<img src={PersonIcon} alt={"PersonIcon"} />
 					New Group
 				</button>
 				<button
@@ -39,6 +42,7 @@ const CreateDropdown = ({ onSelect, onClose }: CreateDropdownProps) => {
 						onSelect("channel");
 					}}
 				>
+					<img src={MegaphoneIcon} alt={"MegaphoneIcon"} />
 					New Channel
 				</button>
 			</div>
