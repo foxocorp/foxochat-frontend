@@ -114,6 +114,8 @@
   height: 14px;
   opacity: 0.8;
   flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
 .authorName {

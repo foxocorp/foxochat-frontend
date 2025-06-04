@@ -52,13 +52,13 @@ const MessageListComponent = ({
 	useEffect(() => {
 		Logger.debug("MessageList useEffect - messages updated:", messages);
 		if (!messages || messages.length === 0) {
-			Logger.warn("No messages loaded for channel:", channel.id);
+			Logger.warn(`No messages loaded for channel: ${channel.id}`);
 			if (!appStore.activeRequests.has(channel.id)) {
-				Logger.debug("Triggering initChannel for:", channel.id);
+				Logger.debug(`Triggering initChannel for: ${channel.id}`);
 				appStore
 					.initChannel(channel.id)
 					.catch((error) =>
-						Logger.error("Error in manual initChannel:", error),
+						Logger.error(`Error in manual initChannel: ${error}`),
 					);
 			}
 		}
@@ -145,6 +145,7 @@ const MessageListComponent = ({
 							key={`${date}-${g.msgs[0]?.id ?? idx}-${idx}`}
 							messages={g.msgs}
 							currentUserId={currentUserId}
+							channelId={channel.id}
 						/>
 					))}
 				</div>

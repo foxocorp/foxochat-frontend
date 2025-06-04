@@ -13,22 +13,38 @@ const ActionPopup = ({
 	onForward,
 	onDelete,
 }: ActionPopupProps) => {
+	const handleEdit = () => {
+		onEdit();
+	};
+
+	const handleReply = () => {
+		onReply();
+	};
+
+	const handleForward = () => {
+		onForward();
+	};
+
+	const handleDelete = () => {
+		onDelete();
+	};
+
 	return (
 		<div className={styles.actionPopup}>
 			{isMessageAuthor && (
-				<button onClick={onEdit} aria-label="Edit">
-					<img src={EditIcon} alt="Edit" width={24} height={24} />
+				<button onClick={handleEdit}>
+					<img src={EditIcon} alt="Edit" />
 				</button>
 			)}
-			<button onClick={onReply} aria-label="Reply">
-				<img src={ReplyIcon} alt="Reply" width={24} height={24} />
+			<button onClick={handleReply}>
+				<img src={ReplyIcon} alt="Reply" />
 			</button>
-			<button onClick={onForward} aria-label="Forward">
-				<img src={ForwardIcon} alt="Forward" width={24} height={24} />
+			<button onClick={handleForward}>
+				<img src={ForwardIcon} alt="Forward" />
 			</button>
 			{isMessageAuthor && (
-				<button onClick={onDelete} aria-label="Delete">
-					<img src={TrashIcon} alt="Delete" width={24} height={24} />
+				<button className={styles.delete} onClick={handleDelete}>
+					<img src={TrashIcon} alt="Deletw" />
 				</button>
 			)}
 		</div>

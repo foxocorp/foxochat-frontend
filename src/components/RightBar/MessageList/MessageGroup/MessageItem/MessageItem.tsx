@@ -117,6 +117,8 @@ const MessageItem = ({
 	showAvatar,
 	attachments = [],
 	status = "sent",
+	channelId,
+	messageId,
 	onDelete,
 	onEdit,
 	onReply,
@@ -421,6 +423,8 @@ const MessageItem = ({
 				{isHovered && isShiftPressed && (
 					<ActionPopup
 						isMessageAuthor={isMessageAuthor}
+						channelId={channelId}
+						messageId={messageId}
 						onEdit={onEdit}
 						onReply={onReply}
 						onForward={onForward}
