@@ -24,8 +24,8 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       foxogram.js:
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: ^0.1.7
+        version: 0.1.7
       html-react-parser:
         specifier: ^5.2.5
         version: 5.2.5(react@19.1.0)
@@ -677,20 +677,20 @@ packages:
   '@fontsource/inter@5.2.5':
     resolution: {integrity: sha512-kbsPKj0S4p44JdYRFiW78Td8Ge2sBVxi/PIBwmih+RpSXUdvS9nbs1HIiuUSPtRMi14CqLEZ/fbk7dj7vni1Sg==}
 
-  '@foxogram/api-types@0.1.18':
-    resolution: {integrity: sha512-sgVGDwQ725SOfgpfx9+MfXAiLBcMfhDCrUyGusP9t7fCEqj3Cwyx1QO0ZGsYX+wiXLlQOxwivs87JCuxcvUtiA==}
+  '@foxogram/api-types@0.1.19':
+    resolution: {integrity: sha512-lbxICY9yGlBKL8/on20UqySxh/nrOw45M/Nq6mCnX2aKdS35oyJ7NzDX/CUbJkbSA/h2OpZ9CkYbhqzBZnOipA==}
 
-  '@foxogram/api@0.1.16':
-    resolution: {integrity: sha512-vesppqXiPGjVY779abhD77rihWfC19MgTqrzZYpoFdQ169wdEIzWm4lDEBSkutyzFoP/nvBwveLrZjdTY1P5gg==}
+  '@foxogram/api@0.1.17':
+    resolution: {integrity: sha512-FzRHvpGDIZOHUohIRAb0ZWmEznycsZ5gScjzoRmTOkVPKm95A9wXDLBhXItsCTNNJDmMTIGzfo4keaywiSbBUA==}
 
-  '@foxogram/gateway-types@0.1.7':
-    resolution: {integrity: sha512-BdatqQ0/B39FnmzmZ11/hLSGIDGHcRZJogy1gs88EVatnhzmwKDQKu+Wb/LZmor000Ks+0b6HcSxNKEedQ1vXw==}
+  '@foxogram/gateway-types@0.1.8':
+    resolution: {integrity: sha512-o9b/0VfiVL7yQZM5fG/0T9QkOe+Tvm7eIK6jUT0dzhrFDkC/5LGBj7JEisGivPkF4XcdgXGZv7XPcZXlzHls9w==}
 
-  '@foxogram/gateway@0.1.10':
-    resolution: {integrity: sha512-mBIYF4bAvKGyxbMbCjW+5FlibRp04Giklewye+pZvxC78PjGFBkSK6TBaiW/6wOVABeNCNNx4xfL/fY0ZsMf4w==}
+  '@foxogram/gateway@0.1.11':
+    resolution: {integrity: sha512-zWH6FfJDMK2P/6PzDzIHnwaoAGXl3kcUggJhwXEJEI40kPcZvEKHxq85DcQVb+gk69RAvrDN4M2GsSSWWVnGqA==}
 
-  '@foxogram/rest@0.1.14':
-    resolution: {integrity: sha512-HFENjN5rQip5SRc8yRvEBYmubkloMy/5IrmBeRCydF35s0+lDojHEkSnshI811kGSWKEXcEIrUQGX8QqExiSHg==}
+  '@foxogram/rest@0.1.15':
+    resolution: {integrity: sha512-hGnfn6RXbvjzccYR2h6b30t5pWWn2s90D8mr81a0AtaZHGFWt6B2FaxTC4WwAxP9bmRUMynMPGBwJyITaeTgJQ==}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -1197,8 +1197,8 @@ packages:
     resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
     engines: {node: '>= 0.4'}
 
-  caniuse-lite@1.0.30001720:
-    resolution: {integrity: sha512-Ec/2yV2nNPwb4DnTANEV99ZWwm3ZWfdlfkQbWSDDt+PsXEVYwlhPH8tdMaPunYTKKmz7AnHi2oNEi1GcmKCD8g==}
+  caniuse-lite@1.0.30001721:
+    resolution: {integrity: sha512-cOuvmUVtKrtEaoKiO0rSc29jcjwMwX5tOHDy4MgVFEWiUXj4uBMJkwI8MDySkgXidpMiHUcviogAvFi4pA2hDQ==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -1311,8 +1311,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.162:
-    resolution: {integrity: sha512-hQA+Zb5QQwoSaXJWEAGEw1zhk//O7qDzib05Z4qTqZfNju/FAkrm5ZInp0JbTp4Z18A6bilopdZWEYrFSsfllA==}
+  electron-to-chromium@1.5.165:
+    resolution: {integrity: sha512-naiMx1Z6Nb2TxPU6fiFrUrDTjyPMLdTtaOd2oLmG8zVSg2hCWGkhPyxwk+qRmZ1ytwVqUv0u7ZcDA5+ALhaUtw==}
 
   emojis-list@3.0.0:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
@@ -1391,8 +1391,8 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  foxogram.js@0.1.6:
-    resolution: {integrity: sha512-ydFy3gK3zdEI2Y11O5j8DGzsSMhL6pmIgYMPaKSgf6isHyFaxmEFj087sjMKAfNDeHSquWL+/huHOd29/xSjeg==}
+  foxogram.js@0.1.7:
+    resolution: {integrity: sha512-lfv7a2PKeDn4CyXXITLjShtuYuU1gdeEdOElwzg2eRk+YUjipBhg5yR0/ESQo9Rd+1EfChplrjzpgWZjFmjxeg==}
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -3056,28 +3056,31 @@ snapshots:
 
   '@fontsource/inter@5.2.5': {}
 
-  '@foxogram/api-types@0.1.18': {}
-
-  '@foxogram/api@0.1.16':
+  '@foxogram/api-types@0.1.19':
     dependencies:
-      '@foxogram/api-types': 0.1.18
-      '@foxogram/rest': 0.1.14
       '@swc/helpers': 0.5.17
 
-  '@foxogram/gateway-types@0.1.7':
+  '@foxogram/api@0.1.17':
     dependencies:
-      '@foxogram/api-types': 0.1.18
+      '@foxogram/api-types': 0.1.19
+      '@foxogram/rest': 0.1.15
+      '@swc/helpers': 0.5.17
 
-  '@foxogram/gateway@0.1.10':
+  '@foxogram/gateway-types@0.1.8':
     dependencies:
-      '@foxogram/api-types': 0.1.18
-      '@foxogram/gateway-types': 0.1.7
+      '@foxogram/api-types': 0.1.19
+      '@swc/helpers': 0.5.17
+
+  '@foxogram/gateway@0.1.11':
+    dependencies:
+      '@foxogram/api-types': 0.1.19
+      '@foxogram/gateway-types': 0.1.8
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
-  '@foxogram/rest@0.1.14':
+  '@foxogram/rest@0.1.15':
     dependencies:
-      '@foxogram/api-types': 0.1.18
+      '@foxogram/api-types': 0.1.19
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.8':
@@ -3317,7 +3320,7 @@ snapshots:
       '@module-federation/runtime-tools': 0.14.0
       '@rspack/binding': 1.3.12
       '@rspack/lite-tapable': 1.0.1
-      caniuse-lite: 1.0.30001720
+      caniuse-lite: 1.0.30001721
     optionalDependencies:
       '@swc/helpers': 0.5.17
 
@@ -3479,7 +3482,7 @@ snapshots:
   autoprefixer@10.4.21(postcss@8.5.4):
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001720
+      caniuse-lite: 1.0.30001721
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -3536,8 +3539,8 @@ snapshots:
 
   browserslist@4.25.0:
     dependencies:
-      caniuse-lite: 1.0.30001720
-      electron-to-chromium: 1.5.162
+      caniuse-lite: 1.0.30001721
+      electron-to-chromium: 1.5.165
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.0)
 
@@ -3564,7 +3567,7 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       get-intrinsic: 1.3.0
 
-  caniuse-lite@1.0.30001720: {}
+  caniuse-lite@1.0.30001721: {}
 
   chalk@4.1.2:
     dependencies:
@@ -3674,7 +3677,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  electron-to-chromium@1.5.162: {}
+  electron-to-chromium@1.5.165: {}
 
   emojis-list@3.0.0: {}
 
@@ -3791,13 +3794,13 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  foxogram.js@0.1.6:
+  foxogram.js@0.1.7:
     dependencies:
-      '@foxogram/api': 0.1.16
-      '@foxogram/api-types': 0.1.18
-      '@foxogram/gateway': 0.1.10
-      '@foxogram/gateway-types': 0.1.7
-      '@foxogram/rest': 0.1.14
+      '@foxogram/api': 0.1.17
+      '@foxogram/api-types': 0.1.19
+      '@foxogram/gateway': 0.1.11
+      '@foxogram/gateway-types': 0.1.8
+      '@foxogram/rest': 0.1.15
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
