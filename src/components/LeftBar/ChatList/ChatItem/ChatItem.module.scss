@@ -36,7 +36,6 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  margin-right: 10px;
   object-fit: cover;
 }
 
@@ -54,7 +53,7 @@
   }
 
   .chatMessage {
-    color: rgb(236 236 236 / 0.5);
+    color: var(--gray-color);
     margin-top: 3px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -77,6 +76,21 @@
   flex-shrink: 0;
 }
 
-.newsChannel {
-  color: white;
+.chatNameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.channelTypeIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.chatMessageAuthor {
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--lightgray-color);
 }

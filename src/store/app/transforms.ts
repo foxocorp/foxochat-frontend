@@ -40,10 +40,13 @@ export function normalizePermissions(permissions: string | number): number {
 	return permissions;
 }
 
-export function normalizeChannelType(type?: string | ChannelType): ChannelType {
-	if (typeof type === "string" && type in ChannelType) {
-		return ChannelType[type as keyof typeof ChannelType];
+export function normalizeChannelType(type?: string | number): ChannelType {
+	const num = typeof type === "string" ? parseInt(type, 10) : type;
+
+	if (typeof num === "number" && num in ChannelType) {
+		return num as ChannelType;
 	}
+
 	return ChannelType.DM;
 }
 
