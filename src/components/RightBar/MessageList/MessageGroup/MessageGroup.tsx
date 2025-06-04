@@ -1,13 +1,19 @@
 import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageItem/MessageItem";
-import { APIMessage } from "@foxogram/api-types";
 import { MessageGroupProps } from "@interfaces/interfaces";
+import { apiMethods } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
+import { APIMessage } from "foxogram.js";
 import { memo } from "preact/compat";
-import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
-import styles from "./MessageGroup.module.scss";
+import { useEffect, useMemo, useState } from "preact/hooks";
+import * as styles from "./MessageGroup.module.scss";
 
-const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
+const MessageGroup = ({
+	messages,
+	currentUserId,
+	channelId,
+}: MessageGroupProps) => {
 	const [isAnimated, setIsAnimated] = useState(false);
+	const [messageList, setMessageList] = useState<APIMessage[]>(messages);
 
 	useEffect(() => {
 		const t = setTimeout(() => {
@@ -18,29 +24,46 @@ const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
 		};
 	}, []);
 
-	const memoizedMessages = useMemo(() => {
-		if (!Array.isArray(messages)) {
-			Logger.warn("Messages is not an array:", messages);
-			return [];
-		}
-		return messages.filter((msg) => msg?.id && msg?.author?.user?.id);
+	useEffect(() => {
+		setMessageList(messages);
 	}, [messages]);
 
-	const onDelete = useCallback(() => {
-		//
-	}, []);
+	const memoizedMessages = useMemo(() => {
+		if (!Array.isArray(messageList)) {
+			Logger.warn(`Messages is not an array: ${messageList}`);
+			return [];
+		}
+		return messageList.filter((msg) => msg?.id && msg?.author?.user?.id);
+	}, [messageList]);
 
-	const onEdit = useCallback(() => {
-		//
-	}, []);
+	const handleDelete = async (messageId: number) => {
+		try {
+			await apiMethods.deleteMessage(channelId, messageId);
+			setMessageList((prev) => prev.filter((msg) => msg.id !== messageId));
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-	const onReply = useCallback(() => {
-		//
-	}, []);
-
-	const onForward = useCallback(() => {
-		//
-	}, []);
+	const handleEdit = (messageId: number, currentContent: string) => {
+		const newContent = prompt("Enter new message for edit:", currentContent);
+		if (newContent && newContent !== currentContent) {
+			apiMethods
+				.editMessage(channelId, messageId, { content: newContent })
+				.then((updatedMessage) => {
+					setMessageList((prev) =>
+						prev.map((msg) =>
+							msg.id === messageId
+								? { ...msg, content: updatedMessage.content }
+								: msg,
+						),
+					);
+				})
+				.catch((error: unknown) => {
+					console.error(error);
+				});
+		}
+	};
 
 	if (memoizedMessages.length === 0) return null;
 
@@ -56,13 +79,13 @@ const MessageGroup = ({ messages, currentUserId }: MessageGroupProps) => {
 					author={msg.author}
 					currentUserId={currentUserId}
 					attachments={msg.attachments ?? []}
-					status={msg.status ?? "sent"} //TODO Fix the status message
-					onDelete={onDelete}
-					onEdit={onEdit}
-					onReply={onReply}
-					onForward={onForward}
+					status={msg.status ?? "sent"}
 					showAuthorName={idx === 0}
 					showAvatar={idx === memoizedMessages.length - 1}
+					messageId={msg.id}
+					channelId={channelId}
+					onDelete={() => handleDelete(msg.id)}
+					onEdit={() => handleEdit(msg.id, msg.content)}
 				/>
 			))}
 		</div>

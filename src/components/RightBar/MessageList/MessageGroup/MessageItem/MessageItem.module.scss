@@ -1,327 +1,206 @@
-.message-item {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    padding: 1px 8px;
-    width: 100%;
+.messageItem {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 1px 8px;
+  width: 100%;
 }
 
 .author {
-    flex-direction: row-reverse;
-    margin-left: auto;
+  flex-direction: row-reverse;
+  margin-left: auto;
 }
 
-.avatar-container,
-.avatar-placeholder {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
+.avatarContainer,
+.avatarPlaceholder {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
 }
 
 .avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.default-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 500;
-    font-size: 16px;
+.defaultAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
 }
 
-.message-bubble {
-    background: #2f79ff;
-    border-radius: 12px;
-    padding: 8px 12px;
-    max-width: 30rem;
-    min-width: 60px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+.messageBubble {
+  background: #2f79ff;
+  border-radius: 12px;
+  padding: 8px 12px;
+  max-width: 30rem;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.author .message-bubble {
-    border-radius: 12px 12px 0 12px;
-    background: #2f79ff;
+.author .messageBubble {
+  border-radius: 12px 12px 0 12px;
+  background: #2f79ff;
 }
 
-.receiver .message-bubble {
-    border-radius: 12px;
-    background: rgb(40 40 40 / 0.4);
+.receiver .messageBubble {
+  border-radius: 12px;
+  background: rgb(40 40 40 / 0.4);
 }
 
-.text-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    word-break: break-word;
-    line-height: 1.4;
-    width: 100%;
+.textContent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  word-break: break-word;
+  line-height: 1.4;
+  width: 100%;
 }
 
-.receiver-message-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    width: 100%;
+.receiverMessageRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
 }
 
-.message-text {
-    font-size: 14px;
-    color: var(--primary-color);
-    overflow-wrap: anywhere;
-    position: relative;
-    user-select: text;
-    flex-grow: 1;
-    margin-right: 4px;
+.messageText {
+  font-size: 15px;
+  color: var(--primary-color);
+  overflow-wrap: anywhere;
+  position: relative;
+  user-select: text;
+  flex-grow: 1;
+  margin-right: 4px;
 }
 
-.message-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 4px;
-    width: auto;
+.messageFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  width: auto;
 }
 
-.receiver-message-row .timestamp {
-    margin-left: 4px;
+.receiverMessageRow .timestamp {
+  margin-left: 4px;
 }
 
 .timestamp {
-    font-size: 11px;
-    color: rgb(255 255 255 / 0.6);
-    line-height: 1;
-    white-space: nowrap;
+  font-size: 11px;
+  color: rgb(255 255 255 / 0.6);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .author .timestamp {
-    color: rgb(255 255 255 / 0.8);
+  color: rgb(255 255 255 / 0.8);
 }
 
-.status-icon {
-    width: 14px;
-    height: 14px;
-    opacity: 0.8;
-    flex-shrink: 0;
+.statusIcon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
-.author-name {
-    font-size: 12px;
-    color: #e0e0e0;
-    font-weight: 500;
-    margin-bottom: 2px;
+.authorName {
+  font-size: 12px;
+  color: #e0e0e0;
+  font-weight: 500;
+  margin-bottom: 2px;
 }
 
-.code-block-wrapper {
-    position: relative;
-    margin: 4px 0;
-    border-radius: 6px;
-    overflow: hidden;
-    background-color: rgb(20 20 20 / 66%);
+.codeBlockWrapper {
+  position: relative;
+  margin: 4px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: rgb(20 20 20 / 66%);
 }
 
-.code-block-wrapper:before {
-    content: " ";
-    position: absolute;
-    inset-inline-start: 0;
-    top: 0;
-    bottom: 0;
-    flex: 0 0 auto;
-    width: 0.1875rem;
-    background: var(--primary-color, rgb(255, 255, 255));
-    z-index: 1;
+.codeBlockWrapper:before {
+  content: " ";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  flex: 0 0 auto;
+  width: 0.1875rem;
+  background: var(--primary-color, rgb(255, 255, 255));
+  z-index: 1;
 }
 
-.code-header {
-    background: rgb(0 0 0 / 0.3);
-    padding: 4px 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: #a0a0a0;
-    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+.codeHeader {
+  background: rgb(0 0 0 / 0.3);
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #a0a0a0;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
 }
 
-.language-name {
-    text-transform: capitalize;
-    font-weight: 500;
+.languageName {
+  text-transform: capitalize;
+  font-weight: 500;
 }
 
-.copy-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px;
-    opacity: 0.7;
-    transition: opacity 0.2s, transform 0.2s;
+.copyButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-.copy-button:hover {
-    opacity: 1;
-    transform: scale(1.1);
+.copyButton:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
-.copy-icon {
-    width: 20px;
-    height: 20px;
+.copyIcon {
+  width: 20px;
+  height: 20px;
 }
 
-.copied-text {
-    font-size: 12px;
-    color: #a0a0a0;
+.copiedText {
+  font-size: 12px;
+  color: #a0a0a0;
 }
 
-.message-text pre {
-    background: transparent;
-    border-radius: 0 0 6px 6px;
-    padding: 8px;
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    text-shadow: none;
+.messageText pre {
+  background: transparent;
+  border-radius: 0 0 6px 6px;
+  padding: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  text-shadow: none;
 }
 
-.message-text code {
-    font-family: "Telegram Mono", "Courier New", Courier, monospace;
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
-    display: block;
-}
-
-.action-popup {
-    background: #2b2b2b;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    gap: 12px;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
-}
-
-.author .action-popup {
-    left: 0;
-    right: auto;
-}
-
-.action-popup button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.action-popup button:hover {
-    opacity: 1;
-}
-
-.action-popup img {
-    width: 24px;
-    height: 24px;
-}
-
-.attachments-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 4px 0;
-}
-
-.attachment-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    max-width: 300px;
-}
-
-.attachment-footer {
-    backdrop-filter: blur(40px);
-    background: rgb(0 0 0 / 0.3);
-    border-radius: 20%;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 7px;
-    display: flex;
-    position: absolute;
-    bottom: 7px;
-    right: 7px;
-}
-
-.attachment-timestamp {
-    font-size: 11px;
-    color: rgb(255 255 255 / 0.6);
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.author .attachment-timestamp {
-    color: rgb(255 255 255 / 0.8);
-}
-
-.image-attachment {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-.image-attachment.blurred {
-    filter: blur(10px);
-    transition: filter 0.3s ease;
-}
-
-.image-attachment.loaded {
-    filter: none;
-}
-
-.video-attachment {
-    width: 100%;
-    max-width: 300px;
-    border-radius: 8px;
-}
-
-.audio-attachment {
-    width: 100%;
-    min-width: 200px;
-    max-width: 300px;
-}
-
-.file-attachment {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-    background: rgb(255 255 255 / 0.1);
-    border-radius: 8px;
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-
-.file-attachment:hover {
-    background: rgb(255 255 255 / 0.2);
-}
-
-.file-icon {
-    width: 24px;
-    height: 24px;
+.messageText code {
+  font-family: "Telegram Mono", "Courier New", Courier, monospace;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  display: block;
 }

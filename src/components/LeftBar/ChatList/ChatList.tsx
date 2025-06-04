@@ -4,7 +4,7 @@ import { renderEmojisToJSX } from "@utils/emoji";
 import { observer } from "mobx-react";
 import { useMemo } from "preact/hooks";
 import ChatItem from "./ChatItem/ChatItem";
-import styles from "./ChatList.module.scss";
+import * as styles from "./ChatList.module.scss";
 
 const ChatListComponent = ({
 	chats,

@@ -17,14 +17,34 @@ public/workbox-*.js*
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-!.idea/biome.xml
-!.idea/codeStyles
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/dataSources/
+.idea/**/dataSources.xml
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/gradle.xml
+.idea/**/libraries
+.idea/**/mongoSettings.xml
+.idea/replstate.xml
+.idea/sonarlint/
+.idea/httpRequests
+.idea/caches/build_file_checksums.ser
+*.iws
 
 # Tauri
 src-tauri/target/

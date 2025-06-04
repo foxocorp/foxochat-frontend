@@ -4,7 +4,7 @@ import {
 	APIMessage,
 	APIUser,
 	ChannelType,
-} from "@foxogram/api-types";
+} from "foxogram.js";
 import {
 	ComponentChild,
 	ComponentChildren,
@@ -52,6 +52,7 @@ export interface ChatItemProps {
 export interface MessageGroupProps {
 	messages: APIMessage[];
 	currentUserId: number;
+	channelId: number;
 }
 
 export interface PreComponentProps {
@@ -68,13 +69,15 @@ export interface MessageItemProps {
 	currentUserId: number;
 	showAuthorName: boolean;
 	attachments: Attachment[];
-	status?: "sending" | "sent" | "failed";
-	onRetry?: () => void;
-	onDelete?: () => void;
 	showAvatar: boolean;
-	onEdit?: () => void;
-	onReply?: () => void;
-	onForward?: () => void;
+	status?: "sending" | "sent" | "failed";
+	messageId: number;
+	channelId: number;
+	onRetry: () => void;
+	onDelete: () => void;
+	onEdit: () => void;
+	onReply: () => void;
+	onForward: () => void;
 }
 
 export interface Attachment {
@@ -188,6 +191,8 @@ export interface MediaViewerProps {
 
 export interface ActionPopupProps {
 	isMessageAuthor: boolean;
+	messageId: number;
+	channelId: number;
 	onEdit: () => void;
 	onReply: () => void;
 	onForward: () => void;
@@ -264,4 +269,11 @@ export interface ButtonProps {
 	type?: "button" | "submit" | "reset";
 	style?: JSX.CSSProperties;
 	className?: string;
+}
+
+export interface TooltipProps {
+	children: JSX.Element;
+	text: string;
+	className?: string;
+	position?: "top" | "bottom" | "left" | "right" | "auto";
 }

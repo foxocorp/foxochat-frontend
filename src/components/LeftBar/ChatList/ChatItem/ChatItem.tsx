@@ -1,9 +1,9 @@
-import { ChannelType } from "@foxogram/api-types";
 import { ExtendedChatItemProps } from "@interfaces/interfaces";
 import { renderEmojisToJSX } from "@utils/emoji";
+import { ChannelType } from "foxogram.js";
 import { observer } from "mobx-react";
 import ChatAvatar from "./ChatAvatar";
-import styles from "./ChatItem.module.scss";
+import * as styles from "./ChatItem.module.scss";
 
 const ChatItemComponent = ({
 	chat,
@@ -34,7 +34,7 @@ const ChatItemComponent = ({
 			{!isCollapsed && (
 				<div className={styles.chatInfo}>
 					<p className={styles.chatName}>
-						{renderEmojisToJSX(chat.display_name || chat.name, "64")}
+						{renderEmojisToJSX(chat.display_name || chat.name)}
 					</p>
 					<p className={styles.chatMessage}>{lastMessageContent}</p>
 				</div>

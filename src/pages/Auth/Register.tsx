@@ -1,6 +1,6 @@
 import { useLocation } from "preact-iso";
 import { useEffect, useState } from "preact/hooks";
-import styles from "./Register.module.scss";
+import * as styles from "./Register.module.scss";
 
 import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
 import arrowLeftIcon from "@icons/navigation/arrow-left.svg";

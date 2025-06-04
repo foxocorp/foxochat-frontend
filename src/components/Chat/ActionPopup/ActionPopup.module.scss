@@ -1,0 +1,48 @@
+.actionPopup {
+  z-index: 100;
+  background: rgba(46, 46, 46, 0.3);
+  border-radius: 10px 10px 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 10px;
+  padding: 5px 13px;
+  display: flex;
+  position: absolute;
+  top: -100%;
+  right: 43px;
+
+  button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-color);
+    font-size: 12px;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+
+    &:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+      scale: 1.1;
+    }
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+
+    span {
+      color: inherit;
+      font-size: 12px;
+    }
+  }
+
+  .delete {
+    color: var(--danger-color);
+  }
+}

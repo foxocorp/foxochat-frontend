@@ -1,34 +1,40 @@
 .emptyChat {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  flex-direction: row-reverse;
   height: 100%;
   width: 100%;
   color: var(--primary-text-color);
-  text-align: center;
   padding: 20px;
   box-sizing: border-box;
 }
 
+.emptyChatContainer {
+  display: flex;
+  flex-direction: column;
+}
+
 .icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  display: flex;
+  font-weight: 700;
+  padding: 10px;
+  --emoji-size: 100px;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 30px;
   margin-bottom: 8px;
   color: var(--primary-text-color);
 }
 
 .description {
-  font-size: 16px;
+  font-size: 19px;
+  font-weight: 400;
   line-height: 1.5;
   max-width: 300px;
-  margin: 0;
-  color: var(--primary-text-color);
+  color: var(--lightgray-color);
 }
 
 @media (max-width: 768px) {
@@ -37,7 +43,7 @@
   }
 
   .icon {
-    font-size: 40px;
+    --emoji-size: 8vh;
   }
 
   .title {

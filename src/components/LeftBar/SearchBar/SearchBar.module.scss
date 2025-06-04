@@ -8,6 +8,10 @@
   align-items: center;
   height: 53px;
   transition: background-color 0.3s ease, border 0.3s ease;
+
+  &.active {
+    border: 2px solid var(--branded-color);
+  }
 }
 
 .searchContainer {
@@ -15,11 +19,6 @@
   gap: 12px;
   width: 100%;
   align-items: center;
-}
-
-.inactiveBorder {
-  border: 2px solid rgb(0 0 0 / 0.1);
-  transition: border-color 1s ease-in-out;
 }
 
 .searchIcon {
@@ -41,5 +40,3 @@
     color: rgb(96 96 96 / 0.7);
   }
 }
-
-//TODO Add active nd activeInput styles (Check in github old commits)
