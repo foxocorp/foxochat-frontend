@@ -677,8 +677,8 @@ packages:
   '@fontsource/inter@5.2.5':
     resolution: {integrity: sha512-kbsPKj0S4p44JdYRFiW78Td8Ge2sBVxi/PIBwmih+RpSXUdvS9nbs1HIiuUSPtRMi14CqLEZ/fbk7dj7vni1Sg==}
 
-  '@foxogram/api-types@0.1.19':
-    resolution: {integrity: sha512-lbxICY9yGlBKL8/on20UqySxh/nrOw45M/Nq6mCnX2aKdS35oyJ7NzDX/CUbJkbSA/h2OpZ9CkYbhqzBZnOipA==}
+  '@foxogram/api-types@0.1.20':
+    resolution: {integrity: sha512-2Ok1KsIRiXEhjBVLDy7MQ5BGQqkGpdQa6RhR9VPj1hPzlSkX2keiUq/+j2jmM9A5/CYA84bVK7bZzEosaBf00w==}
 
   '@foxogram/api@0.1.17':
     resolution: {integrity: sha512-FzRHvpGDIZOHUohIRAb0ZWmEznycsZ5gScjzoRmTOkVPKm95A9wXDLBhXItsCTNNJDmMTIGzfo4keaywiSbBUA==}
@@ -3056,31 +3056,31 @@ snapshots:
 
   '@fontsource/inter@5.2.5': {}
 
-  '@foxogram/api-types@0.1.19':
+  '@foxogram/api-types@0.1.20':
     dependencies:
       '@swc/helpers': 0.5.17
 
   '@foxogram/api@0.1.17':
     dependencies:
-      '@foxogram/api-types': 0.1.19
+      '@foxogram/api-types': 0.1.20
       '@foxogram/rest': 0.1.15
       '@swc/helpers': 0.5.17
 
   '@foxogram/gateway-types@0.1.8':
     dependencies:
-      '@foxogram/api-types': 0.1.19
+      '@foxogram/api-types': 0.1.20
       '@swc/helpers': 0.5.17
 
   '@foxogram/gateway@0.1.11':
     dependencies:
-      '@foxogram/api-types': 0.1.19
+      '@foxogram/api-types': 0.1.20
       '@foxogram/gateway-types': 0.1.8
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
   '@foxogram/rest@0.1.15':
     dependencies:
-      '@foxogram/api-types': 0.1.19
+      '@foxogram/api-types': 0.1.20
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.8':
@@ -3797,7 +3797,7 @@ snapshots:
   foxogram.js@0.1.7:
     dependencies:
       '@foxogram/api': 0.1.17
-      '@foxogram/api-types': 0.1.19
+      '@foxogram/api-types': 0.1.20
       '@foxogram/gateway': 0.1.11
       '@foxogram/gateway-types': 0.1.8
       '@foxogram/rest': 0.1.15
