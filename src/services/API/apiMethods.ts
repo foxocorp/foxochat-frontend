@@ -181,4 +181,11 @@ export const apiMethods = {
 
 	deleteMessage: (channelId: number, messageId: number) =>
 		client.api.message.delete(channelId, messageId),
+
+	checkChannelNameAvailability: (channelName: string) => {
+		const channelKey = channelName.startsWith("@")
+			? channelName
+			: `@${channelName}`;
+		return client.api.channel.get(channelKey as `@${string}`);
+	},
 };
