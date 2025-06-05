@@ -46,7 +46,7 @@ export interface ChatItemProps {
 	chat: APIChannel;
 	onSelectChat: (chat: APIChannel) => void;
 	isActive: boolean;
-	currentUser: number;
+	currentUser?: number | null;
 }
 
 export interface MessageGroupProps {
@@ -122,7 +122,6 @@ export interface EmptyStateProps {
 
 export interface UserInfoProps {
 	username: string;
-	avatar: string;
 	status?: string;
 }
 
@@ -238,6 +237,7 @@ export interface ExtendedChatItemProps extends ChatItemProps {
 
 export interface ExtendedChatListProps extends ChatListProps {
 	isCollapsed?: boolean;
+	channels?: APIChannel[];
 }
 
 export interface ChatAvatarProps {

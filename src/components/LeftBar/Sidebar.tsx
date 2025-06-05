@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from "preact/hooks";
-import { SidebarProps } from "@interfaces/interfaces";
-import * as styles from "./Sidebar.module.scss";
-import SearchBar from "./SearchBar/SearchBar";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
-import UserInfo from "./UserInfo/UserInfo";
-import CreateButton from "./CreateButton/CreateButton";
-import CreateChannelModal from "./CreateChannelModal/CreateChannelModal";
-import CreateDropdown from "./CreateDropdown/CreateDropdown";
+import CreateChannelModal from "@components/Modal/CreateChannelModal/CreateChannelModal";
+import { SidebarProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
 import { ChannelType } from "foxogram.js";
 import { observer } from "mobx-react";
+import { useEffect, useRef, useState } from "preact/hooks";
+import CreateButton from "./CreateButton/CreateButton";
+import CreateDropdown from "./CreateDropdown/CreateDropdown";
+import SearchBar from "./SearchBar/SearchBar";
+import * as styles from "./Sidebar.module.scss";
+import UserInfo from "./UserInfo/UserInfo";
 
 const MIN_SIDEBAR_WIDTH = 310;
 const DEFAULT_DESKTOP_WIDTH = 420;

@@ -24,7 +24,7 @@ const ChatListComponent = ({
 
 		return (
 			<div className={styles.noChatsContainer}>
-				<div>{renderEmojisToJSX("😔", "160")}</div>
+				<div>{renderEmojisToJSX("😔")}</div>
 				<div className={styles.mainText}>Oops! There’s nothing to see</div>
 				<div className={styles.subText}>Start a new chat?</div>
 			</div>
@@ -41,7 +41,7 @@ const ChatListComponent = ({
 					chat={chat}
 					isActive={chat.id === appStore.currentChannelId}
 					onSelectChat={onSelectChat}
-					currentUser={appStore.currentUserId ?? -1}
+					currentUser={appStore.currentUserId}
 					isCollapsed={isCollapsed}
 				/>
 			))}

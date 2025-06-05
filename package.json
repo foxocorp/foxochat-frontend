@@ -18,7 +18,7 @@
 		"@types/prismjs": "^1.26.5",
 		"clsx": "^2.1.1",
 		"dayjs": "^1.11.13",
-		"foxogram.js": "^0.1.6",
+		"foxogram.js": "^0.1.7",
 		"html-react-parser": "^5.2.5",
 		"markdown-it": "^14.1.0",
 		"mobx": "^6.13.7",

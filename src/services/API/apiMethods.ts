@@ -1,4 +1,4 @@
-import { client } from "@services/FoxogramClient";
+import { client, route } from "@services/FoxogramClient";
 import { generateThumbHashFromFile } from "@utils/functions";
 import {
 	APIChannel,
@@ -128,9 +128,7 @@ export const apiMethods = {
 	},
 
 	uploadFileToStorage: async (uploadUrl: string, file: File): Promise<void> => {
-		console.log("Raw uploadUrl:", uploadUrl);
-		const fullUploadUrl = toFullUrl(uploadUrl, apiUrl);
-		console.log("Full uploadUrl:", fullUploadUrl);
+		const fullUploadUrl = toFullUrl(uploadUrl, route.api);
 
 		if (!isValidUrl(fullUploadUrl)) {
 			throw new Error(`Invalid upload URL after processing: ${fullUploadUrl}`);
@@ -181,4 +179,11 @@ export const apiMethods = {
 
 	deleteMessage: (channelId: number, messageId: number) =>
 		client.api.message.delete(channelId, messageId),
+
+	checkChannelNameAvailability: (channelName: string) => {
+		const channelKey = channelName.startsWith("@")
+			? channelName
+			: `@${channelName}`;
+		return client.api.channel.get(channelKey as `@${string}`);
+	},
 };

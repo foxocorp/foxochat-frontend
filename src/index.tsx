@@ -148,9 +148,7 @@ export function App() {
 		<ErrorBoundary>
 			<LocationProvider>
 				<InitializationCheck>
-					<main>
-						<Routes />
-					</main>
+					<Routes />
 				</InitializationCheck>
 			</LocationProvider>
 		</ErrorBoundary>
