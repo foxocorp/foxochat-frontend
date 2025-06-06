@@ -7,7 +7,7 @@ const routeKey =
 		? "development"
 		: "production";
 
-export const route = RouteUrlsMap[routeKey];
+const route = RouteUrlsMap[routeKey];
 
 export const client = new Client({
 	api: {
