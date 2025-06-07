@@ -1,16 +1,27 @@
 .actionPopup {
-  z-index: 100;
-  background: rgba(46, 46, 46, 0.3);
-  border-radius: 10px 10px 0;
+  z-index: 1000;
+  background: rgb(46 46 46 / 0.6);
+  border-radius: 10px;
+  display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 15px;
-  margin: 10px 10px;
+  gap: 10px;
   padding: 5px 13px;
-  display: flex;
   position: absolute;
-  top: -100%;
-  right: 43px;
+  top: 0;
+  transform: translateY(-100%);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+  width: max-content;
+  max-width: 200px;
+
+  &.authorMessage {
+    right: 50px;
+  }
+
+  &.receiverMessage {
+    left: 53px;
+  }
 
   button {
     display: flex;
@@ -32,8 +43,8 @@
     }
 
     img {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
     }
 
     span {
@@ -42,7 +53,7 @@
     }
   }
 
-  .delete {
+  .deleteMessage {
     color: var(--danger-color);
   }
 }

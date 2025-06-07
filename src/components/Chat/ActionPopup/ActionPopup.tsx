@@ -30,7 +30,11 @@ const ActionPopup = ({
 	};
 
 	return (
-		<div className={styles.actionPopup}>
+		<div
+			className={`${styles.actionPopup} ${
+				isMessageAuthor ? styles.authorMessage : styles.receiverMessage
+			}`}
+		>
 			{isMessageAuthor && (
 				<button onClick={handleEdit}>
 					<img src={EditIcon} alt="Edit" />
@@ -43,8 +47,8 @@ const ActionPopup = ({
 				<img src={ForwardIcon} alt="Forward" />
 			</button>
 			{isMessageAuthor && (
-				<button className={styles.delete} onClick={handleDelete}>
-					<img src={TrashIcon} alt="Deletw" />
+				<button className={styles.deleteMessage} onClick={handleDelete}>
+					<img src={TrashIcon} alt="Delete" />
 				</button>
 			)}
 		</div>
