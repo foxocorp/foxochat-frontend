@@ -1,4 +1,4 @@
-import { client } from "@services/FoxogramClient";
+import { client } from "@services/FoxoChatClient";
 import { generateThumbHashFromFile } from "@utils/functions";
 import {
 	APIChannel,

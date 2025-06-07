@@ -351,7 +351,7 @@ export class AppStore {
 	}
 
 	playSendMessageSound() {
-		const audio = new Audio("/sounds/fg_sfx.mp3");
+		const audio = new Audio("/sounds/fchat_sfx.mp3");
 		audio.play().catch((e: unknown) => {
 			console.error(e);
 		});

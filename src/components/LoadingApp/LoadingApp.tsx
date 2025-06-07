@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import FoxogramLogo from "../../../public/foxogram.svg";
+import FoxogramLogo from "../../../public/foxochat.svg";
 import * as styles from "./LoadingApp.module.scss";
 
 const Loading = ({
