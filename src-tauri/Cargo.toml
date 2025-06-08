@@ -1,10 +1,10 @@
 [package]
-name = "foxogram"
+name = "foxochat"
 version = "0.1.0"
-description = "Foxogram Desktop"
+description = "FoxoChat Desktop"
 authors = ["FoxoCorp"]
 license = "MIT"
-repository = "https://github.com/foxocorp/foxogram-frontend"
+repository = "https://github.com/foxocorp/foxochat-frontend"
 edition = "2021"
 rust-version = "1.83.0"
 
