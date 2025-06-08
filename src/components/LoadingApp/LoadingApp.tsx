@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import FoxogramLogo from "../../../public/foxochat.svg";
+import FoxoChatLogo from "../../../public/foxochat.svg";
 import * as styles from "./LoadingApp.module.scss";
 
 const Loading = ({
@@ -13,7 +13,7 @@ const Loading = ({
 
 	useEffect(() => {
 		const img = new Image();
-		img.src = FoxogramLogo;
+		img.src = FoxoChatLogo;
 		img.onload = () => {
 			setIsLogoLoaded(true);
 		};
@@ -34,7 +34,7 @@ const Loading = ({
 
 	return (
 		<div className={styles.loadingOverlay}>
-			<img src={FoxogramLogo} alt="Foxogram Logo" className={styles.logo} />
+			<img src={FoxoChatLogo} alt="FoxoChat Logo" className={styles.logo} />
 			<div className={styles.loading}>
 				<div className={styles.loadingBar} />
 			</div>

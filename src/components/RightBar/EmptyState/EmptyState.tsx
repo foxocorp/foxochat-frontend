@@ -1,6 +1,6 @@
 import { EmptyStateProps } from "@interfaces/interfaces";
 import { timestampToHSV } from "@utils/functions";
-import { APIChannel } from "foxogram.js";
+import { APIChannel } from "foxochat.js";
 import * as style from "./EmptyState.module.scss";
 
 const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
@@ -57,7 +57,7 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
 							<div>
 								{chat.icon ? (
 									<img
-										src={`https://cdn.foxogram.su/attachments/${chat.icon.uuid}`}
+										src={`${config.cdnBaseUrl}${chat.icon.uuid}`}
 										alt={chat.name}
 										className={style.avatar}
 									/>

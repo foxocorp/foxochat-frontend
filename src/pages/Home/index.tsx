@@ -9,7 +9,7 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
-import { APIChannel } from "foxogram.js";
+import { APIChannel } from "foxochat.js";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();

@@ -2,7 +2,7 @@ import MessageItem from "@components/RightBar/MessageList/MessageGroup/MessageIt
 import { MessageGroupProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
-import { APIMessage } from "foxogram.js";
+import { APIMessage } from "foxochat.js";
 import { memo } from "preact/compat";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import * as styles from "./MessageGroup.module.scss";

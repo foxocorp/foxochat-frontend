@@ -1,5 +1,5 @@
 import { useCodeVerification } from "@hooks/useCodeVerification";
-import { APIOk } from "foxogram.js";
+import { APIOk } from "foxochat.js";
 import { useLocation } from "preact-iso";
 import { useCallback, useState } from "preact/hooks";
 

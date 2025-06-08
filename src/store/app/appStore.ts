@@ -5,7 +5,7 @@ import {
 	APIChannel,
 	APIMessage,
 	RESTGetAPIMessageListQuery,
-} from "foxogram.js";
+} from "foxochat.js";
 import {
 	IObservableArray,
 	action,

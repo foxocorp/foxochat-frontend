@@ -9,7 +9,7 @@ import {
 	RESTGetAPIMessageListQuery,
 	RESTPostAPIMessageBody,
 	RESTPutAPIMessageAttachmentsBody,
-} from "foxogram.js";
+} from "foxochat.js";
 
 export const getAuthToken = (): string | null =>
 	localStorage.getItem("authToken");
