@@ -1,9 +1,9 @@
-import { Client, RouteUrlsMap } from "foxogram.js";
+import { Client, RouteUrlsMap } from "foxochat.js";
 
 const hostname = window.location.hostname;
 
 const routeKey =
-	hostname === "localhost" || hostname.endsWith("dev.foxogram.su")
+	hostname === "localhost" || hostname.endsWith("dev.foxochat.app")
 		? "development"
 		: "production";
 
