@@ -9,7 +9,7 @@ export function NotFound({ path }: { path: string }) {
 	const truncatedUri = path.length > 30 ? `${path.substring(0, 30)}...` : path;
 
 	const statusPage = () => {
-		window.open("https://status.foxogram.su", "_blank", "noopener,noreferrer");
+		window.open("https://status.foxochat.app", "_blank", "noopener,noreferrer");
 	};
 
 	const returnPage = () => {

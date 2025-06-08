@@ -4,10 +4,14 @@ import * as styles from "./Maintenance.module.scss";
 
 export function Maintenance() {
 	const statusPage = () => {
-		window.open("https://status.foxogram.su", "_blank", "noopener,noreferrer");
+		window.open("https://status.foxochat.app", "_blank", "noopener,noreferrer");
 	};
 	const discordServer = () => {
-		window.open("https://discord.foxogram.su", "_blank", "noopener,noreferrer");
+		window.open(
+			"https://discord.foxochat.app",
+			"_blank",
+			"noopener,noreferrer",
+		);
 	};
 
 	return (
