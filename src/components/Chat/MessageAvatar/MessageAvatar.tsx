@@ -16,7 +16,7 @@ const Avatar = ({
 		<div className={`${styles.avatarContainer}`}>
 			{author?.user?.avatar?.uuid ? (
 				<img
-					src={`https://cdn.foxogram.su/attachments/${author.user.avatar.uuid}`}
+					src={`${config.cdnBaseUrl}${author.user.avatar.uuid}`}
 					className={styles.avatar}
 					alt={`${author?.user?.username ?? "User"} Avatar`}
 				/>

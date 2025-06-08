@@ -11,7 +11,7 @@ const ChatAvatar = ({ chat }: ChatAvatarProps) => {
 
 	return chat.icon ? (
 		<img
-			src={`https://cdn.foxogram.su/attachments/${chat.icon.uuid}`}
+			src={`${config.cdnBaseUrl}${chat.icon.uuid}`}
 			alt={chat.name}
 			className={styles.chatAvatar}
 		/>
