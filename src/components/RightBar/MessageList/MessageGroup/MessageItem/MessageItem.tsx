@@ -150,15 +150,10 @@ const MessageItem = ({
 
 	const htmlContent = useMemo(() => {
 		if (!content) {
-			Logger.debug(`Content is empty or invalid in MessageItem: ${content}`);
 			return "";
 		}
 		try {
-			const html = wrapRichText(content, { highlight: true });
-			Logger.debug(
-				`wrapRichText result for content:, ${content}, "->", ${html}`,
-			);
-			return html;
+			return wrapRichText(content, { highlight: true });
 		} catch (error) {
 			Logger.error(`Error processing content: ${error}`);
 			return content;
@@ -176,7 +171,7 @@ const MessageItem = ({
 						att.content_type?.split("/")[1] ?? "",
 					)
 				) {
-					const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
+					const url = `${config.cdnBaseUrl}${att.uuid}`;
 					newThumbHashes[att.uuid] = await fetchFileAndGenerateThumbHash(
 						url,
 						att.content_type,
@@ -269,7 +264,7 @@ const MessageItem = ({
 						extParts.length > 1
 							? (extParts[1]?.toLowerCase() ?? extParts[0]?.toLowerCase() ?? "")
 							: (extParts[0]?.toLowerCase() ?? "");
-					const url = `https://cdn.foxogram.su/attachments/${att.uuid}`;
+					const url = `${config.cdnBaseUrl}${att.uuid}`;
 					const filename = att.filename || `${att.uuid}.${ext}`;
 					return { ...att, url, filename };
 				},
@@ -333,9 +328,6 @@ const MessageItem = ({
 						const codeHtml = codeElement?.innerHTML ?? "";
 						const codeText = codeElement?.textContent ?? "";
 						const preKey = `pre-${elementKeyBase}-${language}-${simpleHash(codeText)}`;
-						Logger.debug(
-							`[renderContent] Rendering code block for language "${language}": ${codeHtml}`,
-						);
 						elements.push(
 							<PreComponent
 								key={preKey}

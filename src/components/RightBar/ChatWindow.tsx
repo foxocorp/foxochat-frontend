@@ -103,7 +103,6 @@ const ChatWindowComponent = ({
 			Logger.debug(`Initializing channel: ${channel.id}`);
 			await appStore.initChannel(channel.id);
 			const messages = appStore.messagesByChannelId.get(channel.id);
-			Logger.debug(`Messages after initChannel: ${messages}`);
 			if (!messages || messages.length === 0) {
 				Logger.warn(`No messages loaded for channel: ${channel.id}`);
 			}
@@ -209,7 +208,7 @@ const ChatWindowComponent = ({
 		<div className={styles.chatWindow}>
 			<ChatHeader
 				chat={channel}
-				avatar={`https://cdn.foxogram.su/attachments/${channel.icon?.uuid}`}
+				avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
 				username={channel.name}
 				displayName={channel.display_name}
 				channelId={channel.id}
