@@ -1,6 +1,7 @@
 import CreateIcon from "@icons/chat/create-black.svg";
 import { Props } from "@interfaces/interfaces";
-import { ChannelType } from "foxogram.js";
+import { ChannelType } from "foxochat.js";
+import { JSX } from "preact";
 import { memo } from "preact/compat";
 import { useEffect, useRef, useState } from "preact/hooks";
 import * as styles from "./CreateChannelModal.module.scss";

@@ -1,9 +1,10 @@
 import ChatList from "@components/LeftBar/ChatList/ChatList";
 import CreateChannelModal from "@components/Modal/CreateChannelModal/CreateChannelModal";
+import * as modalStyles from "@components/Modal/CreateChannelModal/CreateChannelModal.module.scss";
 import { SidebarProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
-import { ChannelType } from "foxogram.js";
+import { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "preact/hooks";
 import CreateButton from "./CreateButton/CreateButton";
