@@ -52,6 +52,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: foxogram-${{github.run_id}}
-          releaseName: 'Foxogram ${{github.run_id}}'
+          tagName: foxochat-${{github.run_id}}
+          releaseName: 'FoxoChat ${{github.run_id}}'
           prerelease: false
