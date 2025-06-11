@@ -1,4 +1,4 @@
-import FileIcon from "@icons/chat/file.svg";
+import FileIcon from "@/assets/icons/right-bar/chat/file.svg";
 import { AttachmentsProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import * as styles from "./MessageAttachments.module.scss";
