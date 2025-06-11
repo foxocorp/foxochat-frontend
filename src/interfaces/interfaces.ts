@@ -142,7 +142,7 @@ export interface Props {
 		members?: string[];
 		channelType: ChannelType;
 		public?: boolean;
-	}) => void;
+	}) => Promise<boolean>;
 	type: "group" | "channel";
 }
 
