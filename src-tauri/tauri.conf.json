@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Foxogram",
+  "productName": "FoxoChat",
   "version": "0.1.0",
-  "identifier": "su.foxogram",
+  "identifier": "su.FoxoChat",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:3000",
@@ -13,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "Foxogram",
+        "title": "FoxoChat",
         "width": 1100,
         "height": 650,
         "minWidth": 1100,
@@ -42,7 +42,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg0MUE0NERGQkY3MkU0MkQKUldRdDVISy8zMFFhaEJ0RGFjbXd3UzVVNi8vQlhiSFFxTEt5UVA2ZFY3cHU5YnV6SUdDU3c4c2oK",
       "endpoints": [
-        "https://github.com/foxocorp/foxogram-frontend/releases/latest/download/latest.json"
+        "https://github.com/foxocorp/FoxoChat-frontend/releases/latest/download/latest.json"
       ]
     }
   }

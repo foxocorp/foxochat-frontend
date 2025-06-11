@@ -1,6 +1,6 @@
 import { Button } from "@components/Base/Buttons/Button";
 import TimerIcon from "@icons/timer.svg";
-import { APIOk } from "foxogram.js";
+import { APIOk } from "foxochat.js";
 import { usePasswordReset } from "./PasswordReset";
 import * as style from "./PasswordResetModal.module.scss";
 

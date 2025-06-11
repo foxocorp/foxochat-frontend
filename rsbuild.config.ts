@@ -1,10 +1,11 @@
+import { defineConfig } from "@rsbuild/core";
 import { pluginPreact } from "@rsbuild/plugin-preact";
 import { pluginSass } from "@rsbuild/plugin-sass";
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
 
-const isDevelopment = import.meta.env.MODE == "development";
+const isDevelopment = process.env.NODE_ENV === "development";
 
-export default {
+export default defineConfig({
 	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass()],
 	html: {
 		template: "./index.html",
@@ -14,13 +15,25 @@ export default {
 			index: "./src/index.tsx",
 		},
 		define: {
-			"import.meta.env.MODE": JSON.stringify(
-				import.meta.env.MODE || "production",
+			"process.env.CDN_BASE_URL": JSON.stringify(
+				process.env.CDN_BASE_URL || "https://cdn.foxochat.app/attachments/",
 			),
+			"process.env.API_URL": JSON.stringify(
+				process.env.API_URL || "https://api.foxochat.app/",
+			),
+			"import.meta.env.MODE": JSON.stringify(
+				process.env.NODE_ENV || "production",
+			),
+			config: JSON.stringify({
+				cdnBaseUrl:
+					process.env.CDN_BASE_URL || "https://cdn.foxochat.app/attachments/",
+				apiUrl: process.env.API_URL || "https://api.foxochat.app/",
+			}),
 		},
-		reEntry: isDevelopment ? ["preact/debug"] : [],
+		preEntry: isDevelopment ? ["preact/debug"] : [],
 	},
 	output: {
+		polyfill: "usage",
 		cssModules: {
 			namedExport: true,
 		},
@@ -38,6 +51,5 @@ export default {
 			"@lib": "./src/lib/",
 			"@interfaces": "./src/interfaces/",
 		},
-		modules: ["src"],
 	},
-};
+});

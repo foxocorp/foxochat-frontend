@@ -7,7 +7,7 @@ import {
 	MemberPermissions,
 	UserFlags,
 	UserType,
-} from "foxogram.js";
+} from "foxochat.js";
 
 const FALLBACK_USER: APIUser = {
 	id: 0,

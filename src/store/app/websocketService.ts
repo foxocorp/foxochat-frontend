@@ -1,9 +1,9 @@
 import { WebSocketClient } from "@/gateway/webSocketClient";
 import { getAuthToken } from "@services/API/apiMethods";
-import { client } from "@services/FoxogramClient";
+import { client } from "@services/FoxoChatClient";
 import { transformToMessage } from "@store/app/transforms";
 import { Logger } from "@utils/logger";
-import { GatewayDispatchEvents } from "foxogram.js";
+import { GatewayDispatchEvents } from "foxochat.js";
 import { runInAction } from "mobx";
 import { AppStore } from "./appStore";
 

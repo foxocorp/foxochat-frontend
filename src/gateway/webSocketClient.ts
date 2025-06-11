@@ -1,6 +1,6 @@
 import { LogLevel, Logger } from "@utils/logger";
-import type { Client } from "foxogram.js";
-import { GatewayDispatchEvents } from "foxogram.js";
+import type { Client } from "foxochat.js";
+import { GatewayDispatchEvents } from "foxochat.js";
 
 interface EventMap {
 	connected: undefined;

@@ -2,7 +2,7 @@ import ChannelIcon from "@icons/navigation/channel.svg";
 import GroupIcon from "@icons/navigation/group.svg";
 import { ExtendedChatItemProps } from "@interfaces/interfaces";
 import { renderEmojisToJSX } from "@utils/emoji";
-import { ChannelType } from "foxogram.js";
+import { ChannelType } from "foxochat.js";
 import { toJS } from "mobx";
 import { observer } from "mobx-react";
 import ChatAvatar from "./ChatAvatar";

@@ -42,7 +42,7 @@ const MediaViewer = ({
 	const mediaRef = useRef<HTMLImageElement | HTMLVideoElement>(null);
 	const zoomInputRef = useRef<HTMLInputElement>(null);
 	const avatarUrl = authorAvatar
-		? `https://cdn.foxogram.su/attachments/${authorAvatar}`
+		? `${config.cdnBaseUrl}${authorAvatar}`
 		: undefined;
 
 	const { h, s } = timestampToHSV(createdAt);
@@ -362,7 +362,7 @@ const MediaViewer = ({
 		return null;
 	}
 
-	const url = `https://cdn.foxogram.su/attachments/${currentAttachment.uuid}`;
+	const url = `${config.cdnBaseUrl}${currentAttachment.uuid}`;
 	const isImage = ["png", "jpg", "jpeg", "gif", "webp"].includes(
 		currentAttachment.content_type.split("/")[1] ?? "",
 	);

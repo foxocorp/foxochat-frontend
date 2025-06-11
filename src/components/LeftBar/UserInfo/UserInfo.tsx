@@ -1,10 +1,10 @@
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
-import { APIAttachment } from "foxogram.js";
 import accountSwitchIcon from "@icons/navigation/account-switch.svg";
 import settingsIcon from "@icons/navigation/settings.svg";
 import { UserInfoProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import { timestampToHSV } from "@utils/functions";
+import { APIAttachment } from "foxochat.js";
 import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "preact/hooks";

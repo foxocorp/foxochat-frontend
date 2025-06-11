@@ -1,4 +1,4 @@
-import { client, route } from "@services/FoxogramClient";
+import { client } from "@services/FoxoChatClient";
 import { generateThumbHashFromFile } from "@utils/functions";
 import {
 	APIChannel,
@@ -9,7 +9,7 @@ import {
 	RESTGetAPIMessageListQuery,
 	RESTPostAPIMessageBody,
 	RESTPutAPIMessageAttachmentsBody,
-} from "foxogram.js";
+} from "foxochat.js";
 
 export const getAuthToken = (): string | null =>
 	localStorage.getItem("authToken");
@@ -128,7 +128,7 @@ export const apiMethods = {
 	},
 
 	uploadFileToStorage: async (uploadUrl: string, file: File): Promise<void> => {
-		const fullUploadUrl = toFullUrl(uploadUrl, route.api);
+		const fullUploadUrl = toFullUrl(uploadUrl, client.api.rest.options.baseURL);
 
 		if (!isValidUrl(fullUploadUrl)) {
 			throw new Error(`Invalid upload URL after processing: ${fullUploadUrl}`);
