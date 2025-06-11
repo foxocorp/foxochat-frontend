@@ -6,9 +6,9 @@ import { Button } from "@components/Base";
 import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
 import * as styles from "./Login.module.scss";
 
-import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
-import newUserIcon from "@icons/navigation/new-user.svg";
-import resetPasswordIcon from "@icons/navigation/reset-password.svg";
+import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-left.svg";
+import newUserIcon from "@/assets/icons/auth/auth-new-user.svg";
+import resetPasswordIcon from "@/assets/icons/auth/auth-reset-password.svg";
 
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";

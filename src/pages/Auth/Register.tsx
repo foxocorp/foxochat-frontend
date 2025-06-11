@@ -2,8 +2,8 @@ import { useLocation } from "preact-iso";
 import { useEffect, useState } from "preact/hooks";
 import * as styles from "./Register.module.scss";
 
-import alreadyHaveAccountIcon from "@icons/navigation/already-have-account.svg";
-import arrowLeftIcon from "@icons/navigation/arrow-left.svg";
+import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-left.svg";
+import alreadyHaveAccountIcon from "@/assets/icons/auth/auth-login.svg";
 
 import { Button } from "@components/Base";
 import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal";

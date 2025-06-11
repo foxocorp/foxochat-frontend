@@ -1,138 +1,138 @@
 .loginContainer {
-	position: relative;
-	min-height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow-y: auto;
-	color: var(--primary-color);
-	background-image: url("/src/assets/svg/wave-background.svg");
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  color: var(--primary-color);
+  background-image: url("/src/assets/wave-background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 
-	&::before {
-		bottom: -200px;
-		left: -200px;
-	}
+  &::before {
+    bottom: -200px;
+    left: -200px;
+  }
 
-	&::after {
-		top: -200px;
-		right: -200px;
-	}
+  &::after {
+    top: -200px;
+    right: -200px;
+  }
 }
 
 .loginForm {
-	position: relative;
-	z-index: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 432px;
-	padding: 32px;
-	border-radius: 10px;
-	box-shadow: 0 0 0 0.3px #606060;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 432px;
+  padding: 32px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 0.3px #606060;
 
-	@media (max-width: 375px) {
-		width: 90%;
-		padding: 10px;
-	}
+  @media (max-width: 375px) {
+    width: 90%;
+    padding: 10px;
+  }
 }
 
 .loginTitle {
-	font-weight: 800;
-	font-size: 40px;
-	color: var(--primary-color);
-	text-align: left;
-	width: 100%;
-	max-width: 400px;
+  font-weight: 800;
+  font-size: 40px;
+  color: var(--primary-color);
+  text-align: left;
+  width: 100%;
+  max-width: 400px;
 }
 
 .loginFormContent {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	max-width: 400px;
-	margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 15px;
 }
 
 .loginInput {
-	border: 1px solid rgb(96 96 96 / 0.5);
-	background: rgb(0 0 0 / 0.7);
-	border-radius: 5px;
-	padding: 4px 16px;
-	width: 100%;
-	height: 48px;
-	margin-bottom: 15px;
-	transition: border 0.3s ease-in-out;
-	color: var(--primary-color);
+  border: 1px solid rgb(96 96 96 / 0.5);
+  background: rgb(0 0 0 / 0.7);
+  border-radius: 5px;
+  padding: 4px 16px;
+  width: 100%;
+  height: 48px;
+  margin-bottom: 15px;
+  transition: border 0.3s ease-in-out;
+  color: var(--primary-color);
 
-	&:focus {
-		outline: none;
-		box-shadow: 0 0 3px rgb(255 255 255 / 0.7);
-	}
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 3px rgb(255 255 255 / 0.7);
+  }
 
-	&::placeholder {
-		font-weight: 400;
-		font-size: 16px;
-		color: rgb(96 96 96 / 0.7);
-	}
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    color: rgb(96 96 96 / 0.7);
+  }
 
-	@media (max-width: 375px) {
-		margin-bottom: 10px;
-	}
+  @media (max-width: 375px) {
+    margin-bottom: 10px;
+  }
 }
 
 .inputError {
-	border: 1px solid rgb(165 63 63 / 0.5);
+  border: 1px solid rgb(165 63 63 / 0.5);
 }
 
 .loginLabel {
-	font-weight: 500;
-	font-size: 18px;
-	color: var(--primary-color);
-	margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--primary-color);
+  margin-bottom: 5px;
 }
 
 .required {
-	font-weight: 500;
-	font-size: 18px;
-	color: #a53f3f;
-	margin-left: 5px;
+  font-weight: 500;
+  font-size: 18px;
+  color: #a53f3f;
+  margin-left: 5px;
 }
 
 .loginButton {
-	width: 100%;
+  width: 100%;
 }
 
 .divider {
-	padding: 1px;
-	width: 100%;
-	margin: 20px 0;
-	background: rgb(96 96 96 / 0.5);
+  padding: 1px;
+  width: 100%;
+  margin: 20px 0;
+  background: rgb(96 96 96 / 0.5);
 }
 
 .buttonWithGap {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 @keyframes slideIn {
-	0% {
-		opacity: 0;
-		transform: translateX(-30px);
-	}
-	100% {
-		opacity: 1;
-		transform: translateX(0);
-	}
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .errorText {
-	color: var(--error-dark);
-	font-weight: 300;
-	font-size: 14px;
-	opacity: 0;
-	transform: translateX(-30px);
-	position: absolute;
-	animation: slideIn 0.7s ease-in-out forwards;
+  color: var(--error-dark);
+  font-weight: 300;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateX(-30px);
+  position: absolute;
+  animation: slideIn 0.7s ease-in-out forwards;
 }

@@ -1,5 +1,5 @@
+import handIcon from "@/assets/icons/fallback/fallback-hand-error.svg";
 import { Button } from "@components/Base/Buttons/Button";
-import handIcon from "@icons/errors/hand-error.svg";
 import { useLocation } from "preact-iso";
 import * as styles from "./NotFound.module.scss";
 
