@@ -141,6 +141,7 @@ export interface Props {
 		displayName: string;
 		members?: string[];
 		channelType: ChannelType;
+		flags: number;
 	}) => void;
 	type: "group" | "channel";
 }
