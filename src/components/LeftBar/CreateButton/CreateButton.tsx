@@ -1,4 +1,4 @@
-import CreateIcon from "@icons/chat/create.svg";
+import CreateIcon from "@/assets/icons/left-bar/navigation/createButton.svg";
 import { CreateButtonProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import * as styles from "./CreateButton.module.scss";

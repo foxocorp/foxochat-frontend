@@ -1,5 +1,5 @@
-import ChannelIcon from "@icons/navigation/channel.svg";
-import GroupIcon from "@icons/navigation/group.svg";
+import ChannelIcon from "@/assets/icons/left-bar/chat-list/channel.svg";
+import GroupIcon from "@/assets/icons/left-bar/chat-list/group.svg";
 import { ExtendedChatItemProps } from "@interfaces/interfaces";
 import { renderEmojisToJSX } from "@utils/emoji";
 import { ChannelType } from "foxochat.js";
