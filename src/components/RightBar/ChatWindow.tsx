@@ -1,9 +1,9 @@
 import { ChatWindowProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";
-import { autorun } from "mobx";
+import { reaction } from "mobx";
 import { observer } from "mobx-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import ChatHeader from "./ChatHeader/ChatHeader";
 import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
@@ -15,10 +15,14 @@ const ChatWindowComponent = ({
 	onBack,
 }: ChatWindowProps) => {
 	const listRef = useRef<HTMLDivElement>(null);
-	const lastScrollAtBottom = useRef(true);
-	const prevMessageCount = useRef(0);
 	const [showScrollButton, setShowScrollButton] = useState(false);
-
+	const [isFirstLoad, setIsFirstLoad] = useState(true);
+	const isFetchingOlderMessages = useRef(false);
+	const lastScrollTop = useRef(0);
+	const anchorMessageId = useRef<number | null>(null);
+	const anchorOffset = useRef<number>(0);
+	const scrollTimeout = useRef<number | null>(null);
+	const isMounted = useRef(true);
 	const isProgrammaticHashChange = useRef(false);
 	const lastValidChannelId = useRef<number | null>(null);
 
@@ -100,107 +104,218 @@ const ChatWindowComponent = ({
 
 	useEffect(() => {
 		(async () => {
-			Logger.debug(`Initializing channel: ${channel.id}`);
-			await appStore.initChannel(channel.id);
-			const messages = appStore.messagesByChannelId.get(channel.id);
-			if (!messages || messages.length === 0) {
-				Logger.warn(`No messages loaded for channel: ${channel.id}`);
+			try {
+				await appStore.initChannel(channel.id);
+				if (isMounted.current) {
+					setIsFirstLoad(false);
+				}
+			} catch (error) {
+				Logger.error(`Error in initChannel: ${error}`);
 			}
-		})().catch((error: unknown) => {
-			Logger.error(`Error in initChannel: ${error}`);
-		});
-	}, [channel.id]);
-
-	useEffect(() => {
+		})();
 		return () => {
-			if (listRef.current) {
-				appStore.channelScrollPositions.set(
-					channel.id,
-					listRef.current.scrollTop,
-				);
-			}
-			const messages = appStore.messagesByChannelId.get(channel.id);
-			if (messages && messages.length > 0) {
-				appStore.lastViewedMessageTimestamps.set(
-					channel.id,
-					messages[messages.length - 1].created_at,
-				);
+			if (scrollTimeout.current !== null) {
+				clearTimeout(scrollTimeout.current);
+				scrollTimeout.current = null;
 			}
 		};
 	}, [channel.id]);
 
-	useLayoutEffect(() => {
-		const messages = appStore.messagesByChannelId.get(channel.id);
-		if (messages && messages.length > 0 && listRef.current) {
-			const savedScrollPosition =
-				appStore.channelScrollPositions.get(channel.id) ||
-				listRef.current.scrollHeight;
-			listRef.current.scrollTo({ top: savedScrollPosition, behavior: "auto" });
-			lastScrollAtBottom.current =
-				savedScrollPosition === listRef.current.scrollHeight;
-			setShowScrollButton(!lastScrollAtBottom.current);
-		}
-	}, [channel.id, appStore.messagesByChannelId.get(channel.id)?.length]);
+	useEffect(() => {
+		return () => {
+			if (listRef.current && appStore.currentChannelId === channel.id) {
+				const scrollPosition =
+					listRef.current.scrollHeight -
+					listRef.current.clientHeight -
+					listRef.current.scrollTop;
+				appStore.channelScrollPositions.set(channel.id, scrollPosition);
+			}
+			if (scrollTimeout.current !== null) {
+				clearTimeout(scrollTimeout.current);
+				scrollTimeout.current = null;
+			}
+		};
+	}, [channel.id]);
+
+	const messages = (appStore.messagesByChannelId.get(channel.id) ?? [])
+		.slice()
+		.sort((a, b) => a.created_at - b.created_at);
+
+	const isLoading =
+		appStore.isLoadingHistory ||
+		appStore.isInitialLoad.get(channel.id) ||
+		false;
 
 	useEffect(() => {
-		const stop = autorun(() => {
-			const messages = appStore.messagesByChannelId.get(channel.id);
-			if (!messages) return;
+		const disposer = reaction(
+			() => appStore.messagesByChannelId.get(channel.id)?.length ?? 0,
+			(length, prevLength) => {
+				if (!listRef.current || isLoading || !isMounted.current) return;
 
-			if (
-				messages.length > prevMessageCount.current &&
-				lastScrollAtBottom.current
-			) {
 				requestAnimationFrame(() => {
-					if (listRef.current) {
-						listRef.current.scrollTo({
-							top: listRef.current.scrollHeight,
-							behavior: "smooth",
-						});
-						setShowScrollButton(false);
+					if (!listRef.current || !isMounted.current) return;
+
+					try {
+						if (isFirstLoad) {
+							listRef.current.scrollTop = listRef.current.scrollHeight;
+							appStore.setIsCurrentChannelScrolledToBottom(true);
+							setIsFirstLoad(false);
+						} else if (appStore.isCurrentChannelScrolledToBottom) {
+							listRef.current.scrollTop = listRef.current.scrollHeight;
+						} else if (
+							length > prevLength &&
+							!isFetchingOlderMessages.current
+						) {
+							const scrollPosition =
+								appStore.channelScrollPositions.get(channel.id) || 0;
+							listRef.current.scrollTop =
+								listRef.current.scrollHeight -
+								listRef.current.clientHeight -
+								scrollPosition;
+						} else if (length > prevLength && isFetchingOlderMessages.current) {
+							if (anchorMessageId.current !== null) {
+								const anchorElement = document.getElementById(
+									`messageGroup-${anchorMessageId.current}`,
+								);
+								if (anchorElement) {
+									const rect = anchorElement.getBoundingClientRect();
+									const containerRect = listRef.current.getBoundingClientRect();
+									const newScrollTop =
+										listRef.current.scrollTop +
+										(rect.top - containerRect.top - anchorOffset.current);
+									listRef.current.scrollTop = newScrollTop;
+									Logger.info(
+										`Restored scroll to message ${anchorMessageId.current}: scrollTop=${newScrollTop}, offset=${anchorOffset.current}`,
+									);
+								}
+							}
+						}
+					} catch (error) {
+						Logger.error(`Error in reaction scroll adjustment: ${error}`);
 					}
 				});
+			},
+			{ equals: (a, b) => a === b },
+		);
+
+		return () => {
+			disposer();
+			if (scrollTimeout.current !== null) {
+				clearTimeout(scrollTimeout.current);
+				scrollTimeout.current = null;
+			}
+			Logger.debug(`Reaction and timeout cleaned up for channel ${channel.id}`);
+		};
+	}, [channel.id, isLoading, isFirstLoad]);
+
+	const handleScroll = useCallback(
+		async (_e: Event) => {
+			if (scrollTimeout.current !== null) {
+				clearTimeout(scrollTimeout.current);
 			}
 
-			prevMessageCount.current = messages.length;
-		});
+			scrollTimeout.current = setTimeout(async () => {
+				if (!listRef.current || !isMounted.current) return;
 
-		return () => stop();
-	}, [channel.id, lastScrollAtBottom.current]);
+				const el = listRef.current;
+				if (!el) return;
 
-	const handleScroll = async (e: Event) => {
-		const el = e.currentTarget as HTMLDivElement;
-		const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
-		lastScrollAtBottom.current = nearBottom;
-		setShowScrollButton(!nearBottom);
+				const scrollTop = el.scrollTop;
+				const scrollHeight = el.scrollHeight;
+				const clientHeight = el.clientHeight;
 
-		const messages = appStore.messagesByChannelId.get(channel.id);
-		if (!messages?.length || appStore.activeRequests.has(channel.id)) return;
-		if (el.scrollTop > 100) return;
+				const threshold = clientHeight * 0.3;
+				const atBottom = scrollTop + clientHeight >= scrollHeight - threshold;
+				if (isMounted.current) {
+					appStore.setIsCurrentChannelScrolledToBottom(atBottom);
+					setShowScrollButton(!atBottom && messages.length > 50);
+				}
 
-		const hasMore = appStore.hasMoreMessagesByChannelId.get(channel.id);
-		if (!hasMore) return;
+				const nearTop = scrollTop <= clientHeight * 4;
+				const isScrollingUp = scrollTop < lastScrollTop.current;
 
-		const prevHeight = el.scrollHeight;
+				if (
+					nearTop &&
+					isScrollingUp &&
+					!isLoading &&
+					!isFetchingOlderMessages.current &&
+					appStore.hasMoreMessagesByChannelId.get(channel.id)
+				) {
+					isFetchingOlderMessages.current = true;
 
-		await appStore.fetchMessages(channel.id, {
-			before: messages[0].created_at,
-		});
+					const visibleMessages = messages
+						.map((msg) => ({
+							msg,
+							element: document.getElementById(`messageGroup-${msg.id}`),
+						}))
+						.filter(({ element }) => element !== null);
+					const topMessage = visibleMessages.find(({ element }) => {
+						if (!listRef.current || !element) return false;
+						const rect = element.getBoundingClientRect();
+						const containerRect = listRef.current.getBoundingClientRect();
+						return (
+							rect.top >= containerRect.top &&
+							rect.top <= containerRect.top + clientHeight * 0.5
+						);
+					});
 
-		if (listRef.current) {
-			const newHeight = listRef.current.scrollHeight;
-			listRef.current.scrollTop = newHeight - prevHeight + el.scrollTop;
+					if (topMessage && listRef.current) {
+						anchorMessageId.current = topMessage.msg.id;
+						const rect = topMessage.element!.getBoundingClientRect();
+						const containerRect = listRef.current.getBoundingClientRect();
+						anchorOffset.current = rect.top - containerRect.top;
+						Logger.info(
+							`Anchored to message ${anchorMessageId.current} at offset ${anchorOffset.current}`,
+						);
+					} else {
+						anchorMessageId.current = null;
+						anchorOffset.current = 0;
+						Logger.debug(`No anchor message found`);
+					}
+
+					const oldestMessage = messages[0];
+					const oldestMessageTime = oldestMessage
+						? oldestMessage.created_at
+						: Date.now();
+
+					try {
+						await appStore.fetchOlderMessages(channel.id, oldestMessageTime);
+					} catch (error) {
+						Logger.error(`Failed to fetch older messages: ${error}`);
+					} finally {
+						if (isMounted.current) {
+							isFetchingOlderMessages.current = false;
+						}
+					}
+				}
+
+				lastScrollTop.current = scrollTop;
+			}, 100);
+		},
+		[channel.id, messages, isLoading],
+	);
+	useEffect(() => {
+		const el = listRef.current;
+		if (el) {
+			el.addEventListener("scroll", handleScroll);
 		}
-	};
+		return () => {
+			if (el) {
+				el.removeEventListener("scroll", handleScroll);
+			}
+			if (scrollTimeout.current !== null) {
+				clearTimeout(scrollTimeout.current);
+				scrollTimeout.current = null;
+			}
+		};
+	}, [handleScroll, channel.id]);
 
 	const handleScrollToBottom = () => {
-		if (listRef.current) {
-			listRef.current.scrollTo({
-				top: listRef.current.scrollHeight,
-				behavior: "smooth",
-			});
-			lastScrollAtBottom.current = true;
+		if (listRef.current && isMounted.current) {
+			listRef.current.scrollTo({ top: 0, behavior: "smooth" });
+			appStore.setIsCurrentChannelScrolledToBottom(true);
 			setShowScrollButton(false);
+			anchorMessageId.current = null;
 		}
 	};
 
@@ -216,9 +331,9 @@ const ChatWindowComponent = ({
 				onBack={isMobile ? onBack : undefined}
 			/>
 			<MessageList
-				messages={appStore.messagesByChannelId.get(channel.id) ?? []}
-				isLoading={appStore.loadingInitial.has(channel.id)}
-				isInitialLoading={appStore.loadingInitial.has(channel.id)}
+				messages={messages}
+				isLoading={isLoading}
+				isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
 				currentUserId={appStore.currentUserId ?? -1}
 				messageListRef={listRef}
 				onScroll={handleScroll}
@@ -228,10 +343,9 @@ const ChatWindowComponent = ({
 				<button
 					className={`${styles.scrollButton} ${styles.visible}`}
 					onClick={handleScrollToBottom}
-					title="Scroll to bottom"
-					type="button"
+					title="New messags"
 				>
-					↓
+					↓ {appStore.unreadCount.get(channel.id) || ""}
 				</button>
 			)}
 			<MessageInput
