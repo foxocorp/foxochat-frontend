@@ -3,7 +3,7 @@ import { useCodeVerification } from "@hooks/useCodeVerification";
 import { useEffect, useState } from "preact/hooks";
 import React from "react";
 
-import TimerIcon from "@icons/timer.svg";
+import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg";
 import * as style from "./EmailConfirmationModal.module.scss";
 
 interface EmailConfirmationModalProps {
