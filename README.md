@@ -1,1 +1,1 @@
-<img src="https://cdn.foxochat.app/static/git/foxogram-frontend/title.png" alt="Frontend Foxogram Floof.">
+<img src="https://cdn.foxochat.app/static/git/foxochat-frontend/title.png" alt="Frontend FoxoChat Floof.">
