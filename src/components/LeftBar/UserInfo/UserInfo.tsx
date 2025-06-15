@@ -75,13 +75,13 @@ const UserInfoComponent = ({ username }: UserInfoProps) => {
 					alt={`${displayUsername} Avatar`}
 					className={styles.userAvatar}
 				/>
-			) : (
+			) : currentUser ? (
 				<DefaultAvatar
-					createdAt={currentUser?.created_at || Date.now()}
+					createdAt={currentUser.created_at}
 					displayName={displayUsername}
 					size="medium"
 				/>
-			)}
+			) : null}
 
 			<div className={styles.userDetails}>
 				<p className={styles.username}>@{displayUsername}</p>

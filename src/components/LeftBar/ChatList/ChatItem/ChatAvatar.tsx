@@ -10,7 +10,7 @@ export const ChatAvatar = memo(({ chat }: ChatAvatarProps) => {
 
 	return (
 		<div className={styles.chatAvatar}>
-			{icon ? (
+			{icon && typeof icon !== "string" && "uuid" in icon ? (
 				<img
 					src={`${config.cdnBaseUrl}${icon.uuid}`}
 					alt={displayName}
@@ -18,7 +18,7 @@ export const ChatAvatar = memo(({ chat }: ChatAvatarProps) => {
 				/>
 			) : (
 				<DefaultAvatar
-					createdAt={created_at ?? Date.now()}
+					createdAt={created_at}
 					displayName={displayName}
 					size="medium"
 				/>

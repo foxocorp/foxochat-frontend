@@ -1,3 +1,4 @@
+import { CachedChat } from "@store/app/metaCache";
 import {
 	APIChannel,
 	APIMember,
@@ -5,7 +6,6 @@ import {
 	APIUser,
 	ChannelType,
 } from "foxochat.js";
-import { CachedChat } from "@store/app/metaCache";
 import {
 	ComponentChild,
 	ComponentChildren,
@@ -45,7 +45,7 @@ export interface ChatHeaderProps {
 
 export interface ChatItemProps {
 	chat: APIChannel | CachedChat;
-	onSelectChat: (chat: APIChannel) => void;
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	isActive: boolean;
 	currentUser?: number | null;
 }
@@ -254,7 +254,7 @@ export interface ExtendedChatListProps extends ChatListProps {
 }
 
 export interface ChatAvatarProps {
-	chat: APIChannel;
+	chat: APIChannel | CachedChat;
 }
 
 export interface CreateButtonProps {
@@ -289,4 +289,10 @@ export interface TooltipProps {
 	text: string;
 	className?: string;
 	position?: "top" | "bottom" | "left" | "right" | "auto";
+}
+
+export interface DefaultAvatarProps {
+	createdAt: number;
+	displayName?: string;
+	size?: "small" | "medium" | "large";
 }

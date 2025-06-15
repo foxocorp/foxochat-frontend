@@ -186,7 +186,7 @@ const MessageItem = ({
 	}, [attachments]);
 
 	const { h, s } = useMemo(
-		() => timestampToHSV(author?.user?.created_at ?? 0),
+		() => timestampToHSV(author?.user?.created_at),
 		[author?.user?.created_at],
 	);
 
