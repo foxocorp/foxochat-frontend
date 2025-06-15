@@ -172,10 +172,14 @@ export const apiMethods = {
 		messageId: number,
 		body: { content?: string; attachments?: number[] },
 	): Promise<APIMessage> => {
-		return client.api.message.edit(channelId, messageId, {
-			content: body.content,
-			attachments: body.attachments,
-		});
+		return client.api.message.edit(
+			channelId,
+			messageId,
+			{
+				...(body.content !== undefined ? { content: body.content } : {}),
+				...(body.attachments !== undefined ? { attachments: body.attachments } : {}),
+			}
+		);
 	},
 
 	deleteMessage: (channelId: number, messageId: number) =>
