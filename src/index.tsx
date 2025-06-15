@@ -12,6 +12,8 @@ import Register from "./pages/Auth/Register";
 import { Maintenance } from "./pages/Fallbacks/Maintenance/Maintenance";
 import { NotFound } from "./pages/Fallbacks/NotFound/NotFound";
 import { Home } from "./pages/Home";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 import {
 	ErrorBoundaryProps,
@@ -31,6 +33,8 @@ export const routes: RouteConfig[] = [
 	{ path: "/auth/login", component: Login },
 	{ path: "/auth/register", component: Register },
 	{ path: "/auth/email/verify", component: EmailConfirmationHandler },
+	{ path: "/privacy", component: Privacy },
+	{ path: "/terms", component: Terms },
 	{ path: "*", component: NotFound },
 ];
 

@@ -1,0 +1,30 @@
+.privacy {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 2rem;
+
+	h1 {
+		font-size: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	h2 {
+		font-size: 1.5rem;
+		margin: 2rem 0 1rem;
+	}
+
+	p {
+		margin-bottom: 1rem;
+		line-height: 1.6;
+	}
+
+	ul {
+		margin-bottom: 1.5rem;
+		padding-left: 1.5rem;
+
+		li {
+			margin-bottom: 0.5rem;
+			line-height: 1.6;
+		}
+	}
+} 
