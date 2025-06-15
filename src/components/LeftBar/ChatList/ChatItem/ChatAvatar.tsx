@@ -1,7 +1,7 @@
-import { memo } from "preact/compat";
+import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { ChatAvatarProps } from "@/interfaces/interfaces";
 import { config } from "@/lib/config/endpoints";
-import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
+import { memo } from "preact/compat";
 import * as styles from "./ChatItem.module.scss";
 
 export const ChatAvatar = memo(({ chat }: ChatAvatarProps) => {
@@ -12,7 +12,7 @@ export const ChatAvatar = memo(({ chat }: ChatAvatarProps) => {
 		<div className={styles.chatAvatar}>
 			{icon ? (
 				<img
-					src={`${config.cdnBaseUrl}${typeof icon === 'string' ? icon : icon.uuid}`}
+					src={`${config.cdnBaseUrl}${icon.uuid}`}
 					alt={displayName}
 					className={styles.chatAvatar}
 				/>

@@ -1,23 +1,25 @@
 import accountSwitchIcon from "@/assets/icons/left-bar/navigation/user/account-switch.svg";
 import settingsIcon from "@/assets/icons/left-bar/navigation/user/settings.svg";
-import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
 import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
+import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
 import { UserInfoProps } from "@interfaces/interfaces";
+import appStore from "@store/app";
 import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "preact/hooks";
 import * as styles from "./UserInfo.module.scss";
-import appStore from "@store/app";
 
 const statusTextMap: Record<string, string> = {
 	online: "Online",
 	waiting: "Waiting for network...",
 };
 
-const UserInfoComponent = ({ username, status }: UserInfoProps) => {
+const UserInfoComponent = ({ username }: UserInfoProps) => {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [isAccountSwitchOpen, setIsAccountSwitchOpen] = useState(false);
-	const [connectionStatus, setConnectionStatus] = useState<"online" | "waiting">("waiting");
+	const [connectionStatus, setConnectionStatus] = useState<
+		"online" | "waiting"
+	>("waiting");
 	const [displayStatus, setDisplayStatus] = useState(connectionStatus);
 	const [animating, setAnimating] = useState(false);
 
@@ -60,7 +62,9 @@ const UserInfoComponent = ({ username, status }: UserInfoProps) => {
 		};
 	}, []);
 
-	const currentUser = appStore.users.find(u => u.id === appStore.currentUserId);
+	const currentUser = appStore.users.find(
+		(u) => u.id === appStore.currentUserId,
+	);
 	const displayUsername = currentUser?.username || username;
 
 	return (
