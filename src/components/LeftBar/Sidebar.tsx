@@ -124,7 +124,7 @@ const SidebarComponent = ({
 		} catch (err) {
 			setNameError(true);
 			const message =
-				(err as any)?.response?.message ||
+				(err as { response?: { message?: string } })?.response?.message ||
 				(err as Error).message ||
 				"— Creation failed";
 			setNameErrorMessage(message);
