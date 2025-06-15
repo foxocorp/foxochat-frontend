@@ -247,7 +247,7 @@ const SidebarComponent = ({
 			</div>
 			{!isCollapsed && (
 				<div className={styles.sidebarFooter}>
-					<UserInfo username={currentUser.toString()} status="Online" />
+					<UserInfo user={currentUser} status="Online" />
 				</div>
 			)}
 			{!isMobile && (

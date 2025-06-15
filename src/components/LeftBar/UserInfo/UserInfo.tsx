@@ -3,7 +3,6 @@ import settingsIcon from "@/assets/icons/left-bar/navigation/user/settings.svg";
 import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
 import { UserInfoProps } from "@interfaces/interfaces";
-import appStore from "@store/app";
 import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "preact/hooks";
@@ -14,7 +13,7 @@ const statusTextMap: Record<string, string> = {
 	waiting: "Waiting for network...",
 };
 
-const UserInfoComponent = ({ username }: UserInfoProps) => {
+const UserInfoComponent = ({ user }: UserInfoProps) => {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [isAccountSwitchOpen, setIsAccountSwitchOpen] = useState(false);
 	const [connectionStatus, setConnectionStatus] = useState<
@@ -62,29 +61,24 @@ const UserInfoComponent = ({ username }: UserInfoProps) => {
 		};
 	}, []);
 
-	const currentUser = appStore.users?.find(
-		(u) => u.id === appStore.currentUserId,
-	);
-	const displayUsername = currentUser?.username || username;
-
 	return (
 		<div className={styles.userInfo}>
-			{currentUser?.avatar?.uuid ? (
+			{user?.avatar?.uuid ? (
 				<img
-					src={`${config.cdnBaseUrl}${currentUser.avatar.uuid}`}
-					alt={`${displayUsername} Avatar`}
+					src={`${config.cdnBaseUrl}${user.avatar.uuid}`}
+					alt={`${user.username} Avatar`}
 					className={styles.userAvatar}
 				/>
 			) : (
 				<DefaultAvatar
-					createdAt={currentUser?.created_at ?? 0}
-					displayName={displayUsername}
+					createdAt={user?.created_at ?? 0}
+					displayName={user.username}
 					size="medium"
 				/>
 			)}
 
 			<div className={styles.userDetails}>
-				<p className={styles.username}>@{displayUsername}</p>
+				<p className={styles.username}>@{user.username}</p>
 				<p className={styles.status}>
 					<span
 						className={`${styles.statusText} ${animating ? styles.exit : ""}`}
