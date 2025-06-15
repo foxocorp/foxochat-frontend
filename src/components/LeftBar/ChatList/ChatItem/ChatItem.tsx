@@ -5,7 +5,7 @@ import { renderEmojisToJSX } from "@utils/emoji";
 import { ChannelType } from "foxochat.js";
 import { toJS } from "mobx";
 import { observer } from "mobx-react";
-import ChatAvatar from "./ChatAvatar";
+import { ChatAvatar } from "./ChatAvatar";
 import * as styles from "./ChatItem.module.scss";
 
 const ChatItemComponent = ({

@@ -1,6 +1,6 @@
 import { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
-import { timestampToHSV } from "@utils/functions";
+import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { useEffect, useState } from "preact/hooks";
 import * as style from "./ChatHeader.module.scss";
 
@@ -26,10 +26,6 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 		}
 	}, [id, participantsCount]);
 
-	const { h, s } = timestampToHSV(created_at);
-	const v = 70;
-	const backgroundColor = `hsl(${h}, ${s}%, ${v}%)`;
-
 	return (
 		<div className={style.chatHeader}>
 			{isMobile && onBack && (
@@ -44,9 +40,11 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 					className={style.chatHeaderAvatar}
 				/>
 			) : (
-				<div className={style.defaultAvatar} style={{ backgroundColor }}>
-					{nameToDisplay.charAt(0).toUpperCase()}
-				</div>
+				<DefaultAvatar
+					createdAt={created_at}
+					displayName={nameToDisplay}
+					size="medium"
+				/>
 			)}
 			<div className={style.chatHeaderInfo}>
 				<p className={style.chatHeaderUsername}>{nameToDisplay}</p>

@@ -2,30 +2,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px;
+  padding: 6px;
   color: var(--primary-color, #000000);
   border-radius: 8px;
+  gap: 10px;
 }
 
 .userAvatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  margin-right: 12px;
+  object-fit: cover;
 }
 
-.defaultAvatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 20px;
-  margin-right: 10px;
-  flex-shrink: 0;
+.userName {
+  margin-left: 10px;
+  font-size: 16px;
+  color: var(--primary-color);
 }
 
 .userDetails {

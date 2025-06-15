@@ -1,14 +1,13 @@
 import accountSwitchIcon from "@/assets/icons/left-bar/navigation/user/account-switch.svg";
 import settingsIcon from "@/assets/icons/left-bar/navigation/user/settings.svg";
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
+import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
 import { UserInfoProps } from "@interfaces/interfaces";
-import { apiMethods } from "@services/API/apiMethods";
-import { timestampToHSV } from "@utils/functions";
-import { APIAttachment } from "foxochat.js";
 import { autorun } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "preact/hooks";
 import * as styles from "./UserInfo.module.scss";
+import appStore from "@store/app";
 
 const statusTextMap: Record<string, string> = {
 	online: "Online",
@@ -18,18 +17,7 @@ const statusTextMap: Record<string, string> = {
 const UserInfoComponent = ({ username, status }: UserInfoProps) => {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [isAccountSwitchOpen, setIsAccountSwitchOpen] = useState(false);
-	const [userData, setUserData] = useState<{
-		username: string;
-		avatar: APIAttachment | undefined;
-		status: string;
-		created_at: number;
-	} | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
-	const [connectionStatus, setConnectionStatus] = useState<
-		"online" | "waiting"
-	>("waiting");
+	const [connectionStatus, setConnectionStatus] = useState<"online" | "waiting">("waiting");
 	const [displayStatus, setDisplayStatus] = useState(connectionStatus);
 	const [animating, setAnimating] = useState(false);
 
@@ -46,30 +34,6 @@ const UserInfoComponent = ({ username, status }: UserInfoProps) => {
 			clearTimeout(timeout);
 		};
 	}, [connectionStatus, displayStatus]);
-
-	const fetchUser = async () => {
-		try {
-			const user = await apiMethods.getCurrentUser();
-			setUserData({
-				username: user.username,
-				avatar: user.avatar,
-				status: status ?? "Unknown",
-				created_at: user.created_at,
-			});
-
-			const { h, s } = timestampToHSV(user.created_at);
-			const avatarBg = `hsl(${h}, ${s}%, 50%)`;
-			setBackgroundColor(avatarBg);
-		} catch {
-			setError("Failed to load user data.");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		void fetchUser();
-	}, []);
 
 	useEffect(() => {
 		function updateStatus() {
@@ -96,43 +60,27 @@ const UserInfoComponent = ({ username, status }: UserInfoProps) => {
 		};
 	}, []);
 
-	if (loading) {
-		return (
-			<div className={styles.userInfo}>
-				<div className={`${styles.userAvatar} ${styles.skeleton}`} />
-				<div className={styles.userDetails}>
-					<div className={`${styles.username} ${styles.skeleton}`} />
-					<div className={`${styles.status} ${styles.skeleton}`} />
-				</div>
-				<div className={styles.userActions}>
-					<div className={`${styles.actionIcon} ${styles.skeleton}`} />
-					<div className={`${styles.actionIcon} ${styles.skeleton}`} />
-				</div>
-			</div>
-		);
-	}
-
-	if (error) {
-		return <div>{error}</div>;
-	}
+	const currentUser = appStore.users.find(u => u.id === appStore.currentUserId);
+	const displayUsername = currentUser?.username || username;
 
 	return (
 		<div className={styles.userInfo}>
-			{userData?.avatar ? (
+			{currentUser?.avatar ? (
 				<img
-					src={userData.avatar.uuid}
-					alt={`${userData.username} Avatar`}
+					src={currentUser.avatar}
+					alt={`${displayUsername} Avatar`}
 					className={styles.userAvatar}
-					style={{ backgroundColor }}
 				/>
 			) : (
-				<div className={styles.defaultAvatar} style={{ backgroundColor }}>
-					{(userData?.username ?? username).charAt(0).toUpperCase()}
-				</div>
+				<DefaultAvatar
+					createdAt={currentUser?.created_at || Date.now()}
+					displayName={displayUsername}
+					size="medium"
+				/>
 			)}
 
 			<div className={styles.userDetails}>
-				<p className={styles.username}>@{userData?.username ?? username}</p>
+				<p className={styles.username}>@{displayUsername}</p>
 				<p className={styles.status}>
 					<span
 						className={`${styles.statusText} ${animating ? styles.exit : ""}`}

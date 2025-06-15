@@ -53,7 +53,7 @@ export async function fetchFileAndGenerateThumbHash(url: string, contentType: st
         const file = new File([blob], "attachment", { type: contentType });
         return await generateThumbHashFromFile(file);
     } catch (error) {
-        Logger.error("Failed to fetch file and generate ThumbHash:", error);
+        Logger.error(`Failed to fetch file and generate ThumbHash: ${error}`);
         return null;
     }
 }
