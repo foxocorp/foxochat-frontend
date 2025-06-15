@@ -252,11 +252,9 @@ const MessageItem = ({
 		return rawAttachments
 			.map(
 				(
-					att: Attachment,
-					idx: number,
+					att: Attachment
 				): (Attachment & { url: string; filename: string }) | null => {
 					if (!att?.uuid || !att?.content_type) {
-						Logger.warn(`Invalid attachment at index ${idx}: ${att}`);
 						return null;
 					}
 					const extParts = att.content_type.split("/");
