@@ -21,16 +21,16 @@ import React from "react";
  */
 
 export interface ChatWindowProps {
-	channel: APIChannel;
+	channel: APIChannel | CachedChat;
 	currentUserId: number;
 	isMobile: boolean;
 	onBack?: () => void;
 }
 
 export interface ChatListProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	currentUser: number;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	currentUser: APIUser;
 }
 
 export interface ChatHeaderProps {
@@ -116,20 +116,20 @@ export interface MessageInputProps {
  */
 
 export interface EmptyStateProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	selectedChat: APIChannel | null;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	selectedChat: APIChannel | CachedChat | null;
 }
 
 export interface UserInfoProps {
-	username: string;
+	user: APIUser;
 	status?: string;
 }
 
 export interface SidebarProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	currentUser: number;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	currentUser: APIUser;
 	isMobile?: boolean;
 	setMobileView?: (view: "list" | "chat") => void;
 	setChatTransition?: (transition: string) => void;
