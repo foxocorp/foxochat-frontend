@@ -10,6 +10,7 @@ import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
 import { APIChannel } from "foxochat.js";
+import { CachedChat } from "@store/app/metaCache";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -36,6 +37,9 @@ const HomeComponent = () => {
 	if (authorized === null) return null;
 
 	const { channels, currentUserId, currentChannelId } = appStore;
+	const currentUser = appStore.users.find(u => u.id === currentUserId);
+	if (!currentUser) return null;
+
 	const selectedChat = useMemo(
 		() => channels.find((c) => c.id === currentChannelId) ?? null,
 		[channels, currentChannelId],
@@ -76,7 +80,7 @@ const HomeComponent = () => {
 	}, [handleResize]);
 
 	const handleSelectChat = useCallback(
-		async (chat: APIChannel) => {
+		async (chat: APIChannel | CachedChat) => {
 			if (isMobile) {
 				setMobileView("chat");
 				setChatTransition("slide-in");
@@ -104,7 +108,7 @@ const HomeComponent = () => {
 					<Sidebar
 						chats={channels}
 						onSelectChat={(chat) => void handleSelectChat(chat)}
-						currentUser={currentUserId ?? -1}
+						currentUser={currentUser}
 						isMobile
 					/>
 				</div>
@@ -127,7 +131,7 @@ const HomeComponent = () => {
 			<Sidebar
 				chats={channels}
 				onSelectChat={(chat) => void handleSelectChat(chat)}
-				currentUser={currentUserId ?? -1}
+				currentUser={currentUser}
 				isMobile={false}
 			/>
 			<div className="chat-container">
@@ -139,7 +143,7 @@ const HomeComponent = () => {
 					/>
 				) : (
 					<EmptyState
-						chats={channels}
+						chats={channels as (APIChannel | CachedChat)[]}
 						onSelectChat={(chat) => void handleSelectChat(chat)}
 						selectedChat={null}
 					/>
