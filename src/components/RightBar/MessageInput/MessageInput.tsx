@@ -1,7 +1,7 @@
-import fileIcon from "@icons/chat/file.svg";
-import mediaIcon from "@icons/chat/media.svg";
-import sendIcon from "@icons/chat/paperplane.svg";
-import trashIcon from "@icons/chat/trash.svg";
+import fileIcon from "@/assets/icons/right-bar/chat/file.svg";
+import mediaIcon from "@/assets/icons/right-bar/chat/media.svg";
+import sendIcon from "@/assets/icons/right-bar/chat/paperplane.svg";
+import trashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
 import { MessageInputProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";

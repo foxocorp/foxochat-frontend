@@ -34,6 +34,10 @@ const SidebarComponent = ({
 	>(null);
 	const initialMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.8);
 	const currentWidthRef = useRef<number>(0);
+	const [nameError, setNameError] = useState<boolean>(false);
+	const [nameErrorMessage, setNameErrorMessage] = useState<string>(
+		"— Name is already taken",
+	);
 
 	const [width, setWidth] = useState(() => {
 		if (isMobile) {
@@ -70,20 +74,42 @@ const SidebarComponent = ({
 	const isResizing = useRef(false);
 	const startX = useRef(0);
 	const startWidthRef = useRef(width);
-
 	const channels = appStore.channels;
+
+	const renderError = (_field: "name", error: boolean, message: string) => {
+		if (!error) return null;
+
+		return <span className={modalStyles.inputError}>{message}</span>;
+	};
+
+	const resetErrors = () => {
+		setNameError(false);
+		setNameErrorMessage("— Name is already taken");
+	};
 
 	const handleCreate = async (data: {
 		name: string;
 		displayName: string;
 		channelType: ChannelType;
 		members?: string[];
-	}) => {
+		public?: boolean;
+	}): Promise<boolean> => {
+		setNameError(false);
+		setNameErrorMessage("— Name is already taken");
+
+		const name = data.name.trim();
+		if (!name) {
+			setNameError(true);
+			setNameErrorMessage("— Name cannot be empty");
+			return false;
+		}
+
 		try {
 			const response = await apiMethods.createChannel({
 				name: data.name,
 				display_name: data.displayName,
 				type: data.channelType,
+				public: data.public ?? false,
 			});
 
 			appStore.addNewChannel(response);
@@ -93,8 +119,16 @@ const SidebarComponent = ({
 				setMobileView("chat");
 				setChatTransition("slide-in");
 			}
-		} catch (error) {
-			console.error("Creation error:", error);
+
+			return true;
+		} catch (err) {
+			setNameError(true);
+			const message =
+				(err as any)?.response?.message ||
+				(err as Error).message ||
+				"— Creation failed";
+			setNameErrorMessage(message);
+			return false;
 		}
 	};
 
@@ -110,19 +144,15 @@ const SidebarComponent = ({
 
 	const handleDocumentMouseMove = (e: MouseEvent) => {
 		if (!isResizing.current || isMobile) return;
-
 		const delta = e.clientX - startX.current;
 		let newWidth = startWidthRef.current + delta;
-
 		if (
 			startWidthRef.current === COLLAPSED_WIDTH &&
 			newWidth > COLLAPSED_WIDTH
 		) {
 			newWidth = Math.max(MIN_SIDEBAR_WIDTH, newWidth);
 		}
-
 		newWidth = Math.max(COLLAPSE_THRESHOLD, Math.min(newWidth, maxWidth));
-
 		currentWidthRef.current = newWidth;
 		setWidth(newWidth);
 		localStorage.setItem("sidebarWidth", String(newWidth));
@@ -131,18 +161,15 @@ const SidebarComponent = ({
 	const handleDocumentMouseUp = () => {
 		if (!isResizing.current) return;
 		isResizing.current = false;
-
 		let finalWidth = currentWidthRef.current;
 		let storageWidth = finalWidth;
 		if (finalWidth >= COLLAPSE_THRESHOLD && finalWidth < MIN_SIDEBAR_WIDTH) {
 			finalWidth = COLLAPSED_WIDTH;
 			storageWidth = STORAGE_COLLAPSED_VALUE;
 		}
-
 		currentWidthRef.current = finalWidth;
 		setWidth(finalWidth);
 		localStorage.setItem("sidebarWidth", String(storageWidth));
-
 		document.removeEventListener("mousemove", handleDocumentMouseMove);
 		document.removeEventListener("mouseup", handleDocumentMouseUp);
 	};
@@ -161,14 +188,12 @@ const SidebarComponent = ({
 				localStorage.setItem("sidebarWidth", String(adjustedWidth));
 			}
 		};
-
 		if (isMobile) {
 			const mobileWidth = window.innerWidth;
 			currentWidthRef.current = mobileWidth;
 			setWidth(mobileWidth);
 			localStorage.setItem("sidebarWidth", String(mobileWidth));
 		}
-
 		handleResize();
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
@@ -212,7 +237,6 @@ const SidebarComponent = ({
 					</div>
 				</div>
 			)}
-
 			<div className={styles.sidebarChats}>
 				<ChatList
 					chats={channels}
@@ -221,26 +245,23 @@ const SidebarComponent = ({
 					isCollapsed={isCollapsed}
 				/>
 			</div>
-
 			{!isCollapsed && (
 				<div className={styles.sidebarFooter}>
-					<UserInfo
-						username={currentUser.toString()}
-						avatar="/favicon-96x96.png"
-						status="Online"
-					/>
+					<UserInfo username={currentUser.toString()} status="Online" />
 				</div>
 			)}
-
 			{!isMobile && (
 				<div className={styles.resizer} onMouseDown={handleMouseDown} />
 			)}
-
 			{showCreateModal && (
 				<CreateChannelModal
 					type={showCreateModal}
 					onClose={() => setShowCreateModal(null)}
 					onCreate={handleCreate}
+					renderError={renderError}
+					nameError={nameError}
+					nameErrorMessage={nameErrorMessage}
+					resetErrors={resetErrors}
 				/>
 			)}
 		</div>

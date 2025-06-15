@@ -1,70 +1,54 @@
-import EmptyChat from "@components/RightBar/MessageList/EmptyChat/EmptyChat";
-import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
-import MessageLoader from "@components/RightBar/MessageList/MessageLoader/MessageLoader";
-import type { MessageListProps } from "@interfaces/interfaces";
-import appStore from "@store/app";
-import { Logger } from "@utils/logger";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
+import isYesterday from "dayjs/plugin/isYesterday";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { observer } from "mobx-react";
 import { useEffect, useMemo } from "preact/hooks";
+
+import EmptyChat from "@components/RightBar/MessageList/EmptyChat/EmptyChat";
+import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
+import MessageLoader from "@components/RightBar/MessageList/MessageLoader/MessageLoader";
+import appStore from "@store/app";
+
+import type { MessageListProps } from "@interfaces/interfaces";
 import * as styles from "./MessageList.module.scss";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(isToday);
+dayjs.extend(isYesterday);
+
+const DATE_LABELS = {
+	today: "Today",
+	yesterday: "Yesterday",
+};
+
+const getDateKey = (timestamp: number) => dayjs(timestamp).format("YYYY-MM-DD");
+
+const getDateLabel = (key: string) => {
+	const date = dayjs(key);
+	if (date.isToday()) return DATE_LABELS.today;
+	if (date.isYesterday()) return DATE_LABELS.yesterday;
+	return date.format("D MMMM YYYY");
+};
 
 const MessageListComponent = ({
-	messages: propMessages,
-	isLoading: propIsLoading,
-	isInitialLoading: propIsInitialLoading,
 	currentUserId,
 	messageListRef,
 	onScroll,
 	channel,
-}: MessageListProps & { isLoading: boolean; channel: { id: number } }) => {
-	const messages = useMemo(() => {
-		const storeMessages = appStore.messagesByChannelId.get(channel.id);
-		Logger.debug(
-			"Messages from appStore:",
-			storeMessages,
-			"channelId:",
-			channel.id,
-		);
-		return storeMessages ?? propMessages;
-	}, [channel.id, propMessages]);
-
-	const isLoading = propIsLoading || appStore.loadingInitial.has(channel.id);
-	const isInitialLoading =
-		propIsInitialLoading || appStore.loadingInitial.has(channel.id);
-
-	Logger.debug(
-		"MessageList render - messages:",
-		messages,
-		"isLoading:",
-		isLoading,
-		"isInitialLoading:",
-		isInitialLoading,
-		"channelId:",
-		channel.id,
-	);
+}: MessageListProps & { channel: { id: number } }) => {
+	const { id: channelId } = channel;
+	const messages = appStore.messagesByChannelId.get(channelId);
+	const isLoading = appStore.isInitialLoad.get(channelId) || !messages;
+	const unreadCount = appStore.unreadCount.get(channelId) || 0;
 
 	useEffect(() => {
-		Logger.debug("MessageList useEffect - messages updated:", messages);
-		if (!messages || messages.length === 0) {
-			Logger.warn(`No messages loaded for channel: ${channel.id}`);
-			if (!appStore.activeRequests.has(channel.id)) {
-				Logger.debug(`Triggering initChannel for: ${channel.id}`);
-				appStore
-					.initChannel(channel.id)
-					.catch((error) =>
-						Logger.error(`Error in manual initChannel: ${error}`),
-					);
-			}
+		if (!messages && !appStore.activeRequests.has(channelId)) {
+			appStore.initChannel(channelId).catch(console.error);
 		}
-	}, [messages, channel.id]);
+	}, [channelId]);
 
-	if (isLoading || isInitialLoading) {
+	if (isLoading) {
 		return (
 			<div
 				ref={messageListRef}
@@ -76,7 +60,7 @@ const MessageListComponent = ({
 		);
 	}
 
-	if (!messages || messages.length === 0) {
+	if (!messages?.length) {
 		return (
 			<div
 				ref={messageListRef}
@@ -88,44 +72,45 @@ const MessageListComponent = ({
 		);
 	}
 
-	const dayGroups = useMemo(() => {
-		const groups: { date: string; msgs: typeof messages }[] = [];
-		let currentDay = "";
+	const groupedMessages = useMemo(() => {
+		const groupsByDate: Record<string, typeof messages> = {};
+
 		for (const msg of messages) {
-			const d = dayjs(msg.created_at).format("YYYY-MM-DD");
-			if (d !== currentDay) {
-				groups.push({ date: d, msgs: [msg] });
-				currentDay = d;
-			} else {
-				groups[groups.length - 1].msgs.push(msg);
-			}
+			const dateKey = getDateKey(msg.created_at);
+			if (!groupsByDate[dateKey]) groupsByDate[dateKey] = [];
+			groupsByDate[dateKey].push(msg);
 		}
-		return groups;
-	}, [messages]);
 
-	const groups = useMemo(() => {
-		return dayGroups.map(({ date, msgs }) => {
-			const messageGroups: { msgs: typeof msgs }[] = [];
-			if (!msgs.length) return { date, groups: messageGroups };
+		return Object.entries(groupsByDate)
+			.sort(([a], [b]) => dayjs(b).unix() - dayjs(a).unix())
+			.map(([dateKey, msgs]) => {
+				const authorGroups: { msgs: typeof msgs }[] = [];
+				let buffer: typeof msgs = [];
+				let lastAuthor = msgs[0].author.user.id;
+				let lastTimestamp = msgs[0].created_at;
 
-			let grp = msgs.slice(0, 1);
-			let lastAuthor = msgs[0].author.user.id;
-			for (let i = 1; i < msgs.length; i++) {
-				const msg = msgs[i];
-				const prev = msgs[i - 1];
-				const timeoutSplit = msg.created_at - prev.created_at > 300_000;
-				if (msg.author.user.id !== lastAuthor || timeoutSplit) {
-					messageGroups.push({ msgs: grp });
-					grp = [msg];
-					lastAuthor = msg.author.user.id;
-				} else {
-					grp.push(msg);
+				for (const msg of msgs) {
+					const sameAuthor = msg.author.user.id === lastAuthor;
+					const withinTimeout =
+						Math.abs(msg.created_at - lastTimestamp) <= 300_000;
+
+					if (sameAuthor && withinTimeout) {
+						buffer.push(msg);
+					} else {
+						if (buffer.length) authorGroups.push({ msgs: buffer });
+						buffer = [msg];
+						lastAuthor = msg.author.user.id;
+					}
+					lastTimestamp = msg.created_at;
 				}
-			}
-			messageGroups.push({ msgs: grp });
-			return { date, groups: messageGroups };
-		});
-	}, [dayGroups]);
+				if (buffer.length) authorGroups.push({ msgs: buffer });
+
+				return {
+					date: getDateLabel(dateKey),
+					groups: authorGroups,
+				};
+			});
+	}, [messages]);
 
 	return (
 		<div
@@ -133,23 +118,26 @@ const MessageListComponent = ({
 			onScroll={onScroll}
 			className={styles.messageList}
 		>
-			{groups.map(({ date, groups }) => (
-				<div key={date}>
-					<div className={styles.stickyDate}>
-						{dayjs(date).isToday()
-							? "Today"
-							: dayjs(date).format("D MMMM YYYY")}
-					</div>
-					{groups.map((g, idx) => (
-						<MessageGroup
-							key={`${date}-${g.msgs[0]?.id ?? idx}-${idx}`}
-							messages={g.msgs}
-							currentUserId={currentUserId}
-							channelId={channel.id}
-						/>
+			{groupedMessages.map(({ date, groups }) => (
+				<div key={`date-${date}`}>
+					<div className={styles.stickyDate}>{date}</div>
+					{groups.map(({ msgs }, idx) => (
+						<div
+							id={`messageGroup-${msgs[0]?.id ?? idx}`}
+							key={`group-${msgs[0]?.id ?? idx}`}
+						>
+							<MessageGroup
+								messages={msgs}
+								currentUserId={currentUserId}
+								channelId={channelId}
+							/>
+						</div>
 					))}
 				</div>
 			))}
+			{unreadCount > 0 && (
+				<div className={styles.unreadMarker}>New messages ({unreadCount})</div>
+			)}
 		</div>
 	);
 };

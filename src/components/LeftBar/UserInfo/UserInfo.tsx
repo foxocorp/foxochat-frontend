@@ -1,6 +1,6 @@
+import accountSwitchIcon from "@/assets/icons/left-bar/navigation/user/account-switch.svg";
+import settingsIcon from "@/assets/icons/left-bar/navigation/user/settings.svg";
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
-import accountSwitchIcon from "@icons/navigation/account-switch.svg";
-import settingsIcon from "@icons/navigation/settings.svg";
 import { UserInfoProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import { timestampToHSV } from "@utils/functions";

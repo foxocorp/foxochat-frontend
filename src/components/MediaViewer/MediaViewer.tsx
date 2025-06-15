@@ -3,14 +3,14 @@ import React, { createPortal, memo } from "preact/compat";
 import { useEffect, useRef, useState } from "preact/hooks";
 import * as styles from "./MediaViewer.module.scss";
 
-import DownloadIcon from "@icons/chat/download.svg";
-import NextIcon from "@icons/chat/next.svg";
-import PrevIcon from "@icons/chat/prev.svg";
-import ShareIcon from "@icons/chat/share.svg";
-import DeleteIcon from "@icons/chat/trash.svg";
-import ZoomInIcon from "@icons/chat/zoom-in.svg";
-import ZoomOutIcon from "@icons/chat/zoom-out.svg";
-import CloseIcon from "@icons/navigation/close.svg";
+import CloseIcon from "@/assets/icons/left-bar/navigation/close.svg";
+import NextIcon from "@/assets/icons/right-bar/chat/next.svg";
+import DownloadIcon from "@/assets/icons/right-bar/mediaViewer/download.svg";
+import PrevIcon from "@/assets/icons/right-bar/mediaViewer/prev.svg";
+import ShareIcon from "@/assets/icons/right-bar/mediaViewer/share.svg";
+import DeleteIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
+import ZoomInIcon from "@/assets/icons/right-bar/mediaViewer/zoom-in.svg";
+import ZoomOutIcon from "@/assets/icons/right-bar/mediaViewer/zoom-out.svg";
 import { timestampToHSV } from "@utils/functions";
 
 const MediaViewer = ({

@@ -1,5 +1,5 @@
+import HammerIcon from "@/assets/icons/fallback/fallback-hammer.svg";
 import { Button } from "@components/Base/Buttons/Button";
-import HammerIcon from "@icons/errors/hammer.svg";
 import * as styles from "./Maintenance.module.scss";
 
 export function Maintenance() {

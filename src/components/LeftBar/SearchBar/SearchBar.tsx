@@ -1,4 +1,4 @@
-import searchIcon from "@icons/navigation/magnifying-glass.svg";
+import searchIcon from "@/assets/icons/left-bar/navigation/magnifying-glass.svg";
 import { SearchBarProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { memo } from "preact/compat";
@@ -55,7 +55,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 			setSearchActive(false);
 		} catch (error) {
 			console.error("Channel join error:", error);
-			alert("Couldn't find or join this channel");
+			alert("Couldn't find or join this chat-list");
 		}
 	};
 

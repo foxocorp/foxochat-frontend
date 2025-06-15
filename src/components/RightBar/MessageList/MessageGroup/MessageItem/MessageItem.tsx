@@ -1,3 +1,7 @@
+import CopyIcon from "@/assets/icons/left-bar/navigation/copy.svg";
+import StateFailed from "@/assets/icons/right-bar/chat/message/state-failed.svg";
+import StateSending from "@/assets/icons/right-bar/chat/message/state-sending.svg";
+import StateSent from "@/assets/icons/right-bar/chat/message/state-sent.svg";
 import { getDisplayName } from "@/codeLanguages";
 import ActionPopup from "@components/Chat/ActionPopup/ActionPopup";
 import CopyBubble from "@components/Chat/Bubbles/CopyBubble/Bubbles";
@@ -5,10 +9,6 @@ import Attachments from "@components/Chat/MessageAttachments/MessageAttachments"
 import Avatar from "@components/Chat/MessageAvatar/MessageAvatar";
 import MessageContent from "@components/Chat/MessageContent/MessageContent";
 import MediaViewer from "@components/MediaViewer/MediaViewer";
-import StateFailed from "@icons/chat/state-failed.svg";
-import StateSending from "@icons/chat/state-sending.svg";
-import StateSent from "@icons/chat/state-sent.svg";
-import CopyIcon from "@icons/navigation/copy.svg";
 import type {
 	Attachment,
 	MessageItemProps,

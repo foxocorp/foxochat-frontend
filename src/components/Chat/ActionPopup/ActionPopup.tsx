@@ -1,7 +1,7 @@
-import EditIcon from "@icons/chat/edit-message.svg";
-import ForwardIcon from "@icons/chat/forward.svg";
-import ReplyIcon from "@icons/chat/reply.svg";
-import TrashIcon from "@icons/chat/trash.svg";
+import ForwardIcon from "@/assets/icons/right-bar/chat/forward.svg";
+import EditIcon from "@/assets/icons/right-bar/chat/message/edit-message.svg";
+import ReplyIcon from "@/assets/icons/right-bar/chat/reply.svg";
+import TrashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
 import { ActionPopupProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import * as styles from "./ActionPopup.module.scss";

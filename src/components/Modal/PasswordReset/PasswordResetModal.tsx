@@ -1,5 +1,5 @@
+import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg";
 import { Button } from "@components/Base/Buttons/Button";
-import TimerIcon from "@icons/timer.svg";
 import { APIOk } from "foxochat.js";
 import { usePasswordReset } from "./PasswordReset";
 import * as style from "./PasswordResetModal.module.scss";

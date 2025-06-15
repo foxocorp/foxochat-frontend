@@ -11,6 +11,7 @@ import {
 	action,
 	configure,
 	observable,
+	reaction,
 	runInAction,
 } from "mobx";
 import * as apiService from "./apiService";
@@ -28,16 +29,10 @@ export class AppStore {
 		number,
 		boolean
 	>();
-	@observable accessor abortControllers = observable.map<
-		number,
-		AbortController
-	>();
 	@observable accessor isInitialLoad = observable.map<number, boolean>();
-
 	@observable accessor channels: IObservableArray<APIChannel> =
 		observable.array([]);
-	@observable accessor activeRequests = new Set<string | number>();
-
+	@observable accessor activeRequests = observable.set<number>();
 	@observable accessor currentChannelId: number | null = null;
 	@observable accessor currentUserId: number | null = null;
 	@observable accessor isLoading = false;
@@ -45,98 +40,90 @@ export class AppStore {
 	@observable accessor connectionError: string | null = null;
 	@observable accessor isWsInitialized = false;
 	@observable accessor isLoadingHistory = false;
-
+	@observable accessor channelDisposers = observable.map<number, () => void>();
+	@observable accessor isCurrentChannelScrolledToBottom = true;
+	@observable accessor unreadCount = observable.map<number, number>();
 	@observable accessor channelScrollPositions = observable.map<
 		number,
 		number
 	>();
-	@observable accessor lastViewedMessageTimestamps = observable.map<
-		number,
-		number
-	>();
-
-	@observable accessor loadingInitial: Set<number> = observable.set<number>();
 
 	wsClient: WebSocketClient | null = null;
 
 	constructor() {
-		this.initializeFromUrl().catch((error: unknown) => {
+		this.initializeFromUrl().catch((error) => {
 			Logger.error(`Failed to initialize from URL: ${error}`);
 		});
 	}
 
+	@action
 	async initChannel(channelId: number) {
 		if (this.messagesByChannelId.has(channelId)) return;
 
-		this.loadingInitial.add(channelId);
-		await this.fetchMessages(channelId).finally(() => {
-			this.loadingInitial.delete(channelId);
+		this.activeRequests.add(channelId);
+		this.isInitialLoad.set(channelId, true);
+		await this.fetchInitialMessages(channelId, { limit: 50 }).finally(() => {
+			runInAction(() => {
+				this.activeRequests.delete(channelId);
+				this.isInitialLoad.set(channelId, false);
+			});
 		});
 	}
 
-	@action.bound
+	@action
+	setIsCurrentChannelScrolledToBottom(value: boolean) {
+		if (this.currentChannelId !== null && value) {
+			this.unreadCount.set(this.currentChannelId, 0);
+		}
+		this.isCurrentChannelScrolledToBottom = value;
+	}
+
+	@action
 	setIsSendingMessage(state: boolean) {
 		this.isSendingMessage = state;
 	}
 
 	@action
 	updateMessagesForChannel(channelId: number, messages: APIMessage[]) {
-		const target = this.messagesByChannelId.get(channelId);
-		if (target) {
-			target.replace(messages);
-		} else {
-			this.messagesByChannelId.set(channelId, observable.array(messages));
-		}
+		const existing =
+			this.messagesByChannelId.get(channelId) || observable.array([]);
+		const updated = Array.from(
+			new Map([...existing, ...messages].map((msg) => [msg.id, msg])).values(),
+		).sort((a, b) => a.created_at - b.created_at);
+		this.messagesByChannelId.set(channelId, observable.array(updated));
 	}
 
 	@action
 	handleNewMessage(message: APIMessage) {
-		Logger.info("Handling new message:", message);
-
 		const channelId = message.channel.id;
-		let messages = this.messagesByChannelId.get(channelId);
+		const messages =
+			this.messagesByChannelId.get(channelId) || observable.array([]);
 
-		if (!messages) {
-			Logger.info("No existing messages for channel, creating new array...");
-			messages = observable.array([]);
-			this.messagesByChannelId.set(channelId, messages);
-		}
-
-		const existingIndex = messages.findIndex((m) => m.id === message.id);
-		if (existingIndex >= 0) {
-			Logger.info("Message already exists, updating...");
-			messages.splice(existingIndex, 1, message);
-		} else {
-			Logger.info("Adding new message...");
+		if (!messages.some((m) => m.id === message.id)) {
 			messages.push(message);
-		}
-
-		runInAction(() => {
-			Logger.info("Sorting messages...");
-			messages.replace(
-				[...messages].sort((a, b) => a.created_at - b.created_at),
+			this.messagesByChannelId.set(
+				channelId,
+				observable.array(
+					[...messages].sort((a, b) => a.created_at - b.created_at),
+				),
 			);
-		});
+
+			if (
+				this.currentChannelId === channelId &&
+				!this.isCurrentChannelScrolledToBottom
+			) {
+				this.unreadCount.set(
+					channelId,
+					(this.unreadCount.get(channelId) || 0) + 1,
+				);
+			} else if (this.currentChannelId === channelId) {
+				this.playSendMessageSound();
+			}
+		}
 
 		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
 		if (channelIndex >= 0) {
-			Logger.info("Updating last message in channel...");
 			this.channels[channelIndex].last_message = message;
-		}
-
-		if (this.currentChannelId === channelId) {
-			Logger.info("Playing send message sound...");
-			this.playSendMessageSound();
-
-			requestAnimationFrame(() => {
-				requestAnimationFrame(() => {
-					const container = document.getElementById("message-container");
-					if (container) {
-						Logger.info("Scrolling to bottom...");
-						container.scrollTop = container.scrollHeight;
-					}
-				});
-			});
 		}
 	}
 
@@ -188,9 +175,9 @@ export class AppStore {
 		if (!msgs) return;
 
 		const idx = msgs.findIndex((m) => m.id === messageId);
-		if (idx < 0) return;
-
-		msgs.splice(idx, 1, { ...msgs[idx], content: newContent });
+		if (idx >= 0) {
+			msgs[idx] = { ...msgs[idx], content: newContent };
+		}
 	}
 
 	@action
@@ -199,85 +186,92 @@ export class AppStore {
 		if (!cid) return;
 
 		const msgs = this.messagesByChannelId.get(cid);
-		if (!msgs) return;
-
-		const filtered = msgs.filter((m) => m.id !== messageId);
-		this.messagesByChannelId.set(cid, observable.array(filtered));
-	}
-
-	@action
-	updateChannelLastMessage() {
-		this.channels = this.channels.filter((c) => c !== null);
-	}
-
-	@action
-	async setCurrentChannel(channelId: number | null) {
-		if (this.currentChannelId === channelId) return;
-		this.currentChannelId = channelId;
-
-		if (channelId !== null) {
-			localStorage.setItem("currentChannelId", String(channelId));
-
-			if (!this.messagesByChannelId.has(channelId)) {
-				this.messagesByChannelId.set(channelId, observable.array([]));
-			}
-
-			this.isLoadingHistory = false;
-			this.activeRequests.delete(channelId);
-			await this.loadChannelData(channelId, true);
-		} else {
-			localStorage.removeItem("currentChannelId");
+		if (msgs) {
+			this.messagesByChannelId.set(
+				cid,
+				observable.array(msgs.filter((m) => m.id !== messageId)),
+			);
 		}
 	}
 
 	@action
-	async fetchMessages(
+	async setCurrentChannel(channelId: number | null) {
+		const previousChannelId = this.currentChannelId;
+		this.currentChannelId = channelId;
+
+		if (previousChannelId !== null) {
+			const disposer = this.channelDisposers.get(previousChannelId);
+			if (disposer) {
+				disposer();
+				this.channelDisposers.delete(previousChannelId);
+			}
+		}
+
+		if (channelId !== null) {
+			localStorage.setItem("currentChannelId", String(channelId));
+			if (!this.messagesByChannelId.has(channelId)) {
+				this.messagesByChannelId.set(channelId, observable.array([]));
+			}
+			this.isLoadingHistory = false;
+			this.activeRequests.delete(channelId);
+			await this.fetchInitialMessages(channelId);
+
+			const disposer = reaction(
+				() => this.messagesByChannelId.get(channelId)?.length ?? 0,
+				(length) => {
+					if (this.currentChannelId === channelId && length > 0) {
+						requestAnimationFrame(() => {
+							const container = document.getElementById("messageList");
+							if (container && this.isCurrentChannelScrolledToBottom) {
+								container.scrollTop = 0;
+							}
+						});
+					}
+				},
+			);
+			this.channelDisposers.set(channelId, disposer);
+		}
+	}
+
+	@action
+	async fetchInitialMessages(
 		channelId: number,
 		query: RESTGetAPIMessageListQuery = {},
 	) {
 		if (this.activeRequests.has(channelId)) return;
 
-		runInAction(() => {
-			this.activeRequests.add(channelId);
-			this.isLoadingHistory = true;
-		});
+		this.activeRequests.add(channelId);
+		this.isLoadingHistory = true;
 
 		try {
 			const defaultQuery: RESTGetAPIMessageListQuery = { limit: 50, ...query };
-
 			const newMessages = await apiMethods.listMessages(
 				channelId,
 				defaultQuery,
 			);
-			const transformed = newMessages
-				.map(transformToMessage)
-				.sort((a, b) => a.created_at - b.created_at);
+
+			const transformed = newMessages.map(transformToMessage);
 
 			runInAction(() => {
-				const existing = this.messagesByChannelId.get(channelId) ?? [];
+				console.log("Fetched initial messages:", newMessages.length);
+				const existing =
+					this.messagesByChannelId.get(channelId) || observable.array([]);
 
-				let updated: APIMessage[];
-				if (query.before) {
-					updated = [...existing, ...transformed];
-				} else {
-					updated = [...transformed, ...existing];
-				}
-
-				const uniqueMessages = this.removeDuplicateMessages(updated);
-
-				uniqueMessages.sort((a, b) => a.created_at - b.created_at);
-
-				this.messagesByChannelId.set(
-					channelId,
-					observable.array(uniqueMessages),
+				let updated = [...transformed, ...existing];
+				const unique = new Map<number, APIMessage>();
+				updated.forEach((msg) => unique.set(msg.id, msg));
+				updated = Array.from(unique.values()).sort(
+					(a, b) => a.created_at - b.created_at,
 				);
+
+				this.messagesByChannelId.set(channelId, observable.array(updated));
 				this.hasMoreMessagesByChannelId.set(
 					channelId,
 					newMessages.length >= 50,
 				);
 			});
 		} catch (error) {
-			Logger.error("Failed to fetch messages:", error);
+			Logger.error(`Failed to fetch initial messages: ${error}`);
 		} finally {
 			runInAction(() => {
 				this.activeRequests.delete(channelId);
@@ -286,38 +280,69 @@ export class AppStore {
 		}
 	}
 
-	removeDuplicateMessages(messages: APIMessage[]): APIMessage[] {
-		const uniqueMessages: Record<number, APIMessage> = {};
-
-		for (const message of messages) {
-			uniqueMessages[message.id] = message;
+	@action
+	async fetchOlderMessages(channelId: number, beforeTimestamp: number) {
+		if (this.activeRequests.has(channelId)) {
+			Logger.info(
+				`Fetch older messages for channel ${channelId} skipped: already in progress`,
+			);
+			return;
 		}
 
-		return Object.values(uniqueMessages);
-	}
+		this.activeRequests.add(channelId);
+		this.isLoadingHistory = true;
 
-	@action
-	async loadChannelData(channelId: number, replace = false) {
 		try {
-			this.isInitialLoad.set(channelId, false);
-
-			const messages = await apiMethods.listMessages(channelId);
-			runInAction(() => {
-				if (replace) {
-					this.updateMessagesForChannel(channelId, messages);
-				} else {
-					const list =
-						this.messagesByChannelId.get(channelId) ?? observable.array([]);
-					list.push(...messages);
-				}
-				this.setHasMoreMessages(channelId, messages.length > 0);
-				this.isInitialLoad.set(channelId, true);
+			Logger.info(
+				`Fetching older messages with before timestamp=${beforeTimestamp}`,
+			);
+			const newMessages = await apiMethods.listMessages(channelId, {
+				limit: 100,
+				before: beforeTimestamp,
 			});
-		} catch (err) {
-			Logger.error("Failed to load channel data", err);
+
+			if (newMessages.length === 0) {
+				runInAction(() => {
+					this.hasMoreMessagesByChannelId.set(channelId, false);
+				});
+				return;
+			}
+
+			const transformed = newMessages.map(transformToMessage);
+
+			runInAction(() => {
+				Logger.info(
+					`Fetched ${newMessages.length} older messages for channel ${channelId}`,
+				);
+				const existingMessages =
+					this.messagesByChannelId.get(channelId) || observable.array([]);
+
+				const existingIds = new Set(existingMessages.map((msg) => msg.id));
+				const uniqueNewMessages = transformed.filter(
+					(msg) => !existingIds.has(msg.id),
+				);
+
+				if (uniqueNewMessages.length > 0) {
+					const updatedMessages = [...uniqueNewMessages, ...existingMessages];
+					this.messagesByChannelId.set(
+						channelId,
+						observable.array(updatedMessages),
+					);
+				}
+
+				this.hasMoreMessagesByChannelId.set(
+					channelId,
+					newMessages.length >= 100,
+				);
+			});
+		} catch (error) {
+			Logger.error(
+				`Failed to fetch older messages for channel ${channelId}: ${error}`,
+			);
 		} finally {
 			runInAction(() => {
 				this.activeRequests.delete(channelId);
+				this.isLoadingHistory = false;
 			});
 		}
 	}
@@ -334,9 +359,8 @@ export class AppStore {
 			await this.initializeWebSocket();
 			Logger.info("WebSocket initialized successfully");
 		} catch (error) {
-			Logger.error("Initialization failed:", error);
+			Logger.error(`Initialization failed: ${error}`);
 			this.connectionError = "Initialization error";
-			throw error;
 		} finally {
 			this.setIsLoading(false);
 		}
@@ -352,9 +376,7 @@ export class AppStore {
 
 	playSendMessageSound() {
 		const audio = new Audio("/sounds/fchat_sfx.mp3");
-		audio.play().catch((e: unknown) => {
-			console.error(e);
-		});
+		audio.play().catch(console.error);
 	}
 
 	fetchCurrentUser = apiService.fetchCurrentUser;

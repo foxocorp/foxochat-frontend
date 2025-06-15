@@ -96,6 +96,7 @@ export const apiMethods = {
 	createChannel: (body: {
 		display_name: string;
 		name: string;
+		public?: boolean;
 		type: ChannelType;
 	}) => client.api.channel.create(body),
 	deleteChannel: (channelId: number) => client.api.channel.delete(channelId),

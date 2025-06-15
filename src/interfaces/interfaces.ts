@@ -141,8 +141,20 @@ export interface Props {
 		displayName: string;
 		members?: string[];
 		channelType: ChannelType;
-	}) => void;
+		public?: boolean;
+	}) => Promise<boolean>;
 	type: "group" | "channel";
+}
+
+export interface CreateChannelModalProps extends Props {
+	renderError: (
+		field: "name",
+		error: boolean,
+		message: string,
+	) => JSX.Element | null;
+	nameError: boolean;
+	nameErrorMessage: string;
+	resetErrors: () => void;
 }
 
 export interface CopyBubbleProps {
