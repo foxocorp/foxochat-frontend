@@ -69,19 +69,19 @@ const UserInfoComponent = ({ username }: UserInfoProps) => {
 
 	return (
 		<div className={styles.userInfo}>
-			{currentUser?.avatar ? (
+			{currentUser?.avatar?.uuid ? (
 				<img
-					src={currentUser.avatar}
+					src={`${config.cdnBaseUrl}${currentUser.avatar.uuid}`}
 					alt={`${displayUsername} Avatar`}
 					className={styles.userAvatar}
 				/>
-			) : currentUser ? (
+			) : (
 				<DefaultAvatar
-					createdAt={currentUser.created_at}
+					createdAt={currentUser?.created_at ?? 0}
 					displayName={displayUsername}
 					size="medium"
 				/>
-			) : null}
+			)}
 
 			<div className={styles.userDetails}>
 				<p className={styles.username}>@{displayUsername}</p>

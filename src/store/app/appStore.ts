@@ -4,6 +4,7 @@ import { Logger } from "@utils/logger";
 import {
 	APIChannel,
 	APIMessage,
+	APIUser,
 	RESTGetAPIMessageListQuery,
 } from "foxochat.js";
 import {
@@ -15,10 +16,32 @@ import {
 	runInAction,
 } from "mobx";
 import * as apiService from "./apiService";
-import { transformToMessage } from "./transforms";
+import {
+	CachedChat,
+	CachedUser,
+	loadChatsFromCache,
+	loadUsersFromCache,
+	saveChatsToCache,
+	saveUsersToCache,
+} from "./metaCache";
+import { createChannelFromAPI, transformToMessage } from "./transforms";
 import * as wsService from "./websocketService";
 
 configure({ enforceActions: "observed" });
+
+export function mapApiChannelToCached(chat: APIChannel): CachedChat {
+	const transformed = createChannelFromAPI(chat);
+	if (!transformed) {
+		throw new Error("Failed to transform channel");
+	}
+	return transformed;
+}
+
+function mapApiUserToCached(user: APIUser): CachedUser {
+	return {
+		...user
+	} as CachedUser;
+}
 
 export class AppStore {
 	@observable accessor messagesByChannelId = observable.map<
@@ -30,8 +53,11 @@ export class AppStore {
 		boolean
 	>();
 	@observable accessor isInitialLoad = observable.map<number, boolean>();
-	@observable accessor channels: IObservableArray<APIChannel> =
+	@observable accessor channels: IObservableArray<CachedChat> =
 		observable.array([]);
+	@observable accessor users: IObservableArray<CachedUser> = observable.array(
+		[],
+	);
 	@observable accessor activeRequests = observable.set<number>();
 	@observable accessor currentChannelId: number | null = null;
 	@observable accessor currentUserId: number | null = null;
@@ -47,6 +73,10 @@ export class AppStore {
 		number,
 		number
 	>();
+	@observable accessor channelParticipantsCount = observable.map<
+		number,
+		number
+	>();
 
 	wsClient: WebSocketClient | null = null;
 
@@ -54,6 +84,79 @@ export class AppStore {
 		this.initializeFromUrl().catch((error) => {
 			Logger.error(`Failed to initialize from URL: ${error}`);
 		});
+		this.initializeMetaFromCache().then(() => {
+			void this.syncWithServer();
+		});
+	}
+
+	async initializeMetaFromCache() {
+		console.log("Initializing meta from cache");
+		const [cachedChats, cachedUsers] = await Promise.all([
+			loadChatsFromCache(),
+			loadUsersFromCache(),
+		]);
+		console.log("Loaded from cache:", { cachedChats, cachedUsers });
+		runInAction(() => {
+			this.channels.replace(cachedChats);
+			this.users.replace(cachedUsers);
+		});
+	}
+
+	@action
+	async syncWithServer() {
+		try {
+			Logger.info("Starting background sync with server...");
+			const apiChannels = await apiMethods.userChannelsList();
+			await this.updateChatsFromServer(apiChannels);
+			Logger.info("Channels synced successfully");
+
+			await this.initializeWebSocket();
+			Logger.info("WebSocket initialized successfully");
+		} catch (error) {
+			Logger.error(`Background sync failed: ${error}`);
+		}
+	}
+
+	@action
+	async updateChatsFromServer(apiChats: APIChannel[]) {
+		console.log("Updating chats from server:", apiChats);
+		const cachedChats = apiChats.map(mapApiChannelToCached);
+		console.log("Mapped to cached format:", cachedChats);
+
+		const hasChanges = this.hasChatChanges(cachedChats);
+		if (hasChanges) {
+			this.channels.replace(cachedChats);
+			await saveChatsToCache(cachedChats);
+		}
+	}
+
+	private hasChatChanges(newChats: CachedChat[]): boolean {
+		if (this.channels.length !== newChats.length) return true;
+
+		const existingChats = new Map(this.channels.map((chat) => [chat.id, chat]));
+
+		for (const newChat of newChats) {
+			const existingChat = existingChats.get(newChat.id);
+			if (!existingChat) return true;
+
+			if (
+				newChat.name !== existingChat.name ||
+				newChat.display_name !== existingChat.display_name ||
+				newChat.icon !== existingChat.icon ||
+				newChat.last_message?.id !== existingChat.last_message?.id
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@action
+	async updateUsersFromServer(apiUsers: APIUser[]) {
+		const cachedUsers = apiUsers.map(mapApiUserToCached);
+		this.users.replace(cachedUsers);
+		await saveUsersToCache(cachedUsers);
 	}
 
 	@action
@@ -75,7 +178,8 @@ export class AppStore {
 
 	@action
 	updateMessagesForChannel(channelId: number, messages: APIMessage[]) {
-		const existing = this.messagesByChannelId.get(channelId) || observable.array([]);
+		const existing =
+			this.messagesByChannelId.get(channelId) || observable.array([]);
 		const updated = Array.from(
 			new Map([...existing, ...messages].map((msg) => [msg.id, msg])).values(),
 		).sort((a, b) => a.created_at - b.created_at);
@@ -87,18 +191,27 @@ export class AppStore {
 	@action
 	handleNewMessage(message: APIMessage) {
 		const channelId = message.channel.id;
-		const messages = this.messagesByChannelId.get(channelId) || observable.array([]);
+		const messages =
+			this.messagesByChannelId.get(channelId) || observable.array([]);
 
 		if (!messages.some((m) => m.id === message.id)) {
 			runInAction(() => {
 				messages.push(message);
 				this.messagesByChannelId.set(
 					channelId,
-					observable.array([...messages].sort((a, b) => a.created_at - b.created_at)),
+					observable.array(
+						[...messages].sort((a, b) => a.created_at - b.created_at),
+					),
 				);
 
-				if (this.currentChannelId === channelId && !this.isCurrentChannelScrolledToBottom) {
-					this.unreadCount.set(channelId, (this.unreadCount.get(channelId) || 0) + 1);
+				if (
+					this.currentChannelId === channelId &&
+					!this.isCurrentChannelScrolledToBottom
+				) {
+					this.unreadCount.set(
+						channelId,
+						(this.unreadCount.get(channelId) || 0) + 1,
+					);
 				} else if (this.currentChannelId === channelId) {
 					this.playSendMessageSound();
 				}
@@ -107,9 +220,23 @@ export class AppStore {
 
 		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
 		if (channelIndex >= 0) {
-			runInAction(() => {
-				this.channels[channelIndex].last_message = message;
-			});
+			const channel = this.channels[channelIndex];
+			if (channel) {
+				runInAction(() => {
+					this.channels[channelIndex] = {
+						id: channel.id,
+						name: channel.name,
+						display_name: channel.display_name,
+						icon: channel.icon,
+						last_message: message,
+						created_at: channel.created_at,
+						type: channel.type,
+						flags: channel.flags,
+						member_count: channel.member_count,
+						owner: channel.owner,
+					};
+				});
+			}
 		}
 	}
 
@@ -135,7 +262,7 @@ export class AppStore {
 	async joinChannel(channelId: number) {
 		const joined = await apiMethods.joinChannel(channelId);
 		if (!this.channels.some((c) => c.id === channelId)) {
-			this.channels.unshift(joined.channel);
+			this.channels.unshift(mapApiChannelToCached(joined.channel));
 		}
 		await this.setCurrentChannel(channelId);
 	}
@@ -175,7 +302,11 @@ export class AppStore {
 
 		const idx = msgs.findIndex((m) => m.id === messageId);
 		if (idx >= 0) {
-			msgs[idx] = { ...msgs[idx], content: newContent };
+			const msg = msgs[idx];
+			msgs[idx] = transformToMessage({
+				...msg,
+				content: newContent,
+			});
 		}
 	}
 
@@ -208,14 +339,18 @@ export class AppStore {
 
 		if (channelId !== null) {
 			localStorage.setItem("currentChannelId", String(channelId));
-			if (!this.messagesByChannelId.has(channelId)) {
-				this.messagesByChannelId.set(channelId, observable.array([]));
-			}
-			this.isLoadingHistory = false;
-			this.activeRequests.delete(channelId);
-			this.isInitialLoad.set(channelId, true);
+			runInAction(() => {
+				if (!this.messagesByChannelId.has(channelId)) {
+					this.messagesByChannelId.set(channelId, observable.array([]));
+				}
+				this.isLoadingHistory = false;
+				this.activeRequests.delete(channelId);
+				this.isInitialLoad.set(channelId, true);
+			});
 			await this.fetchInitialMessages(channelId);
-			this.isInitialLoad.set(channelId, false);
+			runInAction(() => {
+				this.isInitialLoad.set(channelId, false);
+			});
 
 			const disposer = reaction(
 				() => this.messagesByChannelId.get(channelId)?.length ?? 0,
@@ -230,7 +365,9 @@ export class AppStore {
 					}
 				},
 			);
-			this.channelDisposers.set(channelId, disposer);
+			runInAction(() => {
+				this.channelDisposers.set(channelId, disposer);
+			});
 		}
 	}
 
@@ -355,8 +492,6 @@ export class AppStore {
 			Logger.info("Starting store initialization...");
 			await this.fetchCurrentUser();
 			Logger.info("Current user fetched successfully");
-			await this.fetchChannelsFromAPI();
-			Logger.info("Channels fetched successfully");
 			await this.initializeWebSocket();
 			Logger.info("WebSocket initialized successfully");
 		} catch (error) {
@@ -369,9 +504,9 @@ export class AppStore {
 
 	@action
 	addNewChannel(channel: APIChannel) {
-		const observableChannel = observable.object(channel);
-		if (!this.channels.some((c) => c.id === observableChannel.id)) {
-			this.channels.unshift(observableChannel);
+		const cachedChannel = mapApiChannelToCached(channel);
+		if (!this.channels.some((c) => c.id === cachedChannel.id)) {
+			this.channels.unshift(cachedChannel);
 		}
 	}
 
