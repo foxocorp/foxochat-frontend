@@ -5,6 +5,7 @@ import {
 	APIUser,
 	ChannelType,
 } from "foxochat.js";
+import { CachedChat } from "@store/app/metaCache";
 import {
 	ComponentChild,
 	ComponentChildren,
@@ -43,7 +44,7 @@ export interface ChatHeaderProps {
 }
 
 export interface ChatItemProps {
-	chat: APIChannel;
+	chat: APIChannel | CachedChat;
 	onSelectChat: (chat: APIChannel) => void;
 	isActive: boolean;
 	currentUser?: number | null;
