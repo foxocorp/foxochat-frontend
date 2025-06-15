@@ -9,7 +9,7 @@ generateSW({
     runtimeCaching: [
         {
             urlPattern: ({ url }) =>
-                url.origin === "https://media.foxochat.app " &&
+                url.origin === "https://media.foxochat.app" &&
                 url.pathname.startsWith("/attachments"),
             handler: "StaleWhileRevalidate",
             options: {
