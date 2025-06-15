@@ -189,14 +189,14 @@ export async function fetchUsers(
 	this: AppStore,
 	userIds: number[],
 ): Promise<void> {
-	if (!userIds.length) return;
+	if (!userIds.length || !this.currentChannelId) return;
 
 	try {
 		const users = await Promise.all(
-			userIds.map(() => apiMethods.getCurrentUser()),
+			userIds.map((id) => apiMethods.getChannelMember(this.currentChannelId!, id)),
 		);
 		runInAction(() => {
-			this.updateUsersFromServer(users);
+			this.updateUsersFromServer(users.map(member => member.user));
 		});
 	} catch (error) {
 		Logger.error(`Failed to fetch users: ${error}`);
