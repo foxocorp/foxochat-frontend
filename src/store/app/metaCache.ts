@@ -5,6 +5,7 @@ import {
 	APIUser,
 	ChannelFlags,
 	ChannelType,
+	UserStatus,
 } from "foxochat.js";
 
 export interface CachedChat {
@@ -23,9 +24,13 @@ export interface CachedChat {
 export interface CachedUser {
 	id: number;
 	username: string;
-	display_name?: string;
+	display_name: string;
 	avatar?: APIAttachment;
 	created_at: number;
+	status: UserStatus;
+	status_updated_at: number;
+	flags: number;
+	type: number;
 	[key: string]: any;
 }
 
