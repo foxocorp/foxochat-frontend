@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import appStore from "@store/app";
 
 class AuthenticationStore {
 	token: string | null = null;
@@ -9,10 +10,13 @@ class AuthenticationStore {
 		this.checkAuth();
 	}
 
-	login(token: string) {
+	async login(token: string) {
 		this.token = token;
 		this.isAuthenticated = true;
 		this.saveTokenToLocalStorage(token);
+		
+		await appStore.initializeStore();
+		await appStore.syncWithServer();
 	}
 
 	logout() {
