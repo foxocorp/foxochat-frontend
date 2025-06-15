@@ -62,12 +62,55 @@ export class AppStore {
 
 		this.activeRequests.add(channelId);
 		this.isInitialLoad.set(channelId, true);
-		await this.fetchInitialMessages(channelId, { limit: 50 }).finally(() => {
+
+		try {
+			await this.fetchInitialMessages(channelId, { limit: 50 });
+		} finally {
 			runInAction(() => {
 				this.activeRequests.delete(channelId);
 				this.isInitialLoad.set(channelId, false);
 			});
+		}
+	}
+
+	@action
+	updateMessagesForChannel(channelId: number, messages: APIMessage[]) {
+		const existing = this.messagesByChannelId.get(channelId) || observable.array([]);
+		const updated = Array.from(
+			new Map([...existing, ...messages].map((msg) => [msg.id, msg])).values(),
+		).sort((a, b) => a.created_at - b.created_at);
+		runInAction(() => {
+			this.messagesByChannelId.set(channelId, observable.array(updated));
 		});
+	}
+
+	@action
+	handleNewMessage(message: APIMessage) {
+		const channelId = message.channel.id;
+		const messages = this.messagesByChannelId.get(channelId) || observable.array([]);
+
+		if (!messages.some((m) => m.id === message.id)) {
+			runInAction(() => {
+				messages.push(message);
+				this.messagesByChannelId.set(
+					channelId,
+					observable.array([...messages].sort((a, b) => a.created_at - b.created_at)),
+				);
+
+				if (this.currentChannelId === channelId && !this.isCurrentChannelScrolledToBottom) {
+					this.unreadCount.set(channelId, (this.unreadCount.get(channelId) || 0) + 1);
+				} else if (this.currentChannelId === channelId) {
+					this.playSendMessageSound();
+				}
+			});
+		}
+
+		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
+		if (channelIndex >= 0) {
+			runInAction(() => {
+				this.channels[channelIndex].last_message = message;
+			});
+		}
 	}
 
 	@action
@@ -81,50 +124,6 @@ export class AppStore {
 	@action
 	setIsSendingMessage(state: boolean) {
 		this.isSendingMessage = state;
-	}
-
-	@action
-	updateMessagesForChannel(channelId: number, messages: APIMessage[]) {
-		const existing =
-			this.messagesByChannelId.get(channelId) || observable.array([]);
-		const updated = Array.from(
-			new Map([...existing, ...messages].map((msg) => [msg.id, msg])).values(),
-		).sort((a, b) => a.created_at - b.created_at);
-		this.messagesByChannelId.set(channelId, observable.array(updated));
-	}
-
-	@action
-	handleNewMessage(message: APIMessage) {
-		const channelId = message.channel.id;
-		const messages =
-			this.messagesByChannelId.get(channelId) || observable.array([]);
-
-		if (!messages.some((m) => m.id === message.id)) {
-			messages.push(message);
-			this.messagesByChannelId.set(
-				channelId,
-				observable.array(
-					[...messages].sort((a, b) => a.created_at - b.created_at),
-				),
-			);
-
-			if (
-				this.currentChannelId === channelId &&
-				!this.isCurrentChannelScrolledToBottom
-			) {
-				this.unreadCount.set(
-					channelId,
-					(this.unreadCount.get(channelId) || 0) + 1,
-				);
-			} else if (this.currentChannelId === channelId) {
-				this.playSendMessageSound();
-			}
-		}
-
-		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
-		if (channelIndex >= 0) {
-			this.channels[channelIndex].last_message = message;
-		}
 	}
 
 	@action
@@ -214,7 +213,9 @@ export class AppStore {
 			}
 			this.isLoadingHistory = false;
 			this.activeRequests.delete(channelId);
+			this.isInitialLoad.set(channelId, true);
 			await this.fetchInitialMessages(channelId);
+			this.isInitialLoad.set(channelId, false);
 
 			const disposer = reaction(
 				() => this.messagesByChannelId.get(channelId)?.length ?? 0,

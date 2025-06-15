@@ -77,11 +77,11 @@ const HomeComponent = () => {
 
 	const handleSelectChat = useCallback(
 		async (chat: APIChannel) => {
-			await appStore.setCurrentChannel(chat.id);
 			if (isMobile) {
 				setMobileView("chat");
 				setChatTransition("slide-in");
 			}
+			await appStore.setCurrentChannel(chat.id);
 		},
 		[isMobile],
 	);

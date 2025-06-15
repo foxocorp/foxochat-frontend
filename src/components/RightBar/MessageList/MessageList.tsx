@@ -39,7 +39,7 @@ const MessageListComponent = ({
 }: MessageListProps & { channel: { id: number } }) => {
 	const { id: channelId } = channel;
 	const messages = appStore.messagesByChannelId.get(channelId);
-	const isLoading = appStore.isInitialLoad.get(channelId) || !messages;
+	const isLoading = appStore.isInitialLoad.get(channelId) || false;
 	const unreadCount = appStore.unreadCount.get(channelId) || 0;
 
 	useEffect(() => {
@@ -55,12 +55,12 @@ const MessageListComponent = ({
 				onScroll={onScroll}
 				className={styles.messageList}
 			>
-				<MessageLoader />
+				<MessageLoader isVisible={true} />
 			</div>
 		);
 	}
 
-	if (!messages?.length) {
+	if (!messages || messages.length === 0) {
 		return (
 			<div
 				ref={messageListRef}
