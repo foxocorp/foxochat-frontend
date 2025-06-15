@@ -81,13 +81,15 @@ const HomeComponent = () => {
 
 	const handleSelectChat = useCallback(
 		async (chat: APIChannel | CachedChat) => {
+			if (chat.id === currentChannelId) return;
+			
 			if (isMobile) {
 				setMobileView("chat");
 				setChatTransition("slide-in");
 			}
 			await appStore.setCurrentChannel(chat.id);
 		},
-		[isMobile],
+		[isMobile, currentChannelId],
 	);
 
 	const handleBackToList = useCallback(() => {
