@@ -62,7 +62,7 @@ const UserInfoComponent = ({ username }: UserInfoProps) => {
 		};
 	}, []);
 
-	const currentUser = appStore.users.find(
+	const currentUser = appStore.users?.find(
 		(u) => u.id === appStore.currentUserId,
 	);
 	const displayUsername = currentUser?.username || username;
