@@ -111,7 +111,6 @@ export async function sendMessage(
 	files: File[] = [],
 ): Promise<void> {
 	if (!this.currentChannelId || !this.currentUserId) {
-		Logger.warn("Cannot send message: no channel or user selected");
 		return;
 	}
 
@@ -143,11 +142,12 @@ export async function sendMessage(
 		const message = transformToMessage(apiMsg);
 
 		runInAction(() => {
-			const messages =
-				this.messagesByChannelId.get(channelId) ??
-				observable.array<APIMessage>([]);
+			let messages = this.messagesByChannelId.get(channelId);
+			if (!messages) {
+				messages = observable.array<APIMessage>([]);
+				this.messagesByChannelId.set(channelId, messages);
+			}
 			messages.push(message);
-			this.messagesByChannelId.set(channelId, messages);
 			this.isSendingMessage = false;
 		});
 	} catch (error) {
@@ -155,7 +155,6 @@ export async function sendMessage(
 			this.isSendingMessage = false;
 			this.connectionError = "Failed to send message";
 		});
-		Logger.error(`Failed to send message: ${error}`);
 	}
 }
 
