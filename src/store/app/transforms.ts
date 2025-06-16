@@ -3,33 +3,38 @@ import {
 	APIMember,
 	APIMessage,
 	APIUser,
+	APIAttachment,
 	ChannelType,
 	MemberPermissions,
 	UserFlags,
 	UserType,
+	ChannelFlags,
 } from "foxochat.js";
 
 const FALLBACK_USER: APIUser = {
 	id: 0,
 	display_name: "",
 	channels: [],
-	avatar: "",
+	avatar: {} as unknown as APIAttachment,
 	username: "unknown",
 	email: "",
 	flags: UserFlags.Disabled,
 	type: UserType.User,
 	created_at: 0,
+	status: 1,
+	status_updated_at: 0,
 };
 
 const FALLBACK_CHANNEL: APIChannel = {
 	id: 0,
 	name: "",
 	display_name: "",
-	icon: "",
+	icon: {} as unknown as APIAttachment,
 	type: ChannelType.DM,
 	member_count: 0,
 	owner: FALLBACK_USER,
 	created_at: 0,
+	flags: 0 as ChannelFlags,
 };
 
 export function normalizePermissions(permissions: string | number): number {
@@ -71,6 +76,7 @@ export function transformApiMember(raw: APIMember | undefined): APIMember {
 		...(ch ?? {}),
 		type: normalizeChannelType(ch?.type),
 		owner: transformApiUserToUser(ch?.owner),
+		icon: typeof ch?.icon === "string" ? undefined : (ch?.icon as any),
 	};
 
 	return {
@@ -102,6 +108,7 @@ export function transformToMessage(raw: unknown): APIMessage {
 		...(ch ?? {}),
 		type: normalizeChannelType(ch?.type),
 		owner: transformApiUserToUser(ch?.owner),
+		icon: typeof ch?.icon === "string" ? undefined : (ch?.icon as any),
 	};
 
 	return {
@@ -120,11 +127,12 @@ export function createChannelFromAPI(c: APIChannel): APIChannel | null {
 			id: c.id,
 			name: c.name,
 			display_name: c.display_name,
-			icon: c.icon,
+			icon: typeof c.icon === "string" ? undefined : (c.icon as any),
 			type: normalizeChannelType(c.type),
 			member_count: c.member_count,
 			owner: transformApiUserToUser(c.owner),
 			created_at: c.created_at,
+			flags: (c.flags ?? 0) as ChannelFlags,
 		};
 
 		if (c.last_message) {
