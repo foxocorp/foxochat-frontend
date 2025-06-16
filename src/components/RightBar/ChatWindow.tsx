@@ -8,6 +8,7 @@ import ChatHeader from "./ChatHeader/ChatHeader";
 import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
 import MessageList from "./MessageList/MessageList";
+import type { APIChannel } from "foxochat.js";
 
 const ChatWindowComponent = ({
 	channel,
@@ -25,6 +26,8 @@ const ChatWindowComponent = ({
 	const isMounted = useRef(true);
 	const isProgrammaticHashChange = useRef(false);
 	const lastValidChannelId = useRef<number | null>(null);
+
+	const apiChannel = channel as unknown as APIChannel;
 
 	useEffect(() => {
 		const handleHashChange = async () => {
@@ -201,7 +204,7 @@ const ChatWindowComponent = ({
 				clearTimeout(scrollTimeout.current);
 			}
 
-			scrollTimeout.current = setTimeout(async () => {
+			scrollTimeout.current = Number(setTimeout(async () => {
 				if (!listRef.current || !isMounted.current) return;
 
 				const el = listRef.current;
@@ -277,7 +280,7 @@ const ChatWindowComponent = ({
 				}
 
 				lastScrollTop.current = scrollTop;
-			}, 100);
+			}, 100));
 		},
 		[channel.id, messages, isLoading],
 	);
@@ -309,7 +312,7 @@ const ChatWindowComponent = ({
 	return (
 		<div className={styles.chatWindow}>
 			<ChatHeader
-				chat={channel}
+				chat={apiChannel}
 				avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
 				username={channel.name}
 				displayName={channel.display_name}
@@ -324,7 +327,7 @@ const ChatWindowComponent = ({
 				currentUserId={appStore.currentUserId ?? -1}
 				messageListRef={listRef}
 				onScroll={handleScroll}
-				channel={channel}
+				channel={apiChannel}
 			/>
 			{showScrollButton && (
 				<button
