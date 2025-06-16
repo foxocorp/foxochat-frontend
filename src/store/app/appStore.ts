@@ -63,11 +63,11 @@ export class AppStore {
 	@observable accessor isCurrentChannelScrolledToBottom = true;
 	@observable accessor unreadCount = observable.map<number, number>();
 	/*
-	@observable accessor channelScrollPositions = observable.map<
-		number,
-		number
-	>();
-	*/
+    @observable accessor channelScrollPositions = observable.map<
+        number,
+        number
+    >();
+    */
 	@observable accessor channelParticipantsCount = observable.map<
 		number,
 		number
@@ -80,25 +80,25 @@ export class AppStore {
 			Logger.error(`Failed to initialize from URL: ${error}`);
 		});
 		/*
-		this.initializeMetaFromCache().then(() => {
-			void this.syncWithServer();
-		});
-		*/
+        this.initializeMetaFromCache().then(() => {
+            void this.syncWithServer();
+        });
+        */
 		void this.syncWithServer();
 	}
 
 	/*
-	async initializeMetaFromCache() {
-		const [cachedChats, cachedUsers] = await Promise.all([
-			loadChatsFromCache(),
-			loadUsersFromCache(),
-		]);
-		runInAction(() => {
-			this.channels.replace(cachedChats);
-			this.users.replace(cachedUsers);
-		});
-	}
-	*/
+    async initializeMetaFromCache() {
+        const [cachedChats, cachedUsers] = await Promise.all([
+            loadChatsFromCache(),
+            loadUsersFromCache(),
+        ]);
+        runInAction(() => {
+            this.channels.replace(cachedChats);
+            this.users.replace(cachedUsers);
+        });
+    }
+    */
 
 	@action
 	async syncWithServer() {
@@ -120,8 +120,8 @@ export class AppStore {
 	async updateChatsFromServer(apiChats: APIChannel[]) {
 		const cachedChats = apiChats.map(mapApiChannelToCached);
 		/*
-		await saveChatsToCache(cachedChats);
-		*/
+        await saveChatsToCache(cachedChats);
+        */
 		runInAction(() => {
 			this.channels.replace(cachedChats);
 		});
@@ -132,8 +132,8 @@ export class AppStore {
 		const cachedUsers = apiUsers.map(mapApiUserToCached);
 		this.users.replace(cachedUsers);
 		/*
-		await saveUsersToCache(cachedUsers);
-		*/
+        await saveUsersToCache(cachedUsers);
+        */
 	}
 
 	@action
@@ -168,60 +168,48 @@ export class AppStore {
 	@action
 	handleNewMessage(message: APIMessage) {
 		const channelId = message.channel.id;
-		Logger.debug(`Handling new message ${message.id} for channel ${channelId}`);
-		const messages =
-			this.messagesByChannelId.get(channelId) || observable.array([]);
+		let messages = this.messagesByChannelId.get(channelId);
+
+		if (!messages) {
+			messages = observable.array<APIMessage>([]);
+			this.messagesByChannelId.set(channelId, messages);
+		}
 
 		if (!messages.some((m) => m.id === message.id)) {
-			Logger.debug(`Adding message ${message.id} to channel ${channelId}`);
-			runInAction(() => {
-				messages.push(message);
-				this.messagesByChannelId.set(
-					channelId,
-					observable.array(
-						[...messages].sort((a, b) => a.created_at - b.created_at),
-					),
-				);
-				Logger.debug(`Updated messages for channel ${channelId}, total messages: ${messages.length}`);
+			messages.push(message);
+			messages.replace(
+				[...messages].sort((a, b) => a.created_at - b.created_at),
+			);
 
-				if (
-					this.currentChannelId === channelId &&
-					!this.isCurrentChannelScrolledToBottom
-				) {
-					Logger.debug(`Incrementing unread count for channel ${channelId}`);
-					this.unreadCount.set(
-						channelId,
-						(this.unreadCount.get(channelId) || 0) + 1,
-					);
-				} else if (this.currentChannelId === channelId) {
-					Logger.debug(`Playing message sound for channel ${channelId}`);
-					this.playSendMessageSound();
-				}
-			});
-		} else {
-			Logger.debug(`Message ${message.id} already exists in channel ${channelId}`);
+			if (
+				this.currentChannelId === channelId &&
+				!this.isCurrentChannelScrolledToBottom
+			) {
+				this.unreadCount.set(
+					channelId,
+					(this.unreadCount.get(channelId) || 0) + 1,
+				);
+			} else if (this.currentChannelId === channelId) {
+				this.playSendMessageSound();
+			}
 		}
 
 		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
 		if (channelIndex >= 0) {
-			const channel = this.channels[channelIndex];
-			if (channel) {
-				Logger.debug(`Updating last message for channel ${channelId}`);
-				runInAction(() => {
-					this.channels[channelIndex] = {
-						id: channel.id,
-						name: channel.name,
-						display_name: channel.display_name,
-						icon: channel.icon,
-						last_message: message,
-						created_at: channel.created_at,
-						type: channel.type,
-						flags: channel.flags,
-						member_count: channel.member_count,
-						owner: channel.owner,
-					};
-				});
-			}
+			const ch = this.channels[channelIndex];
+			if (!ch) return;
+			this.channels[channelIndex] = {
+				id: ch.id,
+				name: ch.name,
+				display_name: ch.display_name,
+				icon: ch.icon,
+				created_at: ch.created_at,
+				type: ch.type,
+				flags: ch.flags,
+				member_count: ch.member_count,
+				owner: ch.owner,
+				last_message: message,
+			};
 		}
 	}
 
@@ -336,6 +324,10 @@ export class AppStore {
 			runInAction(() => {
 				this.isInitialLoad.set(channelId, false);
 			});
+
+			if (this.isWsInitialized) {
+				this.handleHistorySync();
+			}
 
 			const disposer = reaction(
 				() => this.messagesByChannelId.get(channelId)?.length ?? 0,

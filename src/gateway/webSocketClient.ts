@@ -1,3 +1,4 @@
+import { client } from "@services/FoxoChatClient";
 import { LogLevel, Logger } from "@utils/logger";
 import type { Client } from "foxochat.js";
 import { GatewayDispatchEvents } from "foxochat.js";
@@ -73,9 +74,9 @@ export class WebSocketClient {
 		});
 	}
 
-	public async connect(): Promise<void> {
+	public connect(): Promise<void> {
 		Logger.header(`NEW CONNECTION`);
-		Logger.group(`WebSocket Session — ${this.client.gateway.url}`);
+		Logger.group(`WebSocket Session — ${client.gateway.options.url}`);
 		Logger.info(`[WS] Attempting connect`);
 
 		const token = this.getToken();
@@ -88,9 +89,9 @@ export class WebSocketClient {
 		const start = performance.now();
 
 		try {
-			await this.client.login(token);
 			const duration = performance.now() - start;
 			Logger.info(`[FAST CONNECT] connected in ${duration.toFixed(2)}ms`);
+			return Promise.resolve();
 		} catch (err: unknown) {
 			Logger.error(
 				`Failed to login: ${err instanceof Error ? err.message : String(err)}`,
@@ -125,7 +126,7 @@ export class WebSocketClient {
 	): void {
 		const list = this.listeners[event];
 		if (list) {
-			this.listeners[event] = list.filter((l) => l !== listener);
+			this.listeners[event] = list.filter((l) => l !== listener) as typeof list;
 		}
 	}
 
