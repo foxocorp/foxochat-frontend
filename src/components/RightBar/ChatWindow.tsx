@@ -251,7 +251,8 @@ const ChatWindowComponent = ({
 
 					if (topMessage && listRef.current) {
 						anchorMessageId.current = topMessage.msg.id;
-						const rect = topMessage.element!.getBoundingClientRect();
+						const rect = topMessage.element?.getBoundingClientRect();
+						if (!rect) return;
 						const containerRect = listRef.current.getBoundingClientRect();
 						anchorOffset.current = rect.top - containerRect.top;
 						Logger.info(
