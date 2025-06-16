@@ -44,7 +44,7 @@
 		"@tauri-apps/cli": "^2.5.0",
 		"@tsconfig/strictest": "^2.0.5",
 		"@types/markdown-it": "^14.1.2",
-		"@types/node": "^22.15.31",
+		"@types/node": "^24.0.1",
 		"@types/sanitize-html": "^2.16.0",
 		"@types/ws": "^8.18.1",
 		"autoprefixer": "^10.4.21",
