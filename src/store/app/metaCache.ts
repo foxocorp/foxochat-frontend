@@ -12,7 +12,7 @@ export interface CachedChat {
 	id: number;
 	name: string;
 	display_name: string;
-	icon?: string | APIAttachment | undefined;
+	icon?: APIAttachment | undefined;
 	last_message?: APIMessage;
 	created_at: number;
 	type: ChannelType;
