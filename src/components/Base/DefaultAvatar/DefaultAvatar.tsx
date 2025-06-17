@@ -1,24 +1,31 @@
-import { DefaultAvatarProps } from "@interfaces/interfaces";
-import { timestampToHSV } from "@utils/functions";
-import * as styles from "./DefaultAvatar.module.scss";
+import { memo } from 'preact/compat';
+import * as styles from './DefaultAvatar.module.scss';
+import { classNames } from '@utils/functions';
 
-const DefaultAvatar = ({
-	createdAt = Date.now(),
-	displayName = "U",
-	size = "medium",
-}: DefaultAvatarProps) => {
-	const { h, s } = timestampToHSV(createdAt);
-	const backgroundColor = `hsl(${h}, ${s}%, 50%)`;
-	const firstLetter = (displayName || "U").charAt(0).toUpperCase();
+interface DefaultAvatarProps {
+	createdAt: number;
+	displayName?: string;
+	size?: 'small' | 'medium' | 'large' | 'fill';
+	square?: boolean;
+}
+
+const DefaultAvatar = ({ createdAt, displayName = '', size = 'medium', square = false }: DefaultAvatarProps) => {
+	const initial = displayName.charAt(0).toUpperCase();
+	const hue = (createdAt % 360) + 1;
+	const background = `hsl(${hue}, 40%, 40%)`;
 
 	return (
-		<div
-			className={`${styles.defaultAvatar} ${styles[size]}`}
-			style={{ backgroundColor }}
+		<div 
+			className={classNames(
+				styles.defaultAvatar,
+				styles[size],
+				square && styles.square
+			)}
+			style={{ background }}
 		>
-			{firstLetter}
+			{initial}
 		</div>
 	);
 };
 
-export default DefaultAvatar;
+export default memo(DefaultAvatar);
