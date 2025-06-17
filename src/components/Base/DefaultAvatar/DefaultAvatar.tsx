@@ -1,6 +1,6 @@
 import { memo } from 'preact/compat';
 import * as styles from './DefaultAvatar.module.scss';
-import { classNames } from '@utils/functions';
+import { classNames, timestampToHSV } from '@utils/functions';
 
 interface DefaultAvatarProps {
 	createdAt: number;
@@ -11,8 +11,8 @@ interface DefaultAvatarProps {
 
 const DefaultAvatar = ({ createdAt, displayName = '', size = 'medium', square = false }: DefaultAvatarProps) => {
 	const initial = displayName.charAt(0).toUpperCase();
-	const hue = (createdAt % 360) + 1;
-	const background = `hsl(${hue}, 40%, 40%)`;
+	const { h, s } = timestampToHSV(createdAt);
+	const background = `hsl(${h}, ${s}%, 50%)`;
 
 	return (
 		<div 
