@@ -45,6 +45,8 @@
   gap: 4px;
   overflow: hidden;
   margin-left: 10px;
+  user-select: none;
+  pointer-events: none;
 }
 
 .chatNameWrapper {
