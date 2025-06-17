@@ -297,3 +297,7 @@ export interface DefaultAvatarProps {
 	displayName?: string;
 	size?: "small" | "medium" | "large";
 }
+
+export interface MemberListProps {
+	channelId: number;
+}

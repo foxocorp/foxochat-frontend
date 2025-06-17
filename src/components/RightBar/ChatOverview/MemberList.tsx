@@ -1,15 +1,12 @@
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { config } from "@/lib/config/endpoints";
+import { MemberListProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import { classNames } from "@utils/functions";
 import { APIMember } from "foxochat.js";
 import { memo, useEffect, useState } from "preact/compat";
 import Loading from "../MessageList/MessageLoader/MessageLoader";
 import * as styles from "./MemberList.module.scss";
-
-interface MemberListProps {
-	channelId: number;
-}
 
 const isOnline = (status: number | string): boolean => {
 	return status === 1 || status === "Online" || status === "ONLINE";
