@@ -8,6 +8,7 @@ import ChatHeader from "./ChatHeader/ChatHeader";
 import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
 import MessageList from "./MessageList/MessageList";
+import ChatOverview from "./ChatOverview/ChatOverview";
 import type { APIChannel } from "foxochat.js";
 
 const ChatWindowComponent = ({
@@ -28,6 +29,7 @@ const ChatWindowComponent = ({
 	const lastValidChannelId = useRef<number | null>(null);
 
 	const apiChannel = channel as unknown as APIChannel;
+	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
 
 	useEffect(() => {
 		const handleHashChange = async () => {
@@ -311,38 +313,41 @@ const ChatWindowComponent = ({
 	};
 
 	return (
-		<div className={styles.chatWindow}>
-			<ChatHeader
-				chat={apiChannel}
-				avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
-				username={channel.name}
-				displayName={channel.display_name}
-				channelId={channel.id}
-				isMobile={isMobile}
-				onBack={isMobile ? onBack : undefined}
-			/>
-			<MessageList
-				messages={messages}
-				isLoading={isLoading}
-				isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
-				currentUserId={appStore.currentUserId ?? -1}
-				messageListRef={listRef}
-				onScroll={handleScroll}
-				channel={apiChannel}
-			/>
-			{showScrollButton && (
-				<button
-					className={`${styles.scrollButton} ${styles.visible}`}
-					onClick={handleScrollToBottom}
-					title="New messags"
-				>
-					↓ {appStore.unreadCount.get(channel.id) || ""}
-				</button>
-			)}
-			<MessageInput
-				onSendMessage={(c, f) => appStore.sendMessage(c, f)}
-				isSending={appStore.isSendingMessage}
-			/>
+		<div className={styles.chatWindowContainer}>
+			<div className={styles.chatWindow}>
+				<ChatHeader
+					chat={apiChannel}
+					avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
+					username={channel.name}
+					displayName={channel.display_name}
+					channelId={channel.id}
+					isMobile={isMobile}
+					onBack={isMobile ? onBack : undefined}
+				/>
+				<MessageList
+					messages={messages}
+					isLoading={isLoading}
+					isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
+					currentUserId={appStore.currentUserId ?? -1}
+					messageListRef={listRef}
+					onScroll={handleScroll}
+					channel={apiChannel}
+				/>
+				{showScrollButton && (
+					<button
+						className={`${styles.scrollButton} ${styles.visible}`}
+						onClick={handleScrollToBottom}
+						title="New messages"
+					>
+						↓ {appStore.unreadCount.get(channel.id) || ""}
+					</button>
+				)}
+				<MessageInput
+					onSendMessage={(c, f) => appStore.sendMessage(c, f)}
+					isSending={appStore.isSendingMessage}
+				/>
+			</div>
+			<ChatOverview channel={apiChannel} isOwner={isOwner} />
 		</div>
 	);
 };

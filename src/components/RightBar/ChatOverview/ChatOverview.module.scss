@@ -1,0 +1,117 @@
+.overview {
+  width: 320px;
+  height: 100%;
+  background: var(--background-chat-list-color);
+  border-left: 0.5px solid rgb(96 96 96 / 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.headerBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background-chat-list-color);
+}
+
+.backgroundAvatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.headerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(30, 30, 30, 0) 40%, var(--background-chat-list-color) 100%);
+}
+
+.headerContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  z-index: 3;
+}
+
+.channelName {
+  font-weight: 900;
+  font-size: 30px;
+  color: var(--primary-color);
+  text-shadow: 0 2px 4px rgb(0 0 0 / 0.3);
+}
+
+.memberCount {
+  font-size: 16px;
+  color: var(--gray-color);
+  margin-bottom: 16px;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 0.3);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: auto;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 45px;
+  padding: 12px;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 6px;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: rgb(255 255 255 / 0.3);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.9;
+  }
+}
+
+.dangerButton {
+  color: var(--danger-color);
+  border-color: rgb(169 38 38 / 0.4);
+
+  &:hover {
+    background: rgb(169 38 38 / 0.1);
+    border-color: rgb(169 38 38 / 0.6);
+  }
+} 
