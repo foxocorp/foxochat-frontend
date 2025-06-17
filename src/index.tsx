@@ -146,6 +146,16 @@ function Routes() {
 export function App() {
 	useEffect(() => {
 		void registerServiceWorker();
+
+		const handleTab = (e: KeyboardEvent) => {
+			if (e.key === "Tab") {
+				e.preventDefault();
+			}
+		};
+		window.addEventListener("keydown", handleTab, { capture: true });
+		return () => window.removeEventListener("keydown", handleTab, {
+			capture: true,
+		});
 	}, []);
 
 	return (

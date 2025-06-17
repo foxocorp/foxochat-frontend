@@ -12,18 +12,20 @@ import * as style from "./MessageInput.module.scss";
 
 const MAX_FILES = 10;
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/", "video/", "application/pdf"];
+// const ALLOWED_TYPES = ["image/", "video/", "application/pdf"];
 const ERROR_DISPLAY_TIME = 7000;
 
 const MessageInput = ({}: MessageInputProps) => {
 	const [message, setMessage] = useState("");
 	const [files, setFiles] = useState<File[]>([]);
-	const [filePreviews, setFilePreviews] = useState<Map<string, string>>(new Map());
+	const [filePreviews, setFilePreviews] = useState<Map<string, string>>(
+		new Map(),
+	);
 	const [isSending, setIsSending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isErrorHiding, setIsErrorHiding] = useState(false);
 	const errorTimeoutRef = useRef<number | null>(null);
-	
+
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
@@ -54,12 +56,13 @@ const MessageInput = ({}: MessageInputProps) => {
 		errorTimeoutRef.current = window.setTimeout(clearError, ERROR_DISPLAY_TIME);
 	};
 
-	const generateFileId = (file: File) => `${file.name}-${file.size}-${file.lastModified}`;
+	const generateFileId = (file: File) =>
+		`${file.name}-${file.size}-${file.lastModified}`;
 
 	const validateFile = (file: File): string | null => {
-		if (!ALLOWED_TYPES.some(type => file.type.startsWith(type))) {
-			return `File ${file.name} is not a supported type`;
-		}
+		// if (!ALLOWED_TYPES.some((type) => file.type.startsWith(type))) {
+		// 	return `File ${file.name} is not a supported type`;
+		// }
 		if (file.size > MAX_FILE_SIZE) {
 			return `File ${file.name} is too large (max ${MAX_FILE_SIZE / 1024 / 1024}MB)`;
 		}
@@ -67,23 +70,29 @@ const MessageInput = ({}: MessageInputProps) => {
 	};
 
 	const handleSend = async () => {
-		if ((!message.trim() && !files.length) || isSending || appStore.isSendingMessage) return;
+		if (
+			(!message.trim() && !files.length) ||
+			isSending ||
+			appStore.isSendingMessage
+		)
+			return;
 
 		try {
 			setIsSending(true);
 			clearError();
-			
+
 			await appStore.sendMessage(message, files);
-			
+
 			setMessage("");
 			setFiles([]);
 			setFilePreviews(new Map());
 			fileInputRef.current && (fileInputRef.current.value = "");
-			
-			messageSound.current?.play().catch(() => {});
+
+			messageSound.current?.play();
 			textareaRef.current?.focus();
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Failed to send message";
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to send message";
 			showError(errorMessage);
 			Logger.error(errorMessage);
 		} finally {
@@ -135,8 +144,11 @@ const MessageInput = ({}: MessageInputProps) => {
 			showError(errors.join(", "));
 		}
 
-		setFiles(prevFiles => [...prevFiles, ...validFiles]);
+		setFiles((prevFiles) => [...prevFiles, ...validFiles]);
 		setFilePreviews(newPreviews);
+		setTimeout(() => {
+			textareaRef.current?.focus();
+		}, 0);
 	};
 
 	const handleSendMedia = () => {
@@ -145,8 +157,8 @@ const MessageInput = ({}: MessageInputProps) => {
 	};
 
 	const handleRemoveFile = (index: number, fileId: string) => {
-		setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-		setFilePreviews(prevPreviews => {
+		setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+		setFilePreviews((prevPreviews) => {
 			const newPreviews = new Map(prevPreviews);
 			const url = newPreviews.get(fileId);
 			if (url) {
@@ -162,7 +174,7 @@ const MessageInput = ({}: MessageInputProps) => {
 			if (errorTimeoutRef.current) {
 				window.clearTimeout(errorTimeoutRef.current);
 			}
-			filePreviews.forEach(url => {
+			filePreviews.forEach((url) => {
 				URL.revokeObjectURL(url);
 			});
 		};
@@ -172,7 +184,7 @@ const MessageInput = ({}: MessageInputProps) => {
 		if (textareaRef.current && containerRef.current) {
 			const textarea = textareaRef.current;
 			const container = containerRef.current;
-			
+
 			textarea.style.height = "auto";
 			const maxHeight = 150;
 			const minHeight = 40;
@@ -180,10 +192,11 @@ const MessageInput = ({}: MessageInputProps) => {
 				Math.max(textarea.scrollHeight, minHeight),
 				maxHeight,
 			);
-			
+
 			textarea.style.height = `${newHeight}px`;
 			container.style.height = `${newHeight + 16}px`;
-			textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "scroll" : "hidden";
+			textarea.style.overflowY =
+				textarea.scrollHeight > maxHeight ? "scroll" : "hidden";
 		}
 	}, [message]);
 
@@ -207,7 +220,7 @@ const MessageInput = ({}: MessageInputProps) => {
 	return (
 		<div className={style.messageInputContainer}>
 			{error && (
-				<div className={`${style.error} ${isErrorHiding ? style.hiding : ''}`}>
+				<div className={`${style.error} ${isErrorHiding ? style.hiding : ""}`}>
 					{error}
 				</div>
 			)}
@@ -268,6 +281,7 @@ const MessageInput = ({}: MessageInputProps) => {
 					placeholder="Write your message..."
 					className={style.messageInput}
 					onKeyDown={handleKeyDown}
+					maxLength={5000}
 					rows={1}
 					disabled={isSending || appStore.isSendingMessage}
 				/>
@@ -282,13 +296,19 @@ const MessageInput = ({}: MessageInputProps) => {
 				<button
 					onClick={() => void handleSend()}
 					className={style.iconButton}
-					disabled={isSending || appStore.isSendingMessage || (!message.trim() && !files.length)}
+					disabled={
+						isSending ||
+						appStore.isSendingMessage ||
+						(!message.trim() && !files.length)
+					}
 				>
 					<img
 						src={sendIcon}
 						alt="Send"
 						className={
-							isSending || appStore.isSendingMessage || (!message.trim() && !files.length)
+							isSending ||
+							appStore.isSendingMessage ||
+							(!message.trim() && !files.length)
 								? style.iconDisabled
 								: style.icon
 						}

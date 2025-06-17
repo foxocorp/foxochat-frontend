@@ -38,6 +38,7 @@ const SidebarComponent = ({
 	const [nameErrorMessage, setNameErrorMessage] = useState<string>(
 		"— Name is already taken",
 	);
+	const [closeDropdown, setCloseDropdown] = useState<(() => void) | null>(null);
 
 	const [width, setWidth] = useState(() => {
 		if (isMobile) {
@@ -222,12 +223,18 @@ const SidebarComponent = ({
 						/>
 						<div className={styles.createWrapper}>
 							<CreateButton
-								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+								onClick={() => {
+									if (!showCreateDropdown) {
+										setShowCreateDropdown(true);
+									} else {
+										closeDropdown?.();
+									}
+								}}
 							/>
 							{showCreateDropdown && (
 								<CreateDropdown
+									registerCloseHandler={(fn) => setCloseDropdown(() => fn)}
 									onSelect={(type) => {
-										setShowCreateDropdown(false);
 										setShowCreateModal(type);
 									}}
 									onClose={() => setShowCreateDropdown(false)}

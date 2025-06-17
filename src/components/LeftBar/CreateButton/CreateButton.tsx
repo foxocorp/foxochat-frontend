@@ -7,7 +7,13 @@ const CreateButton = ({ onClick }: CreateButtonProps) => {
 	return (
 		<button
 			className={styles.createButton}
-			onClick={onClick}
+			onMouseDown={(e) => {
+				e.stopPropagation();
+			}}
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick();
+			}}
 			aria-label="Create new channel or group"
 		>
 			<img className={styles.plusIcon} alt={"Create chat"} src={CreateIcon} />

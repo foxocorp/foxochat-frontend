@@ -264,6 +264,7 @@ export interface CreateButtonProps {
 export interface CreateDropdownProps {
 	onSelect: (type: "group" | "channel") => void;
 	onClose: () => void;
+	registerCloseHandler?: (close: () => void) => void;
 }
 
 export interface SearchBarProps {

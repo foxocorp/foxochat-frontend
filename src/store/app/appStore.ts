@@ -368,7 +368,6 @@ export class AppStore {
 			const transformed = newMessages.map(transformToMessage);
 
 			runInAction(() => {
-				console.log("Fetched initial messages:", newMessages.length);
 				const existing =
 					this.messagesByChannelId.get(channelId) || observable.array([]);
 
