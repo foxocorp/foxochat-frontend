@@ -1,6 +1,10 @@
 import { rgbaToThumbHash } from "thumbhash";
 import { Logger } from "@utils/logger";
 
+export const classNames = (...classes: (string | boolean | undefined)[]) => {
+    return classes.filter(Boolean).join(' ');
+};
+
 export async function generateThumbHashFromFile(file: File): Promise<string | null> {
     try {
         if (!file.type.startsWith("image/")) {
