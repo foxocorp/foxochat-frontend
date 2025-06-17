@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { JSX } from 'preact';
 import * as styles from './ContextMenu.module.scss';
+import { createPortal } from 'preact/compat';
 
 export interface ContextMenuItem {
   icon?: JSX.Element;
@@ -65,7 +66,7 @@ const ContextMenu = ({ x, y, items, onClose }: ContextMenuProps) => {
     }
   }, [x, y]);
 
-  return (
+  const menuDiv = (
     <div
       ref={menuRef}
       className={`${styles.contextMenu} ${closing ? styles.closing : ''}`}
@@ -94,6 +95,8 @@ const ContextMenu = ({ x, y, items, onClose }: ContextMenuProps) => {
       )}
     </div>
   );
+
+  return createPortal(menuDiv, document.body);
 };
 
 export default ContextMenu; 

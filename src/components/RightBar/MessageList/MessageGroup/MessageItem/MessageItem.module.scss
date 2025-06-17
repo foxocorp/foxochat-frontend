@@ -205,3 +205,8 @@
   border-radius: 0;
   display: block;
 }
+
+.messageItem.contextActive {
+  position: relative;
+  z-index: 10000;
+}

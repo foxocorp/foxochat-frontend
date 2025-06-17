@@ -9,6 +9,8 @@
   height: 72px;
   background: var(--background-chat-color);
   gap: 10px;
+  position: relative;
+  z-index: 10001;
 }
 
 .backButton {

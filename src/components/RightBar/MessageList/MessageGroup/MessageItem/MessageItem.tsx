@@ -1,7 +1,14 @@
-import CopyIcon from "@/assets/icons/left-bar/navigation/copy.svg";
+import CopyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-copy.svg";
+import ReplyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-reply.svg";
+import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/message-edit.svg";
+import ForwardIcon from "@/assets/icons/right-bar/chat/chat-overview/message-forward.svg";
+import TrashIcon from "@/assets/icons/right-bar/chat/chat-overview/trash.svg";
 import StateFailed from "@/assets/icons/right-bar/chat/message/state-failed.svg";
 import StateSending from "@/assets/icons/right-bar/chat/message/state-sending.svg";
+import SelectIcon from "@/assets/icons/right-bar/chat/chat-overview/message-select.svg";
 import StateSent from "@/assets/icons/right-bar/chat/message/state-sent.svg";
+import PinIcon from "@/assets/icons/right-bar/chat/chat-overview/pin.svg";
+import ClockIcon from "@/assets/icons/right-bar/chat/chat-overview/clock.svg";
 import { getDisplayName } from "@/codeLanguages";
 import ActionPopup from "@components/Chat/ActionPopup/ActionPopup";
 import CopyBubble from "@components/Chat/Bubbles/CopyBubble/Bubbles";
@@ -26,6 +33,8 @@ import { memo } from "preact/compat";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { thumbHashToDataURL } from "thumbhash";
 import * as styles from "./MessageItem.module.scss";
+import ContextMenu from "@components/Base/ContextMenu/ContextMenu";
+import { useContextMenu } from "@components/Base/ContextMenu/useContextMenu";
 
 const PreComponent = function PreComponent({
 	className,
@@ -48,7 +57,7 @@ const PreComponent = function PreComponent({
 	}, [isCopied, codeText]);
 
 	useEffect(() => {
-		let timer: number;
+		let timer: ReturnType<typeof setTimeout>;
 		if (isCopied) {
 			timer = setTimeout(() => {
 				setIsCopied(false);
@@ -132,6 +141,7 @@ const MessageItem = ({
 	);
 	const [isMediaViewerOpen, setIsMediaViewerOpen] = useState<boolean>(false);
 	const [mediaViewerIndex, setMediaViewerIndex] = useState<number>(0);
+	const contextMenu = useContextMenu();
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent): void => {
@@ -375,9 +385,54 @@ const MessageItem = ({
 	return (
 		<>
 			<div
-				className={`${styles.messageItem} ${isMessageAuthor ? styles.author : styles.receiver}`}
+				className={`${styles.messageItem} ${contextMenu.isOpen ? styles.contextActive : ''} ${isMessageAuthor ? styles.author : styles.receiver}`}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
+				onContextMenu={(e) => {
+					e.preventDefault();
+					const items: import("@components/Base/ContextMenu/ContextMenu").ContextMenuItem[] = [];
+
+					items.push({
+						icon: <img src={PinIcon} alt="Pin" />, label: "Pin", onClick: () => {/* TODO pin */},
+					});
+
+					if (isMessageAuthor) {
+						items.push({
+							icon: <img src={EditIcon} alt="Edit" />, label: "Edit", onClick: () => { if (onEdit) onEdit(); },
+						});
+					}
+
+					items.push({ divider: true });
+
+					items.push({
+						icon: <img src={ReplyIcon} alt="Reply" />, label: "Reply", onClick: () => { if (onReply) onReply(); },
+					});
+
+					items.push({
+						icon: <img src={ForwardIcon} alt="Forward" />, label: "Forward", onClick: () => { if (onForward) onForward(); },
+					});
+
+					items.push({
+						icon: <img src={SelectIcon} alt="Select" />, label: "Select", onClick: () => {/* TODO select */},
+					});
+
+					items.push({
+						icon: <img src={CopyIcon} alt="Copy" />, label: "Copy text", onClick: () => { navigator.clipboard.writeText(content ?? ""); },
+					});
+
+					items.push({ divider: true });
+
+					if (isMessageAuthor) {
+						items.push({
+							icon: <img src={TrashIcon} alt="Delete" />, label: "Delete", onClick: () => { if (onDelete) onDelete(); }, danger: true,
+						});
+						items.push({ divider: true });
+					}
+
+					items.push({ icon: <img src={ClockIcon} alt="Copy" />, label: `Edited at ${formattedTime}`, disabled: true });
+
+					contextMenu.open(e.pageX, e.pageY, items);
+				}}
 			>
 				<Avatar
 					author={author}
@@ -422,6 +477,15 @@ const MessageItem = ({
 					/>
 				)}
 			</div>
+
+			{contextMenu.isOpen && (
+				<ContextMenu
+					x={contextMenu.x}
+					y={contextMenu.y}
+					items={contextMenu.items}
+					onClose={contextMenu.close}
+				/>
+			)}
 
 			<MediaViewer
 				isOpen={isMediaViewerOpen}
