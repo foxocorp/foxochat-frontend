@@ -75,7 +75,6 @@ const MemberList = ({ channelId }: MemberListProps) => {
 							<div className={styles.displayName}>
 								{member.user.display_name || member.user.username}
 							</div>
-							<div className={styles.username}>@{member.user.username}</div>
 							<div
 								className={classNames(
 									styles.status,
