@@ -1,15 +1,7 @@
+import { EventMap, Gateway } from "@interfaces/interfaces";
 import { client } from "@services/FoxoChatClient";
 import { LogLevel, Logger } from "@utils/logger";
-import type { Client } from "foxochat.js";
-import { GatewayDispatchEvents } from "foxochat.js";
-
-interface EventMap {
-	connected: undefined;
-	error: Error;
-	close: CloseEvent;
-	MESSAGE_CREATE: any;
-	MESSAGE_DELETE: any;
-}
+import type { APIMessage, Client } from "foxochat.js";
 
 export class WebSocketClient {
 	public readonly client: Client;
@@ -34,14 +26,16 @@ export class WebSocketClient {
 	}
 
 	private setupEventHandlers(): void {
-		this.client.on("ready", () => {
+		const gateway = this.client.gateway as Gateway;
+
+		gateway.on("hello", () => {
 			Logger.group("[CONNECTION] WebSocket connected", LogLevel.Info);
 			Logger.info(`WebSocket connected successfully`);
 			Logger.groupEnd();
 			this.emit("connected", undefined);
 		});
 
-		this.client.on("closed", (code: number) => {
+		gateway.on("closed", (code: number) => {
 			Logger.error(`Connection closed: ${code}`);
 			const closeEvent = new CloseEvent("close", { code });
 			if (code === 4003) {
@@ -52,29 +46,36 @@ export class WebSocketClient {
 			this.emit("close", closeEvent);
 		});
 
-		this.client.on("socketError", (error: Error) => {
-			Logger.error(`WebSocket error: ${error.message}`);
-			this.emit("error", error);
+		gateway.on("socketError", (event: Event) => {
+			Logger.error(`WebSocket error: ${event}`);
+			this.emit("error", new Error(`WebSocket error: ${event}`));
 		});
 
-		this.client.on("dispatch", (event: { t: string; d: any }) => {
-			Logger.info(`[GATEWAY EVENT] ${event.t}`);
-			Logger.info(`Event data: ${JSON.stringify(event.d)}`);
-			const eventType = event.t as GatewayDispatchEvents;
+		gateway.on("dispatch", (message) => {
+			if (!message?.t) return;
+
+			Logger.info(`[GATEWAY EVENT] Received raw event type: "${message.t}"`);
+			const eventType = message.t.toUpperCase();
+
 			switch (eventType) {
-				case GatewayDispatchEvents.MessageCreate:
-					this.emit("MESSAGE_CREATE", event.d);
+				case "MESSAGE_CREATE":
+					Logger.info(`[WebSocketClient] Matched MESSAGE_CREATE, emitting...`);
+					this.emit("MESSAGE_CREATE", message.d as APIMessage);
 					break;
-				case GatewayDispatchEvents.MessageDelete:
-					this.emit("MESSAGE_DELETE", event.d);
+				case "MESSAGE_DELETE":
+					Logger.info(`[WebSocketClient] Matched MESSAGE_DELETE, emitting...`);
+					this.emit(
+						"MESSAGE_DELETE",
+						message.d as { id: number; channel_id: number },
+					);
 					break;
 				default:
-					console.warn(`Unhandled gateway event: ${event.t}`);
+					console.warn(`Unhandled gateway event: ${eventType}`);
 			}
 		});
 	}
 
-	public connect(): Promise<void> {
+	public async connect(): Promise<void> {
 		Logger.header(`NEW CONNECTION`);
 		Logger.group(`WebSocket Session — ${client.gateway.options.url}`);
 		Logger.info(`[WS] Attempting connect`);
@@ -89,9 +90,9 @@ export class WebSocketClient {
 		const start = performance.now();
 
 		try {
+			await this.client.login(token);
 			const duration = performance.now() - start;
 			Logger.info(`[FAST CONNECT] connected in ${duration.toFixed(2)}ms`);
-			return Promise.resolve();
 		} catch (err: unknown) {
 			Logger.error(
 				`Failed to login: ${err instanceof Error ? err.message : String(err)}`,
@@ -110,7 +111,13 @@ export class WebSocketClient {
 		if (!this.listeners[event]) {
 			this.listeners[event] = [];
 		}
-		return this.listeners[event]!;
+		const listeners = this.listeners[event];
+		if (!listeners) {
+			throw new Error(
+				`Failed to initialize listeners for event: ${String(event)}`,
+			);
+		}
+		return listeners;
 	}
 
 	public on<K extends keyof EventMap>(

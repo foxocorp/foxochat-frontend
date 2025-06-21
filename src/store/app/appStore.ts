@@ -75,18 +75,6 @@ export class AppStore {
 
 	wsClient: WebSocketClient | null = null;
 
-	constructor() {
-		this.initializeFromUrl().catch((error) => {
-			Logger.error(`Failed to initialize from URL: ${error}`);
-		});
-		/*
-        this.initializeMetaFromCache().then(() => {
-            void this.syncWithServer();
-        });
-        */
-		void this.syncWithServer();
-	}
-
 	/*
     async initializeMetaFromCache() {
         const [cachedChats, cachedUsers] = await Promise.all([
@@ -107,9 +95,6 @@ export class AppStore {
 			const apiChannels = await apiMethods.userChannelsList();
 			await this.updateChatsFromServer(apiChannels);
 			Logger.info("Channels synced successfully");
-
-			await this.initializeWebSocket();
-			Logger.info("WebSocket initialized successfully");
 		} catch (error) {
 			Logger.error(`Background sync failed: ${error}`);
 			throw error;
@@ -245,11 +230,6 @@ export class AppStore {
 		const hash = window.location.hash.substring(1);
 		if (!hash || isNaN(Number(hash))) return;
 		const channelId = Number(hash);
-
-		if (!this.channels.length) {
-			await this.fetchChannelsFromAPI();
-		}
-
 		if (this.channels.some((c) => c.id === channelId)) {
 			await this.setCurrentChannel(channelId);
 		}
@@ -437,11 +417,9 @@ export class AppStore {
 				);
 
 				if (uniqueNewMessages.length > 0) {
-					const updatedMessages = [...uniqueNewMessages, ...existingMessages];
-					this.messagesByChannelId.set(
-						channelId,
-						observable.array(updatedMessages),
-					);
+					const merged = [...existingMessages, ...uniqueNewMessages];
+					const sorted = merged.sort((a, b) => a.created_at - b.created_at);
+					this.messagesByChannelId.set(channelId, observable.array(sorted));
 				}
 
 				this.hasMoreMessagesByChannelId.set(
@@ -463,13 +441,22 @@ export class AppStore {
 
 	@action
 	async initializeStore() {
+		if (this.isWsInitialized) return;
+
 		try {
 			this.setIsLoading(true);
 			Logger.info("Starting store initialization...");
-			await this.fetchCurrentUser();
-			Logger.info("Current user fetched successfully");
+
 			await this.initializeWebSocket();
 			Logger.info("WebSocket initialized successfully");
+
+			await this.fetchCurrentUser();
+			Logger.info("Current user fetched successfully");
+
+			await this.fetchChannelsFromAPI();
+			Logger.info("Channels fetched successfully");
+
+			await this.initializeFromUrl();
 		} catch (error) {
 			Logger.error(`Initialization failed: ${error}`);
 			this.connectionError = "Initialization error";
