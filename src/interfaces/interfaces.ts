@@ -301,3 +301,21 @@ export interface DefaultAvatarProps {
 export interface MemberListProps {
 	channelId: number;
 }
+
+export interface Gateway {
+	on(event: "hello", listener: () => void): void;
+	on(event: "closed", listener: (code: number) => void): void;
+	on(event: "socketError", listener: (event: Event) => void): void;
+	on(
+		event: "dispatch",
+		listener: (message: { t: string; d: unknown }) => void,
+	): void;
+}
+
+export interface EventMap {
+	connected: undefined;
+	error: Error;
+	close: CloseEvent;
+	MESSAGE_CREATE: APIMessage;
+	MESSAGE_DELETE: { id: number; channel_id: number };
+}
