@@ -100,9 +100,18 @@ export function transformToMessage(raw: unknown): APIMessage {
 		};
 	}
 
-	const message = raw as Partial<APIMessage>;
+	const message = raw as Record<string, any>;
 
-	const ch = typeof message.channel === "object" ? message.channel : undefined;
+	let ch: any = undefined;
+	if (typeof message.channel === "object") {
+		ch = message.channel;
+	} else if ("channel_id" in message || "channelId" in message) {
+		const cid = Number(message.channel_id ?? message.channelId);
+		if (!isNaN(cid)) {
+			ch = { id: cid };
+		}
+	}
+
 	const safeChannel: APIChannel = {
 		...FALLBACK_CHANNEL,
 		...(ch ?? {}),
@@ -117,7 +126,8 @@ export function transformToMessage(raw: unknown): APIMessage {
 		attachments: message.attachments ?? [],
 		author: transformApiMember(message.author),
 		channel: safeChannel,
-		created_at: message.created_at ?? 0,
+		created_at:
+			message.created_at ?? message.createdAt ?? message.timestamp ?? Date.now(),
 	};
 }
 
