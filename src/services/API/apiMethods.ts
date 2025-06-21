@@ -17,11 +17,6 @@ const setAuthToken = (token: string): void =>
 	localStorage.setItem("authToken", token);
 export const removeAuthToken = (): void => localStorage.removeItem("authToken");
 
-const token = getAuthToken();
-if (token) {
-	void client.login(token);
-}
-
 export interface AttachmentResponse {
 	id: number;
 	uploadUrl: string;
