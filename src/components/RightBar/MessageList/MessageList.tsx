@@ -86,6 +86,9 @@ const MessageListComponent = ({
 			.sort(([a], [b]) => dayjs(b).unix() - dayjs(a).unix())
 			.map(([dateKey, msgs]) => {
 				const authorGroups: { msgs: typeof msgs }[] = [];
+				if (msgs.length === 0) {
+					return { date: "", groups: [] };
+				}
 				let buffer = observable.array<(typeof msgs)[0]>([]);
 				let lastAuthor = msgs[0]?.author.user.id;
 				let lastTimestamp = msgs[0]?.created_at ?? Date.now();
@@ -125,10 +128,10 @@ const MessageListComponent = ({
 					{groups.map(({ msgs }, idx) => (
 						<div
 							id={`messageGroup-${msgs[0]?.id ?? idx}`}
-							key={`group-${msgs[0]?.id ?? idx}`}
+							key={`group-${date}-${msgs[0]?.id ?? idx}`}
 						>
 							<MessageGroup
-								messages={msgs}
+								messages={msgs.slice()}
 								currentUserId={currentUserId}
 								channelId={channelId}
 							/>

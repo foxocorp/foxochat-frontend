@@ -147,10 +147,12 @@ export async function sendMessage(
 				messages = observable.array<APIMessage>([]);
 				this.messagesByChannelId.set(channelId, messages);
 			}
-			messages.push(message);
+			if (!messages.some((m) => m.id === message.id)) {
+				messages.push(message);
+			}
 			this.isSendingMessage = false;
 		});
-	} catch (error) {
+	} catch (_error) {
 		runInAction(() => {
 			this.isSendingMessage = false;
 			this.connectionError = "Failed to send message";
@@ -182,32 +184,4 @@ export async function retryMessage(
 
 	await this.sendMessage(msg.content, files);
 	this.deleteMessage(messageId);
-}
-
-export async function fetchUsers(
-	this: AppStore,
-	userIds: number[],
-): Promise<void> {
-	if (!userIds.length) return;
-
-	try {
-		const user = await apiMethods.getCurrentUser();
-		runInAction(() => {
-			this.updateUsersFromServer([user]);
-		});
-	} catch (error) {
-		Logger.error(`Failed to fetch users: ${error}`);
-	}
-}
-
-export async function initializeStore(this: AppStore): Promise<void> {
-	try {
-		await fetchCurrentUser.call(this);
-		await fetchChannelsFromAPI.call(this);
-	} catch (error) {
-		Logger.error(`Failed to initialize store: ${error}`);
-		runInAction(() => {
-			this.connectionError = "Failed to initialize";
-		});
-	}
 }
