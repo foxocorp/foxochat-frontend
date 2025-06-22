@@ -142,9 +142,7 @@ const ChatItemComponent = ({
                 className={`${styles.chatItem} ${isActive ? styles.activeChat : ""} ${
                     isCollapsed ? styles.collapsed : ""
                 }`}
-                onClick={() => {
-                    onSelectChat(chat);
-                }}
+                onClick={() => onSelectChat(chat)}
                 onContextMenu={handleContextMenu}
             >
                 <ChatAvatar chat={chat}/>
