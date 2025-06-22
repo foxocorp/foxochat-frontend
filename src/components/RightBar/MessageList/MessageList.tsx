@@ -1,3 +1,5 @@
+import { MessageListProps } from "@interfaces/interfaces";
+import appStore from "@store/app";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
@@ -5,14 +7,10 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { observable } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useMemo } from "preact/hooks";
-
-import EmptyChat from "@components/RightBar/MessageList/EmptyChat/EmptyChat";
-import MessageGroup from "@components/RightBar/MessageList/MessageGroup/MessageGroup";
-import MessageLoader from "@components/RightBar/MessageList/MessageLoader/MessageLoader";
-import appStore from "@store/app";
-
-import type { MessageListProps } from "@interfaces/interfaces";
+import EmptyChat from "./EmptyChat/EmptyChat";
+import MessageGroup from "./MessageGroup/MessageGroup";
 import * as styles from "./MessageList.module.scss";
+import MessageLoader from "./MessageLoader/MessageLoader";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(isToday);

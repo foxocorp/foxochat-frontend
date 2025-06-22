@@ -17,10 +17,10 @@ import { observer } from "mobx-react";
 import React from "preact/compat";
 import { ChatAvatar } from "./ChatAvatar";
 import * as styles from "./ChatItem.module.scss";
+import appStore from "@store/app";
 
 const ChatItemComponent = ({
                                chat,
-                               onSelectChat,
                                isActive,
                                isCollapsed = false,
                                currentUser,
@@ -74,6 +74,11 @@ const ChatItemComponent = ({
     const contextMenu = useContextMenu();
 
     const isOwner = chat.owner?.id === currentUser;
+
+    const handleClick = () => {
+        appStore.setCurrentChannel(chat.id);
+        window.history.replaceState(null, '', `/channels/#${chat.id}`);
+    };
 
     const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -142,7 +147,7 @@ const ChatItemComponent = ({
                 className={`${styles.chatItem} ${isActive ? styles.activeChat : ""} ${
                     isCollapsed ? styles.collapsed : ""
                 }`}
-                onClick={() => onSelectChat(chat)}
+                onClick={handleClick}
                 onContextMenu={handleContextMenu}
             >
                 <ChatAvatar chat={chat}/>

@@ -21,7 +21,6 @@ const COLLAPSE_THRESHOLD = MIN_SIDEBAR_WIDTH * 0.9;
 const STORAGE_COLLAPSED_VALUE = 0;
 
 const SidebarComponent = ({
-	onSelectChat,
 	currentUser,
 	isMobile = false,
 	setMobileView = () => undefined,
@@ -115,6 +114,8 @@ const SidebarComponent = ({
 
 			appStore.addNewChannel(response);
 			await appStore.setCurrentChannel(response.id);
+
+			window.history.replaceState(null, '', `/channels/#${response.id}`);
 
 			if (isMobile) {
 				setMobileView("chat");
@@ -216,6 +217,9 @@ const SidebarComponent = ({
 						<SearchBar
 							onJoinChannel={async (channelId: number | null) => {
 								await appStore.setCurrentChannel(channelId);
+								if (channelId && window.location.pathname === '/channels') {
+									window.history.replaceState(null, '', `/channels/#${channelId}`);
+								}
 								if (isMobile) {
 									setMobileView("chat");
 								}
@@ -247,9 +251,7 @@ const SidebarComponent = ({
 			<div className={styles.sidebarChats}>
 				<ChatList
 					chats={channels}
-					onSelectChat={onSelectChat}
 					currentUser={currentUser}
-					isCollapsed={isCollapsed}
 				/>
 			</div>
 			{!isCollapsed && (

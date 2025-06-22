@@ -8,7 +8,6 @@ import * as styles from "./ChatList.module.scss";
 
 const ChatListComponent = ({
 	chats,
-	onSelectChat,
 	isCollapsed = false,
 }: ExtendedChatListProps) => {
 	const sortedChannels = useMemo(() => {
@@ -25,7 +24,7 @@ const ChatListComponent = ({
 		return (
 			<div className={styles.noChatsContainer}>
 				<div>{renderEmojisToJSX("😔")}</div>
-				<div className={styles.mainText}>Oops! There’s nothing to see</div>
+				<div className={styles.mainText}>Oops! There's nothing to see</div>
 				<div className={styles.subText}>Start a new chat?</div>
 			</div>
 		);
@@ -40,7 +39,6 @@ const ChatListComponent = ({
 					key={chat.id}
 					chat={chat}
 					isActive={chat.id === appStore.currentChannelId}
-					onSelectChat={onSelectChat}
 					currentUser={appStore.currentUserId}
 					isCollapsed={isCollapsed}
 				/>
