@@ -76,7 +76,7 @@ const Login = (): JSX.Element => {
 			let errorMsg = "— An unexpected error occurred";
 
 			const exception = (error as any)?.exception;
-			if (exception && exception.message) {
+			if (exception?.message) {
 				errorMsg = `— ${exception.message}`;
 				if (exception.message.toLowerCase().includes("email")) {
 					setEmailError(true);
@@ -190,7 +190,7 @@ const Login = (): JSX.Element => {
 					<Button
 						key="create-account-button"
 						variant="secondary"
-						onClick={() => location.route("/auth/register")}
+						onClick={() => location.route("/register")}
 						icon={newUserIcon}
 					>
 						Create new account

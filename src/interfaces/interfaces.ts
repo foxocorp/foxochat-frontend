@@ -276,6 +276,8 @@ export interface ButtonProps {
 	width?: number | string;
 	fontSize?: number | string;
 	fontWeight?: number | string;
+	height?: number | string;
+	centerText?: boolean;
 	onClick?: () => void | Promise<void>;
 	variant?: "primary" | "secondary" | "danger" | "default" | "branded";
 	icon?: string | undefined;

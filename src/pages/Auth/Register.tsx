@@ -31,7 +31,7 @@ const Register = () => {
 	const location = useLocation();
 
 	useEffect(() => {
-		const errorMessage = location.query["error"];
+		const errorMessage = location.query.error;
 		if (errorMessage) {
 			switch (errorMessage) {
 				case "email-confirmation-failed":
@@ -96,7 +96,7 @@ const Register = () => {
 			let errorMsg = "— An unexpected error occurred";
 
 			const exception = (error as any).exception;
-			if (exception && exception.message) {
+			if (exception?.message) {
 				errorMsg = `— ${exception.message}`;
 			}
 
@@ -244,7 +244,7 @@ const Register = () => {
 						key="login-button"
 						variant="secondary"
 						onClick={() => {
-							location.route("/auth/login");
+							location.route("/login");
 						}}
 						icon={alreadyHaveAccountIcon}
 						className={styles.buttonWithGap}

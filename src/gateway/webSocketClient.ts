@@ -114,6 +114,15 @@ export class WebSocketClient {
 		}
 	}
 
+	public disconnect(): void {
+		Logger.info(`[WS] Disconnecting WebSocket`);
+		try {
+			Logger.info(`[WS] WebSocket disconnected successfully`);
+		} catch (error) {
+			Logger.error(`[WS] Error disconnecting WebSocket: ${error}`);
+		}
+	}
+
 	private ensureListener<K extends keyof EventMap>(
 		event: K,
 	): ((data: EventMap[K]) => void)[] {

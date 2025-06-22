@@ -67,7 +67,7 @@ export const usePasswordReset = (
 		if (state.password.length >= 8 && state.password.length <= 128) {
 			try {
 				await onResetPassword(state.password);
-				location.route("/auth/login");
+				location.route("/login");
 			} catch {
 				setState((prev) => ({
 					...prev,
