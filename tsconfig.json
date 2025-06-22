@@ -31,6 +31,9 @@
 			"@icons/*": [
 				"./src/assets/svg/*"
 			],
+			"@assets/*": [
+				"./src/assets/*"
+			],
 			"@hooks/*": [
 				"./src/hooks/*"
 			],
