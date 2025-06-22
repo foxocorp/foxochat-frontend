@@ -1,6 +1,6 @@
 import { JSX } from "preact";
 import { useLocation } from "preact-iso";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 import { Button } from "@components/Base";
 import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
@@ -11,7 +11,6 @@ import newUserIcon from "@/assets/icons/auth/auth-new-user.svg";
 import resetPasswordIcon from "@/assets/icons/auth/auth-reset-password.svg";
 
 import { apiMethods } from "@services/API/apiMethods";
-import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
 import { Logger } from "@utils/logger";
 
@@ -29,6 +28,12 @@ const Login = (): JSX.Element => {
 
 	const authStore = useAuthStore();
 	const location = useLocation();
+
+	useEffect(() => {
+		if (authStore.isAuthenticated) {
+			location.route('/channels');
+		}
+	}, [authStore.isAuthenticated, location]);
 
 	const validateEmail = (email: string): boolean => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,10 +63,9 @@ const Login = (): JSX.Element => {
 		try {
 			const response = await apiMethods.login(email, password);
 			if (response.access_token) {
-				authStore.login(response.access_token);
+				await authStore.login(response.access_token);
 				Logger.info("Successful login");
-				location.route("/");
-				await appStore.initializeStore();
+				location.route("/channels");
 			} else {
 				Logger.error("Login error");
 			}
