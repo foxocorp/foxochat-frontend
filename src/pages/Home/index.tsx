@@ -32,31 +32,62 @@ const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
-	const { channelId } = useRoute().params;
 
 	const authorized = useAuthRedirect();
 
 	if (authorized === null) return null;
 
+	const getChannelIdFromHash = () => {
+		const hash = window.location.hash;
+		const match = hash.match(/#(\d+)/);
+		return match ? Number(match[1]) : null;
+	};
+
 	useEffect(() => {
-		if (channelId && channelId !== '@me') {
-			const
-				numericChannelId = Number(channelId);
-			const channelExists = appStore.channels.some(c => c.id === numericChannelId);
+		const channelId = getChannelIdFromHash();
+		
+		if (channelId) {
+			const channelExists = appStore.channels.some(
+				(c) => c.id === channelId,
+			);
 
 			if (channelExists) {
-				appStore.setCurrentChannel(numericChannelId);
+				if (appStore.currentChannelId !== channelId) {
+					appStore.setCurrentChannel(channelId);
+				}
 			} else {
-				if (appStore.currentChannelId) {
-					history.replaceState(null, '', `/channels/${appStore.currentChannelId}`);
+				const currentChannelId = appStore.currentChannelId;
+				if (currentChannelId) {
+					window.history.replaceState(null, '', `/channels/#${currentChannelId}`);
 				} else {
-					history.replaceState(null, '', '/channels/@me');
+					window.location.href = "/channels";
 				}
 			}
 		} else {
 			appStore.setCurrentChannel(null);
 		}
-	}, [channelId]);
+	}, [appStore.channels.length]);
+
+	useEffect(() => {
+		const handleHashChange = () => {
+			const channelId = getChannelIdFromHash();
+			if (channelId && appStore.channels.some(c => c.id === channelId)) {
+				appStore.setCurrentChannel(channelId);
+			} else if (channelId) {
+				const currentChannelId = appStore.currentChannelId;
+				if (currentChannelId) {
+					window.history.replaceState(null, '', `/channels/#${currentChannelId}`);
+				} else {
+					window.location.href = "/channels";
+				}
+			} else {
+				appStore.setCurrentChannel(null);
+			}
+		};
+
+		window.addEventListener('hashchange', handleHashChange);
+		return () => window.removeEventListener('hashchange', handleHashChange);
+	}, [appStore.channels]);
 
 	const { channels, currentUserId, currentChannelId } = appStore;
 	const currentUser = appStore.users.find(u => u.id === currentUserId);
@@ -109,7 +140,7 @@ const HomeComponent = () => {
 				setMobileView("chat");
 				setChatTransition("slide-in");
 			}
-			history.pushState(null, '', `/channels/${chat.id}`);
+			history.pushState(null, '', `/channels/#${chat.id}`);
 			await appStore.setCurrentChannel(chat.id);
 		},
 		[isMobile, currentChannelId],
@@ -131,10 +162,10 @@ const HomeComponent = () => {
 			<div className="home-container mobile">
 				<div className="sidebar-wrapper visible">
 					<Sidebar
-						chats={channels}
-						onSelectChat={(chat) => void handleSelectChat(chat)}
 						currentUser={currentUser}
 						isMobile
+						setMobileView={setMobileView}
+						setChatTransition={setChatTransition}
 					/>
 				</div>
 				{mobileView === "chat" && selectedChat ? (
@@ -154,8 +185,6 @@ const HomeComponent = () => {
 	return (
 		<div className="home-container">
 			<Sidebar
-				chats={channels}
-				onSelectChat={(chat) => void handleSelectChat(chat)}
 				currentUser={currentUser}
 				isMobile={false}
 			/>
@@ -168,8 +197,6 @@ const HomeComponent = () => {
 					/>
 				) : (
 					<EmptyState
-						chats={channels as (APIChannel | CachedChat)[]}
-						onSelectChat={(chat) => void handleSelectChat(chat)}
 						selectedChat={null}
 					/>
 				)}
