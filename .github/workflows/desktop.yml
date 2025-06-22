@@ -9,7 +9,27 @@ on:
       - main
 
 jobs:
+  bump:
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.bump_tag.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: "true"
+
+      - name: Bump tag
+        id: bump_tag
+        run: |
+          git fetch --tags
+          latest_tag=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+          IFS='.' read -r major minor patch <<<"${latest_tag#v}"
+          new_tag="v$major.$minor.$((patch + 1))"
+          echo "New tag: $new_tag"
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
   build:
+    needs: bump
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -45,16 +65,6 @@ jobs:
       - name: Install Frontend Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Bump tag
-        id: bump
-        run: |
-          git fetch --tags
-          latest_tag=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
-          IFS='.' read -r major minor patch <<<"${latest_tag#v}"
-          new_tag="v$major.$minor.$((patch + 1))"
-          echo "New tag: $new_tag"
-          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
-
       - name: Build Desktop
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
         env:
@@ -62,6 +72,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ steps.bump.outputs.new_tag }}
-          releaseName: ${{ steps.bump.outputs.new_tag }}
+          tagName: ${{ needs.bump.outputs.new_tag }}
+          releaseName: ${{ needs.bump.outputs.new_tag }}
           prerelease: false
