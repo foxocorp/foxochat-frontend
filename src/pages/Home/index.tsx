@@ -11,6 +11,7 @@ import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
 import { APIChannel } from "foxochat.js";
 import { CachedChat } from "@store/app/metaCache";
+import { useRoute } from "preact-iso";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -31,10 +32,31 @@ const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 	const [chatTransition, setChatTransition] = useState("");
+	const { channelId } = useRoute().params;
 
 	const authorized = useAuthRedirect();
 
 	if (authorized === null) return null;
+
+	useEffect(() => {
+		if (channelId && channelId !== '@me') {
+			const
+				numericChannelId = Number(channelId);
+			const channelExists = appStore.channels.some(c => c.id === numericChannelId);
+
+			if (channelExists) {
+				appStore.setCurrentChannel(numericChannelId);
+			} else {
+				if (appStore.currentChannelId) {
+					history.replaceState(null, '', `/channels/${appStore.currentChannelId}`);
+				} else {
+					history.replaceState(null, '', '/channels/@me');
+				}
+			}
+		} else {
+			appStore.setCurrentChannel(null);
+		}
+	}, [channelId]);
 
 	const { channels, currentUserId, currentChannelId } = appStore;
 	const currentUser = appStore.users.find(u => u.id === currentUserId);
@@ -87,6 +109,7 @@ const HomeComponent = () => {
 				setMobileView("chat");
 				setChatTransition("slide-in");
 			}
+			history.pushState(null, '', `/channels/${chat.id}`);
 			await appStore.setCurrentChannel(chat.id);
 		},
 		[isMobile, currentChannelId],

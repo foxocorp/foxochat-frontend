@@ -1,17 +1,19 @@
 import "./scss/style.scss";
 import "preact/debug";
 import { Component, ComponentChild, ErrorInfo, render } from "preact";
-import { LocationProvider, Route, Router } from "preact-iso";
+import { LocationProvider, Route, Router, useLocation } from "preact-iso";
 import { useEffect, useState } from "preact/hooks";
 import { Workbox } from "workbox-window";
 
 import Loading from "@components/LoadingApp/LoadingApp";
+import { ChannelsRedirect } from "./pages/Channels/Redirector";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import { Maintenance } from "./pages/Fallbacks/Maintenance/Maintenance";
 import { NotFound } from "./pages/Fallbacks/NotFound/NotFound";
 import { Home } from "./pages/Home";
+import Landing from "./pages/Landing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 
@@ -28,13 +30,28 @@ import { isAppleDevice } from "@utils/emoji";
 
 const authStore = useAuthStore();
 
+const ProtectedRoute = ({ component: Component }: { component: preact.AnyComponent }) => {
+	const auth = useAuthStore();
+	const location = useLocation();
+
+	useEffect(() => {
+		if (!auth.isAuthenticated) {
+			location.route("/login", true);
+		}
+	}, [auth.isAuthenticated, location]);
+
+	return auth.isAuthenticated ? <Component /> : <Loading isLoading onLoaded={() => {}} />;
+};
+
 export const routes: RouteConfig[] = [
-	{ path: "/", component: Home },
-	{ path: "/auth/login", component: Login },
-	{ path: "/auth/register", component: Register },
-	{ path: "/auth/email/verify", component: EmailConfirmationHandler },
+	{ path: "/", component: Landing },
+	{ path: "/login", component: Login },
+	{ path: "/register", component: Register },
+	{ path: "/email/verify", component: EmailConfirmationHandler },
 	{ path: "/privacy", component: Privacy },
 	{ path: "/terms", component: Terms },
+	{ path: "/channels", component: () => <ProtectedRoute component={ChannelsRedirect} /> },
+	{ path: "/channels/:channelId", component: () => <ProtectedRoute component={Home} /> },
 	{ path: "*", component: NotFound },
 ];
 

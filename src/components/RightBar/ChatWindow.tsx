@@ -25,69 +25,9 @@ const ChatWindowComponent = ({
 	const anchorOffset = useRef<number>(0);
 	const scrollTimeout = useRef<number | null>(null);
 	const isMounted = useRef(true);
-	const isProgrammaticHashChange = useRef(false);
-	const lastValidChannelId = useRef<number | null>(null);
 
 	const apiChannel = channel as unknown as APIChannel;
 	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
-
-	useEffect(() => {
-		const handleHashChange = async () => {
-			if (isProgrammaticHashChange.current) return;
-
-			const hash = window.location.hash.substring(1);
-			if (!hash) {
-				if (lastValidChannelId.current !== null) {
-					await appStore.setCurrentChannel(null);
-				}
-				return;
-			}
-
-			const channelId = parseInt(hash, 10);
-			if (isNaN(channelId)) {
-				window.location.hash = "";
-				return;
-			}
-
-			if (channelId === lastValidChannelId.current) return;
-
-			try {
-				const channelExists = appStore.channels.some((c) => c.id === channelId);
-				if (!channelExists) {
-					window.location.hash = "";
-					await appStore.setCurrentChannel(null);
-					return;
-				}
-
-				await appStore.setCurrentChannel(channelId);
-				lastValidChannelId.current = channelId;
-			} catch (error) {
-				Logger.error(`Error handling hash change: ${error}`);
-				window.location.hash = "";
-				await appStore.setCurrentChannel(null);
-			}
-		};
-
-		handleHashChange().catch(console.error);
-
-		window.addEventListener("hashchange", handleHashChange);
-		return () => {
-			window.removeEventListener("hashchange", handleHashChange);
-		};
-	}, []);
-
-	useEffect(() => {
-		if (channel.id) {
-			if (channel.id === lastValidChannelId.current) return;
-
-			lastValidChannelId.current = channel.id;
-			isProgrammaticHashChange.current = true;
-			window.location.hash = `#${channel.id}`;
-			setTimeout(() => {
-				isProgrammaticHashChange.current = false;
-			}, 100);
-		}
-	}, [channel.id]);
 
 	useEffect(() => {
 		(async () => {
@@ -108,24 +48,6 @@ const ChatWindowComponent = ({
 			}
 		};
 	}, [channel.id]);
-
-	/*
-	useEffect(() => {
-		return () => {
-			if (listRef.current && appStore.currentChannelId === channel.id) {
-				const scrollPosition =
-					listRef.current.scrollHeight -
-					listRef.current.clientHeight -
-					listRef.current.scrollTop;
-				appStore.channelScrollPositions.set(channel.id, scrollPosition);
-			}
-			if (scrollTimeout.current !== null) {
-				clearTimeout(scrollTimeout.current);
-				scrollTimeout.current = null;
-			}
-		};
-	}, [channel.id]);
-	*/
 
 	const messages = (appStore.messagesByChannelId.get(channel.id) ?? [])
 		.slice()
