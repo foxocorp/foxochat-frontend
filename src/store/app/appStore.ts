@@ -295,6 +295,11 @@ export class AppStore {
 	@action
 	async setCurrentChannel(channelId: number | null) {
 		const previousChannelId = this.currentChannelId;
+		
+		if (previousChannelId === channelId) {
+			return;
+		}
+		
 		this.currentChannelId = channelId;
 
 		if (previousChannelId !== null) {
@@ -315,7 +320,12 @@ export class AppStore {
 				this.activeRequests.delete(channelId.toString());
 				this.isInitialLoad.set(channelId, true);
 			});
-			await this.fetchInitialMessages(channelId);
+			
+			const existingMessages = this.messagesByChannelId.get(channelId);
+			if (!existingMessages || existingMessages.length === 0) {
+				await this.fetchInitialMessages(channelId);
+			}
+			
 			runInAction(() => {
 				this.isInitialLoad.set(channelId, false);
 			});
@@ -486,6 +496,37 @@ export class AppStore {
 		if (!this.channels.some((c) => c.id === cachedChannel.id)) {
 			this.channels.unshift(cachedChannel);
 		}
+	}
+
+	@action
+	resetStore() {
+		Logger.info("Resetting app store state...");
+		
+		this.messagesByChannelId.clear();
+		this.hasMoreMessagesByChannelId.clear();
+		this.isInitialLoad.clear();
+		this.channels.clear();
+		this.users.clear();
+		this.activeRequests.clear();
+		this.currentChannelId = null;
+		this.isLoading = false;
+		this.isSendingMessage = false;
+		this.connectionError = null;
+		this.isWsInitialized = false;
+		this.isLoadingHistory = false;
+		this.channelDisposers.clear();
+		this.isCurrentChannelScrolledToBottom = true;
+		this.unreadCount.clear();
+		this.channelParticipantsCount.clear();
+		this.userStatuses.clear();
+		
+		if (this.wsClient) {
+			Logger.info("Closing WebSocket connection...");
+			this.wsClient.disconnect();
+			this.wsClient = null;
+		}
+		
+		Logger.info("App store reset successfully");
 	}
 
 	playSendMessageSound() {

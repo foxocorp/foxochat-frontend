@@ -7,7 +7,7 @@ import { AppStore } from "./appStore";
 
 export function clearAuthAndRedirect(): void {
 	localStorage.removeItem("authToken");
-	window.location.href = "/auth/login";
+	window.location.href = "/login";
 }
 
 export async function initializeWebSocket(this: AppStore): Promise<void> {
