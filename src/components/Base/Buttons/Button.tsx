@@ -7,6 +7,8 @@ export function Button({
 	width = 368,
 	fontSize = 16,
 	fontWeight,
+	height,
+	centerText = false,
 	onClick,
 	variant = "default",
 	icon,
@@ -24,7 +26,7 @@ export function Button({
 	}[variant];
 
 	const buttonClass =
-		`${variantClass} ${disabled ? (styles.buttonDisabled ?? "") : ""} ${className}`.trim();
+		`${variantClass} ${centerText ? styles.centerText : ""} ${disabled ? (styles.buttonDisabled ?? "") : ""} ${className}`.trim();
 
 	const buttonStyle: JSX.CSSProperties = Object.assign(
 		{},
@@ -32,6 +34,7 @@ export function Button({
 			width: typeof width === "number" ? `${width}px` : width,
 			fontSize: typeof fontSize === "number" ? `${fontSize}px` : fontSize,
 			fontWeight: typeof fontWeight === "number" ? fontWeight : 400,
+			height: height ? (typeof height === "number" ? `${height}px` : height) : undefined,
 		},
 		style ?? {},
 	);

@@ -6,15 +6,15 @@
   justify-content: space-between;
   padding: 13px 14px;
   width: 368px;
-  height: 48px;
+  height: 44px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   user-select: none;
   transition: opacity 0.25s linear;
   color: $primary-color;
-  font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 16px;
 
   &:hover {
     opacity: 0.75;
@@ -55,4 +55,9 @@
 
 .buttonDisabled {
   opacity: 0.3;
+}
+
+.centerText {
+  justify-content: center !important;
+  text-align: center;
 }
