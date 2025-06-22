@@ -54,7 +54,6 @@ export class WebSocketClient {
 		gateway.on("dispatch", (message) => {
 			if (!message?.t) return;
 
-			Logger.info(`[GATEWAY EVENT] Received raw event type: "${message.t}"`);
 			const eventType = message.t.toUpperCase();
 
 			switch (eventType) {
@@ -69,8 +68,18 @@ export class WebSocketClient {
 						message.d as { id: number; channel_id: number },
 					);
 					break;
+				case "USER_STATUS_UPDATE":
+					Logger.info(
+						`[WebSocketClient] Matched USER_STATUS_UPDATE, emitting...`,
+					);
+					this.emit(
+						"USER_STATUS_UPDATE",
+						message.d as { user_id: number; status: number },
+					);
+					break;
 				default:
 					console.warn(`Unhandled gateway event: ${eventType}`);
+					console.warn(`Event data:`, message.d);
 			}
 		});
 	}

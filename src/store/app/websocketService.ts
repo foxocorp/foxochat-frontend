@@ -1,7 +1,6 @@
 import { WebSocketClient } from "@/gateway/webSocketClient";
 import { getAuthToken } from "@services/API/apiMethods";
 import { client } from "@services/FoxoChatClient";
-import { transformToMessage } from "@store/app/transforms";
 import { Logger } from "@utils/logger";
 import { runInAction } from "mobx";
 import { AppStore } from "./appStore";
@@ -52,7 +51,7 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 			},
 		);
 
-		this.setupWebSocketHandlers();
+		setupWebSocketHandlers(this);
 
 		try {
 			Logger.info("Attempting to connect WebSocket...");
@@ -96,80 +95,24 @@ export function handleHistorySync(this: AppStore): void {
 	});
 }
 
-export function setupWebSocketHandlers(this: AppStore): void {
-	if (!this.wsClient) {
-		Logger.warn("Cannot setup WebSocket handlers: no WebSocket client");
-		return;
-	}
+export function setupWebSocketHandlers(store: AppStore): void {
+	if (!store.wsClient) return;
 
-	this.wsClient.on("MESSAGE_CREATE", (data: unknown) => {
-		if (!this.isWsInitialized) {
-			return;
-		}
-
-		try {
-			let raw: unknown;
-			if (typeof data === "object") {
-				raw = data;
-			} else if (typeof data === "string") {
-				try {
-					raw = JSON.parse(data) as unknown;
-				} catch {
-					return;
-				}
-			} else {
-				return;
-			}
-			const message = transformToMessage(raw);
-			runInAction(() => {
-				const existing = this.messagesByChannelId.get(message.channel.id);
-				const alreadyExists = existing?.some((m) => m.id === message.id);
-				if (alreadyExists) {
-					return;
-				}
-				this.handleNewMessage(message);
-				const channelIndex = this.channels.findIndex(
-					(c) => c.id === message.channel.id,
-				);
-				if (channelIndex >= 0 && this.channels[channelIndex]) {
-					this.channels[channelIndex] = {
-						...this.channels[channelIndex],
-						last_message: message,
-					};
-				}
-			});
-		} catch (err) {
-			Logger.error(
-				`Error processing MESSAGE_CREATE: ${err instanceof Error ? err.message : String(err)}`,
-			);
-		}
+	store.wsClient.on("MESSAGE_CREATE", (message) => {
+		runInAction(() => {
+			store.handleNewMessage(message);
+		});
 	});
 
-	this.wsClient.on("MESSAGE_DELETE", (data: unknown) => {
-		if (!this.isWsInitialized) {
-			return;
-		}
+	store.wsClient.on("MESSAGE_DELETE", (data) => {
+		runInAction(() => {
+			store.deleteMessage(data.id);
+		});
+	});
 
-		try {
-			let messageId: number | null = null;
-			if (typeof data === "object" && data && "id" in data) {
-				messageId = Number((data as { id: number }).id);
-			} else if (typeof data === "string") {
-				try {
-					const parsed = JSON.parse(data) as { id: number };
-					messageId = parsed.id;
-				} catch {
-					return;
-				}
-			}
-			if (!messageId) return;
-			runInAction(() => {
-				this.deleteMessage(messageId);
-			});
-		} catch (err) {
-			Logger.error(
-				`Error processing MESSAGE_DELETE: ${err instanceof Error ? err.message : String(err)}`,
-			);
-		}
+	store.wsClient.on("USER_STATUS_UPDATE", (data) => {
+		runInAction(() => {
+			store.updateUserStatus(data.user_id, data.status);
+		});
 	});
 }

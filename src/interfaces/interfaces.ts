@@ -318,4 +318,6 @@ export interface EventMap {
 	close: CloseEvent;
 	MESSAGE_CREATE: APIMessage;
 	MESSAGE_DELETE: { id: number; channel_id: number };
+	USER_UPDATE: APIUser;
+	USER_STATUS_UPDATE: { user_id: number; status: number };
 }

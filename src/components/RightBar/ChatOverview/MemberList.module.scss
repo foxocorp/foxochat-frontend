@@ -31,8 +31,16 @@
   }
 }
 
+.youLabel {
+  color: var(--branded-color);
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+}
+
 .avatar {
   flex-shrink: 0;
+  position: relative;
 }
 
 .avatarImage {
@@ -68,6 +76,22 @@
 
 .offline {
   color: var(--gray-color);
+}
+
+.statusIndicator {
+  border: 2px solid #1e1e1e;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  transition: all .4s cubic-bezier(.4, 0, .2, 1);
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background-color: var(--branded-color);
+}
+
+.statusIndicator.offline {
+  background-color: var(--gray-color);
 }
 
 .loading {

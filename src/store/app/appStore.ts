@@ -72,6 +72,7 @@ export class AppStore {
 		number,
 		number
 	>();
+	@observable accessor userStatuses = observable.map<number, number>();
 
 	wsClient: WebSocketClient | null = null;
 
@@ -87,6 +88,20 @@ export class AppStore {
         });
     }
     */
+
+	@action
+	updateUserStatus(userId: number, status: number) {
+		this.userStatuses.set(userId, status);
+	}
+
+	@action
+	updateUser(user: APIUser) {
+		const userIndex = this.users.findIndex((u) => u.id === user.id);
+		if (userIndex >= 0) {
+			this.users[userIndex] = user;
+		}
+		this.userStatuses.set(user.id, user.status);
+	}
 
 	@action
 	async syncWithServer() {

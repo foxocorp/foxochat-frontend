@@ -23,19 +23,19 @@ function isEnabled(level: LogLevel): boolean {
 	return !!currentMask && (level & currentMask) === level;
 }
 
-function getCallerLocation(): string {
-	const stack = new Error().stack?.split("\n") ?? [];
-	const line = stack[3] ?? stack[2] ?? "";
-	const m =
-		/at .+\((.+):(\d+):(\d+)\)/.exec(line) ?? /at (.+):(\d+):(\d+)/.exec(line);
-	if (m) {
-		const file = m[1].split("/").pop();
-		const row = m[2];
-		const col = m[3];
-		return `${file}:${row}:${col}`;
-	}
-	return "unknown";
-}
+// function getCallerLocation(): string {
+// 	const stack = new Error().stack?.split("\n") ?? [];
+// 	const line = stack[3] ?? stack[2] ?? "";
+// 	const m =
+// 		/at .+\((.+):(\d+):(\d+)\)/.exec(line) ?? /at (.+):(\d+):(\d+)/.exec(line);
+// 	if (m) {
+// 		const file = m[1].split("/").pop();
+// 		const row = m[2];
+// 		const col = m[3];
+// 		return `${file}:${row}:${col}`;
+// 	}
+// 	return "unknown";
+// }
 
 function log(
 	level: LogLevel,
@@ -46,9 +46,9 @@ function log(
 	if (!isEnabled(level)) return;
 
 	const tag = `[${LogLevel[level]}]`;
-	const loc = `(${getCallerLocation()})`;
+	// const loc = `(${getCallerLocation()})`;
 
-	const pattern = `%c${tag}%c ${message}%c ${loc}`;
+	const pattern = `%c${tag}%c ${message}%c`;
 
 	const styleTag = LEVEL_STYLES[level] || "";
 	const styleMsg = "color: inherit";
