@@ -29,7 +29,6 @@ export interface ChatWindowProps {
 
 export interface ChatListProps {
 	chats: (APIChannel | CachedChat)[];
-	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	currentUser: APIUser;
 }
 
@@ -45,7 +44,6 @@ export interface ChatHeaderProps {
 
 export interface ChatItemProps {
 	chat: APIChannel | CachedChat;
-	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	isActive: boolean;
 	currentUser?: number | null;
 }
@@ -116,8 +114,6 @@ export interface MessageInputProps {
  */
 
 export interface EmptyStateProps {
-	chats: (APIChannel | CachedChat)[];
-	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	selectedChat: APIChannel | CachedChat | null;
 }
 
@@ -127,8 +123,6 @@ export interface UserInfoProps {
 }
 
 export interface SidebarProps {
-	chats: (APIChannel | CachedChat)[];
-	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	currentUser: APIUser;
 	isMobile?: boolean;
 	setMobileView?: (view: "list" | "chat") => void;
