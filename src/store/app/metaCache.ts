@@ -35,7 +35,7 @@ export interface CachedUser {
 }
 
 /*
-const DB_NAME = 'foxogram_meta';
+const DB_NAME = 'foxochat_meta';
 const DB_VERSION = 2;
 const CHATS_STORE = 'chats';
 const USERS_STORE = 'users';
