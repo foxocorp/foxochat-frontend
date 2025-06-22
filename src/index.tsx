@@ -2,11 +2,10 @@ import "./scss/style.scss";
 import "preact/debug";
 import { Component, ComponentChild, ErrorInfo, render } from "preact";
 import { LocationProvider, Route, Router, useLocation } from "preact-iso";
-import { useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { Workbox } from "workbox-window";
 
 import Loading from "@components/LoadingApp/LoadingApp";
-import { ChannelsRedirect } from "./pages/Channels/Redirector";
 import EmailConfirmationHandler from "./pages/Auth/Email/Verify";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
@@ -30,7 +29,9 @@ import { isAppleDevice } from "@utils/emoji";
 
 const authStore = useAuthStore();
 
-const ProtectedRoute = ({ component: Component }: { component: preact.AnyComponent }) => {
+const ProtectedRoute = ({
+	component: Component,
+}: { component: preact.AnyComponent }) => {
 	const auth = useAuthStore();
 	const location = useLocation();
 
@@ -40,7 +41,7 @@ const ProtectedRoute = ({ component: Component }: { component: preact.AnyCompone
 		}
 	}, [auth.isAuthenticated, location]);
 
-	return auth.isAuthenticated ? <Component /> : <Loading isLoading onLoaded={() => {}} />;
+	return auth.isAuthenticated ? <Component /> : null;
 };
 
 export const routes: RouteConfig[] = [
@@ -50,21 +51,23 @@ export const routes: RouteConfig[] = [
 	{ path: "/email/verify", component: EmailConfirmationHandler },
 	{ path: "/privacy", component: Privacy },
 	{ path: "/terms", component: Terms },
-	{ path: "/channels", component: () => <ProtectedRoute component={ChannelsRedirect} /> },
-	{ path: "/channels/:channelId", component: () => <ProtectedRoute component={Home} /> },
+	{
+		path: "/channels",
+		component: () => <ProtectedRoute component={Home} />,
+	},
 	{ path: "*", component: NotFound },
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+const initializeEmojiSupport = () => {
 	const html = document.documentElement;
 	if (isAppleDevice()) {
 		html.classList.add("is-apple", "native-emoji");
 	} else {
 		html.classList.add("custom-emoji");
 	}
-});
+};
 
-async function registerServiceWorker() {
+const registerServiceWorker = async () => {
 	if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
 		try {
 			const wb = new Workbox("/sw.js");
@@ -77,7 +80,7 @@ async function registerServiceWorker() {
 			Logger.error(`Failed to register Service Worker: ${error}`);
 		}
 	}
-}
+};
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	override state: ErrorBoundaryState = { hasError: false };
@@ -96,83 +99,136 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	}
 }
 
-enum InitializationStatus {
+enum AppStatus {
 	Loading = "loading",
 	Success = "success",
 	Error = "error",
 	Unauthorized = "unauthorized",
+	NotInApp = "not_in_app",
 }
 
-function InitializationCheck({ children }: { children: ComponentChild }) {
-	const [status, setStatus] = useState<InitializationStatus>(
-		InitializationStatus.Loading,
-	);
+const useAppInitialization = () => {
+	const [status, setStatus] = useState<AppStatus>(AppStatus.Loading);
+	const [isLoading, setIsLoading] = useState(false);
 	const isAuthenticated = authStore.isAuthenticated;
+	const location = useLocation();
 
-	useEffect(() => {
-		if (!isAuthenticated) {
-			setStatus(InitializationStatus.Unauthorized);
+	const isChannelsPage = useMemo(() => 
+		location.path.startsWith("/channels"), 
+		[location.path]
+	);
+
+	const shouldShowLoading = useMemo(() => 
+		isLoading || status === AppStatus.Loading, 
+		[isLoading, status]
+	);
+
+	const initializeApp = useCallback(async () => {
+		if (location.path === "/") {
+			setStatus(AppStatus.NotInApp);
+			appStore.resetStore();
 			return;
 		}
 
-		async function init() {
-			setStatus(InitializationStatus.Loading);
+		if (!isAuthenticated && location.path !== "/") {
+			setIsLoading(true);
+			await new Promise((resolve) => setTimeout(resolve, 300));
+			setStatus(AppStatus.Unauthorized);
+			setIsLoading(false);
+			return;
+		}
+
+		if (isAuthenticated && isChannelsPage) {
+			if (appStore.isWsInitialized && appStore.channels.length > 0) {
+				setStatus(AppStatus.Success);
+				return;
+			}
+
+			setIsLoading(true);
+			await new Promise((resolve) => setTimeout(resolve, 300));
+			setStatus(AppStatus.Loading);
+			
 			try {
 				await appStore.initializeStore();
-				setStatus(InitializationStatus.Success);
+				setStatus(AppStatus.Success);
 			} catch (error: unknown) {
-				Logger.error(`Initialization failed: ${error}`);
 				setStatus(
 					appStore.currentUserId &&
 						!appStore.connectionError?.includes("WebSocket")
-						? InitializationStatus.Success
-						: InitializationStatus.Error,
+						? AppStatus.Success
+						: AppStatus.Error,
 				);
 			}
+			setIsLoading(false);
+		} else if (isAuthenticated) {
+			setStatus(AppStatus.NotInApp);
+			appStore.resetStore();
 		}
+	}, [isAuthenticated, location.path, isChannelsPage]);
 
-		void init();
-	}, [isAuthenticated]);
-
-	switch (status) {
-		case InitializationStatus.Loading:
-			return <Loading isLoading onLoaded={() => undefined} />;
-		case InitializationStatus.Unauthorized:
-			return children;
-		case InitializationStatus.Error:
-			if (appStore.connectionError && !appStore.currentUserId) {
-				return <Maintenance />;
-			}
-			return children;
-		case InitializationStatus.Success:
-		default:
-			return children;
-	}
-}
-
-function Routes() {
-	return (
-		<Router>
-			{routes.map(({ path, component }) => (
-				<Route key={path} path={path} component={component} />
-			))}
-		</Router>
-	);
-}
-
-export function App() {
 	useEffect(() => {
-		void registerServiceWorker();
+		void initializeApp();
+	}, [initializeApp]);
 
+	useEffect(() => {
+		return () => {
+			appStore.resetStore();
+		};
+	}, []);
+
+	return {
+		status,
+		shouldShowLoading,
+	};
+};
+
+const InitializationCheck = ({ children }: { children: ComponentChild }) => {
+	const { status, shouldShowLoading } = useAppInitialization();
+
+	if (shouldShowLoading) {
+		return <Loading isLoading onLoaded={() => undefined} />;
+	}
+
+	if (status === AppStatus.Unauthorized || status === AppStatus.NotInApp) {
+		return children;
+	}
+
+	if (status === AppStatus.Error && appStore.connectionError && !appStore.currentUserId) {
+		return <Maintenance />;
+	}
+
+	return children;
+};
+
+const Routes = () => (
+	<Router>
+		{routes.map(({ path, component }) => (
+			<Route key={path} path={path} component={component} />
+		))}
+	</Router>
+);
+
+const useKeyboardHandlers = () => {
+	useEffect(() => {
 		const handleTab = (e: KeyboardEvent) => {
 			if (e.key === "Tab") {
 				e.preventDefault();
 			}
 		};
+
 		window.addEventListener("keydown", handleTab, { capture: true });
-		return () => window.removeEventListener("keydown", handleTab, {
-			capture: true,
-		});
+		return () => {
+			window.removeEventListener("keydown", handleTab, { capture: true });
+		};
+	}, []);
+};
+
+export const App = () => {
+	useKeyboardHandlers();
+
+	useEffect(() => {
+		initializeEmojiSupport();
+		void registerServiceWorker();
 	}, []);
 
 	return (
@@ -184,7 +240,9 @@ export function App() {
 			</LocationProvider>
 		</ErrorBoundary>
 	);
-}
+};
+
+document.addEventListener("DOMContentLoaded", initializeEmojiSupport);
 
 const appContainer = document.getElementById("app");
 if (!appContainer) throw new Error("Container #app not found");

@@ -1,11 +1,17 @@
 import { EmptyStateProps } from "@interfaces/interfaces";
+import appStore from "@store/app";
+import { CachedChat } from "@store/app/metaCache";
 import { timestampToHSV } from "@utils/functions";
 import { APIChannel } from "foxochat.js";
+import { observer } from "mobx-react";
 import * as style from "./EmptyState.module.scss";
 
-const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
-	const handleChatClick = (chat: APIChannel) => {
-		onSelectChat(chat);
+const EmptyState = ({ selectedChat }: EmptyStateProps) => {
+	const chats = appStore.channels;
+
+	const handleChatClick = (chat: APIChannel | CachedChat) => {
+		appStore.setCurrentChannel(chat.id);
+		window.history.replaceState(null, '', `/channels/#${chat.id}`);
 	};
 
 	const formatTimestamp = (timestamp: number): string => {
@@ -25,11 +31,11 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
 		return formatter.format(date);
 	};
 
-	const getInitial = (chat: APIChannel): string => {
-		return (chat.display_name[0] ?? chat.name[0] ?? "?").toUpperCase();
+	const getInitial = (chat: APIChannel | CachedChat): string => {
+		return (chat.display_name?.[0] ?? chat.name[0] ?? "?").toUpperCase();
 	};
 
-	const getAvatarBackground = (chat: APIChannel): string => {
+	const getAvatarBackground = (chat: APIChannel | CachedChat): string => {
 		const ts = chat.created_at;
 		const { h, s } = timestampToHSV(ts);
 		const v = 70;
@@ -97,4 +103,4 @@ const EmptyState = ({ chats, onSelectChat, selectedChat }: EmptyStateProps) => {
 	);
 };
 
-export default EmptyState;
+export default observer(EmptyState);
