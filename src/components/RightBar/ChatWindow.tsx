@@ -8,6 +8,8 @@ import ChatHeader from "./ChatHeader/ChatHeader";
 import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
 import MessageList from "./MessageList/MessageList";
+import ChatOverview from "./ChatOverview/ChatOverview";
+import type { APIChannel } from "foxochat.js";
 
 const ChatWindowComponent = ({
 	channel,
@@ -26,19 +28,58 @@ const ChatWindowComponent = ({
 	const isProgrammaticHashChange = useRef(false);
 	const lastValidChannelId = useRef<number | null>(null);
 
+	const apiChannel = channel as unknown as APIChannel;
+	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
+
 	useEffect(() => {
-		if (channel.id) {
-			lastValidChannelId.current = channel.id;
-			isProgrammaticHashChange.current = true;
-			window.location.hash = `#${channel.id}`;
-			setTimeout(() => {
-				isProgrammaticHashChange.current = false;
-			}, 100);
-		}
+		const handleHashChange = async () => {
+			if (isProgrammaticHashChange.current) return;
+
+			const hash = window.location.hash.substring(1);
+			if (!hash) {
+				if (lastValidChannelId.current !== null) {
+					await appStore.setCurrentChannel(null);
+				}
+				return;
+			}
+
+			const channelId = parseInt(hash, 10);
+			if (isNaN(channelId)) {
+				window.location.hash = "";
+				return;
+			}
+
+			if (channelId === lastValidChannelId.current) return;
+
+			try {
+				const channelExists = appStore.channels.some((c) => c.id === channelId);
+				if (!channelExists) {
+					window.location.hash = "";
+					await appStore.setCurrentChannel(null);
+					return;
+				}
+
+				await appStore.setCurrentChannel(channelId);
+				lastValidChannelId.current = channelId;
+			} catch (error) {
+				Logger.error(`Error handling hash change: ${error}`);
+				window.location.hash = "";
+				await appStore.setCurrentChannel(null);
+			}
+		};
+
+		handleHashChange().catch(console.error);
+
+		window.addEventListener("hashchange", handleHashChange);
+		return () => {
+			window.removeEventListener("hashchange", handleHashChange);
+		};
 	}, []);
 
 	useEffect(() => {
-		if (channel.id && channel.id !== lastValidChannelId.current) {
+		if (channel.id) {
+			if (channel.id === lastValidChannelId.current) return;
+
 			lastValidChannelId.current = channel.id;
 			isProgrammaticHashChange.current = true;
 			window.location.hash = `#${channel.id}`;
@@ -49,61 +90,8 @@ const ChatWindowComponent = ({
 	}, [channel.id]);
 
 	useEffect(() => {
-		const restoreLastValidChannel = () => {
-			isProgrammaticHashChange.current = true;
-			if (lastValidChannelId.current !== null) {
-				window.location.hash = `#${lastValidChannelId.current}`;
-			} else {
-				window.location.hash = "";
-			}
-			setTimeout(() => {
-				isProgrammaticHashChange.current = false;
-			}, 100);
-		};
-
-		const handleHashChange = () => {
-			if (isProgrammaticHashChange.current) return;
-
-			const hash = window.location.hash.substring(1);
-			if (!hash) {
-				if (lastValidChannelId.current !== null) {
-					appStore.setCurrentChannel(null).catch(console.error);
-				}
-				return;
-			}
-
-			const channelId = parseInt(hash, 10);
-			if (isNaN(channelId)) {
-				restoreLastValidChannel();
-				return;
-			}
-
-			if (channelId === lastValidChannelId.current) return;
-
-			const channelExists = appStore.channels.some((c) => c.id === channelId);
-			if (!channelExists) {
-				restoreLastValidChannel();
-				return;
-			}
-
-			appStore
-				.setCurrentChannel(channelId)
-				.then(() => {
-					lastValidChannelId.current = channelId;
-				})
-				.catch(() => {
-					restoreLastValidChannel();
-				});
-		};
-
-		window.addEventListener("hashchange", handleHashChange);
-		return () => {
-			window.removeEventListener("hashchange", handleHashChange);
-		};
-	}, []);
-
-	useEffect(() => {
 		(async () => {
+			if (!channel.id) return;
 			try {
 				await appStore.initChannel(channel.id);
 				if (isMounted.current) {
@@ -121,6 +109,7 @@ const ChatWindowComponent = ({
 		};
 	}, [channel.id]);
 
+	/*
 	useEffect(() => {
 		return () => {
 			if (listRef.current && appStore.currentChannelId === channel.id) {
@@ -136,6 +125,7 @@ const ChatWindowComponent = ({
 			}
 		};
 	}, [channel.id]);
+	*/
 
 	const messages = (appStore.messagesByChannelId.get(channel.id) ?? [])
 		.slice()
@@ -166,12 +156,14 @@ const ChatWindowComponent = ({
 							length > prevLength &&
 							!isFetchingOlderMessages.current
 						) {
+							/*
 							const scrollPosition =
 								appStore.channelScrollPositions.get(channel.id) || 0;
 							listRef.current.scrollTop =
 								listRef.current.scrollHeight -
 								listRef.current.clientHeight -
 								scrollPosition;
+							*/
 						} else if (length > prevLength && isFetchingOlderMessages.current) {
 							if (anchorMessageId.current !== null) {
 								const anchorElement = document.getElementById(
@@ -214,7 +206,7 @@ const ChatWindowComponent = ({
 				clearTimeout(scrollTimeout.current);
 			}
 
-			scrollTimeout.current = setTimeout(async () => {
+			scrollTimeout.current = Number(setTimeout(async () => {
 				if (!listRef.current || !isMounted.current) return;
 
 				const el = listRef.current;
@@ -261,7 +253,8 @@ const ChatWindowComponent = ({
 
 					if (topMessage && listRef.current) {
 						anchorMessageId.current = topMessage.msg.id;
-						const rect = topMessage.element!.getBoundingClientRect();
+						const rect = topMessage.element?.getBoundingClientRect();
+						if (!rect) return;
 						const containerRect = listRef.current.getBoundingClientRect();
 						anchorOffset.current = rect.top - containerRect.top;
 						Logger.info(
@@ -290,7 +283,7 @@ const ChatWindowComponent = ({
 				}
 
 				lastScrollTop.current = scrollTop;
-			}, 100);
+			}, 100));
 		},
 		[channel.id, messages, isLoading],
 	);
@@ -320,38 +313,41 @@ const ChatWindowComponent = ({
 	};
 
 	return (
-		<div className={styles.chatWindow}>
-			<ChatHeader
-				chat={channel}
-				avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
-				username={channel.name}
-				displayName={channel.display_name}
-				channelId={channel.id}
-				isMobile={isMobile}
-				onBack={isMobile ? onBack : undefined}
-			/>
-			<MessageList
-				messages={messages}
-				isLoading={isLoading}
-				isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
-				currentUserId={appStore.currentUserId ?? -1}
-				messageListRef={listRef}
-				onScroll={handleScroll}
-				channel={channel}
-			/>
-			{showScrollButton && (
-				<button
-					className={`${styles.scrollButton} ${styles.visible}`}
-					onClick={handleScrollToBottom}
-					title="New messags"
-				>
-					↓ {appStore.unreadCount.get(channel.id) || ""}
-				</button>
-			)}
-			<MessageInput
-				onSendMessage={(c, f) => appStore.sendMessage(c, f)}
-				isSending={appStore.isSendingMessage}
-			/>
+		<div className={styles.chatWindowContainer}>
+			<div className={styles.chatWindow}>
+				<ChatHeader
+					chat={apiChannel}
+					avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
+					username={channel.name}
+					displayName={channel.display_name}
+					channelId={channel.id}
+					isMobile={isMobile}
+					onBack={isMobile ? onBack : undefined}
+				/>
+				<MessageList
+					messages={messages}
+					isLoading={isLoading}
+					isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
+					currentUserId={appStore.currentUserId ?? -1}
+					messageListRef={listRef}
+					onScroll={handleScroll}
+					channel={apiChannel}
+				/>
+				{showScrollButton && (
+					<button
+						className={`${styles.scrollButton} ${styles.visible}`}
+						onClick={handleScrollToBottom}
+						title="New messages"
+					>
+						↓ {appStore.unreadCount.get(channel.id) || ""}
+					</button>
+				)}
+				<MessageInput
+					onSendMessage={(c, f) => appStore.sendMessage(c, f)}
+					isSending={appStore.isSendingMessage}
+				/>
+			</div>
+			<ChatOverview channel={apiChannel} isOwner={isOwner} />
 		</div>
 	);
 };

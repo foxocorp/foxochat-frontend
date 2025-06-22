@@ -1,34 +1,46 @@
 import { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
-import { timestampToHSV } from "@utils/functions";
+import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { useEffect, useState } from "preact/hooks";
 import * as style from "./ChatHeader.module.scss";
+import appStore from "@store/app";
+import { autorun } from "mobx";
 
 const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 	const { id, name, display_name, icon, created_at } = chat;
 	const nameToDisplay = display_name || name;
-	const [participantsCount, setParticipantsCount] = useState<number | null>(
-		null,
-	);
+	const [participantsCount, setParticipantsCount] = useState<number>(0);
 
 	useEffect(() => {
 		const fetchMembers = async () => {
+			if (appStore.channelParticipantsCount.has(id)) {
+				setParticipantsCount(appStore.channelParticipantsCount.get(id) ?? 0);
+				return;
+			}
+
 			try {
 				const members = await apiMethods.listChannelMembers(id);
-				setParticipantsCount(members.length || 0);
+				const count = members.length || 0;
+				appStore.channelParticipantsCount.set(id, count);
+				setParticipantsCount(count);
 			} catch (error) {
 				console.error("Failed to fetch members:", error);
 			}
 		};
 
-		if (id && participantsCount === null) {
+		if (id) {
 			void fetchMembers();
 		}
-	}, [id, participantsCount]);
 
-	const { h, s } = timestampToHSV(created_at);
-	const v = 70;
-	const backgroundColor = `hsl(${h}, ${s}%, ${v}%)`;
+		const disposer = autorun(() => {
+			const count = appStore.channelParticipantsCount.get(id) ?? 0;
+			setParticipantsCount(count);
+		});
+
+		return () => {
+			disposer();
+		};
+	}, [id]);
 
 	return (
 		<div className={style.chatHeader}>
@@ -44,14 +56,16 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 					className={style.chatHeaderAvatar}
 				/>
 			) : (
-				<div className={style.defaultAvatar} style={{ backgroundColor }}>
-					{nameToDisplay.charAt(0).toUpperCase()}
-				</div>
+				<DefaultAvatar
+					createdAt={created_at}
+					displayName={nameToDisplay}
+					size="medium"
+				/>
 			)}
 			<div className={style.chatHeaderInfo}>
 				<p className={style.chatHeaderUsername}>{nameToDisplay}</p>
 				<div className={style.chatHeaderMembers}>
-					<span>• {participantsCount ?? "0"} Members</span>
+					<span>• {participantsCount} Members</span>
 				</div>
 			</div>
 		</div>

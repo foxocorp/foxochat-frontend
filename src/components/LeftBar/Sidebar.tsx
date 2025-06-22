@@ -38,6 +38,7 @@ const SidebarComponent = ({
 	const [nameErrorMessage, setNameErrorMessage] = useState<string>(
 		"— Name is already taken",
 	);
+	const [closeDropdown, setCloseDropdown] = useState<(() => void) | null>(null);
 
 	const [width, setWidth] = useState(() => {
 		if (isMobile) {
@@ -124,7 +125,7 @@ const SidebarComponent = ({
 		} catch (err) {
 			setNameError(true);
 			const message =
-				(err as any)?.response?.message ||
+				(err as { response?: { message?: string } })?.response?.message ||
 				(err as Error).message ||
 				"— Creation failed";
 			setNameErrorMessage(message);
@@ -222,12 +223,18 @@ const SidebarComponent = ({
 						/>
 						<div className={styles.createWrapper}>
 							<CreateButton
-								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+								onClick={() => {
+									if (!showCreateDropdown) {
+										setShowCreateDropdown(true);
+									} else {
+										closeDropdown?.();
+									}
+								}}
 							/>
 							{showCreateDropdown && (
 								<CreateDropdown
+									registerCloseHandler={(fn) => setCloseDropdown(() => fn)}
 									onSelect={(type) => {
-										setShowCreateDropdown(false);
 										setShowCreateModal(type);
 									}}
 									onClose={() => setShowCreateDropdown(false)}
@@ -247,7 +254,7 @@ const SidebarComponent = ({
 			</div>
 			{!isCollapsed && (
 				<div className={styles.sidebarFooter}>
-					<UserInfo username={currentUser.toString()} status="Online" />
+					<UserInfo user={currentUser} status="Online" />
 				</div>
 			)}
 			{!isMobile && (

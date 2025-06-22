@@ -10,6 +10,7 @@
   overscroll-behavior: contain;
   gap: 4px;
   background-color: var(--background-chat-color);
+  position: relative;
 }
 
 .stickyDate {
@@ -25,7 +26,7 @@
   border-radius: 0.9375rem;
   text-align: center;
   width: fit-content;
-  margin: 0 auto;
+  margin: 5px auto;
   height: 30px;
   z-index: 99;
   backdrop-filter: blur(25px);

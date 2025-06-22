@@ -4,6 +4,7 @@ import { Logger } from "@utils/logger";
 import {
 	APIChannel,
 	APIMessage,
+	APIUser,
 	RESTGetAPIMessageListQuery,
 } from "foxochat.js";
 import {
@@ -15,10 +16,25 @@ import {
 	runInAction,
 } from "mobx";
 import * as apiService from "./apiService";
-import { transformToMessage } from "./transforms";
+import { CachedChat, CachedUser } from "./metaCache";
+import { createChannelFromAPI, transformToMessage } from "./transforms";
 import * as wsService from "./websocketService";
 
 configure({ enforceActions: "observed" });
+
+export function mapApiChannelToCached(chat: APIChannel): CachedChat {
+	const transformed = createChannelFromAPI(chat);
+	if (!transformed) {
+		throw new Error("Failed to transform channel");
+	}
+	return transformed;
+}
+
+function mapApiUserToCached(user: APIUser): CachedUser {
+	return {
+		...user,
+	} as CachedUser;
+}
 
 export class AppStore {
 	@observable accessor messagesByChannelId = observable.map<
@@ -30,9 +46,12 @@ export class AppStore {
 		boolean
 	>();
 	@observable accessor isInitialLoad = observable.map<number, boolean>();
-	@observable accessor channels: IObservableArray<APIChannel> =
+	@observable accessor channels: IObservableArray<CachedChat> =
 		observable.array([]);
-	@observable accessor activeRequests = observable.set<number>();
+	@observable accessor users: IObservableArray<CachedUser> = observable.array(
+		[],
+	);
+	@observable accessor activeRequests = observable.set<string>();
 	@observable accessor currentChannelId: number | null = null;
 	@observable accessor currentUserId: number | null = null;
 	@observable accessor isLoading = false;
@@ -43,44 +62,95 @@ export class AppStore {
 	@observable accessor channelDisposers = observable.map<number, () => void>();
 	@observable accessor isCurrentChannelScrolledToBottom = true;
 	@observable accessor unreadCount = observable.map<number, number>();
-	@observable accessor channelScrollPositions = observable.map<
+	/*
+    @observable accessor channelScrollPositions = observable.map<
+        number,
+        number
+    >();
+    */
+	@observable accessor channelParticipantsCount = observable.map<
 		number,
 		number
 	>();
+	@observable accessor userStatuses = observable.map<number, number>();
 
 	wsClient: WebSocketClient | null = null;
 
-	constructor() {
-		this.initializeFromUrl().catch((error) => {
-			Logger.error(`Failed to initialize from URL: ${error}`);
+	/*
+    async initializeMetaFromCache() {
+        const [cachedChats, cachedUsers] = await Promise.all([
+            loadChatsFromCache(),
+            loadUsersFromCache(),
+        ]);
+        runInAction(() => {
+            this.channels.replace(cachedChats);
+            this.users.replace(cachedUsers);
+        });
+    }
+    */
+
+	@action
+	updateUserStatus(userId: number, status: number) {
+		this.userStatuses.set(userId, status);
+	}
+
+	@action
+	updateUser(user: APIUser) {
+		const userIndex = this.users.findIndex((u) => u.id === user.id);
+		if (userIndex >= 0) {
+			this.users[userIndex] = user;
+		}
+		this.userStatuses.set(user.id, user.status);
+	}
+
+	@action
+	async syncWithServer() {
+		try {
+			Logger.info("Starting background sync with server...");
+			const apiChannels = await apiMethods.userChannelsList();
+			await this.updateChatsFromServer(apiChannels);
+			Logger.info("Channels synced successfully");
+		} catch (error) {
+			Logger.error(`Background sync failed: ${error}`);
+			throw error;
+		}
+	}
+
+	@action
+	async updateChatsFromServer(apiChats: APIChannel[]) {
+		const cachedChats = apiChats.map(mapApiChannelToCached);
+		/*
+        await saveChatsToCache(cachedChats);
+        */
+		runInAction(() => {
+			this.channels.replace(cachedChats);
 		});
+	}
+
+	@action
+	updateUsersFromServer(apiUsers: APIUser[]) {
+		const cachedUsers = apiUsers.map(mapApiUserToCached);
+		this.users.replace(cachedUsers);
+		/*
+        await saveUsersToCache(cachedUsers);
+        */
 	}
 
 	@action
 	async initChannel(channelId: number) {
 		if (this.messagesByChannelId.has(channelId)) return;
 
-		this.activeRequests.add(channelId);
+		this.activeRequests.add(channelId.toString());
 		this.isInitialLoad.set(channelId, true);
-		await this.fetchInitialMessages(channelId, { limit: 50 }).finally(() => {
+
+		try {
+			await this.fetchInitialMessages(channelId, { limit: 50 });
+		} finally {
 			runInAction(() => {
-				this.activeRequests.delete(channelId);
+				this.activeRequests.delete(channelId.toString());
 				this.isInitialLoad.set(channelId, false);
 			});
-		});
-	}
-
-	@action
-	setIsCurrentChannelScrolledToBottom(value: boolean) {
-		if (this.currentChannelId !== null && value) {
-			this.unreadCount.set(this.currentChannelId, 0);
 		}
-		this.isCurrentChannelScrolledToBottom = value;
-	}
-
-	@action
-	setIsSendingMessage(state: boolean) {
-		this.isSendingMessage = state;
 	}
 
 	@action
@@ -90,22 +160,25 @@ export class AppStore {
 		const updated = Array.from(
 			new Map([...existing, ...messages].map((msg) => [msg.id, msg])).values(),
 		).sort((a, b) => a.created_at - b.created_at);
-		this.messagesByChannelId.set(channelId, observable.array(updated));
+		runInAction(() => {
+			this.messagesByChannelId.set(channelId, observable.array(updated));
+		});
 	}
 
 	@action
 	handleNewMessage(message: APIMessage) {
 		const channelId = message.channel.id;
-		const messages =
-			this.messagesByChannelId.get(channelId) || observable.array([]);
+		let messages = this.messagesByChannelId.get(channelId);
+
+		if (!messages) {
+			messages = observable.array<APIMessage>([]);
+			this.messagesByChannelId.set(channelId, messages);
+		}
 
 		if (!messages.some((m) => m.id === message.id)) {
 			messages.push(message);
-			this.messagesByChannelId.set(
-				channelId,
-				observable.array(
-					[...messages].sort((a, b) => a.created_at - b.created_at),
-				),
+			messages.replace(
+				[...messages].sort((a, b) => a.created_at - b.created_at),
 			);
 
 			if (
@@ -123,8 +196,34 @@ export class AppStore {
 
 		const channelIndex = this.channels.findIndex((c) => c.id === channelId);
 		if (channelIndex >= 0) {
-			this.channels[channelIndex].last_message = message;
+			const ch = this.channels[channelIndex];
+			if (!ch) return;
+			this.channels[channelIndex] = {
+				id: ch.id,
+				name: ch.name,
+				display_name: ch.display_name,
+				icon: ch.icon,
+				created_at: ch.created_at,
+				type: ch.type,
+				flags: ch.flags,
+				member_count: ch.member_count,
+				owner: ch.owner,
+				last_message: message,
+			};
 		}
+	}
+
+	@action
+	setIsCurrentChannelScrolledToBottom(value: boolean) {
+		if (this.currentChannelId !== null && value) {
+			this.unreadCount.set(this.currentChannelId, 0);
+		}
+		this.isCurrentChannelScrolledToBottom = value;
+	}
+
+	@action
+	setIsSendingMessage(state: boolean) {
+		this.isSendingMessage = state;
 	}
 
 	@action
@@ -136,7 +235,7 @@ export class AppStore {
 	async joinChannel(channelId: number) {
 		const joined = await apiMethods.joinChannel(channelId);
 		if (!this.channels.some((c) => c.id === channelId)) {
-			this.channels.unshift(joined.channel);
+			this.channels.unshift(mapApiChannelToCached(joined.channel));
 		}
 		await this.setCurrentChannel(channelId);
 	}
@@ -146,11 +245,6 @@ export class AppStore {
 		const hash = window.location.hash.substring(1);
 		if (!hash || isNaN(Number(hash))) return;
 		const channelId = Number(hash);
-
-		if (!this.channels.length) {
-			await this.fetchChannelsFromAPI();
-		}
-
 		if (this.channels.some((c) => c.id === channelId)) {
 			await this.setCurrentChannel(channelId);
 		}
@@ -176,7 +270,11 @@ export class AppStore {
 
 		const idx = msgs.findIndex((m) => m.id === messageId);
 		if (idx >= 0) {
-			msgs[idx] = { ...msgs[idx], content: newContent };
+			const msg = msgs[idx];
+			msgs[idx] = transformToMessage({
+				...msg,
+				content: newContent,
+			});
 		}
 	}
 
@@ -209,12 +307,22 @@ export class AppStore {
 
 		if (channelId !== null) {
 			localStorage.setItem("currentChannelId", String(channelId));
-			if (!this.messagesByChannelId.has(channelId)) {
-				this.messagesByChannelId.set(channelId, observable.array([]));
-			}
-			this.isLoadingHistory = false;
-			this.activeRequests.delete(channelId);
+			runInAction(() => {
+				if (!this.messagesByChannelId.has(channelId)) {
+					this.messagesByChannelId.set(channelId, observable.array([]));
+				}
+				this.isLoadingHistory = false;
+				this.activeRequests.delete(channelId.toString());
+				this.isInitialLoad.set(channelId, true);
+			});
 			await this.fetchInitialMessages(channelId);
+			runInAction(() => {
+				this.isInitialLoad.set(channelId, false);
+			});
+
+			if (this.isWsInitialized) {
+				this.handleHistorySync();
+			}
 
 			const disposer = reaction(
 				() => this.messagesByChannelId.get(channelId)?.length ?? 0,
@@ -229,7 +337,9 @@ export class AppStore {
 					}
 				},
 			);
-			this.channelDisposers.set(channelId, disposer);
+			runInAction(() => {
+				this.channelDisposers.set(channelId, disposer);
+			});
 		}
 	}
 
@@ -238,9 +348,9 @@ export class AppStore {
 		channelId: number,
 		query: RESTGetAPIMessageListQuery = {},
 	) {
-		if (this.activeRequests.has(channelId)) return;
+		if (this.activeRequests.has(channelId.toString())) return;
 
-		this.activeRequests.add(channelId);
+		this.activeRequests.add(channelId.toString());
 		this.isLoadingHistory = true;
 
 		try {
@@ -253,7 +363,6 @@ export class AppStore {
 			const transformed = newMessages.map(transformToMessage);
 
 			runInAction(() => {
-				console.log("Fetched initial messages:", newMessages.length);
 				const existing =
 					this.messagesByChannelId.get(channelId) || observable.array([]);
 
@@ -274,7 +383,7 @@ export class AppStore {
 			Logger.error(`Failed to fetch initial messages: ${error}`);
 		} finally {
 			runInAction(() => {
-				this.activeRequests.delete(channelId);
+				this.activeRequests.delete(channelId.toString());
 				this.isLoadingHistory = false;
 			});
 		}
@@ -282,14 +391,14 @@ export class AppStore {
 
 	@action
 	async fetchOlderMessages(channelId: number, beforeTimestamp: number) {
-		if (this.activeRequests.has(channelId)) {
+		if (this.activeRequests.has(channelId.toString())) {
 			Logger.info(
 				`Fetch older messages for channel ${channelId} skipped: already in progress`,
 			);
 			return;
 		}
 
-		this.activeRequests.add(channelId);
+		this.activeRequests.add(channelId.toString());
 		this.isLoadingHistory = true;
 
 		try {
@@ -323,11 +432,9 @@ export class AppStore {
 				);
 
 				if (uniqueNewMessages.length > 0) {
-					const updatedMessages = [...uniqueNewMessages, ...existingMessages];
-					this.messagesByChannelId.set(
-						channelId,
-						observable.array(updatedMessages),
-					);
+					const merged = [...existingMessages, ...uniqueNewMessages];
+					const sorted = merged.sort((a, b) => a.created_at - b.created_at);
+					this.messagesByChannelId.set(channelId, observable.array(sorted));
 				}
 
 				this.hasMoreMessagesByChannelId.set(
@@ -341,7 +448,7 @@ export class AppStore {
 			);
 		} finally {
 			runInAction(() => {
-				this.activeRequests.delete(channelId);
+				this.activeRequests.delete(channelId.toString());
 				this.isLoadingHistory = false;
 			});
 		}
@@ -349,15 +456,22 @@ export class AppStore {
 
 	@action
 	async initializeStore() {
+		if (this.isWsInitialized) return;
+
 		try {
 			this.setIsLoading(true);
 			Logger.info("Starting store initialization...");
-			await this.fetchCurrentUser();
-			Logger.info("Current user fetched successfully");
-			await this.fetchChannelsFromAPI();
-			Logger.info("Channels fetched successfully");
+
 			await this.initializeWebSocket();
 			Logger.info("WebSocket initialized successfully");
+
+			await this.fetchCurrentUser();
+			Logger.info("Current user fetched successfully");
+
+			await this.fetchChannelsFromAPI();
+			Logger.info("Channels fetched successfully");
+
+			await this.initializeFromUrl();
 		} catch (error) {
 			Logger.error(`Initialization failed: ${error}`);
 			this.connectionError = "Initialization error";
@@ -368,9 +482,9 @@ export class AppStore {
 
 	@action
 	addNewChannel(channel: APIChannel) {
-		const observableChannel = observable.object(channel);
-		if (!this.channels.some((c) => c.id === observableChannel.id)) {
-			this.channels.unshift(observableChannel);
+		const cachedChannel = mapApiChannelToCached(channel);
+		if (!this.channels.some((c) => c.id === cachedChannel.id)) {
+			this.channels.unshift(cachedChannel);
 		}
 	}
 

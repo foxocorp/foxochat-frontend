@@ -8,7 +8,8 @@
 		"isolatedModules": true,
 		"moduleResolution": "bundler",
 		"types": [
-			"@rsbuild/core/types"
+			"@rsbuild/core/types",
+			"node"
 		],
 		/* Preact Config */
 		"jsx": "react-jsx",

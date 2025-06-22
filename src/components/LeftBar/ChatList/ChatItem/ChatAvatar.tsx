@@ -1,25 +1,28 @@
-import { ChatAvatarProps } from "@interfaces/interfaces";
-import { timestampToHSV } from "@utils/functions";
+import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
+import { ChatAvatarProps } from "@/interfaces/interfaces";
+import { config } from "@/lib/config/endpoints";
 import { memo } from "preact/compat";
 import * as styles from "./ChatItem.module.scss";
 
-const ChatAvatar = ({ chat }: ChatAvatarProps) => {
-	const ts = chat.created_at;
-	const { h, s } = timestampToHSV(ts);
-	const v = 70;
-	const backgroundColor = `hsl(${h}, ${s}%, ${v}%)`;
+export const ChatAvatar = memo(({ chat }: ChatAvatarProps) => {
+	const { icon, display_name, name, created_at } = chat;
+	const displayName = display_name || name || "Unknown";
 
-	return chat.icon ? (
-		<img
-			src={`${config.cdnBaseUrl}${chat.icon.uuid}`}
-			alt={chat.name}
-			className={styles.chatAvatar}
-		/>
-	) : (
-		<div className={styles.defaultAvatar} style={{ backgroundColor }}>
-			{(chat.display_name || chat.name).charAt(0).toUpperCase()}
+	return (
+		<div className={styles.chatAvatar}>
+			{icon && typeof icon !== "string" && "uuid" in icon ? (
+				<img
+					src={`${config.cdnBaseUrl}${icon.uuid}`}
+					alt={displayName}
+					className={styles.chatAvatar}
+				/>
+			) : (
+				<DefaultAvatar
+					createdAt={created_at}
+					displayName={displayName}
+					size="medium"
+				/>
+			)}
 		</div>
 	);
-};
-
-export default memo(ChatAvatar);
+});

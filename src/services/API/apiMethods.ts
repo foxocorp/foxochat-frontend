@@ -17,11 +17,6 @@ const setAuthToken = (token: string): void =>
 	localStorage.setItem("authToken", token);
 export const removeAuthToken = (): void => localStorage.removeItem("authToken");
 
-const token = getAuthToken();
-if (token) {
-	void client.login(token);
-}
-
 export interface AttachmentResponse {
 	id: number;
 	uploadUrl: string;
@@ -172,10 +167,14 @@ export const apiMethods = {
 		messageId: number,
 		body: { content?: string; attachments?: number[] },
 	): Promise<APIMessage> => {
-		return client.api.message.edit(channelId, messageId, {
-			content: body.content,
-			attachments: body.attachments,
-		});
+		return client.api.message.edit(
+			channelId,
+			messageId,
+			{
+				...(body.content !== undefined ? { content: body.content } : {}),
+				...(body.attachments !== undefined ? { attachments: body.attachments } : {}),
+			}
+		);
 	},
 
 	deleteMessage: (channelId: number, messageId: number) =>

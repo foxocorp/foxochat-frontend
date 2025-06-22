@@ -1,8 +1,10 @@
 import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
-import type { APIChannel, RESTGetAPIMessageListQuery } from "foxochat.js";
+import type { APIChannel } from "foxochat.js";
+import { APIMessage } from "foxochat.js";
 import { observable, runInAction } from "mobx";
 import { AppStore } from "./appStore";
+import { CachedChat } from "./metaCache";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
 
 interface AuthError {
@@ -30,13 +32,30 @@ function handleAuthError(this: AppStore, error: unknown) {
 	}
 }
 
+function mapToCachedChat(channel: APIChannel): CachedChat {
+	const transformed = createChannelFromAPI(channel);
+	if (!transformed) {
+		throw new Error("Failed to transform channel");
+	}
+	return transformed;
+}
+
+const messageSound = new Audio("/sounds/fchat_sfx.mp3");
+messageSound.volume = 0.5;
+
 export async function fetchCurrentUser(this: AppStore): Promise<void> {
-	if (this.currentUserId || !getAuthToken()) return;
+	if (this.currentUserId || !getAuthToken()) {
+		Logger.debug("Skipping getCurrentUser - already have userId or no token");
+		return;
+	}
+
 	try {
+		Logger.debug("Fetching current user...");
 		const user = await apiMethods.getCurrentUser();
 		runInAction(() => {
 			this.setCurrentUser(user.id);
 			this.connectionError = null;
+			this.updateUsersFromServer([user]);
 		});
 	} catch (error) {
 		handleAuthError.call(this, error);
@@ -45,7 +64,7 @@ export async function fetchCurrentUser(this: AppStore): Promise<void> {
 
 export async function fetchChannelsFromAPI(
 	this: AppStore,
-): Promise<APIChannel[]> {
+): Promise<CachedChat[]> {
 	if (
 		!getAuthToken() ||
 		this.channels.length > 0 ||
@@ -62,15 +81,19 @@ export async function fetchChannelsFromAPI(
 	try {
 		const apiChannels: APIChannel[] = await apiMethods.userChannelsList();
 
+		const transformedChannels = apiChannels
+			.map((channel) => observable.object(createChannelFromAPI(channel)))
+			.filter(Boolean) as CachedChat[];
+
+		const cachedChannels = apiChannels.map(mapToCachedChat);
+
 		runInAction(() => {
-			this.channels = observable.array(
-				apiChannels
-					.map((channel) => observable.object(createChannelFromAPI(channel)))
-					.filter(Boolean) as APIChannel[],
-			);
+			this.channels = observable.array(cachedChannels);
 		});
 
-		return this.channels;
+		await this.updateChatsFromServer(apiChannels);
+
+		return transformedChannels;
 	} catch (error) {
 		handleAuthError.call(this, error);
 		throw error;
@@ -82,69 +105,14 @@ export async function fetchChannelsFromAPI(
 	}
 }
 
-export async function fetchMessages(
-	this: AppStore,
-	channelId: number,
-	query: RESTGetAPIMessageListQuery = {},
-): Promise<void> {
-	if (this.activeRequests.has(channelId)) return;
-
-	runInAction(() => {
-		this.activeRequests.add(channelId);
-		this.isLoadingHistory = true;
-	});
-
-	try {
-		const defaultQuery: RESTGetAPIMessageListQuery = { limit: 50, ...query };
-
-		const newMessages = await apiMethods.listMessages(channelId, defaultQuery);
-		const transformed = newMessages
-			.map(transformToMessage)
-			.sort((a, b) => a.created_at - b.created_at);
-
-		runInAction(() => {
-			const existing = this.messagesByChannelId.get(channelId) ?? [];
-
-			let updated: any[];
-			if (query.before) {
-				updated = [...existing, ...transformed];
-			} else {
-				updated = [...transformed, ...existing];
-			}
-
-			const uniqueMessages = removeDuplicateMessages(updated);
-
-			uniqueMessages.sort((a, b) => a.created_at - b.created_at);
-
-			this.messagesByChannelId.set(channelId, observable.array(uniqueMessages));
-			this.hasMoreMessagesByChannelId.set(channelId, newMessages.length >= 50);
-		});
-	} catch (error) {
-		Logger.error(`fetchMessages error: ${JSON.stringify(error)}`);
-	} finally {
-		runInAction(() => {
-			this.activeRequests.delete(channelId);
-			this.isLoadingHistory = false;
-		});
-	}
-}
-
-function removeDuplicateMessages(messages: any[]): any[] {
-	const uniqueMessages: Record<number, any> = {};
-
-	for (const message of messages) {
-		uniqueMessages[message.id] = message;
-	}
-
-	return Object.values(uniqueMessages);
-}
-
 export async function sendMessage(
 	this: AppStore,
 	content: string,
 	files: File[] = [],
 ): Promise<void> {
-	if (!this.currentChannelId || !this.currentUserId) return;
+	if (!this.currentChannelId || !this.currentUserId) {
+		return;
+	}
 
 	const channelId = this.currentChannelId;
 
@@ -157,9 +125,11 @@ export async function sendMessage(
 		if (files.length > 0) {
 			const atts = await apiMethods.createMessageAttachments(channelId, files);
 			await Promise.all(
-				atts.map((att, idx) =>
-					apiMethods.uploadFileToStorage(att.uploadUrl, files[idx]),
-				),
+				atts.map((att, idx) => {
+					const file = files[idx];
+					if (!file) return Promise.resolve();
+					return apiMethods.uploadFileToStorage(att.uploadUrl, file);
+				}),
 			);
 			attachmentIds = atts.map((att) => att.id);
 		}
@@ -172,17 +142,21 @@ export async function sendMessage(
 		const message = transformToMessage(apiMsg);
 
 		runInAction(() => {
-			const messages = this.messagesByChannelId.get(channelId) ?? [];
-			messages.push(message);
-			this.messagesByChannelId.set(channelId, observable.array(messages));
+			let messages = this.messagesByChannelId.get(channelId);
+			if (!messages) {
+				messages = observable.array<APIMessage>([]);
+				this.messagesByChannelId.set(channelId, messages);
+			}
+			if (!messages.some((m) => m.id === message.id)) {
+				messages.push(message);
+			}
 			this.isSendingMessage = false;
 		});
-	} catch (error) {
+	} catch (_error) {
 		runInAction(() => {
 			this.isSendingMessage = false;
 			this.connectionError = "Failed to send message";
 		});
-		Logger.error(`Failed to send message: ${error}`);
 	}
 }
 
@@ -197,9 +171,17 @@ export async function retryMessage(
 	const msg = msgs.find((m) => m.id === messageId);
 	if (!msg) return;
 
-	await this.sendMessage(
-		msg.content,
-		msg.attachments.map((att) => new File([att], "file")),
+	const files = await Promise.all(
+		msg.attachments.map(async (att) => {
+			const url = `${config.cdnBaseUrl}${att.uuid}`;
+			const response = await fetch(url);
+			const blob = await response.blob();
+			return new File([blob], att.filename || "file", {
+				type: att.content_type,
+			});
+		}),
 	);
+
+	await this.sendMessage(msg.content, files);
 	this.deleteMessage(messageId);
 }

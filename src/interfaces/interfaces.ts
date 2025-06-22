@@ -1,3 +1,4 @@
+import { CachedChat } from "@store/app/metaCache";
 import {
 	APIChannel,
 	APIMember,
@@ -20,16 +21,16 @@ import React from "react";
  */
 
 export interface ChatWindowProps {
-	channel: APIChannel;
+	channel: APIChannel | CachedChat;
 	currentUserId: number;
 	isMobile: boolean;
 	onBack?: () => void;
 }
 
 export interface ChatListProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	currentUser: number;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	currentUser: APIUser;
 }
 
 export interface ChatHeaderProps {
@@ -43,8 +44,8 @@ export interface ChatHeaderProps {
 }
 
 export interface ChatItemProps {
-	chat: APIChannel;
-	onSelectChat: (chat: APIChannel) => void;
+	chat: APIChannel | CachedChat;
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
 	isActive: boolean;
 	currentUser?: number | null;
 }
@@ -115,20 +116,20 @@ export interface MessageInputProps {
  */
 
 export interface EmptyStateProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	selectedChat: APIChannel | null;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	selectedChat: APIChannel | CachedChat | null;
 }
 
 export interface UserInfoProps {
-	username: string;
+	user: APIUser;
 	status?: string;
 }
 
 export interface SidebarProps {
-	chats: APIChannel[];
-	onSelectChat: (chat: APIChannel) => void;
-	currentUser: number;
+	chats: (APIChannel | CachedChat)[];
+	onSelectChat: (chat: APIChannel | CachedChat) => void;
+	currentUser: APIUser;
 	isMobile?: boolean;
 	setMobileView?: (view: "list" | "chat") => void;
 	setChatTransition?: (transition: string) => void;
@@ -253,7 +254,7 @@ export interface ExtendedChatListProps extends ChatListProps {
 }
 
 export interface ChatAvatarProps {
-	chat: APIChannel;
+	chat: APIChannel | CachedChat;
 }
 
 export interface CreateButtonProps {
@@ -263,6 +264,7 @@ export interface CreateButtonProps {
 export interface CreateDropdownProps {
 	onSelect: (type: "group" | "channel") => void;
 	onClose: () => void;
+	registerCloseHandler?: (close: () => void) => void;
 }
 
 export interface SearchBarProps {
@@ -288,4 +290,34 @@ export interface TooltipProps {
 	text: string;
 	className?: string;
 	position?: "top" | "bottom" | "left" | "right" | "auto";
+}
+
+export interface DefaultAvatarProps {
+	createdAt: number;
+	displayName?: string;
+	size?: "small" | "medium" | "large";
+}
+
+export interface MemberListProps {
+	channelId: number;
+}
+
+export interface Gateway {
+	on(event: "hello", listener: () => void): void;
+	on(event: "closed", listener: (code: number) => void): void;
+	on(event: "socketError", listener: (event: Event) => void): void;
+	on(
+		event: "dispatch",
+		listener: (message: { t: string; d: unknown }) => void,
+	): void;
+}
+
+export interface EventMap {
+	connected: undefined;
+	error: Error;
+	close: CloseEvent;
+	MESSAGE_CREATE: APIMessage;
+	MESSAGE_DELETE: { id: number; channel_id: number };
+	USER_UPDATE: APIUser;
+	USER_STATUS_UPDATE: { user_id: number; status: number };
 }

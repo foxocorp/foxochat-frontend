@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { observable } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useMemo } from "preact/hooks";
 
@@ -39,11 +40,11 @@ const MessageListComponent = ({
 }: MessageListProps & { channel: { id: number } }) => {
 	const { id: channelId } = channel;
 	const messages = appStore.messagesByChannelId.get(channelId);
-	const isLoading = appStore.isInitialLoad.get(channelId) || !messages;
+	const isLoading = appStore.isInitialLoad.get(channelId) || false;
 	const unreadCount = appStore.unreadCount.get(channelId) || 0;
 
 	useEffect(() => {
-		if (!messages && !appStore.activeRequests.has(channelId)) {
+		if (!messages && !appStore.activeRequests.has(String(channelId))) {
 			appStore.initChannel(channelId).catch(console.error);
 		}
 	}, [channelId]);
@@ -55,12 +56,12 @@ const MessageListComponent = ({
 				onScroll={onScroll}
 				className={styles.messageList}
 			>
-				<MessageLoader />
+				<MessageLoader isVisible={true} />
 			</div>
 		);
 	}
 
-	if (!messages?.length) {
+	if (!messages || messages.length === 0) {
 		return (
 			<div
 				ref={messageListRef}
@@ -77,7 +78,7 @@ const MessageListComponent = ({
 
 		for (const msg of messages) {
 			const dateKey = getDateKey(msg.created_at);
-			if (!groupsByDate[dateKey]) groupsByDate[dateKey] = [];
+			if (!groupsByDate[dateKey]) groupsByDate[dateKey] = observable.array([]);
 			groupsByDate[dateKey].push(msg);
 		}
 
@@ -85,20 +86,23 @@ const MessageListComponent = ({
 			.sort(([a], [b]) => dayjs(b).unix() - dayjs(a).unix())
 			.map(([dateKey, msgs]) => {
 				const authorGroups: { msgs: typeof msgs }[] = [];
-				let buffer: typeof msgs = [];
-				let lastAuthor = msgs[0].author.user.id;
-				let lastTimestamp = msgs[0].created_at;
+				if (msgs.length === 0) {
+					return { date: "", groups: [] };
+				}
+				let buffer = observable.array<(typeof msgs)[0]>([]);
+				let lastAuthor = msgs[0]?.author.user.id;
+				let lastTimestamp = msgs[0]?.created_at ?? Date.now();
 
 				for (const msg of msgs) {
 					const sameAuthor = msg.author.user.id === lastAuthor;
 					const withinTimeout =
-						Math.abs(msg.created_at - lastTimestamp) <= 300_000;
+						Math.abs(msg.created_at - (lastTimestamp ?? Date.now())) <= 300_000;
 
 					if (sameAuthor && withinTimeout) {
 						buffer.push(msg);
 					} else {
 						if (buffer.length) authorGroups.push({ msgs: buffer });
-						buffer = [msg];
+						buffer = observable.array([msg]);
 						lastAuthor = msg.author.user.id;
 					}
 					lastTimestamp = msg.created_at;
@@ -110,7 +114,7 @@ const MessageListComponent = ({
 					groups: authorGroups,
 				};
 			});
-	}, [messages]);
+	}, [messages?.length]);
 
 	return (
 		<div
@@ -124,10 +128,10 @@ const MessageListComponent = ({
 					{groups.map(({ msgs }, idx) => (
 						<div
 							id={`messageGroup-${msgs[0]?.id ?? idx}`}
-							key={`group-${msgs[0]?.id ?? idx}`}
+							key={`group-${date}-${msgs[0]?.id ?? idx}`}
 						>
 							<MessageGroup
-								messages={msgs}
+								messages={msgs.slice()}
 								currentUserId={currentUserId}
 								channelId={channelId}
 							/>

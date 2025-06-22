@@ -1,6 +1,10 @@
 import { rgbaToThumbHash } from "thumbhash";
 import { Logger } from "@utils/logger";
 
+export const classNames = (...classes: (string | boolean | undefined)[]) => {
+    return classes.filter(Boolean).join(' ');
+};
+
 export async function generateThumbHashFromFile(file: File): Promise<string | null> {
     try {
         if (!file.type.startsWith("image/")) {
@@ -53,7 +57,7 @@ export async function fetchFileAndGenerateThumbHash(url: string, contentType: st
         const file = new File([blob], "attachment", { type: contentType });
         return await generateThumbHashFromFile(file);
     } catch (error) {
-        Logger.error("Failed to fetch file and generate ThumbHash:", error);
+        Logger.error(`Failed to fetch file and generate ThumbHash: ${error}`);
         return null;
     }
 }

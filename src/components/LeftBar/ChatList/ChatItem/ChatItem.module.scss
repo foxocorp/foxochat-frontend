@@ -42,44 +42,34 @@
 .chatInfo {
   display: flex;
   flex-direction: column;
+  gap: 4px;
   overflow: hidden;
   margin-left: 10px;
-
-  .chatName {
-    font-weight: 400;
-    font-size: 16px;
-    color: var(--primary-color);
-    --emoji-size: 16px;
-  }
-
-  .chatMessage {
-    color: var(--gray-color);
-    margin-top: 3px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-    max-width: 100%;
-  }
-}
-
-.defaultAvatar {
-  color: white;
-  font-weight: bold;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
 }
 
 .chatNameWrapper {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.chatName {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--primary-color);
+  --emoji-size: 16px;
+}
+
+.chatMessage {
+  color: var(--gray-color);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 100%;
 }
 
 .channelTypeIcon {

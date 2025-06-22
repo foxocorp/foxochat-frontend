@@ -1,0 +1,38 @@
+.defaultAvatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  &.square {
+    border-radius: 0;
+  }
+
+  &.small {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  &.medium {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  &.large {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+
+  &.fill {
+    width: 100%;
+    height: 100%;
+    font-size: 96px;
+  }
+} 
