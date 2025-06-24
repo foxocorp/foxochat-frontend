@@ -12,7 +12,7 @@ import {
 	ContainerNode,
 	type JSX,
 } from "preact";
-import React from "react";
+import React, { Dispatch } from "react";
 
 /* === Props Section === */
 
@@ -34,12 +34,14 @@ export interface ChatListProps {
 
 export interface ChatHeaderProps {
 	chat: APIChannel;
+	isMobile?: boolean;
+	onBack?: (() => void) | undefined;
+	showOverview: boolean;
 	avatar?: string | null | undefined;
 	displayName?: string | null | undefined;
 	username: string;
 	channelId: number;
-	isMobile: boolean;
-	onBack?: (() => void) | undefined;
+	setShowOverview: Dispatch<boolean>;
 }
 
 export interface ChatItemProps {
@@ -316,4 +318,11 @@ export interface EventMap {
 	MESSAGE_DELETE: { id: number; channel_id: number };
 	USER_UPDATE: APIUser;
 	USER_STATUS_UPDATE: { user_id: number; status: number };
+}
+
+export interface ChatOverviewProps {
+	channel: APIChannel;
+	isOwner: boolean;
+	visible?: boolean;
+	className?: string;
 }
