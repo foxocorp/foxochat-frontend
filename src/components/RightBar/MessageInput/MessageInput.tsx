@@ -11,7 +11,6 @@ import trashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
 import * as style from "./MessageInput.module.scss";
 
 const MAX_FILES = 100;
-// const ALLOWED_TYPES = ["image/", "video/", "application/pdf"];
 const ERROR_DISPLAY_TIME = 7000;
 
 const MessageInput = ({}: MessageInputProps) => {
