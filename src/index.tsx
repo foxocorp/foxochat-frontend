@@ -23,28 +23,21 @@ import {
 } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";
-
 import { useAuthStore } from "@store/authenticationStore";
 import { isAppleDevice } from "@utils/emoji";
 
-const authStore = useAuthStore();
+const AUTH_PATHS = ["/login", "/register"] as const;
+const LOADING_DELAY = 300;
 
-const ProtectedRoute = ({
-	component: Component,
-}: { component: preact.AnyComponent }) => {
-	const auth = useAuthStore();
-	const location = useLocation();
+enum AppStatus {
+	Loading = "loading",
+	Success = "success",
+	Error = "error",
+	Unauthorized = "unauthorized",
+	NotInApp = "not_in_app",
+}
 
-	useEffect(() => {
-		if (!auth.isAuthenticated) {
-			location.route("/login", true);
-		}
-	}, [auth.isAuthenticated, location]);
-
-	return auth.isAuthenticated ? <Component /> : null;
-};
-
-export const routes: RouteConfig[] = [
+const routes: RouteConfig[] = [
 	{ path: "/", component: Landing },
 	{ path: "/login", component: Login },
 	{ path: "/register", component: Register },
@@ -60,29 +53,41 @@ export const routes: RouteConfig[] = [
 
 const initializeEmojiSupport = () => {
 	const html = document.documentElement;
-	if (isAppleDevice()) {
-		html.classList.add("is-apple", "native-emoji");
-	} else {
-		html.classList.add("custom-emoji");
-	}
+	const classes = isAppleDevice() 
+		? ["is-apple", "native-emoji"] 
+		: ["custom-emoji"];
+	html.classList.add(...classes);
 };
 
 const registerServiceWorker = async () => {
-	if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
-		try {
-			const wb = new Workbox("/sw.js");
-			wb.addEventListener("waiting", () =>
-				wb.messageSW({ type: "SKIP_WAITING" }),
-			);
-			await wb.register();
-			Logger.info("Service Worker registered successfully");
-		} catch (error: unknown) {
-			Logger.error(`Failed to register Service Worker: ${error}`);
-		}
+	if (!("serviceWorker" in navigator) || import.meta.env.MODE !== "production") {
+		return;
+	}
+
+	try {
+		const wb = new Workbox("/sw.js");
+		wb.addEventListener("waiting", () => wb.messageSW({ type: "SKIP_WAITING" }));
+		await wb.register();
+		Logger.info("Service Worker registered successfully");
+	} catch (error: unknown) {
+		Logger.error(`Failed to register Service Worker: ${error}`);
 	}
 };
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+const ProtectedRoute = ({ component: Component }: { component: preact.AnyComponent }) => {
+	const auth = useAuthStore();
+	const location = useLocation();
+
+	useEffect(() => {
+		if (!auth.isAuthenticated) {
+			location.route("/login", true);
+		}
+	}, [auth.isAuthenticated, location]);
+
+	return auth.isAuthenticated ? <Component /> : null;
+};
+
+const ErrorBoundary = class extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	override state: ErrorBoundaryState = { hasError: false };
 
 	static override getDerivedStateFromError(): ErrorBoundaryState {
@@ -94,92 +99,93 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	}
 
 	override render() {
-		if (this.state.hasError) return <Maintenance />;
-		return this.props.children;
+		return this.state.hasError ? <Maintenance /> : this.props.children;
 	}
-}
-
-enum AppStatus {
-	Loading = "loading",
-	Success = "success",
-	Error = "error",
-	Unauthorized = "unauthorized",
-	NotInApp = "not_in_app",
-}
+};
 
 const useAppInitialization = () => {
 	const [status, setStatus] = useState<AppStatus>(AppStatus.Loading);
 	const [isLoading, setIsLoading] = useState(false);
-	const isAuthenticated = authStore.isAuthenticated;
+	const authStore = useAuthStore();
 	const location = useLocation();
 
-	const isChannelsPage = useMemo(() => 
-		location.path.startsWith("/channels"), 
-		[location.path]
-	);
+	const isAuthenticated = authStore.isAuthenticated;
+	const isChannelsPage = useMemo(() => location.path.startsWith("/channels"), [location.path]);
+	const isAuthPage = useMemo(() => AUTH_PATHS.includes(location.path as any), [location.path]);
+	const shouldShowLoading = useMemo(() => isLoading || status === AppStatus.Loading, [isLoading, status]);
 
-	const shouldShowLoading = useMemo(() => 
-		isLoading || status === AppStatus.Loading, 
-		[isLoading, status]
-	);
+	const setNotInAppStatus = useCallback(() => {
+		setStatus(AppStatus.NotInApp);
+		appStore.resetStore();
+	}, []);
+
+	const handleUnauthorized = useCallback(async () => {
+		setIsLoading(true);
+		await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
+		setStatus(AppStatus.Unauthorized);
+		setIsLoading(false);
+	}, []);
+
+	const handleChannelsPage = useCallback(async () => {
+		if (appStore.isWsInitialized && appStore.channels.length > 0) {
+			setStatus(AppStatus.Success);
+			return;
+		}
+
+		setIsLoading(true);
+		await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
+		setStatus(AppStatus.Loading);
+		
+		try {
+			await appStore.initializeStore();
+			setStatus(AppStatus.Success);
+		} catch (error: unknown) {
+			const shouldShowSuccess = appStore.currentUserId && 
+				!appStore.connectionError?.includes("WebSocket");
+			setStatus(shouldShowSuccess ? AppStatus.Success : AppStatus.Error);
+		}
+		setIsLoading(false);
+	}, []);
 
 	const initializeApp = useCallback(async () => {
-		if (location.path === "/") {
-			setStatus(AppStatus.NotInApp);
-			appStore.resetStore();
+		if (!isChannelsPage && !isAuthPage) {
+			setNotInAppStatus();
 			return;
 		}
 
-		if (!isAuthenticated && location.path !== "/") {
-			setIsLoading(true);
-			await new Promise((resolve) => setTimeout(resolve, 300));
-			setStatus(AppStatus.Unauthorized);
-			setIsLoading(false);
+		if (isAuthPage) {
+			setNotInAppStatus();
 			return;
 		}
 
-		if (isAuthenticated && isChannelsPage) {
-			if (appStore.isWsInitialized && appStore.channels.length > 0) {
-				setStatus(AppStatus.Success);
-				return;
-			}
-
-			setIsLoading(true);
-			await new Promise((resolve) => setTimeout(resolve, 300));
-			setStatus(AppStatus.Loading);
-			
-			try {
-				await appStore.initializeStore();
-				setStatus(AppStatus.Success);
-			} catch (error: unknown) {
-				setStatus(
-					appStore.currentUserId &&
-						!appStore.connectionError?.includes("WebSocket")
-						? AppStatus.Success
-						: AppStatus.Error,
-				);
-			}
-			setIsLoading(false);
-		} else if (isAuthenticated) {
-			setStatus(AppStatus.NotInApp);
-			appStore.resetStore();
+		if (!isAuthenticated) {
+			await handleUnauthorized();
+			return;
 		}
-	}, [isAuthenticated, location.path, isChannelsPage]);
+
+		await handleChannelsPage();
+	}, [isAuthenticated, location.path, isChannelsPage, isAuthPage, setNotInAppStatus, handleUnauthorized, handleChannelsPage]);
 
 	useEffect(() => {
 		void initializeApp();
 	}, [initializeApp]);
 
 	useEffect(() => {
-		return () => {
-			appStore.resetStore();
-		};
+		return () => appStore.resetStore();
 	}, []);
 
-	return {
-		status,
-		shouldShowLoading,
-	};
+	return { status, shouldShowLoading };
+};
+
+const useKeyboardHandlers = () => {
+	useEffect(() => {
+		const handleTab = (e: KeyboardEvent) => {
+			if (e.key === "Tab") e.preventDefault();
+		};
+
+		window.addEventListener("keydown", handleTab, { capture: true });
+		return () => window.removeEventListener("keydown", handleTab, { capture: true });
+	}, []);
 };
 
 const InitializationCheck = ({ children }: { children: ComponentChild }) => {
@@ -207,21 +213,6 @@ const Routes = () => (
 		))}
 	</Router>
 );
-
-const useKeyboardHandlers = () => {
-	useEffect(() => {
-		const handleTab = (e: KeyboardEvent) => {
-			if (e.key === "Tab") {
-				e.preventDefault();
-			}
-		};
-
-		window.addEventListener("keydown", handleTab, { capture: true });
-		return () => {
-			window.removeEventListener("keydown", handleTab, { capture: true });
-		};
-	}, []);
-};
 
 export const App = () => {
 	useKeyboardHandlers();
