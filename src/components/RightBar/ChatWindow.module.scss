@@ -1,5 +1,6 @@
 .chatWindowContainer {
     display: flex;
+    flex-direction: row;
     flex-grow: 1;
     height: 100%;
     background-size: cover;
@@ -12,6 +13,8 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
     background-size: cover;
     height: 100%;
     position: relative;
