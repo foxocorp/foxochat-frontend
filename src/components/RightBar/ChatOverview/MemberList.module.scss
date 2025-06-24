@@ -53,6 +53,9 @@
 .memberInfo {
   display: flex;
   flex-direction: column;
+  min-width: 120px;
+  flex: 1;
+  overflow: hidden;
 }
 
 .username {
@@ -64,10 +67,17 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--primary-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .status {
   font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .online {

@@ -1,23 +1,18 @@
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { Tooltip } from "@/components/Chat/Tooltip/Tooltip";
 import { apiMethods } from "@services/API/apiMethods";
-import { APIChannel } from "foxochat.js";
 import { memo } from "preact/compat";
 import { useCallback, useEffect, useState } from "preact/hooks";
 import * as styles from "./ChatOverview.module.scss";
 import MemberList from "./MemberList";
+import { ChatOverviewProps } from "@interfaces/interfaces";
 
 import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/edit.svg";
 import MuteIcon from "@/assets/icons/right-bar/chat/chat-overview/mute.svg";
 import PinIcon from "@/assets/icons/right-bar/chat/chat-overview/pin.svg";
 import TrashIcon from "@/assets/icons/right-bar/chat/chat-overview/trash.svg";
 
-interface ChatOverviewProps {
-	channel: APIChannel;
-	isOwner: boolean;
-}
-
-const ChatOverview = ({ channel, isOwner }: ChatOverviewProps) => {
+const ChatOverview = ({ channel, isOwner, visible = true, className }: ChatOverviewProps) => {
 	const handleEditChannel = useCallback(() => {
 		// TODO: Implement edit channel
 	}, []);
@@ -55,7 +50,9 @@ const ChatOverview = ({ channel, isOwner }: ChatOverviewProps) => {
 	}, [channel.id]);
 
 	return (
-		<div className={styles.overview}>
+		<div
+			className={styles.overview + (visible ? ' ' + styles.visible : ' ' + styles.hidden) + (className ? ' ' + className : '')}
+		>
 			<div className={styles.header}>
 				<div className={styles.headerBackground}>
 					{channel.icon ? (

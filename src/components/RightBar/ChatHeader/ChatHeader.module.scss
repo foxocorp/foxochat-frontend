@@ -10,7 +10,7 @@
   background: var(--background-chat-color);
   gap: 10px;
   position: relative;
-  z-index: 10001;
+  z-index: 10000;
 }
 
 .backButton {
@@ -65,4 +65,10 @@
   width: 44px;
   height: 44px;
   margin-right: 10px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
 }

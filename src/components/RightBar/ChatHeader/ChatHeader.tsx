@@ -1,12 +1,21 @@
-import { ChatHeaderProps } from "@interfaces/interfaces";
+import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
+import type { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
-import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
-import { useEffect, useState } from "preact/hooks";
-import * as style from "./ChatHeader.module.scss";
 import appStore from "@store/app";
 import { autorun } from "mobx";
+import { useEffect, useState } from "preact/hooks";
+import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg";
+import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg";
+import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
+import * as style from "./ChatHeader.module.scss";
 
-const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
+const ChatHeader = ({
+	chat,
+	isMobile,
+	onBack,
+	showOverview,
+	setShowOverview,
+}: ChatHeaderProps) => {
 	const { id, name, display_name, icon, created_at } = chat;
 	const nameToDisplay = display_name || name;
 	const [participantsCount, setParticipantsCount] = useState<number>(0);
@@ -67,6 +76,38 @@ const ChatHeader = ({ chat, isMobile, onBack }: ChatHeaderProps) => {
 				<div className={style.chatHeaderMembers}>
 					<span>• {participantsCount} Members</span>
 				</div>
+			</div>
+			<div className={style.headerActions}>
+				<button
+					onClick={() => setShowOverview(!showOverview)}
+					aria-label={showOverview ? "Hide chat info" : "Show chat info"}
+					style={{
+						background: "none",
+						border: "none",
+						padding: 8,
+						borderRadius: 8,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					<img src={OverviewIcon} alt="chat overview" />
+				</button>
+				<Tooltip text="Temporary unavailable" position="bottom">
+					<button
+						disabled
+						style={{
+							opacity: 0.5,
+							cursor: "not-allowed",
+							background: "none",
+							border: "none",
+							padding: 8,
+							borderRadius: 8,
+						}}
+					>
+						<img src={SearchIcon} alt="search" />
+					</button>
+				</Tooltip>
 			</div>
 		</div>
 	);
