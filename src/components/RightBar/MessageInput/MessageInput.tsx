@@ -1,17 +1,16 @@
+import type { MessageInputProps } from "@interfaces/interfaces";
+import appStore from "@store/app";
+import { Logger } from "@utils/logger";
+import { autorun } from "mobx";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
+import type React from "react";
 import fileIcon from "@/assets/icons/right-bar/chat/file.svg";
 import mediaIcon from "@/assets/icons/right-bar/chat/media.svg";
 import sendIcon from "@/assets/icons/right-bar/chat/paperplane.svg";
 import trashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
-import { MessageInputProps } from "@interfaces/interfaces";
-import appStore from "@store/app";
-import { Logger } from "@utils/logger";
-import { autorun } from "mobx";
-import { useEffect, useRef, useState } from "preact/hooks";
-import React from "react";
 import * as style from "./MessageInput.module.scss";
 
-const MAX_FILES = 10;
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_FILES = 100;
 // const ALLOWED_TYPES = ["image/", "video/", "application/pdf"];
 const ERROR_DISPLAY_TIME = 7000;
 
@@ -59,13 +58,7 @@ const MessageInput = ({}: MessageInputProps) => {
 	const generateFileId = (file: File) =>
 		`${file.name}-${file.size}-${file.lastModified}`;
 
-	const validateFile = (file: File): string | null => {
-		// if (!ALLOWED_TYPES.some((type) => file.type.startsWith(type))) {
-		// 	return `File ${file.name} is not a supported type`;
-		// }
-		if (file.size > MAX_FILE_SIZE) {
-			return `File ${file.name} is too large (max ${MAX_FILE_SIZE / 1024 / 1024}MB)`;
-		}
+	const validateFile = (_file: File): string | null => {
 		return null;
 	};
 
@@ -168,6 +161,66 @@ const MessageInput = ({}: MessageInputProps) => {
 			return newPreviews;
 		});
 	};
+
+	const handleAddFilesFromEvent = useCallback(
+		(files: File[]) => {
+			const validFiles: File[] = [];
+			const newPreviews = new Map(filePreviews);
+			const errors: string[] = [];
+
+			for (const file of files) {
+				const error = validateFile(file);
+				if (error) {
+					errors.push(error);
+					continue;
+				}
+
+				if (files.length + validFiles.length >= MAX_FILES) {
+					errors.push(`Cannot add more than ${MAX_FILES} files`);
+					break;
+				}
+
+				validFiles.push(file);
+				const fileId = generateFileId(file);
+				if (file.type.startsWith("image/")) {
+					try {
+						const url = URL.createObjectURL(file);
+						newPreviews.set(fileId, url);
+					} catch (error) {
+						Logger.error(`Failed to create preview for ${file.name}: ${error}`);
+					}
+				}
+			}
+
+			if (errors.length > 0) {
+				showError(errors.join(", "));
+			}
+
+			setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+			setFilePreviews(newPreviews);
+			setTimeout(() => {
+				textareaRef.current?.focus();
+			}, 0);
+		},
+		[filePreviews, validateFile, generateFileId, showError],
+	);
+
+	useEffect(() => {
+		const handleAddFilesEvent = (e: CustomEvent) => {
+			handleAddFilesFromEvent(e.detail.files);
+		};
+
+		window.addEventListener(
+			"addFilesToQueue",
+			handleAddFilesEvent as EventListener,
+		);
+		return () => {
+			window.removeEventListener(
+				"addFilesToQueue",
+				handleAddFilesEvent as EventListener,
+			);
+		};
+	}, [handleAddFilesFromEvent]);
 
 	useEffect(() => {
 		return () => {

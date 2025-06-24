@@ -1,15 +1,16 @@
-import { ChatWindowProps } from "@interfaces/interfaces";
+import type { ChatWindowProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { Logger } from "@utils/logger";
+import type { APIChannel } from "foxochat.js";
 import { reaction } from "mobx";
 import { observer } from "mobx-react";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
+import DragAndDropIcon from "@/assets/icons/right-bar/chat/drag-and-drop.svg";
 import ChatHeader from "./ChatHeader/ChatHeader";
+import ChatOverview from "./ChatOverview/ChatOverview";
 import * as styles from "./ChatWindow.module.scss";
 import MessageInput from "./MessageInput/MessageInput";
 import MessageList from "./MessageList/MessageList";
-import ChatOverview from "./ChatOverview/ChatOverview";
-import type { APIChannel } from "foxochat.js";
 
 const ChatWindowComponent = ({
 	channel,
@@ -19,6 +20,7 @@ const ChatWindowComponent = ({
 	const listRef = useRef<HTMLDivElement>(null);
 	const [showScrollButton, setShowScrollButton] = useState(false);
 	const [isFirstLoad, setIsFirstLoad] = useState(true);
+	const [isDragOver, setIsDragOver] = useState(true);
 	const isFetchingOlderMessages = useRef(false);
 	const lastScrollTop = useRef(0);
 	const anchorMessageId = useRef<number | null>(null);
@@ -29,6 +31,68 @@ const ChatWindowComponent = ({
 
 	const apiChannel = channel as unknown as APIChannel;
 	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
+
+	const addFilesToQueue = useCallback((files: File[]) => {
+		const event = new CustomEvent("addFilesToQueue", { detail: { files } });
+		window.dispatchEvent(event);
+	}, []);
+
+	const handleDragEnter = useCallback((e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (e.dataTransfer?.types.includes("Files")) {
+			setIsDragOver(true);
+		}
+	}, []);
+
+	const handleDragOver = useCallback((e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+	}, []);
+
+	const handleDragLeave = useCallback((e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (e.relatedTarget === null) {
+			setIsDragOver(false);
+		}
+	}, []);
+
+	const handleDrop = useCallback(
+		(e: DragEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+			setIsDragOver(false);
+
+			const files = Array.from(e.dataTransfer?.files || []);
+			if (files.length > 0) {
+				addFilesToQueue(files);
+			}
+		},
+		[addFilesToQueue],
+	);
+
+	useEffect(() => {
+		const container = listRef.current?.parentElement?.parentElement;
+		if (!container) return;
+
+		const handlers = [
+			["dragenter", handleDragEnter],
+			["dragover", handleDragOver],
+			["dragleave", handleDragLeave],
+			["drop", handleDrop],
+		] as const;
+
+		handlers.forEach(([event, handler]) => {
+			container.addEventListener(event, handler);
+		});
+
+		return () => {
+			handlers.forEach(([event, handler]) => {
+				container.removeEventListener(event, handler);
+			});
+		};
+	}, [handleDragEnter, handleDragOver, handleDragLeave, handleDrop]);
 
 	useEffect(() => {
 		(async () => {
@@ -129,84 +193,86 @@ const ChatWindowComponent = ({
 				clearTimeout(scrollTimeout.current);
 			}
 
-			scrollTimeout.current = Number(setTimeout(async () => {
-				if (!listRef.current || !isMounted.current) return;
+			scrollTimeout.current = Number(
+				setTimeout(async () => {
+					if (!listRef.current || !isMounted.current) return;
 
-				const el = listRef.current;
-				if (!el) return;
+					const el = listRef.current;
+					if (!el) return;
 
-				const scrollTop = el.scrollTop;
-				const scrollHeight = el.scrollHeight;
-				const clientHeight = el.clientHeight;
+					const scrollTop = el.scrollTop;
+					const scrollHeight = el.scrollHeight;
+					const clientHeight = el.clientHeight;
 
-				const threshold = clientHeight * 0.3;
-				const atBottom = scrollTop + clientHeight >= scrollHeight - threshold;
-				if (isMounted.current) {
-					appStore.setIsCurrentChannelScrolledToBottom(atBottom);
-					setShowScrollButton(!atBottom && messages.length > 50);
-				}
-
-				const nearTop = scrollTop <= clientHeight * 4;
-				const isScrollingUp = scrollTop < lastScrollTop.current;
-
-				if (
-					nearTop &&
-					isScrollingUp &&
-					!isLoading &&
-					!isFetchingOlderMessages.current &&
-					appStore.hasMoreMessagesByChannelId.get(channel.id)
-				) {
-					isFetchingOlderMessages.current = true;
-
-					const visibleMessages = messages
-						.map((msg) => ({
-							msg,
-							element: document.getElementById(`messageGroup-${msg.id}`),
-						}))
-						.filter(({ element }) => element !== null);
-					const topMessage = visibleMessages.find(({ element }) => {
-						if (!listRef.current || !element) return false;
-						const rect = element.getBoundingClientRect();
-						const containerRect = listRef.current.getBoundingClientRect();
-						return (
-							rect.top >= containerRect.top &&
-							rect.top <= containerRect.top + clientHeight * 0.5
-						);
-					});
-
-					if (topMessage && listRef.current) {
-						anchorMessageId.current = topMessage.msg.id;
-						const rect = topMessage.element?.getBoundingClientRect();
-						if (!rect) return;
-						const containerRect = listRef.current.getBoundingClientRect();
-						anchorOffset.current = rect.top - containerRect.top;
-						Logger.info(
-							`Anchored to message ${anchorMessageId.current} at offset ${anchorOffset.current}`,
-						);
-					} else {
-						anchorMessageId.current = null;
-						anchorOffset.current = 0;
-						Logger.debug(`No anchor message found`);
+					const threshold = clientHeight * 0.3;
+					const atBottom = scrollTop + clientHeight >= scrollHeight - threshold;
+					if (isMounted.current) {
+						appStore.setIsCurrentChannelScrolledToBottom(atBottom);
+						setShowScrollButton(!atBottom && messages.length > 50);
 					}
 
-					const oldestMessage = messages[0];
-					const oldestMessageTime = oldestMessage
-						? oldestMessage.created_at
-						: Date.now();
+					const nearTop = scrollTop <= clientHeight * 4;
+					const isScrollingUp = scrollTop < lastScrollTop.current;
 
-					try {
-						await appStore.fetchOlderMessages(channel.id, oldestMessageTime);
-					} catch (error) {
-						Logger.error(`Failed to fetch older messages: ${error}`);
-					} finally {
-						if (isMounted.current) {
-							isFetchingOlderMessages.current = false;
+					if (
+						nearTop &&
+						isScrollingUp &&
+						!isLoading &&
+						!isFetchingOlderMessages.current &&
+						appStore.hasMoreMessagesByChannelId.get(channel.id)
+					) {
+						isFetchingOlderMessages.current = true;
+
+						const visibleMessages = messages
+							.map((msg) => ({
+								msg,
+								element: document.getElementById(`messageGroup-${msg.id}`),
+							}))
+							.filter(({ element }) => element !== null);
+						const topMessage = visibleMessages.find(({ element }) => {
+							if (!listRef.current || !element) return false;
+							const rect = element.getBoundingClientRect();
+							const containerRect = listRef.current.getBoundingClientRect();
+							return (
+								rect.top >= containerRect.top &&
+								rect.top <= containerRect.top + clientHeight * 0.5
+							);
+						});
+
+						if (topMessage && listRef.current) {
+							anchorMessageId.current = topMessage.msg.id;
+							const rect = topMessage.element?.getBoundingClientRect();
+							if (!rect) return;
+							const containerRect = listRef.current.getBoundingClientRect();
+							anchorOffset.current = rect.top - containerRect.top;
+							Logger.info(
+								`Anchored to message ${anchorMessageId.current} at offset ${anchorOffset.current}`,
+							);
+						} else {
+							anchorMessageId.current = null;
+							anchorOffset.current = 0;
+							Logger.debug(`No anchor message found`);
+						}
+
+						const oldestMessage = messages[0];
+						const oldestMessageTime = oldestMessage
+							? oldestMessage.created_at
+							: Date.now();
+
+						try {
+							await appStore.fetchOlderMessages(channel.id, oldestMessageTime);
+						} catch (error) {
+							Logger.error(`Failed to fetch older messages: ${error}`);
+						} finally {
+							if (isMounted.current) {
+								isFetchingOlderMessages.current = false;
+							}
 						}
 					}
-				}
 
-				lastScrollTop.current = scrollTop;
-			}, 100));
+					lastScrollTop.current = scrollTop;
+				}, 100),
+			);
 		},
 		[channel.id, messages, isLoading],
 	);
@@ -236,7 +302,9 @@ const ChatWindowComponent = ({
 	};
 
 	return (
-		<div className={styles.chatWindowContainer}>
+		<div
+			className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}
+		>
 			<div className={styles.chatWindow}>
 				<ChatHeader
 					chat={apiChannel}
@@ -263,6 +331,7 @@ const ChatWindowComponent = ({
 						className={`${styles.scrollButton} ${styles.visible}`}
 						onClick={handleScrollToBottom}
 						title="New messages"
+						style={{ right: showOverview ? "340px" : "20px" }}
 					>
 						↓ {appStore.unreadCount.get(channel.id) || ""}
 					</button>
@@ -272,7 +341,27 @@ const ChatWindowComponent = ({
 					isSending={appStore.isSendingMessage}
 				/>
 			</div>
-			<ChatOverview channel={apiChannel} isOwner={isOwner} />
+			{isDragOver && (
+				<div className={styles.dragOverlay}>
+					<div className={styles.dragBox}>
+						<img
+							src={DragAndDropIcon}
+							alt="Add files"
+							className={styles.dragIcon}
+						/>
+						<p className={styles.dragTextTitle}>Add files</p>
+						<p className={styles.dragTextSub}>100MB size limit</p>
+						<p className={styles.dragTextInfo}>
+							You can add text before uploading files
+						</p>
+					</div>
+				</div>
+			)}
+			<ChatOverview
+				channel={apiChannel}
+				isOwner={isOwner}
+				visible={showOverview}
+			/>
 		</div>
 	);
 };

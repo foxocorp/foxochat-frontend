@@ -22,12 +22,78 @@
     user-select: none;
 }
 
+.dragOver {
+    position: relative;
+}
+
+.dragOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.dragBox {
+    background-color: #007bff;
+    padding: 40px;
+    border-radius: 12px;
+    border: 3px dashed rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.dragIcon {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.dragTextTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.dragTextSub {
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0 0 16px 0;
+}
+
+.dragTextInfo {
+    font-size: 12px;
+    opacity: 0.6;
+    margin: 0;
+}
+
+.dragMessage {
+    background-color: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    border: 2px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .scrollButton {
     position: fixed;
     height: 50px;
     width: 50px;
     bottom: 120px;
-    right: 340px;
+    right: 20px;
     background-color: rgb(37 37 37 / 0.6);
     color: var(--primary-color);
     padding: 12px;
@@ -37,7 +103,7 @@
     cursor: pointer;
     opacity: 0;
     backdrop-filter: blur(4px);
-    transition: opacity 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: opacity 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, right 0.3s ease;
     box-shadow: 0 4px 8px rgb(0 0 0 / 0.3);
 }
 
