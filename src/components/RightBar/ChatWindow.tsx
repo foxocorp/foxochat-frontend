@@ -25,6 +25,7 @@ const ChatWindowComponent = ({
 	const anchorOffset = useRef<number>(0);
 	const scrollTimeout = useRef<number | null>(null);
 	const isMounted = useRef(true);
+	const [showOverview, setShowOverview] = useState(true);
 
 	const apiChannel = channel as unknown as APIChannel;
 	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
@@ -245,6 +246,8 @@ const ChatWindowComponent = ({
 					channelId={channel.id}
 					isMobile={isMobile}
 					onBack={isMobile ? onBack : undefined}
+					showOverview={showOverview}
+					setShowOverview={setShowOverview}
 				/>
 				<MessageList
 					messages={messages}
