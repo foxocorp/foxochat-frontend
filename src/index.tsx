@@ -27,7 +27,6 @@ import { useAuthStore } from "@store/authenticationStore";
 import { isAppleDevice } from "@utils/emoji";
 
 const AUTH_PATHS = ["/login", "/register"] as const;
-const LOADING_DELAY = 300;
 
 enum AppStatus {
 	Loading = "loading",
@@ -121,7 +120,6 @@ const useAppInitialization = () => {
 
 	const handleUnauthorized = useCallback(async () => {
 		setIsLoading(true);
-		await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
 		setStatus(AppStatus.Unauthorized);
 		setIsLoading(false);
 	}, []);
@@ -133,7 +131,6 @@ const useAppInitialization = () => {
 		}
 
 		setIsLoading(true);
-		await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
 		setStatus(AppStatus.Loading);
 		
 		try {
