@@ -13,6 +13,7 @@ dist-ssr
 *.local
 public/sw.js*
 public/workbox-*.js*
+.pnpm-store
 
 # Editor directories and files
 .vscode/*
