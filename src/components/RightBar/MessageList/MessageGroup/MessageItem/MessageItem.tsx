@@ -195,12 +195,10 @@ const MessageItem = ({
 		void loadThumbHashes();
 	}, [attachments]);
 
-	const { h, s } = useMemo(
-		() => timestampToHSV(author?.user?.created_at),
-		[author?.user?.created_at],
+	const { background: avatarBg } = useMemo(
+		() => timestampToHSV(author.user.created_at),
+		[author.user.created_at],
 	);
-
-	const avatarBg = useMemo(() => `hsl(${h}, ${s}%, 50%)`, [h, s]);
 
 	const statusIcon = useMemo(() => {
 		switch (status) {

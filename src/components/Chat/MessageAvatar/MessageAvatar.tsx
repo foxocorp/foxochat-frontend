@@ -23,7 +23,7 @@ const Avatar = ({
 			) : (
 				<div
 					className={styles.defaultAvatar}
-					style={{ backgroundColor: avatarBg }}
+					style={{ background: avatarBg }}
 				>
 					{avatarInitial}
 				</div>

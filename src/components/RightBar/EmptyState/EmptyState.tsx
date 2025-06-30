@@ -37,9 +37,8 @@ const EmptyState = ({ selectedChat }: EmptyStateProps) => {
 
 	const getAvatarBackground = (chat: APIChannel | CachedChat): string => {
 		const ts = chat.created_at;
-		const { h, s } = timestampToHSV(ts);
-		const v = 70;
-		return `hsl(${h}, ${s}%, ${v}%)`;
+		const { background } = timestampToHSV(ts);
+		return background;
 	};
 
 	return (

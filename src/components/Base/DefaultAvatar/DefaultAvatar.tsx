@@ -11,8 +11,7 @@ interface DefaultAvatarProps {
 
 const DefaultAvatar = ({ createdAt, displayName = '', size = 'medium', square = false }: DefaultAvatarProps) => {
 	const initial = displayName.charAt(0).toUpperCase();
-	const { h, s } = timestampToHSV(createdAt);
-	const background = `hsl(${h}, ${s}%, 50%)`;
+	const { background } = timestampToHSV(createdAt);
 
 	return (
 		<div 

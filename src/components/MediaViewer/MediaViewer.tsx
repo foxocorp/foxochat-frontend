@@ -45,9 +45,7 @@ const MediaViewer = ({
 		? `${config.cdnBaseUrl}${authorAvatar}`
 		: undefined;
 
-	const { h, s } = timestampToHSV(createdAt);
-	const v = 70;
-	const backgroundColor = `hsl(${h}, ${s}%, ${v}%)`;
+	const { background: backgroundColor } = timestampToHSV(createdAt);
 
 	const minScale = 0.5;
 	const maxScale = 4;

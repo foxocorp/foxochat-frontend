@@ -62,9 +62,14 @@ export async function fetchFileAndGenerateThumbHash(url: string, contentType: st
     }
 }
 
-export const timestampToHSV = (ts: number): { h: number; s: number } => {
+export const timestampToHSV = (ts: number): { h: number; s: number; background: string } => {
     const seconds = Math.floor(ts / 1000);
     const h = seconds % 360;
     const s = 20 + ((seconds % 1000) / 1000) * 40;
-    return { h, s };
+    
+    const mainColor = `hsl(${h}, ${s}%, 50%)`;
+    const darkColor = `hsl(${h}, ${s}%, 60%)`;
+    const background = `linear-gradient(135deg, ${mainColor} 0%, ${darkColor} 100%)`;
+    
+    return { h, s, background };
 };
