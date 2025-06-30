@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.0.4",
-		"@rsbuild/core": "^1.4.1",
+		"@rsbuild/core": "^1.4.2",
 		"@rsbuild/plugin-preact": "^1.5.0",
 		"@rsbuild/plugin-sass": "^1.3.2",
 		"@rsbuild/plugin-typed-css-modules": "^1.0.2",
