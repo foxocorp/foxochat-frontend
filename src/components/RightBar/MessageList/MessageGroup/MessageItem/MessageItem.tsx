@@ -1,15 +1,5 @@
-import CopyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-copy.svg";
-import ReplyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-reply.svg";
-import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/message-edit.svg";
-import ForwardIcon from "@/assets/icons/right-bar/chat/chat-overview/message-forward.svg";
-import TrashIcon from "@/assets/icons/right-bar/chat/chat-overview/trash.svg";
-import StateFailed from "@/assets/icons/right-bar/chat/message/state-failed.svg";
-import StateSending from "@/assets/icons/right-bar/chat/message/state-sending.svg";
-import SelectIcon from "@/assets/icons/right-bar/chat/chat-overview/message-select.svg";
-import StateSent from "@/assets/icons/right-bar/chat/message/state-sent.svg";
-import PinIcon from "@/assets/icons/right-bar/chat/chat-overview/pin.svg";
-import ClockIcon from "@/assets/icons/right-bar/chat/chat-overview/clock.svg";
-import { getDisplayName } from "@/codeLanguages";
+import ContextMenu from "@components/Base/ContextMenu/ContextMenu";
+import { useContextMenu } from "@components/Base/ContextMenu/useContextMenu";
 import ActionPopup from "@components/Chat/ActionPopup/ActionPopup";
 import CopyBubble from "@components/Chat/Bubbles/CopyBubble/Bubbles";
 import Attachments from "@components/Chat/MessageAttachments/MessageAttachments";
@@ -27,14 +17,29 @@ import {
 	timestampToHSV,
 } from "@utils/functions";
 import { Logger } from "@utils/logger";
-import parse from "html-react-parser";
-import { JSX } from "preact";
+import type { Element as HtmlParserElement } from "html-react-parser";
+import parse, {
+	domToReact,
+	Element,
+	type HTMLReactParserOptions,
+} from "html-react-parser";
+import type { JSX } from "preact";
 import { memo } from "preact/compat";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { thumbHashToDataURL } from "thumbhash";
+import ClockIcon from "@/assets/icons/right-bar/chat/chat-overview/clock.svg";
+import CopyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-copy.svg";
+import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/message-edit.svg";
+import ForwardIcon from "@/assets/icons/right-bar/chat/chat-overview/message-forward.svg";
+import ReplyIcon from "@/assets/icons/right-bar/chat/chat-overview/message-reply.svg";
+import SelectIcon from "@/assets/icons/right-bar/chat/chat-overview/message-select.svg";
+import PinIcon from "@/assets/icons/right-bar/chat/chat-overview/pin.svg";
+import TrashIcon from "@/assets/icons/right-bar/chat/chat-overview/trash.svg";
+import StateFailed from "@/assets/icons/right-bar/chat/message/state-failed.svg";
+import StateSending from "@/assets/icons/right-bar/chat/message/state-sending.svg";
+import StateSent from "@/assets/icons/right-bar/chat/message/state-sent.svg";
+import { getDisplayName } from "@/codeLanguages";
 import * as styles from "./MessageItem.module.scss";
-import ContextMenu from "@components/Base/ContextMenu/ContextMenu";
-import { useContextMenu } from "@components/Base/ContextMenu/useContextMenu";
 
 const PreComponent = function PreComponent({
 	className,
@@ -260,7 +265,7 @@ const MessageItem = ({
 		return rawAttachments
 			.map(
 				(
-					att: Attachment
+					att: Attachment,
 				): (Attachment & { url: string; filename: string }) | null => {
 					if (!att?.uuid || !att?.content_type) {
 						return null;
@@ -293,70 +298,51 @@ const MessageItem = ({
 
 	const renderContent = useCallback(
 		(html: string | null | undefined): JSX.Element[] => {
-			if (!html) {
-				Logger.warn(`Invalid HTML in renderContent: ${html}`);
-				return [<span key="invalid-html">Invalid content</span>];
-			}
+			if (!html) return [];
 
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
-			const elements: JSX.Element[] = [];
-
-			if (!doc.body.firstChild) {
-				Logger.warn(`No valid HTML content in renderContent: ${html}`);
-				return [<span key="empty">Invalid content</span>];
-			}
-
-			const simpleHash = (str: string): string => {
-				let hash = 0;
-				for (let i = 0; i < str.length; i++) {
-					const char = str.charCodeAt(i);
-					hash = (hash << 5) - hash + char;
-					hash = hash & hash;
-				}
-				return hash.toString(16);
-			};
-
-			const processNode = (node: Node, index: string): void => {
-				if (node.nodeType === Node.TEXT_NODE && node.textContent) {
-					const textKey = `text-${index}-${simpleHash(node.textContent)}`;
-					elements.push(<span key={textKey}>{node.textContent}</span>);
-				} else if (node.nodeType === Node.ELEMENT_NODE) {
-					const element = node as Element;
-					const elementKeyBase = `${index}-${element.tagName.toLowerCase()}`;
+			const options: HTMLReactParserOptions = {
+				replace: (domNode) => {
+					const el = domNode as HtmlParserElement;
 					if (
-						element.tagName.toLowerCase() === "pre" &&
-						element.className.startsWith("language-")
+						el.type === "tag" &&
+						el.name === "pre" &&
+						el.attribs &&
+						el.attribs.class &&
+						el.attribs.class.startsWith("language-")
 					) {
 						const language =
-							element.className.replace("language-", "") || "text";
-						const codeElement = element.querySelector("code");
-						const codeHtml = codeElement?.innerHTML ?? "";
-						const codeText = codeElement?.textContent ?? "";
-						const preKey = `pre-${elementKeyBase}-${language}-${simpleHash(codeText)}`;
-						elements.push(
+							el.attribs.class.replace("language-", "") || "text";
+						const codeElement = el.children.find(
+							(child) => child instanceof Element && child.name === "code",
+						) as Element | undefined;
+						const codeHtml = codeElement
+							? domToReact(
+									codeElement.children as unknown as import("html-react-parser").DOMNode[],
+								)
+							: "";
+						let codeText = "";
+						if (codeElement && codeElement.children) {
+							codeText = codeElement.children
+								.map((child) => ("data" in child ? (child as any).data : ""))
+								.join("");
+						}
+						return (
 							<PreComponent
-								key={preKey}
-								className={element.className}
+								className={el.attribs.class}
 								language={language}
-								codeHtml={codeHtml}
+								codeHtml={codeHtml as unknown as string}
 								codeText={codeText}
-							/>,
-						);
-					} else if (element.tagName.toLowerCase() === "br") {
-						elements.push(<br key={`br-${elementKeyBase}`} />);
-					} else {
-						Array.from(element.childNodes).forEach((child, childIndex) =>
-							processNode(child, `${elementKeyBase}-${childIndex}`),
+							/>
 						);
 					}
-				}
+					return undefined;
+				},
 			};
 
-			Array.from(doc.body.firstChild.childNodes).forEach((node, index) =>
-				processNode(node, String(index)),
-			);
-			return elements;
+			const parsed = parse(html, options);
+			if (Array.isArray(parsed)) return parsed as JSX.Element[];
+			if (parsed == null) return [];
+			return [parsed as JSX.Element];
 		},
 		[],
 	);
@@ -383,51 +369,85 @@ const MessageItem = ({
 	return (
 		<>
 			<div
-				className={`${styles.messageItem} ${contextMenu.isOpen ? styles.contextActive : ''} ${isMessageAuthor ? styles.author : styles.receiver}`}
+				className={`${styles.messageItem} ${contextMenu.isOpen ? styles.contextActive : ""} ${isMessageAuthor ? styles.author : styles.receiver}`}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 				onContextMenu={(e) => {
 					e.preventDefault();
-					const items: import("@components/Base/ContextMenu/ContextMenu").ContextMenuItem[] = [];
+					const items: import("@components/Base/ContextMenu/ContextMenu").ContextMenuItem[] =
+						[];
 
 					items.push({
-						icon: <img src={PinIcon} alt="Pin" />, label: "Pin", onClick: () => {/* TODO pin */},
+						icon: <img src={PinIcon} alt="Pin" />,
+						label: "Pin",
+						onClick: () => {
+							/* TODO pin */
+						},
 					});
 
 					if (isMessageAuthor) {
 						items.push({
-							icon: <img src={EditIcon} alt="Edit" />, label: "Edit", onClick: () => { if (onEdit) onEdit(); },
+							icon: <img src={EditIcon} alt="Edit" />,
+							label: "Edit",
+							onClick: () => {
+								if (onEdit) onEdit();
+							},
 						});
 					}
 
 					items.push({ divider: true });
 
 					items.push({
-						icon: <img src={ReplyIcon} alt="Reply" />, label: "Reply", onClick: () => { if (onReply) onReply(); },
+						icon: <img src={ReplyIcon} alt="Reply" />,
+						label: "Reply",
+						onClick: () => {
+							if (onReply) onReply();
+						},
 					});
 
 					items.push({
-						icon: <img src={ForwardIcon} alt="Forward" />, label: "Forward", onClick: () => { if (onForward) onForward(); },
+						icon: <img src={ForwardIcon} alt="Forward" />,
+						label: "Forward",
+						onClick: () => {
+							if (onForward) onForward();
+						},
 					});
 
 					items.push({
-						icon: <img src={SelectIcon} alt="Select" />, label: "Select", onClick: () => {/* TODO select */},
+						icon: <img src={SelectIcon} alt="Select" />,
+						label: "Select",
+						onClick: () => {
+							/* TODO select */
+						},
 					});
 
 					items.push({
-						icon: <img src={CopyIcon} alt="Copy" />, label: "Copy text", onClick: () => { navigator.clipboard.writeText(content ?? ""); },
+						icon: <img src={CopyIcon} alt="Copy" />,
+						label: "Copy text",
+						onClick: () => {
+							navigator.clipboard.writeText(content ?? "");
+						},
 					});
 
 					items.push({ divider: true });
 
 					if (isMessageAuthor) {
 						items.push({
-							icon: <img src={TrashIcon} alt="Delete" />, label: "Delete", onClick: () => { if (onDelete) onDelete(); }, danger: true,
+							icon: <img src={TrashIcon} alt="Delete" />,
+							label: "Delete",
+							onClick: () => {
+								if (onDelete) onDelete();
+							},
+							danger: true,
 						});
 						items.push({ divider: true });
 					}
 
-					items.push({ icon: <img src={ClockIcon} alt="Copy" />, label: `Edited at ${formattedTime}`, disabled: true });
+					items.push({
+						icon: <img src={ClockIcon} alt="Copy" />,
+						label: `Edited at ${formattedTime}`,
+						disabled: true,
+					});
 
 					contextMenu.open(e.pageX, e.pageY, items);
 				}}

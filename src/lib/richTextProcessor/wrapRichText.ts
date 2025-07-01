@@ -22,6 +22,20 @@ const md = new MarkdownIt({
     },
 });
 
+md.renderer.rules.link_open = (tokens, idx, options, _env, self) => {
+    const token = tokens[idx];
+    if (!token) return '';
+    const aIndex = token.attrIndex && token.attrIndex('class');
+    if (typeof aIndex !== 'number' || aIndex < 0) {
+        token.attrPush && token.attrPush(['class', 'message-link']);
+    } else if (token.attrs && token.attrs[aIndex]) {
+        token.attrs[aIndex][1] += ' message-link';
+    }
+    token.attrPush && token.attrPush(['target', '_blank']);
+    token.attrPush && token.attrPush(['rel', 'noopener noreferrer']);
+    return self.renderToken(tokens, idx, options);
+};
+
 export const wrapRichText = (text: string, options: WrapRichTextOptions = {}): string => {
     const { noLineBreaks = false } = options;
 
@@ -31,7 +45,7 @@ export const wrapRichText = (text: string, options: WrapRichTextOptions = {}): s
         processedText = md.render(text);
         processedText = processedText.replace(/```/g, "");
     } catch (error) {
-        Logger.error("Markdown rendering failed:", error);
+        Logger.error(`Markdown rendering failed: ${error}`);
         processedText = text;
     }
 
@@ -42,11 +56,12 @@ export const wrapRichText = (text: string, options: WrapRichTextOptions = {}): s
             pre: ["class"],
             code: ["class"],
             span: ["class"],
+            a: ["href", "class", "target", "rel"],
         },
     });
 
     if (noLineBreaks) {
-        processedText = processedText.replace(/<br\s*\/?>/gi, " ");
+        processedText = processedText.replace(/<br\s*\/?>(?!\n)/gi, " ");
     }
 
     return processedText;

@@ -3,11 +3,12 @@ import type { ChatHeaderProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
 import { autorun } from "mobx";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState, useMemo } from "preact/hooks";
 import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg";
 import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg";
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import * as style from "./ChatHeader.module.scss";
+import { observer } from "mobx-react";
 
 const ChatHeader = ({
 	chat,
@@ -19,37 +20,39 @@ const ChatHeader = ({
 	const { id, name, display_name, icon, created_at } = chat;
 	const nameToDisplay = display_name || name;
 	const [participantsCount, setParticipantsCount] = useState<number>(0);
+	const [memberIds, setMemberIds] = useState<number[]>([]);
 
 	useEffect(() => {
 		const fetchMembers = async () => {
 			if (appStore.channelParticipantsCount.has(id)) {
 				setParticipantsCount(appStore.channelParticipantsCount.get(id) ?? 0);
-				return;
-			}
-
-			try {
-				const members = await apiMethods.listChannelMembers(id);
-				const count = members.length || 0;
-				appStore.channelParticipantsCount.set(id, count);
-				setParticipantsCount(count);
-			} catch (error) {
-				console.error("Failed to fetch members:", error);
+			} else {
+				try {
+					const members = await apiMethods.listChannelMembers(id);
+					const count = members.length || 0;
+					appStore.channelParticipantsCount.set(id, count);
+					setParticipantsCount(count);
+					setMemberIds(members.map(m => m.user.id));
+				} catch (error) {
+					setMemberIds([]);
+				}
 			}
 		};
-
 		if (id) {
 			void fetchMembers();
 		}
-
 		const disposer = autorun(() => {
 			const count = appStore.channelParticipantsCount.get(id) ?? 0;
 			setParticipantsCount(count);
 		});
-
 		return () => {
 			disposer();
 		};
 	}, [id]);
+
+	const onlineCount = useMemo(() => {
+		return memberIds.filter(userId => appStore.userStatuses.get(userId) === 1).length;
+	}, [memberIds, appStore.userStatuses]);
 
 	return (
 		<div className={style.chatHeader}>
@@ -74,7 +77,7 @@ const ChatHeader = ({
 			<div className={style.chatHeaderInfo}>
 				<p className={style.chatHeaderUsername}>{nameToDisplay}</p>
 				<div className={style.chatHeaderMembers}>
-					<span>• {participantsCount} Members</span>
+					<span>• {participantsCount} Members • {onlineCount} Online</span>
 				</div>
 			</div>
 			<div className={style.headerActions}>
@@ -113,4 +116,4 @@ const ChatHeader = ({
 	);
 };
 
-export default ChatHeader;
+export default observer(ChatHeader);

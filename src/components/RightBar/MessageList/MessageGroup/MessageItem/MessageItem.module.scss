@@ -210,3 +210,23 @@
   position: relative;
   z-index: 10000;
 }
+
+.author a, .author .message-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.author a:hover, .author .message-link:hover {
+  opacity: 0.7;
+}
+
+a, .message-link {
+  color: var(--branded-color);
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+a:hover, .message-link:hover {
+  opacity: 0.7;
+}
