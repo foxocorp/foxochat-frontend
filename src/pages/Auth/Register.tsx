@@ -1,32 +1,32 @@
-import { useLocation } from "preact-iso";
-import { useEffect, useState } from "preact/hooks";
-import * as styles from "./Register.module.scss";
-
-import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-left.svg";
-import alreadyHaveAccountIcon from "@/assets/icons/auth/auth-login.svg";
-
 import { Button } from "@components/Base";
 import { EmailConfirmationModal } from "@components/Modal/EmailConfirmation/EmailConfirmationModal";
 import { Modal } from "@components/Modal/Modal";
-
 import { apiMethods } from "@services/API/apiMethods";
 import { useAuthStore } from "@store/authenticationStore";
 import { Logger } from "@utils/logger";
+import { useEffect, useState } from "preact/hooks";
+import { useLocation } from "preact-iso";
+import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-right.svg";
+import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
+import Illustration from "@/assets/icons/auth/illustration.png";
+import * as styles from "./Register.module.scss";
 
 const Register = () => {
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [errors, setErrors] = useState({
-		username: false,
-		email: false,
-		password: false,
-	});
-
+	const [usernameError, setUsernameError] = useState(false);
+	const [emailError, setEmailError] = useState(false);
+	const [passwordError, setPasswordError] = useState(false);
+	const [usernameErrorMessage, setUsernameErrorMessage] =
+		useState("— Incorrect format");
+	const [emailErrorMessage, setEmailErrorMessage] =
+		useState("— Incorrect format");
+	const [passwordErrorMessage, setPasswordErrorMessage] =
+		useState("— Incorrect format");
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 	const [modalMessage, setModalMessage] = useState("");
-
 	const authStore = useAuthStore();
 	const location = useLocation();
 
@@ -61,29 +61,30 @@ const Register = () => {
 	};
 
 	const handleRegister = async () => {
-		const newErrors = { username: false, email: false, password: false };
+		setUsernameError(false);
+		setEmailError(false);
+		setPasswordError(false);
+		setUsernameErrorMessage("— Incorrect format");
+		setEmailErrorMessage("— Incorrect format");
+		setPasswordErrorMessage("— Incorrect format");
 		let isValid = true;
-
 		if (!username.trim() || !validateUsername(username)) {
-			newErrors.username = true;
+			setUsernameError(true);
 			isValid = false;
 		}
 		if (!email.trim() || !validateEmail(email)) {
-			newErrors.email = true;
+			setEmailError(true);
 			isValid = false;
 		}
 		if (!password.trim()) {
-			newErrors.password = true;
+			setPasswordError(true);
 			isValid = false;
 		}
-
-		setErrors(newErrors);
 		if (!isValid) return;
-
 		try {
 			const token = await apiMethods.register(username, email, password);
 			if (token.access_token) {
-				authStore.login(token.access_token);
+				await authStore.login(token.access_token);
 				setIsModalOpen(true);
 			} else {
 				setModalMessage("— Registration failed. Please try again.");
@@ -92,14 +93,38 @@ const Register = () => {
 		} catch (error) {
 			Logger.error(`Error during registration: ${JSON.stringify(error)}`);
 			Logger.error(`Error keys: ${Object.keys(error as any).join(", ")}`);
-
 			let errorMsg = "— An unexpected error occurred";
-
 			const exception = (error as any).exception;
 			if (exception?.message) {
 				errorMsg = `— ${exception.message}`;
+				if (exception.message.toLowerCase().includes("username")) {
+					setUsernameError(true);
+					setUsernameErrorMessage(errorMsg);
+				}
+				if (exception.message.toLowerCase().includes("email")) {
+					setEmailError(true);
+					setEmailErrorMessage(errorMsg);
+				}
+				if (exception.message.toLowerCase().includes("password")) {
+					setPasswordError(true);
+					setPasswordErrorMessage(errorMsg);
+				}
+				if (!usernameError && !emailError && !passwordError) {
+					setUsernameError(true);
+					setEmailError(true);
+					setPasswordError(true);
+					setUsernameErrorMessage(errorMsg);
+					setEmailErrorMessage(errorMsg);
+					setPasswordErrorMessage(errorMsg);
+				}
+			} else {
+				setUsernameError(true);
+				setEmailError(true);
+				setPasswordError(true);
+				setUsernameErrorMessage(errorMsg);
+				setEmailErrorMessage(errorMsg);
+				setPasswordErrorMessage(errorMsg);
 			}
-
 			setModalMessage(errorMsg);
 			setIsErrorModalOpen(true);
 		}
@@ -127,17 +152,17 @@ const Register = () => {
 		}
 	};
 
-	const renderError = (field: keyof typeof errors) => {
-		if (!errors[field]) return null;
-		const errorPositions = {
-			username: { top: "19.5%", left: "140px" },
-			email: { top: "36%", left: "97px" },
-			password: { top: "53%", left: "135px" },
+	const renderError = (field: "username" | "email" | "password") => {
+		if (field === "username" && !usernameError) return null;
+		if (field === "email" && !emailError) return null;
+		if (field === "password" && !passwordError) return null;
+		const errorMessages = {
+			username: usernameErrorMessage,
+			email: emailErrorMessage,
+			password: passwordErrorMessage,
 		};
 		return (
-			<span className={styles.errorText} style={errorPositions[field]}>
-				— Incorrect format
-			</span>
+			<span className={styles.errorTextInline}>{errorMessages[field]}</span>
 		);
 	};
 
@@ -149,7 +174,7 @@ const Register = () => {
 	};
 
 	return (
-		<div className={styles.registerContainer} onKeyDown={handleKeyDown}>
+		<div className={styles.registerPageWrapper}>
 			{isErrorModalOpen && modalMessage && (
 				<Modal
 					title="Error"
@@ -182,76 +207,88 @@ const Register = () => {
 					onResendCode={handleResendEmail}
 				/>
 			)}
-			<div className={styles.registerForm}>
-				<div className={styles.registerTitle}>Register</div>
-				<div className={styles.registerFormContent}>
-					<label className={styles.registerLabel}>
-						Username<span className={styles.required}>*</span>
-					</label>
-					<input
-						type="text"
-						className={`${styles.registerInput} ${errors.username ? styles.inputError : ""}`}
-						placeholder="floof_fox"
-						value={username}
-						onInput={(e) => {
-							setUsername((e.target as HTMLInputElement).value);
-						}}
-						required
-						autoComplete="nope"
-					/>
-					{renderError("username")}
-					<label className={styles.registerLabel}>
-						Email<span className={styles.required}>*</span>
-					</label>
-					<input
-						type="email"
-						className={`${styles.registerInput} ${errors.email ? styles.inputError : ""}`}
-						placeholder="floofer@coof.fox"
-						value={email}
-						onInput={(e) => {
-							setEmail((e.target as HTMLInputElement).value);
-						}}
-						required
-					/>
-					{renderError("email")}
-					<label className={styles.registerLabel}>
-						Password<span className={styles.required}>*</span>
-					</label>
-					<input
-						type="password"
-						className={`${styles.registerInput} ${errors.password ? styles.inputError : ""}`}
-						placeholder="your floof password :3"
-						value={password}
-						onInput={(e) => {
-							setPassword((e.target as HTMLInputElement).value);
-						}}
-						required
-					/>
-					{renderError("password")}
-					<Button
-						key="register-button"
-						variant="primary"
-						fontSize={20}
-						fontWeight={600}
-						onClick={handleRegister}
-						icon={arrowLeftIcon}
-						className={styles.registerButton}
-					>
-						Register
-					</Button>
-					<div className={styles.divider} />
-					<Button
-						key="login-button"
-						variant="secondary"
-						onClick={() => {
-							location.route("/login");
-						}}
-						icon={alreadyHaveAccountIcon}
-						className={styles.buttonWithGap}
-					>
-						Already have an account?
-					</Button>
-				</div>
+			<div className={styles.registerLeftCol}>
+				<form className={styles.registerForm} onKeyDown={handleKeyDown}>
+					<div className={styles.registerTitle}>Good to see you!</div>
+					<div className={styles.registerSubtitle}>
+						Enter your information below to create an account
+					</div>
+					<div className={styles.registerFormContent}>
+						<div className={styles.labelRow}>
+							<label className={styles.registerLabel}>
+								Username<span className={styles.required}>*</span>
+							</label>
+							{renderError("username")}
+						</div>
+						<input
+							type="text"
+							className={`${styles.registerInput} ${usernameError ? styles.inputError : ""}`}
+							placeholder="your username"
+							value={username}
+							onInput={(e) => setUsername((e.target as HTMLInputElement).value)}
+							required
+						/>
+						<div className={styles.labelRow}>
+							<label className={styles.registerLabel}>
+								Email<span className={styles.required}>*</span>
+							</label>
+							{renderError("email")}
+						</div>
+						<input
+							type="email"
+							className={`${styles.registerInput} ${emailError ? styles.inputError : ""}`}
+							placeholder="fox@foxochat.app"
+							value={email}
+							onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+							required
+						/>
+						<div className={styles.labelRow}>
+							<label className={styles.registerLabel}>
+								Password<span className={styles.required}>*</span>
+							</label>
+							{renderError("password")}
+						</div>
+						<input
+							type="password"
+							className={`${styles.registerInput} ${passwordError ? styles.inputError : ""}`}
+							placeholder="Your password here"
+							value={password}
+							onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+							required
+						/>
+						<Button
+							key="register-button"
+							variant="branded"
+							width={368}
+							fontSize={16}
+							fontWeight={600}
+							onClick={handleRegister}
+							icon={arrowRightIcon}
+							className={styles.registerButton}
+						>
+							Continue
+						</Button>
+						<div className={styles.dividerRow}>
+							<span className={styles.dividerLine}></span>OR
+							<span className={styles.dividerLine}></span>
+						</div>
+						<Button
+							className={styles.socialButton}
+							width={368}
+							onClick={() => location.route("/login")}
+						>
+							Log in with existing account
+						</Button>
+					</div>
+				</form>
+			</div>
+			<div className={styles.registerRightCol}>
+				<img
+					draggable={false}
+					src={Illustration}
+					className={styles.illustration}
+					alt="Illustration"
+				/>
 			</div>
 		</div>
 	);

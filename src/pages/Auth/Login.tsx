@@ -1,18 +1,14 @@
-import { JSX } from "preact";
-import { useLocation } from "preact-iso";
-import { useEffect, useState } from "preact/hooks";
-
 import { Button } from "@components/Base";
 import { PasswordResetModal } from "@components/Modal/PasswordReset/PasswordResetModal";
-import * as styles from "./Login.module.scss";
-
-import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-left.svg";
-import newUserIcon from "@/assets/icons/auth/auth-new-user.svg";
-import resetPasswordIcon from "@/assets/icons/auth/auth-reset-password.svg";
-
 import { apiMethods } from "@services/API/apiMethods";
 import { useAuthStore } from "@store/authenticationStore";
 import { Logger } from "@utils/logger";
+import type { JSX } from "preact";
+import { useEffect, useState } from "preact/hooks";
+import { useLocation } from "preact-iso";
+import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
+import Illustration from "@/assets/icons/auth/illustration.png";
+import * as styles from "./Login.module.scss";
 
 const Login = (): JSX.Element => {
 	const [email, setEmail] = useState<string>("");
@@ -29,9 +25,14 @@ const Login = (): JSX.Element => {
 	const authStore = useAuthStore();
 	const location = useLocation();
 
+	const isMobile =
+		typeof window !== "undefined" &&
+		window.matchMedia &&
+		window.matchMedia("(max-width: 600px)").matches;
+
 	useEffect(() => {
 		if (authStore.isAuthenticated) {
-			location.route('/channels');
+			location.route("/channels");
 		}
 	}, [authStore.isAuthenticated, location]);
 
@@ -119,95 +120,129 @@ const Login = (): JSX.Element => {
 	const renderError = (field: "email" | "password") => {
 		if (field === "email" && !emailError) return null;
 		if (field === "password" && !passwordError) return null;
-
-		const errorPositions = {
-			email: { top: "21%", left: "96px" },
-			password: { top: "39.5%", left: "135px" },
-		};
-
 		const errorMessages = {
 			email: emailErrorMessage,
 			password: passwordErrorMessage,
 		};
-
 		return (
-			<span className={styles.errorText} style={errorPositions[field]}>
-				{errorMessages[field]}
-			</span>
+			<span className={styles.errorTextInline}>{errorMessages[field]}</span>
 		);
 	};
 
 	return (
-		<div className={styles.loginContainer}>
-			<div className={styles.loginForm} onKeyDown={handleKeyDown}>
-				<div className={styles.loginTitle}>Log in</div>
-				<div className={styles.loginFormContent}>
-					<label className={styles.loginLabel}>
-						Email<span className={styles.required}>*</span>
-					</label>
-					<input
-						type="email"
-						className={`${styles.loginInput} ${emailError ? styles.inputError : ""}`}
-						placeholder="floofer@coof.fox"
-						value={email}
-						onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-						required
+		<div className={styles.loginPageWrapper}>
+			<div className={styles.loginLeftCol}>
+				<form className={styles.loginForm} onKeyDown={handleKeyDown}>
+					<div className={styles.loginTitle}>Welcome back</div>
+					<div className={styles.loginSubtitle}>
+						Enter your email address and password to access FoxoChat.
+					</div>
+					<div className={styles.loginFormContent}>
+						<div className={styles.labelRow}>
+							<label className={styles.loginLabel}>
+								Email<span className={styles.required}>*</span>
+							</label>
+							{renderError("email")}
+						</div>
+						<input
+							type="email"
+							className={`${styles.loginInput} ${emailError ? styles.inputError : ""}`}
+							placeholder="fox@foxochat.app"
+							value={email}
+							onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+							required
+						/>
+						<div className={styles.labelRow}>
+							<label className={styles.loginLabel}>
+								Password<span className={styles.required}>*</span>
+							</label>
+							{renderError("password")}
+						</div>
+						<input
+							type="password"
+							className={`${styles.loginInput} ${passwordError ? styles.inputError : ""}`}
+							placeholder="Your password here"
+							value={password}
+							onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+							required
+						/>
+						<Button
+							key="login-button"
+							variant="branded"
+							width={368}
+							fontSize={16}
+							fontWeight={600}
+							onClick={handleLogin}
+							icon={arrowRightIcon}
+							className={styles.loginButton}
+						>
+							Continue
+						</Button>
+						{isMobile ? (
+							<div className={styles.mobileLinksRow}>
+								<Button
+									className={styles.mobileLinkButton}
+									variant="secondary"
+									width={30}
+									onClick={() => location.route("/register")}
+								>
+									Sign in
+								</Button>
+								<Button
+									className={styles.mobileLinkButton}
+									variant="secondary"
+									width={30}
+									onClick={openPasswordResetModal}
+								>
+									Reset password
+								</Button>
+							</div>
+						) : (
+							<div className={styles.loginLinksRow}>
+								<span>
+									Doesn't have an account?{" "}
+									<a onClick={() => location.route("/register")}>Sign in</a>
+								</span>
+								<span>
+									Forgot your password?{" "}
+									<a onClick={openPasswordResetModal}>Reset</a>
+								</span>
+							</div>
+						)}
+						<div className={styles.dividerRow}>
+							<span className={styles.dividerLine}></span>OR
+							<span className={styles.dividerLine}></span>
+						</div>
+						<div className={styles.socialButtons}>
+							<Button className={styles.socialButton} width={368}>
+								Sign in with Telegram
+							</Button>
+							<Button className={styles.socialButton} width={368}>
+								Sign in with Discord
+							</Button>
+						</div>
+					</div>
+					<PasswordResetModal
+						isOpen={isPasswordResetModalOpen}
+						email={email}
+						onClose={closePasswordResetModal}
+						onSendEmail={apiMethods.resetPassword}
+						onVerifyCode={(code) =>
+							apiMethods.confirmResetPassword(email, code, password)
+						}
+						onResetPassword={apiMethods.resetPassword}
+						onResendCode={apiMethods.resendEmailVerification}
 					/>
-					{renderError("email")}
-					<label className={styles.loginLabel}>
-						Password<span className={styles.required}>*</span>
-					</label>
-					<input
-						type="password"
-						className={`${styles.loginInput} ${passwordError ? styles.inputError : ""}`}
-						placeholder="your floof password :3"
-						value={password}
-						onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-						required
-					/>
-					{renderError("password")}
-					<Button
-						key="login-button"
-						variant="primary"
-						fontSize={20}
-						fontWeight={600}
-						onClick={handleLogin}
-						icon={arrowLeftIcon}
-						className={styles.loginButton}
-					>
-						Log in
-					</Button>
-					<div className={styles.divider} />
-					<Button
-						className={styles.buttonWithGap}
-						key="reset-password-button"
-						variant="secondary"
-						onClick={openPasswordResetModal}
-						icon={resetPasswordIcon}
-					>
-						Reset your password
-					</Button>
-					<Button
-						key="create-account-button"
-						variant="secondary"
-						onClick={() => location.route("/register")}
-						icon={newUserIcon}
-					>
-						Create new account
-					</Button>
-				</div>
+				</form>
 			</div>
-			<PasswordResetModal
-				isOpen={isPasswordResetModalOpen}
-				email={email}
-				onClose={closePasswordResetModal}
-				onSendEmail={apiMethods.resetPassword}
-				onVerifyCode={(code) =>
-					apiMethods.confirmResetPassword(email, code, password)
-				}
-				onResetPassword={apiMethods.resetPassword}
-				onResendCode={apiMethods.resendEmailVerification}
-			/>
+			<div className={styles.loginRightCol}>
+				<img
+					draggable={false}
+					src={Illustration}
+					className={styles.illustration}
+					alt="Illustration"
+				/>
+			</div>
 		</div>
 	);
 };

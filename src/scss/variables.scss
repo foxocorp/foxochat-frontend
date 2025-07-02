@@ -1,3 +1,27 @@
 $primary-color: var(--primary-color);
 $branded-color: var(--branded-color);
 $danger-color: var(--danger-color);
+
+//Login page
+$gap-fields: 12px;
+$gap-social: 16px;
+$gap-form: 16px;
+$gap-after-links: 22px;
+$gap-title-subtitle: 0;
+$gap-or-vertical: 16px;
+$input-bg: rgb(var(--primary-color-rgb), .05);
+$input-border: rgb(var(--primary-color-rgb), .15);
+$input-placeholder: rgb(var(--primary-color-rgb), .25);
+$social-bg: rgb(236 236 236 / .05);
+$social-color: rgb(var(--primary-color-rgb), .75);
+
+//Register page
+$input-height: 42px;
+$input-radius: 8px;
+$input-font-size: 14px;
+$label-font-size: 16px;
+$title-font-size: 34px;
+$subtitle-font-size: 16px;
+$divider-gap: 18px;
+$divider-margin: 22px 0 22px 0;
+$error-font-size: 1.04rem;
