@@ -208,79 +208,82 @@ const Register = () => {
 				/>
 			)}
 			<div className={styles.registerLeftCol}>
-				<form className={styles.registerForm} onKeyDown={handleKeyDown}>
-					<div className={styles.registerTitle}>Good to see you!</div>
-					<div className={styles.registerSubtitle}>
-						Enter your information below to create an account
-					</div>
-					<div className={styles.registerFormContent}>
-						<div className={styles.labelRow}>
-							<label className={styles.registerLabel}>
-								Username<span className={styles.required}>*</span>
-							</label>
-							{renderError("username")}
+				<div className={styles.registerContainer}>
+					<form className={styles.registerForm} onKeyDown={handleKeyDown}>
+						<div className={styles.registerTitle}>Good to see you!</div>
+						<div className={styles.registerSubtitle}>
+							Enter your information below to create an account
 						</div>
-						<input
-							type="text"
-							className={`${styles.registerInput} ${usernameError ? styles.inputError : ""}`}
-							placeholder="your username"
-							value={username}
-							onInput={(e) => setUsername((e.target as HTMLInputElement).value)}
-							required
-						/>
-						<div className={styles.labelRow}>
-							<label className={styles.registerLabel}>
-								Email<span className={styles.required}>*</span>
-							</label>
-							{renderError("email")}
+						<div className={styles.registerFormContent}>
+							<div className={styles.labelRow}>
+								<label className={styles.registerLabel}>
+									Username<span className={styles.required}>*</span>
+								</label>
+								{renderError("username")}
+							</div>
+							<input
+								type="text"
+								className={`${styles.registerInput} ${usernameError ? styles.inputError : ""}`}
+								placeholder="your username"
+								value={username}
+								onInput={(e) => setUsername((e.target as HTMLInputElement).value)}
+								required
+							/>
+							<div className={styles.labelRow}>
+								<label className={styles.registerLabel}>
+									Email<span className={styles.required}>*</span>
+								</label>
+								{renderError("email")}
+							</div>
+							<input
+								type="email"
+								className={`${styles.registerInput} ${emailError ? styles.inputError : ""}`}
+								placeholder="fox@foxochat.app"
+								value={email}
+								onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+								required
+							/>
+							<div className={styles.labelRow}>
+								<label className={styles.registerLabel}>
+									Password<span className={styles.required}>*</span>
+								</label>
+								{renderError("password")}
+							</div>
+							<input
+								type="password"
+								className={`${styles.registerInput} ${passwordError ? styles.inputError : ""}`}
+								placeholder="Your password here"
+								value={password}
+								onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+								required
+							/>
+							<Button
+								key="register-button"
+								variant="branded"
+								width={368}
+								fontSize={16}
+								fontWeight={600}
+								onClick={handleRegister}
+								icon={arrowRightIcon}
+								className={styles.registerButton}
+							>
+								Continue
+							</Button>
+							<div className={styles.dividerRow}>
+								<span className={styles.dividerLine}></span>OR
+								<span className={styles.dividerLine}></span>
+							</div>
+							<Button
+								className={styles.socialButton}
+								width={368}
+								variant="secondary"
+								onClick={() => location.route("/login")}
+							>
+								Log in with existing account
+							</Button>
 						</div>
-						<input
-							type="email"
-							className={`${styles.registerInput} ${emailError ? styles.inputError : ""}`}
-							placeholder="fox@foxochat.app"
-							value={email}
-							onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-							required
-						/>
-						<div className={styles.labelRow}>
-							<label className={styles.registerLabel}>
-								Password<span className={styles.required}>*</span>
-							</label>
-							{renderError("password")}
-						</div>
-						<input
-							type="password"
-							className={`${styles.registerInput} ${passwordError ? styles.inputError : ""}`}
-							placeholder="Your password here"
-							value={password}
-							onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-							required
-						/>
-						<Button
-							key="register-button"
-							variant="branded"
-							width={368}
-							fontSize={16}
-							fontWeight={600}
-							onClick={handleRegister}
-							icon={arrowRightIcon}
-							className={styles.registerButton}
-						>
-							Continue
-						</Button>
-						<div className={styles.dividerRow}>
-							<span className={styles.dividerLine}></span>OR
-							<span className={styles.dividerLine}></span>
-						</div>
-						<Button
-							className={styles.socialButton}
-							width={368}
-							onClick={() => location.route("/login")}
-						>
-							Log in with existing account
-						</Button>
-					</div>
-				</form>
+					</form>
+				</div>
 			</div>
 			<div className={styles.registerRightCol}>
 				<img

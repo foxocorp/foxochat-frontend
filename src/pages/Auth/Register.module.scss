@@ -29,11 +29,16 @@
   border: 1px solid rgba(var(--primary-color-rgb), .15);
 }
 
-.registerForm {
+.registerContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
 }
 
 .registerTitle {
@@ -199,5 +204,13 @@
     align-items: stretch;
     box-sizing: border-box;
     background: transparent;
+  }
+
+  .registerContainer {
+    width: 100vw;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 }
