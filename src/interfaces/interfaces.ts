@@ -326,3 +326,12 @@ export interface ChatOverviewProps {
 	visible?: boolean;
 	className?: string;
 }
+
+export interface PageTransitionContextType {
+	isTransitioning: boolean;
+	startTransition: (to: string) => void;
+}
+
+export interface PageTransitionProviderProps {
+	children: JSX.Element;
+}

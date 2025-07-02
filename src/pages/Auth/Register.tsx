@@ -4,31 +4,56 @@ import { Modal } from "@components/Modal/Modal";
 import { apiMethods } from "@services/API/apiMethods";
 import { useAuthStore } from "@store/authenticationStore";
 import { Logger } from "@utils/logger";
+import type { JSX } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import arrowLeftIcon from "@/assets/icons/auth/auth-arrow-right.svg";
 import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
 import Illustration from "@/assets/icons/auth/illustration.png";
+import { usePageTransitionContext } from "@/contexts/PageTransitionContext";
 import * as styles from "./Register.module.scss";
 
-const Register = () => {
-	const [username, setUsername] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [usernameError, setUsernameError] = useState(false);
-	const [emailError, setEmailError] = useState(false);
-	const [passwordError, setPasswordError] = useState(false);
+const Register = (): JSX.Element => {
+	const [username, setUsername] = useState<string>("");
+	const [email, setEmail] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [usernameError, setUsernameError] = useState<boolean>(false);
+	const [emailError, setEmailError] = useState<boolean>(false);
+	const [passwordError, setPasswordError] = useState<boolean>(false);
 	const [usernameErrorMessage, setUsernameErrorMessage] =
-		useState("— Incorrect format");
+		useState<string>("— Incorrect format");
 	const [emailErrorMessage, setEmailErrorMessage] =
-		useState("— Incorrect format");
+		useState<string>("— Incorrect format");
 	const [passwordErrorMessage, setPasswordErrorMessage] =
-		useState("— Incorrect format");
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-	const [modalMessage, setModalMessage] = useState("");
+		useState<string>("— Incorrect format");
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+	const [modalMessage, setModalMessage] = useState<string>("");
+	const [isAnimating, setIsAnimating] = useState<boolean>(false);
 	const authStore = useAuthStore();
 	const location = useLocation();
+	const { isTransitioning, startTransition } = usePageTransitionContext();
+
+	useEffect(() => {
+		if (authStore.isAuthenticated) {
+			location.route("/channels");
+		}
+	}, [authStore.isAuthenticated, location]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsAnimating(true);
+		}, 50);
+
+		const timer2 = setTimeout(() => {
+			setIsAnimating(false);
+		}, 650);
+
+		return () => {
+			clearTimeout(timer);
+			clearTimeout(timer2);
+		};
+	}, []);
 
 	useEffect(() => {
 		const errorMessage = location.query.error;
@@ -173,6 +198,10 @@ const Register = () => {
 		}
 	};
 
+	const handleNavigateToLogin = (): void => {
+		startTransition("/login");
+	};
+
 	return (
 		<div className={styles.registerPageWrapper}>
 			{isErrorModalOpen && modalMessage && (
@@ -208,7 +237,9 @@ const Register = () => {
 				/>
 			)}
 			<div className={styles.registerLeftCol}>
-				<div className={styles.registerContainer}>
+				<div
+					className={`${styles.registerContainer} ${isAnimating ? styles.animateIn : ""} ${isTransitioning ? styles.animateOut : ""}`}
+				>
 					<form className={styles.registerForm} onKeyDown={handleKeyDown}>
 						<div className={styles.registerTitle}>Good to see you!</div>
 						<div className={styles.registerSubtitle}>
@@ -226,7 +257,9 @@ const Register = () => {
 								className={`${styles.registerInput} ${usernameError ? styles.inputError : ""}`}
 								placeholder="your username"
 								value={username}
-								onInput={(e) => setUsername((e.target as HTMLInputElement).value)}
+								onInput={(e) =>
+									setUsername((e.target as HTMLInputElement).value)
+								}
 								required
 							/>
 							<div className={styles.labelRow}>
@@ -254,7 +287,9 @@ const Register = () => {
 								className={`${styles.registerInput} ${passwordError ? styles.inputError : ""}`}
 								placeholder="Your password here"
 								value={password}
-								onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+								onInput={(e) =>
+									setPassword((e.target as HTMLInputElement).value)
+								}
 								required
 							/>
 							<Button
@@ -277,7 +312,7 @@ const Register = () => {
 								className={styles.socialButton}
 								width={368}
 								variant="secondary"
-								onClick={() => location.route("/login")}
+								onClick={handleNavigateToLogin}
 							>
 								Log in with existing account
 							</Button>

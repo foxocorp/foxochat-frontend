@@ -8,6 +8,7 @@ import { useEffect, useState } from "preact/hooks";
 import { useLocation } from "preact-iso";
 import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
 import Illustration from "@/assets/icons/auth/illustration.png";
+import { usePageTransitionContext } from "@/contexts/PageTransitionContext";
 import * as styles from "./Login.module.scss";
 
 const Login = (): JSX.Element => {
@@ -21,9 +22,11 @@ const Login = (): JSX.Element => {
 		useState<string>("— Incorrect format");
 	const [isPasswordResetModalOpen, setPasswordResetModalOpen] =
 		useState<boolean>(false);
+	const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
 	const authStore = useAuthStore();
 	const location = useLocation();
+	const { isTransitioning, startTransition } = usePageTransitionContext();
 
 	const isMobile =
 		typeof window !== "undefined" &&
@@ -35,6 +38,25 @@ const Login = (): JSX.Element => {
 			location.route("/channels");
 		}
 	}, [authStore.isAuthenticated, location]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsAnimating(true);
+		}, 50);
+
+		const timer2 = setTimeout(() => {
+			setIsAnimating(false);
+		}, 650);
+
+		return () => {
+			clearTimeout(timer);
+			clearTimeout(timer2);
+		};
+	}, []);
+
+	const handleNavigateToRegister = (): void => {
+		startTransition("/register");
+	};
 
 	const validateEmail = (email: string): boolean => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -132,108 +154,114 @@ const Login = (): JSX.Element => {
 	return (
 		<div className={styles.loginPageWrapper}>
 			<div className={styles.loginLeftCol}>
-				<form className={styles.loginForm} onKeyDown={handleKeyDown}>
-					<div className={styles.loginTitle}>Welcome back</div>
-					<div className={styles.loginSubtitle}>
-						Enter your email address and password to access FoxoChat.
-					</div>
-					<div className={styles.loginFormContent}>
-						<div className={styles.labelRow}>
-							<label className={styles.loginLabel}>
-								Email<span className={styles.required}>*</span>
-							</label>
-							{renderError("email")}
+				<div
+					className={`${styles.loginContainer} ${isAnimating ? styles.animateIn : ""} ${isTransitioning ? styles.animateOut : ""}`}
+				>
+					<form className={styles.loginForm} onKeyDown={handleKeyDown}>
+						<div className={styles.loginTitle}>Welcome back</div>
+						<div className={styles.loginSubtitle}>
+							Enter your email address and password to access FoxoChat.
 						</div>
-						<input
-							type="email"
-							className={`${styles.loginInput} ${emailError ? styles.inputError : ""}`}
-							placeholder="fox@foxochat.app"
-							value={email}
-							onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-							required
-						/>
-						<div className={styles.labelRow}>
-							<label className={styles.loginLabel}>
-								Password<span className={styles.required}>*</span>
-							</label>
-							{renderError("password")}
-						</div>
-						<input
-							type="password"
-							className={`${styles.loginInput} ${passwordError ? styles.inputError : ""}`}
-							placeholder="Your password here"
-							value={password}
-							onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-							required
-						/>
-						<Button
-							key="login-button"
-							variant="branded"
-							width={368}
-							fontSize={16}
-							fontWeight={600}
-							onClick={handleLogin}
-							icon={arrowRightIcon}
-							className={styles.loginButton}
-						>
-							Continue
-						</Button>
-						{isMobile ? (
-							<div className={styles.mobileLinksRow}>
-								<Button
-									className={styles.mobileLinkButton}
-									variant="secondary"
-									width={30}
-									onClick={() => location.route("/register")}
-								>
-									Sign in
+						<div className={styles.loginFormContent}>
+							<div className={styles.labelRow}>
+								<label className={styles.loginLabel}>
+									Email<span className={styles.required}>*</span>
+								</label>
+								{renderError("email")}
+							</div>
+							<input
+								type="email"
+								className={`${styles.loginInput} ${emailError ? styles.inputError : ""}`}
+								placeholder="fox@foxochat.app"
+								value={email}
+								onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+								required
+							/>
+							<div className={styles.labelRow}>
+								<label className={styles.loginLabel}>
+									Password<span className={styles.required}>*</span>
+								</label>
+								{renderError("password")}
+							</div>
+							<input
+								type="password"
+								className={`${styles.loginInput} ${passwordError ? styles.inputError : ""}`}
+								placeholder="Your password here"
+								value={password}
+								onInput={(e) =>
+									setPassword((e.target as HTMLInputElement).value)
+								}
+								required
+							/>
+							<Button
+								key="login-button"
+								variant="branded"
+								width={368}
+								fontSize={16}
+								fontWeight={600}
+								onClick={handleLogin}
+								icon={arrowRightIcon}
+								className={styles.loginButton}
+							>
+								Continue
+							</Button>
+							{isMobile ? (
+								<div className={styles.mobileLinksRow}>
+									<Button
+										className={styles.mobileLinkButton}
+										variant="secondary"
+										width={30}
+										onClick={handleNavigateToRegister}
+									>
+										Sign in
+									</Button>
+									<Button
+										className={styles.mobileLinkButton}
+										variant="secondary"
+										width={30}
+										onClick={openPasswordResetModal}
+									>
+										Reset password
+									</Button>
+								</div>
+							) : (
+								<div className={styles.loginLinksRow}>
+									<span>
+										Doesn't have an account?{" "}
+										<a onClick={handleNavigateToRegister}>Sign in</a>
+									</span>
+									<span>
+										Forgot your password?{" "}
+										<a onClick={openPasswordResetModal}>Reset</a>
+									</span>
+								</div>
+							)}
+							<div className={styles.dividerRow}>
+								<span className={styles.dividerLine}></span>OR
+								<span className={styles.dividerLine}></span>
+							</div>
+							<div className={styles.socialButtons}>
+								<Button className={styles.socialButton} width={368}>
+									Sign in with Telegram
 								</Button>
-								<Button
-									className={styles.mobileLinkButton}
-									variant="secondary"
-									width={30}
-									onClick={openPasswordResetModal}
-								>
-									Reset password
+								<Button className={styles.socialButton} width={368}>
+									Sign in with Discord
 								</Button>
 							</div>
-						) : (
-							<div className={styles.loginLinksRow}>
-								<span>
-									Doesn't have an account?{" "}
-									<a onClick={() => location.route("/register")}>Sign in</a>
-								</span>
-								<span>
-									Forgot your password?{" "}
-									<a onClick={openPasswordResetModal}>Reset</a>
-								</span>
-							</div>
-						)}
-						<div className={styles.dividerRow}>
-							<span className={styles.dividerLine}></span>OR
-							<span className={styles.dividerLine}></span>
 						</div>
-						<div className={styles.socialButtons}>
-							<Button className={styles.socialButton} width={368}>
-								Sign in with Telegram
-							</Button>
-							<Button className={styles.socialButton} width={368}>
-								Sign in with Discord
-							</Button>
-						</div>
-					</div>
-					<PasswordResetModal
-						isOpen={isPasswordResetModalOpen}
-						email={email}
-						onClose={closePasswordResetModal}
-						onSendEmail={apiMethods.resetPassword}
-						onVerifyCode={(code) =>
-							apiMethods.confirmResetPassword(email, code, password)
-						}
-						onResetPassword={apiMethods.resetPassword}
-						onResendCode={apiMethods.resendEmailVerification}
-					/>
-				</form>
+						<PasswordResetModal
+							isOpen={isPasswordResetModalOpen}
+							email={email}
+							onClose={closePasswordResetModal}
+							onSendEmail={apiMethods.resetPassword}
+							onVerifyCode={(code) =>
+								apiMethods.confirmResetPassword(email, code, password)
+							}
+							onResetPassword={apiMethods.resetPassword}
+							onResendCode={apiMethods.resendEmailVerification}
+						/>
+					</form>
+				</div>
 			</div>
 			<div className={styles.loginRightCol}>
 				<img

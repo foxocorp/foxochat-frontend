@@ -15,6 +15,7 @@ import { Home } from "./pages/Home";
 import Landing from "./pages/Landing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import { PageTransitionProvider } from "./contexts/PageTransitionContext";
 
 import {
 	ErrorBoundaryProps,
@@ -222,9 +223,11 @@ export const App = () => {
 	return (
 		<ErrorBoundary>
 			<LocationProvider>
-				<InitializationCheck>
-					<Routes />
-				</InitializationCheck>
+				<PageTransitionProvider>
+					<InitializationCheck>
+						<Routes />
+					</InitializationCheck>
+				</PageTransitionProvider>
 			</LocationProvider>
 		</ErrorBoundary>
 	);
