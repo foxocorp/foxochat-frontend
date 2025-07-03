@@ -206,11 +206,21 @@
   }
 
   .registerLeftCol {
-    width: 100%;
+    width: 100vw;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 0;
+  }
+
+  .registerContainer {
+    width: 100vw;
+    min-height: 100dvh;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .registerRightCol,
@@ -224,19 +234,13 @@
     text-align: left;
   }
 
-  .registerForm {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    box-sizing: border-box;
-    background: transparent;
+  .registerInput {
+    width: 100%;
+    max-width: 100%;
   }
 
-  .registerContainer {
-    width: 100vw;
-    min-height: 100dvh;
-    padding: 0;
-    align-items: flex-start;
-    justify-content: flex-start;
+  .registerButton {
+    width: 100%;
+    max-width: 100%;
   }
 }
