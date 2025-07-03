@@ -1,0 +1,66 @@
+.headerWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebarTopHeader {
+  display: flex;
+  align-items: center;
+  padding: 22px 16px 8px 16px;
+}
+
+.sidebarTopAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border: 2px solid #222;
+  flex-shrink: 0;
+}
+
+.sidebarTopTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  flex: 1;
+  margin-left: 8px;
+  text-align: left;
+}
+
+.sidebarTopIcons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sidebarTopIconBtn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14%;
+  width: 34px;
+  height: 34px;
+  transition: background 0.18s;
+}
+
+.sidebarTopIconBtn img {
+  opacity: 0.95;
+  transition: opacity 0.18s;
+}
+
+.sidebarTopIconBtn:focus,
+.sidebarTopIconBtn:hover {
+  background: #181a20;
+}
+
+.sidebarTopIconBtn:active img {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px #2571ff88);
+} 

@@ -2,11 +2,12 @@ import { defineConfig } from "@rsbuild/core";
 import { pluginPreact } from "@rsbuild/plugin-preact";
 import { pluginSass } from "@rsbuild/plugin-sass";
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
+import { pluginSvgr } from '@rsbuild/plugin-svgr';
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
 export default defineConfig({
-	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass()],
+	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass(), pluginSvgr()],
 	html: {
 		template: "./index.html",
 	},

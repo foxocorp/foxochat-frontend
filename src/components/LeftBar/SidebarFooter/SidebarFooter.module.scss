@@ -9,8 +9,8 @@
 }
 
 .userAvatar {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -84,8 +84,8 @@
 }
 
 .actionIcon {
-  width: 31px;
-  height: 31px;
+  width: 32px;
+  height: 32px;
   margin-left: 20px;
   margin-right: 5px;
   opacity: .5;
@@ -140,4 +140,54 @@
   100% {
     background-position: -200% 0;
   }
+}
+
+.navFooter {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0 8px 0;
+  border-top: 1px solid rgb(96 96 96 / 0.5);
+  background: transparent;
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  transition: background 0.18s, opacity 0.18s, color 0.18s;
+  cursor: pointer;
+  color: rgb(var(--primary-color-rgb), .50);
+}
+
+.navBtn .icon,
+.navBtn svg {
+  color: rgb(var(--primary-color-rgb), .5);
+}
+
+.navBtn.active .icon,
+.navBtn.active svg {
+  color: var(--branded-color);
+}
+
+.active {
+  background: rgb(var(--branded-color-rgb), 0.05);
+  opacity: 1;
+  width: 80px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  color: var(--branded-color);
 }

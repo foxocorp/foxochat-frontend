@@ -180,6 +180,143 @@
   align-items: center;
 }
 
+.sidebarAvatarTop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0 12px 0;
+}
+
+.sidebarAvatarImg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.12);
+  border: 2px solid #222;
+}
+
+.sidebarNav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px 0 16px 0;
+  border-top: 1px solid rgb(96 96 96 / 0.5);
+  background: transparent;
+  z-index: 2;
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  transition: background 0.18s, opacity 0.18s;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.navBtn img {
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+  transition: opacity 0.18s, filter 0.18s;
+  filter: none;
+}
+
+.navBtn.active {
+  background: #181a20;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.navBtn.active img {
+  opacity: 1;
+  filter: none;
+}
+
+.navBtn:not(.active):hover {
+  background: none;
+  opacity: 0.7;
+}
+
+.navBtn.active:hover {
+  background: #23242a;
+}
+
+.sidebarTopHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 20px 16px 20px;
+  gap: 20px;
+}
+
+.sidebarTopAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border: 2px solid #222;
+  flex-shrink: 0;
+}
+
+.sidebarTopTitle {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  flex: 1;
+  margin-left: 16px;
+  text-align: left;
+  letter-spacing: -1px;
+}
+
+.sidebarTopIcons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sidebarTopIconBtn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  transition: background 0.18s;
+}
+
+.sidebarTopIconBtn img {
+  width: 32px;
+  height: 32px;
+  opacity: 0.95;
+  transition: opacity 0.18s;
+}
+
+.sidebarTopIconBtn:focus,
+.sidebarTopIconBtn:hover {
+  background: #181a20;
+}
+
+.sidebarTopIconBtn:active img {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px #2571ff88);
+}
+
 @media (max-width: 768px) {
   .sidebarHeader {
     padding: 8px;

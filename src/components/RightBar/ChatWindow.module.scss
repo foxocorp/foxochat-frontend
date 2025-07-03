@@ -7,6 +7,7 @@
   position: relative;
   overflow: hidden;
   user-select: none;
+  background-color: #111111;
 }
 
 .chatWindow {
@@ -32,13 +33,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(25px);
+  background: rgba(21, 21, 21, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .dragBox {

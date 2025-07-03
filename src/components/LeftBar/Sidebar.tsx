@@ -1,17 +1,17 @@
+import ChatHeader from "@components/LeftBar/ChatHeader/ChatHeader";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
+import SearchBar from "@components/LeftBar/SearchBar/SearchBar";
+import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
+import CreateDropdown from "@components/LeftBar/CreateDropdown/CreateDropdown";
 import CreateChannelModal from "@components/Modal/CreateChannelModal/CreateChannelModal";
 import * as modalStyles from "@components/Modal/CreateChannelModal/CreateChannelModal.module.scss";
-import { SidebarProps } from "@interfaces/interfaces";
+import type { SidebarProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
-import { ChannelType } from "foxochat.js";
+import type { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "preact/hooks";
-import CreateButton from "./CreateButton/CreateButton";
-import CreateDropdown from "./CreateDropdown/CreateDropdown";
-import SearchBar from "./SearchBar/SearchBar";
 import * as styles from "./Sidebar.module.scss";
-import UserInfo from "./UserInfo/UserInfo";
 
 const MIN_SIDEBAR_WIDTH = 310;
 const DEFAULT_DESKTOP_WIDTH = 420;
@@ -37,7 +37,6 @@ const SidebarComponent = ({
 	const [nameErrorMessage, setNameErrorMessage] = useState<string>(
 		"— Name is already taken",
 	);
-	const [closeDropdown, setCloseDropdown] = useState<(() => void) | null>(null);
 
 	const [width, setWidth] = useState(() => {
 		if (isMobile) {
@@ -115,7 +114,7 @@ const SidebarComponent = ({
 			appStore.addNewChannel(response);
 			await appStore.setCurrentChannel(response.id);
 
-			window.history.replaceState(null, '', `/channels/#${response.id}`);
+			window.history.replaceState(null, "", `/channels/#${response.id}`);
 
 			if (isMobile) {
 				setMobileView("chat");
@@ -211,54 +210,27 @@ const SidebarComponent = ({
 			className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
 			style={isMobile ? { width: "100%" } : { width: `${width}px` }}
 		>
-			{!isCollapsed && (
-				<div className={styles.sidebarHeader}>
-					<div className={styles.headerControls}>
-						<SearchBar
-							onJoinChannel={async (channelId: number | null) => {
-								await appStore.setCurrentChannel(channelId);
-								if (channelId && window.location.pathname === '/channels') {
-									window.history.replaceState(null, '', `/channels/#${channelId}`);
-								}
-								if (isMobile) {
-									setMobileView("chat");
-								}
-							}}
-						/>
-						<div className={styles.createWrapper}>
-							<CreateButton
-								onClick={() => {
-									if (!showCreateDropdown) {
-										setShowCreateDropdown(true);
-									} else {
-										closeDropdown?.();
-									}
-								}}
-							/>
-							{showCreateDropdown && (
-								<CreateDropdown
-									registerCloseHandler={(fn) => setCloseDropdown(() => fn)}
-									onSelect={(type) => {
-										setShowCreateModal(type);
-									}}
-									onClose={() => setShowCreateDropdown(false)}
-								/>
-							)}
-						</div>
-					</div>
-				</div>
-			)}
-			<div className={styles.sidebarChats}>
-				<ChatList
-					chats={channels}
+			<div style={{ position: 'relative' }}>
+				<ChatHeader
 					currentUser={currentUser}
+					onAdd={() => setShowCreateDropdown(true)}
+					onEdit={() => {}}
 				/>
+				{showCreateDropdown && (
+					<CreateDropdown
+						onSelect={(type) => {
+							setShowCreateModal(type);
+							setShowCreateDropdown(false);
+						}}
+						onClose={() => setShowCreateDropdown(false)}
+					/>
+				)}
 			</div>
-			{!isCollapsed && (
-				<div className={styles.sidebarFooter}>
-					<UserInfo user={currentUser} status="Online" />
-				</div>
-			)}
+			<SearchBar />
+			<div className={styles.sidebarChats}>
+				<ChatList chats={channels} currentUser={currentUser} />
+			</div>
+			<SidebarFooter />
 			{!isMobile && (
 				<div className={styles.resizer} onMouseDown={handleMouseDown} />
 			)}

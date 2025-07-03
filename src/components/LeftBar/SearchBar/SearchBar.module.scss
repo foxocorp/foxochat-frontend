@@ -1,12 +1,85 @@
+.headerWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebarTopHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 24px 16px 24px;
+  gap: 0;
+}
+
+.sidebarTopAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border: 2px solid #222;
+  flex-shrink: 0;
+}
+
+.sidebarTopTitle {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  flex: 1;
+  margin-left: 16px;
+  text-align: left;
+  letter-spacing: -1px;
+}
+
+.sidebarTopIcons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sidebarTopIconBtn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  transition: background 0.18s;
+}
+
+.sidebarTopIconBtn img {
+  width: 28px;
+  height: 28px;
+  opacity: 0.95;
+  transition: opacity 0.18s;
+}
+
+.sidebarTopIconBtn:focus,
+.sidebarTopIconBtn:hover {
+  background: #181a20;
+}
+
+.sidebarTopIconBtn:active img {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px #2571ff88);
+}
+
 .searchBar {
   display: flex;
   justify-content: flex-start;
-  background: rgb(0 0 0 / 0.25);
+  background: rgb(var(--primary-color-rgb), .05);
+  border: 1px solid rgb(var(--primary-color-rgb), .15);
   border-radius: 9px;
   padding: 8px 15px;
   width: 100%;
   align-items: center;
-  height: 53px;
+  height: 46px;
   transition: background-color 0.3s ease, border 0.3s ease;
 
   &.active {
@@ -16,9 +89,8 @@
 
 .searchContainer {
   display: flex;
-  gap: 12px;
-  width: 100%;
   align-items: center;
+  margin: 14px 14px 0 14px;
 }
 
 .searchIcon {
