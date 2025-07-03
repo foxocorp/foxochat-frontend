@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "preact/hooks";
 import React from "react";
+import appStore from "@store/app";
 import * as styles from "./SearchBar.module.scss";
+
+interface SearchBarProps {
+  onJoinChannel?: (channelId: number | null) => void;
+}
 
 const platformMatchers: Record<string, RegExp> = {
   windows: /windows nt/i,
@@ -31,7 +36,7 @@ const getShortcut = (platform: string): string => {
   }
 };
 
-const SearchBar = () => {
+const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
   const [query, setQuery] = useState("");
   const [platform, setPlatform] = useState<string>("");
   const [isSearchActive, setSearchActive] = useState(false);
@@ -65,6 +70,25 @@ const SearchBar = () => {
     };
   }, [platform, isSearchActive]);
 
+  const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    const trimmed = query.trim();
+    const channelId = parseInt(trimmed, 10);
+    if (!trimmed || !Number.isInteger(channelId)) return;
+
+    try {
+      await appStore.joinChannel(channelId);
+      await onJoinChannel?.(channelId);
+
+      setQuery("");
+      setSearchActive(false);
+    } catch (error) {
+      console.error("Channel join error:", error);
+      alert("Couldn't find or join this chat-list");
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.currentTarget.value);
   };
@@ -81,6 +105,7 @@ const SearchBar = () => {
           type="text"
           value={query}
           onChange={handleChange}
+          onKeyPress={handleKeyPress}
           placeholder={placeholder}
           className={styles.searchInput}
         />

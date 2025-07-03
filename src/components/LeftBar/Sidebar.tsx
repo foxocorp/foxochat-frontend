@@ -1,8 +1,8 @@
 import ChatHeader from "@components/LeftBar/ChatHeader/ChatHeader";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
+import CreateDropdown from "@components/LeftBar/CreateDropdown/CreateDropdown";
 import SearchBar from "@components/LeftBar/SearchBar/SearchBar";
 import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
-import CreateDropdown from "@components/LeftBar/CreateDropdown/CreateDropdown";
 import CreateChannelModal from "@components/Modal/CreateChannelModal/CreateChannelModal";
 import * as modalStyles from "@components/Modal/CreateChannelModal/CreateChannelModal.module.scss";
 import type { SidebarProps } from "@interfaces/interfaces";
@@ -210,7 +210,7 @@ const SidebarComponent = ({
 			className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
 			style={isMobile ? { width: "100%" } : { width: `${width}px` }}
 		>
-			<div style={{ position: 'relative' }}>
+			<div style={{ position: "relative" }}>
 				<ChatHeader
 					currentUser={currentUser}
 					onAdd={() => setShowCreateDropdown(true)}
@@ -226,7 +226,17 @@ const SidebarComponent = ({
 					/>
 				)}
 			</div>
-			<SearchBar />
+			<SearchBar
+				onJoinChannel={async (channelId: number | null) => {
+					await appStore.setCurrentChannel(channelId);
+					if (channelId && window.location.pathname === "/channels") {
+						window.history.replaceState(null, "", `/channels/#${channelId}`);
+					}
+					if (isMobile) {
+						setMobileView("chat");
+					}
+				}}
+			/>
 			<div className={styles.sidebarChats}>
 				<ChatList chats={channels} currentUser={currentUser} />
 			</div>
