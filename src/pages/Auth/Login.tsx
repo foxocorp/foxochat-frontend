@@ -10,6 +10,7 @@ import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
 import Illustration from "@/assets/icons/auth/illustration.png";
 import { usePageTransitionContext } from "@/contexts/PageTransitionContext";
 import * as styles from "./Login.module.scss";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const Login = (): JSX.Element => {
 	const [email, setEmail] = useState<string>("");
@@ -27,11 +28,7 @@ const Login = (): JSX.Element => {
 	const authStore = useAuthStore();
 	const location = useLocation();
 	const { isTransitioning, startTransition } = usePageTransitionContext();
-
-	const isMobile =
-		typeof window !== "undefined" &&
-		window.matchMedia &&
-		window.matchMedia("(max-width: 600px)").matches;
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		if (authStore.isAuthenticated) {
