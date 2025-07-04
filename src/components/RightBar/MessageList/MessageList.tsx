@@ -112,7 +112,7 @@ const MessageListComponent = ({
 					groups: authorGroups,
 				};
 			});
-	}, [messages?.length]);
+	}, [messages?.length, channelId]);
 
 	return (
 		<div
