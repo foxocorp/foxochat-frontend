@@ -1,177 +1,176 @@
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(15px);
-    background: rgb(0 0 0 / 0.02);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(15px);
+  background: rgb(0 0 0 / 0.02);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 
-    &.visible {
-        opacity: 1;
-        pointer-events: auto;
-    }
+  &.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .modal {
-    background: rgb(8 8 8 / 0.8);
-    border: 1.5px solid rgb(96 96 96 / 0.5);
-    backdrop-filter: blur(40px);
-    border-radius: 5px;
-    padding: 20px 37px;
-    animation: fadeIn 0.3s ease;
-    box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+  background: rgb(8 8 8 / 0.8);
+  border: 1.5px solid rgb(96 96 96 / 0.5);
+  backdrop-filter: blur(40px);
+  border-radius: 5px;
+  padding: 20px 37px;
+  animation: fadeIn 0.3s ease;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .title {
-    font-weight: 600;
-    font-size: 1.875rem;
-    color: var(--primary-color);
-    text-align: left;
-    margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 1.875rem;
+  color: var(--primary-color);
+  text-align: left;
+  margin-bottom: 5px;
 }
 
 .description {
-    font-weight: 300;
-    font-size: 1rem;
-    color: var(--gray-color);
-    margin-bottom: 16px;
+  font-weight: 300;
+  font-size: 1rem;
+  color: var(--gray-color);
+  margin-bottom: 16px;
 }
 
 .codeInputContainer {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 
-    &.error {
-        .codeInput {
-            border: 1px solid var(--error-input-dark);
-            background: rgb(8 8 8 / 0.25);
-        }
+  &.error {
+    .codeInput {
+      border: 1px solid var(--error-input-dark);
+      background: rgb(8 8 8 / 0.25);
     }
+  }
 }
 
 .codeInput {
-    all: unset;
-    width: 2.625rem;
-    height: 2.625rem;
-    font-size: 1.625rem;
-    text-align: center;
-    border: 1px solid rgb(96 96 96 / 0.5);
-    backdrop-filter: blur(25px);
-    background: rgb(8 8 8 / 0.25);
-    border-radius: 5px;
-    margin: 0 5px;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-    caret-color: transparent;
+  all: unset;
+  width: 2.625rem;
+  height: 2.625rem;
+  font-size: 1.625rem;
+  text-align: center;
+  border: 1px solid rgb(96 96 96 / 0.5);
+  backdrop-filter: blur(25px);
+  background: rgb(8 8 8 / 0.25);
+  border-radius: 5px;
+  margin: 0 5px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  caret-color: transparent;
 
-    &:focus {
-        border-color: var(--branded-color) !important;
-        background: rgb(8 8 8 / 0.25) !important;
-        outline: none !important;
-        transform: scale(1.05) !important;
-    }
+  &:focus {
+    border-color: var(--branded-color) !important;
+    background: rgb(8 8 8 / 0.25) !important;
+    outline: none !important;
+    transform: scale(1.05) !important;
+  }
 }
 
 .inputWithPlaceholder::placeholder {
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: rgb(96 96 96 / 0.7);
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: rgb(96 96 96 / 0.7);
 }
 
 .actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 15px;
 }
 
 .resendLink {
-    font-weight: 400;
-    color: var(--branded-color);
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+  font-weight: 400;
+  color: var(--branded-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
 
-    &:hover {
-        opacity: 0.8;
-    }
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .resendText {
-    font-weight: 200;
-    font-size: 0.875rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    width: 100%;
+  font-weight: 200;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  width: 100%;
 }
 
 button:disabled {
-    background: var(--primary-color);
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .timerContainer {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--gray-color);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--gray-color);
 }
 
 .timerIcon {
-    width: 13px;
-    height: 17px;
+  width: 13px;
+  height: 17px;
 }
 
 .timer {
-    font-size: 0.875rem;
+  font-size: 0.875rem;
 }
 
 .line {
-    display: flex;
-    align-items: center;
-    font-weight: 300;
-    font-size: 0.875rem;
-    color: var(--error-dark);
-    animation: errorSlideIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  font-weight: 300;
+  font-size: 0.875rem;
+  color: var(--error-dark);
+  animation: errorSlideIn 0.3s ease;
 
-    &::before,
-    &::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--error-input-dark);
-        margin: 0 10px;
-    }
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--error-input-dark);
+    margin: 0 10px;
+  }
 }
 
 @keyframes errorSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

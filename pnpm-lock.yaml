@@ -11,6 +11,9 @@ importers:
       '@fontsource/inter':
         specifier: ^5.2.6
         version: 5.2.6
+      '@fontsource/roboto-mono':
+        specifier: ^5.2.6
+        version: 5.2.6
       '@tauri-apps/plugin-updater':
         specifier: ^2.9.0
         version: 2.9.0
@@ -701,6 +704,9 @@ packages:
 
   '@fontsource/inter@5.2.6':
     resolution: {integrity: sha512-CZs9S1CrjD0jPwsNy9W6j0BhsmRSQrgwlTNkgQXTsAeDRM42LBRLo3eo9gCzfH4GvV7zpyf78Ozfl773826csw==}
+
+  '@fontsource/roboto-mono@5.2.6':
+    resolution: {integrity: sha512-fLCa3zs9XruKE8Fdbq0UWB0wqTi5dzi09QsnW7HgTwwnSVDZ3nH+X7Qg7l0yeIZs+E472cKE3RUD21ZnaXk4Zg==}
 
   '@foxochat/api-types@0.1.20':
     resolution: {integrity: sha512-zPozMyabcHxTBtxV7cZS5qEyvq93wdPwRZdvuoOAGfc7mWYWnPB/mYXj4qUFWSqt8ezsePoFX8+u+cX60FXlvA==}
@@ -3372,6 +3378,8 @@ snapshots:
     optional: true
 
   '@fontsource/inter@5.2.6': {}
+
+  '@fontsource/roboto-mono@5.2.6': {}
 
   '@foxochat/api-types@0.1.20':
     dependencies:

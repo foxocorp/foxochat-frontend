@@ -246,7 +246,9 @@ const Login = (): JSX.Element => {
 								</Button>
 							</div>
 						</div>
-						<PasswordResetModal
+					</form>
+				</div>
+				<PasswordResetModal
 							isOpen={isPasswordResetModalOpen}
 							email={email}
 							onClose={closePasswordResetModal}
@@ -257,8 +259,6 @@ const Login = (): JSX.Element => {
 							onResetPassword={apiMethods.resetPassword}
 							onResendCode={apiMethods.resendEmailVerification}
 						/>
-					</form>
-				</div>
 			</div>
 			<div className={styles.loginRightCol}>
 				<img

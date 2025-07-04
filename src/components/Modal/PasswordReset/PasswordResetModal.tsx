@@ -1,6 +1,7 @@
-import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg";
 import { Button } from "@components/Base/Buttons/Button";
-import { APIOk } from "foxochat.js";
+import type { APIOk } from "foxochat.js";
+import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
+import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg?react";
 import { usePasswordReset } from "./PasswordReset";
 import * as style from "./PasswordResetModal.module.scss";
 
@@ -58,9 +59,13 @@ export const PasswordResetModal = ({
 					<>
 						<h2 className={style.title}>Reset password</h2>
 						<p className={style.description}>
-							Type your email to reset password
+							Enter your email to get verification code
 						</p>
+						<label className={style.label} htmlFor="reset-email">
+							Email <span className={style.required}>*</span>
+						</label>
 						<input
+							id="reset-email"
 							type="email"
 							value={state.emailInput}
 							onInput={(e) => {
@@ -69,7 +74,7 @@ export const PasswordResetModal = ({
 									emailInput: e.currentTarget.value,
 								}));
 							}}
-							placeholder="fox@foxmail.fox"
+							placeholder="Your email here"
 							className={style.easyInput}
 						/>
 						{state.errorMessage && (
@@ -78,12 +83,13 @@ export const PasswordResetModal = ({
 						<div className={style.actions}>
 							<Button
 								onClick={handleSendEmail}
-								variant="primary"
-								width={318}
+								variant="branded"
+								icon={arrowRightIcon}
+								width={327}
 								fontWeight={600}
 								disabled={!state.emailInput}
 							>
-								Confirm
+								Continue
 							</Button>
 						</div>
 					</>
@@ -91,8 +97,9 @@ export const PasswordResetModal = ({
 
 				{state.step === 2 && (
 					<>
-						<h2 className={style.title}>Check your email</h2>
+						<h2 className={style.title}>Veirfy</h2>
 						<p className={style.description}>
+							Enter code bellow to confirm password reset{" "}
 							{email ?? "Failed to receive mail"}
 						</p>
 						<div className={style.easyInputContainer}>
@@ -118,8 +125,9 @@ export const PasswordResetModal = ({
 						<div className={style.actions}>
 							<Button
 								onClick={handleVerifyCode}
-								variant="primary"
-								width={318}
+								variant="branded"
+								icon={arrowRightIcon}
+								width={327}
 								fontWeight={600}
 								disabled={state.code.some((digit) => !digit)}
 							>
@@ -128,16 +136,12 @@ export const PasswordResetModal = ({
 							<div className={style.resendText}>
 								{state.isResendDisabled ? (
 									<>
-										<span>Time until you can resend code</span>
+										<span>You can request new code in...</span>
 										<div className={style.timerContainer}>
 											<span className={style.timer}>
 												{formatTime(state.timer)}
 											</span>
-											<img
-												className={style.timerIcon}
-												src={TimerIcon}
-												alt="Timer"
-											/>
+											<TimerIcon className={style.timerIcon} />
 										</div>
 									</>
 								) : (
@@ -155,9 +159,9 @@ export const PasswordResetModal = ({
 
 				{state.step === 3 && (
 					<>
-						<h2 className={style.title}>Enter new password</h2>
+						<h2 className={style.title}>Your new password</h2>
 						<p className={style.description}>
-							This will replace your old password
+						Enter your new password to return access to your account
 						</p>
 						<input
 							type="password"
@@ -178,8 +182,9 @@ export const PasswordResetModal = ({
 						<div className={style.actions}>
 							<Button
 								onClick={handleResetPassword}
-								variant="primary"
-								width={318}
+								variant="branded"
+								icon={arrowRightIcon}
+								width={327}
 								fontWeight={600}
 								disabled={
 									state.password.length < 8 || state.password.length > 128
