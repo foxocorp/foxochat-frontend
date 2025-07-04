@@ -93,7 +93,12 @@ const PreComponent = function PreComponent({
 		);
 	}
 
-	const parsedContent = parse(codeHtml) || "Error: Failed to parse code";
+	let parsedContent;
+	if (typeof codeHtml === 'string') {
+		parsedContent = parse(codeHtml) || "Error: Failed to parse code";
+	} else {
+		parsedContent = codeHtml;
+	}
 
 	return (
 		<div className={styles.codeBlockWrapper}>
@@ -298,7 +303,7 @@ const MessageItem = ({
 
 	const renderContent = useCallback(
 		(html: string | null | undefined): JSX.Element[] => {
-			if (!html) return [];
+			if (!html || typeof html !== 'string') return [];
 
 			const options: HTMLReactParserOptions = {
 				replace: (domNode) => {
@@ -317,8 +322,8 @@ const MessageItem = ({
 						) as Element | undefined;
 						const codeHtml = codeElement
 							? domToReact(
-									codeElement.children as unknown as import("html-react-parser").DOMNode[],
-								)
+								codeElement.children as unknown as import("html-react-parser").DOMNode[],
+							)
 							: "";
 						let codeText = "";
 						if (codeElement && codeElement.children) {

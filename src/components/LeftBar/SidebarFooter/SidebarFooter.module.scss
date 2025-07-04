@@ -172,6 +172,8 @@
 .navBtn .icon,
 .navBtn svg {
   color: rgb(var(--primary-color-rgb), .5);
+  width: 24px;
+  height: 24px;
 }
 
 .navBtn.active .icon,
