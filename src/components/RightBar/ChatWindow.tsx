@@ -306,26 +306,28 @@ const ChatWindowComponent = ({
 			className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}
 		>
 			<div className={styles.chatWindow}>
-				<ChatHeader
-					chat={apiChannel}
-					avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
-					username={channel.name}
-					displayName={channel.display_name}
-					channelId={channel.id}
-					isMobile={isMobile}
-					onBack={isMobile ? onBack : undefined}
-					showOverview={showOverview}
-					setShowOverview={setShowOverview}
-				/>
-				<MessageList
-					messages={messages}
-					isLoading={isLoading}
-					isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
-					currentUserId={appStore.currentUserId ?? -1}
-					messageListRef={listRef}
-					onScroll={handleScroll}
-					channel={apiChannel}
-				/>
+				<div className={styles.messageListWrapper}>
+					<ChatHeader
+						chat={apiChannel}
+						avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
+						username={channel.name}
+						displayName={channel.display_name}
+						channelId={channel.id}
+						isMobile={isMobile}
+						onBack={isMobile ? onBack : undefined}
+						showOverview={showOverview}
+						setShowOverview={setShowOverview}
+					/>
+					<MessageList
+						messages={messages}
+						isLoading={isLoading}
+						isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
+						currentUserId={appStore.currentUserId ?? -1}
+						messageListRef={listRef}
+						onScroll={handleScroll}
+						channel={apiChannel}
+					/>
+				</div>
 				{showScrollButton && (
 					<button
 						className={`${styles.scrollButton} ${styles.visible}`}

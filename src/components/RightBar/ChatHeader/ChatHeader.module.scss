@@ -3,14 +3,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background-color: transparent;
-  color: white;
-  border-bottom: 1px solid rgb(96 96 96 / 0.5);
   height: 72px;
-  background: var(--background-chat-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  background: rgba(21, 21, 21, 0.18);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgb(96 96 96 / 0.18);
   gap: 10px;
-  position: relative;
-  z-index: 10000;
 }
 
 .backButton {
