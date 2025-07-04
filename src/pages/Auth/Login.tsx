@@ -225,7 +225,7 @@ const Login = (): JSX.Element => {
 								<div className={styles.loginLinksRow}>
 									<span>
 										Doesn't have an account?{" "}
-										<a onClick={handleNavigateToRegister}>Sign in</a>
+										<a onClick={handleNavigateToRegister}>Sign Up</a>
 									</span>
 									<span>
 										Forgot your password?{" "}
