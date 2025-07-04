@@ -11,7 +11,7 @@
   z-index: 20;
   background: rgb(21 21 21 / 0.8);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgb(96 96 96 / 0.18);
+  border-bottom: 1px solid rgb(var(--primary-color-rgb), .15);
   gap: 10px;
 }
 

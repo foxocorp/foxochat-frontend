@@ -4,7 +4,7 @@
     background-color: var(--background-chat-color);
     padding: 0 15px;
     gap: 8px;
-    border-top: 1px solid rgb(96 96 96 / 0.5);
+    border-top: 1px solid rgb(var(--primary-color-rgb), .15);
     position: relative;
     z-index: 10000;
 }
@@ -49,29 +49,23 @@
 
 .messageInputBackground {
     display: flex;
-    align-items: flex-end;
-    background-color: var(--background-chat-input);
-    padding: 8px;
+    align-items: center;
     border-radius: 14px;
-    flex: 1;
     gap: 12px;
-    margin: 10px 0;
+    margin: 7.5px 0;
+    background: var(--background-chat-color);
 }
 
 .messageInput {
-    font-weight: 400;
     font-size: 18px;
     flex-grow: 1;
     border: none;
     outline: none;
     background: transparent;
-    min-height: 40px;
-    max-height: 150px;
     color: var(--primary-color);
-    height: auto;
     resize: none;
     overflow-y: auto;
-    padding: 6px 0;
+    padding: 10px 0;
     line-height: 1.4;
 
     &::placeholder {
