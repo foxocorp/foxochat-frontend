@@ -42,9 +42,9 @@
   --error-dark: #a53f3f;
   --error-input-dark: rgb(165 63 63 / 0.5);
 
-  --lightgray-color: rgb(236 236 236 / 0.75);
-  --gray-color: rgb(236 236 236 / 0.5);
-  --darkgray-color: rgb(236 236 236 / 0.35);
+  --lightgray-color: rgb(var(--primary-color-rgb), .75);
+  --gray-color: rgb(var(--primary-color-rgb), .50);
+  --darkgray-color: rgb(var(--primary-color-rgb), .35);
 
   --font-weight-bold: 500;
 }
