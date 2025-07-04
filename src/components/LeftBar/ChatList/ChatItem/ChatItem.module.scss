@@ -27,7 +27,7 @@
 }
 
 .activeChat {
-  background-color: rgb(182 182 182 / 0.1);
+  background-color: rgb(var(--primary-color-rgb), .05);
   padding: 12px 8px;
   border-radius: 10px;
 }
