@@ -5,11 +5,11 @@
   padding: 72px 15px 10px 15px;
   overflow-y: auto;
   scroll-behavior: auto;
-  height: 100%;
   width: 100%;
   overscroll-behavior: contain;
   gap: 4px;
   position: relative;
+  padding-bottom: 90px;
 }
 
 .stickyDate {

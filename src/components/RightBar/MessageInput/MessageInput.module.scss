@@ -1,12 +1,16 @@
 .messageInputContainer {
   display: flex;
   flex-direction: column;
-  background-color: var(--background-chat-color);
+  background: rgb(21 21 21 / 0.8);
+  backdrop-filter: blur(10px);
   padding: 0 15px;
   gap: 8px;
   border-top: 1px solid rgb(var(--primary-color-rgb), .15);
-  position: relative;
-  z-index: 10000;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 20;
 }
 
 .error {
@@ -53,7 +57,7 @@
   border-radius: 14px;
   gap: 12px;
   margin: 7.5px 0;
-  background: var(--background-chat-color);
+  background: transparent;
 }
 
 .messageInput {

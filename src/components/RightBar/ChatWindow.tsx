@@ -304,9 +304,10 @@ const ChatWindowComponent = ({
 	return (
 		<div
 			className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}
+			style={{ display: "flex", flexDirection: "column", height: "100%" }}
 		>
-			<div className={styles.chatWindow}>
-				<div className={styles.messageListWrapper}>
+			<div className={styles.chatWindow} style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+				<div className={styles.messageListWrapper} style={{ display: "flex", flexDirection: "column", flex: 1 }}>
 					<ChatHeader
 						chat={apiChannel}
 						avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
@@ -328,21 +329,21 @@ const ChatWindowComponent = ({
 						channel={apiChannel}
 					/>
 				</div>
-				{showScrollButton && (
-					<button
-						className={`${styles.scrollButton} ${styles.visible}`}
-						onClick={handleScrollToBottom}
-						title="New messages"
-						style={{ right: showOverview ? "340px" : "20px" }}
-					>
-						↓ {appStore.unreadCount.get(channel.id) || ""}
-					</button>
-				)}
 				<MessageInput
 					onSendMessage={(c, f) => appStore.sendMessage(c, f)}
 					isSending={appStore.isSendingMessage}
 				/>
 			</div>
+			{showScrollButton && (
+				<button
+					className={`${styles.scrollButton} ${styles.visible}`}
+					onClick={handleScrollToBottom}
+					title="New messages"
+					style={{ right: showOverview ? "340px" : "20px" }}
+				>
+					↓ {appStore.unreadCount.get(channel.id) || ""}
+				</button>
+			)}
 			{isDragOver && (
 				<div className={styles.dragOverlay}>
 					<div className={styles.dragBox}>
