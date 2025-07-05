@@ -123,7 +123,8 @@ export async function sendMessage(
 	try {
 		let attachmentIds: number[] = [];
 		if (files.length > 0) {
-			const atts = await apiMethods.createMessageAttachments(channelId, files);
+			const flags = files.map((file) => (file as any).flags ?? 0);
+			const atts = await apiMethods.createMessageAttachments(channelId, files, flags);
 			await Promise.all(
 				atts.map((att, idx) => {
 					const file = files[idx];
