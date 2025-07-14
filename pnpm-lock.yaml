@@ -32,8 +32,8 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       foxochat.js:
-        specifier: ^0.1.7
-        version: 0.1.7
+        specifier: ^0.1.8
+        version: 0.1.8
       html-react-parser:
         specifier: ^5.2.5
         version: 5.2.5(react@19.1.0)
@@ -716,17 +716,14 @@ packages:
   '@fontsource/roboto-mono@5.2.6':
     resolution: {integrity: sha512-fLCa3zs9XruKE8Fdbq0UWB0wqTi5dzi09QsnW7HgTwwnSVDZ3nH+X7Qg7l0yeIZs+E472cKE3RUD21ZnaXk4Zg==}
 
-  '@foxochat/api-types@0.1.21':
-    resolution: {integrity: sha512-wtCqzDxpkp1PImkY54RYXhz98t8pl1VmnRAW61fyrsuElBMEsXmJwyqp1mb/YWEyNSOUOYFV2cnTjvp/hkQBFg==}
-    deprecated: rollback
+  '@foxochat/api-types@0.1.22':
+    resolution: {integrity: sha512-/iuXb3Ixfg8D229WeEaigCMujknQGiPMVukTxaTK8bLpckzUlsA2sfbDUaBIVtML4N8JvPpntsSuhrnU/wDycw==}
 
-  '@foxochat/api@0.1.18':
-    resolution: {integrity: sha512-ScK0AaQV6qUmAYFwERI9CntsW7xq/0AD5D4/Im6R2kMK/UqruqpdVy4vv5YlJVmocmdHgUwuYMLni6T/bBc3Jw==}
-    deprecated: rollback
+  '@foxochat/api@0.1.19':
+    resolution: {integrity: sha512-n8tLs9E2T/VgHgDinIEsMR34M107S9Xd1SF1aCDY/110jW0nmW09Ys8uz1oGFtXfk3qJPBcWGM5BfMUcMjPqvQ==}
 
-  '@foxochat/gateway-types@0.1.9':
-    resolution: {integrity: sha512-WOc+ulLXjhzTKajUKFw2EmNhRhApf9LxA4IGhQW3kKCdxe3Itk6mxB0zp/3nSg4gQd8KCxS1H98IF1sxb0mYaQ==}
-    deprecated: rollback
+  '@foxochat/gateway-types@0.1.10':
+    resolution: {integrity: sha512-iL7jG3qlddtRISWs15MjEYYCIjnwofLth4ajRshv8mOg4q1xtv00CIAUKQJvsIC+0SxxQTjvIQZXNUfkiZ9VJQ==}
 
   '@foxochat/gateway@0.1.11':
     resolution: {integrity: sha512-uLWZPcqKE/ZWlpb1Kb5IX/oZpUCfCNWoAEHFO1LySasAJFx839vUX7F8LvcSpTvg6eu6GUSoXjZX2ctsjm7MMw==}
@@ -1599,8 +1596,8 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  foxochat.js@0.1.7:
-    resolution: {integrity: sha512-U6/AZQVutGKhd9fDsd+9F1Pz5g9zhdXWQbzkilgtOPD8zGrS4inIE6ZxVbQLcgV9SbTWuCCOgBHYHyw+AIyNIw==}
+  foxochat.js@0.1.8:
+    resolution: {integrity: sha512-oVemMN8q7OQXPRaJ/+ETvHIqG5Z2957SOHSHyvfWWXk62v1VwOMHQ498E+cVhrOkbWoAbgZIfktp0cd/EkIYTg==}
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -3374,31 +3371,31 @@ snapshots:
 
   '@fontsource/roboto-mono@5.2.6': {}
 
-  '@foxochat/api-types@0.1.21':
+  '@foxochat/api-types@0.1.22':
     dependencies:
       '@swc/helpers': 0.5.17
 
-  '@foxochat/api@0.1.18':
+  '@foxochat/api@0.1.19':
     dependencies:
-      '@foxochat/api-types': 0.1.21
+      '@foxochat/api-types': 0.1.22
       '@foxochat/rest': 0.1.15
       '@swc/helpers': 0.5.17
 
-  '@foxochat/gateway-types@0.1.9':
+  '@foxochat/gateway-types@0.1.10':
     dependencies:
-      '@foxochat/api-types': 0.1.21
+      '@foxochat/api-types': 0.1.22
       '@swc/helpers': 0.5.17
 
   '@foxochat/gateway@0.1.11':
     dependencies:
-      '@foxochat/api-types': 0.1.21
-      '@foxochat/gateway-types': 0.1.9
+      '@foxochat/api-types': 0.1.22
+      '@foxochat/gateway-types': 0.1.10
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
   '@foxochat/rest@0.1.15':
     dependencies:
-      '@foxochat/api-types': 0.1.21
+      '@foxochat/api-types': 0.1.22
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.12':
@@ -4316,12 +4313,12 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  foxochat.js@0.1.7:
+  foxochat.js@0.1.8:
     dependencies:
-      '@foxochat/api': 0.1.18
-      '@foxochat/api-types': 0.1.21
+      '@foxochat/api': 0.1.19
+      '@foxochat/api-types': 0.1.22
       '@foxochat/gateway': 0.1.11
-      '@foxochat/gateway-types': 0.1.9
+      '@foxochat/gateway-types': 0.1.10
       '@foxochat/rest': 0.1.15
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
