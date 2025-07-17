@@ -171,6 +171,9 @@ const ChatItemComponent = ({
 	const contextMenu = useContextMenu();
 
 	const isOwner = chat.owner?.id === currentUser;
+	const isDM = chat.type === ChannelType.DM;
+
+	const isOnline = isDM ? Math.random() > 0.5 : false;
 
 	const handleClick = () => {
 		void appStore.setCurrentChannel(chat.id);
@@ -188,7 +191,7 @@ const ChatItemComponent = ({
 					/* TODO: pin logic */
 				},
 			},
-			...(isOwner
+			...(isOwner && !isDM
 				? [
 						{
 							icon: <img src={EditIcon} alt="Edit" />,
@@ -248,11 +251,14 @@ const ChatItemComponent = ({
 				onClick={handleClick}
 				onContextMenu={handleContextMenu}
 			>
-				<ChatAvatar chat={chat} />
+				<ChatAvatar
+					chat={chat}
+					isOnline={isOnline}
+					currentUserId={currentUser ?? null}
+				/>
 				{!isCollapsed && (
 					<div className={styles.chatInfo}>
 						<div className={styles.chatNameWrapper}>
-							{getIcon()}
 							<span className={styles.chatName}>
 								{renderEmojisToJSX(nameToDisplay, true)}
 							</span>
