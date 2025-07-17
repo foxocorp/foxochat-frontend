@@ -704,8 +704,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@bufbuild/protobuf@2.6.0':
-    resolution: {integrity: sha512-6cuonJVNOIL7lTj5zgo/Rc2bKAo4/GvN+rKCrUj7GdEHRzCk8zKOfFwUsL9nAVk5rSIsRmlgcpLzTRysopEeeg==}
+  '@bufbuild/protobuf@2.6.1':
+    resolution: {integrity: sha512-DaG6XlyKpz08bmHY5SGX2gfIllaqtDJ/KwVoxsmP22COOLYwDBe7yD3DZGwXem/Xq7QOc9cuR7R3MpAv5CFfDw==}
 
   '@emnapi/core@1.4.4':
     resolution: {integrity: sha512-A9CnAbC6ARNMKcIcrQwq6HeHCjpcBZ5wSx4U01WXCqEKlrzB9F9315WDNHkrs2xbx7YjjSxbUYxuN6EQzpcY2g==}
@@ -722,8 +722,8 @@ packages:
   '@fontsource/roboto-mono@5.2.6':
     resolution: {integrity: sha512-fLCa3zs9XruKE8Fdbq0UWB0wqTi5dzi09QsnW7HgTwwnSVDZ3nH+X7Qg7l0yeIZs+E472cKE3RUD21ZnaXk4Zg==}
 
-  '@foxochat/api-types@0.1.23':
-    resolution: {integrity: sha512-w5sAhWCM0/3eP21vIgCaRdOEuSRKr0QuH7zizg6BZ19WdNEbPCue1xhNcnstibgRwyvf5xgxqHNvk87S4sVPxg==}
+  '@foxochat/api-types@0.1.24':
+    resolution: {integrity: sha512-Q7iqy1gCTsWDANsuPZbcPObGU/MIvZvRn+Lzob5SUhQak8ZleYVEeRlFNvarkVpic4ej24p2uZirAgND0ORjwQ==}
 
   '@foxochat/api@0.1.20':
     resolution: {integrity: sha512-KBeCOPUTCTtQyjhFKxrl49nO7E34onN1aMm9x65jdXWpRv0+dGeXExh6jG5BYlCmDgVeKjRy6PKqzpBZt2EGyw==}
@@ -1516,8 +1516,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.185:
-    resolution: {integrity: sha512-dYOZfUk57hSMPePoIQ1fZWl1Fkj+OshhEVuPacNKWzC1efe56OsHY3l/jCfiAgIICOU3VgOIdoq7ahg7r7n6MQ==}
+  electron-to-chromium@1.5.186:
+    resolution: {integrity: sha512-lur7L4BFklgepaJxj4DqPk7vKbTEl0pajNlg2QjE5shefmlmBLm2HvQ7PMf1R/GvlevT/581cop33/quQcfX3A==}
 
   emojis-list@3.0.0:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
@@ -3379,7 +3379,7 @@ snapshots:
   '@biomejs/cli-win32-x64@2.1.1':
     optional: true
 
-  '@bufbuild/protobuf@2.6.0': {}
+  '@bufbuild/protobuf@2.6.1': {}
 
   '@emnapi/core@1.4.4':
     dependencies:
@@ -3401,31 +3401,31 @@ snapshots:
 
   '@fontsource/roboto-mono@5.2.6': {}
 
-  '@foxochat/api-types@0.1.23':
+  '@foxochat/api-types@0.1.24':
     dependencies:
       '@swc/helpers': 0.5.17
 
   '@foxochat/api@0.1.20':
     dependencies:
-      '@foxochat/api-types': 0.1.23
+      '@foxochat/api-types': 0.1.24
       '@foxochat/rest': 0.1.15
       '@swc/helpers': 0.5.17
 
   '@foxochat/gateway-types@0.1.10':
     dependencies:
-      '@foxochat/api-types': 0.1.23
+      '@foxochat/api-types': 0.1.24
       '@swc/helpers': 0.5.17
 
   '@foxochat/gateway@0.1.11':
     dependencies:
-      '@foxochat/api-types': 0.1.23
+      '@foxochat/api-types': 0.1.24
       '@foxochat/gateway-types': 0.1.10
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
   '@foxochat/rest@0.1.15':
     dependencies:
-      '@foxochat/api-types': 0.1.23
+      '@foxochat/api-types': 0.1.24
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.12':
@@ -4037,7 +4037,7 @@ snapshots:
   browserslist@4.25.1:
     dependencies:
       caniuse-lite: 1.0.30001727
-      electron-to-chromium: 1.5.185
+      electron-to-chromium: 1.5.186
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.1)
 
@@ -4218,7 +4218,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  electron-to-chromium@1.5.185: {}
+  electron-to-chromium@1.5.186: {}
 
   emojis-list@3.0.0: {}
 
@@ -4346,7 +4346,7 @@ snapshots:
   foxochat.js@0.1.8:
     dependencies:
       '@foxochat/api': 0.1.20
-      '@foxochat/api-types': 0.1.23
+      '@foxochat/api-types': 0.1.24
       '@foxochat/gateway': 0.1.11
       '@foxochat/gateway-types': 0.1.10
       '@foxochat/rest': 0.1.15
@@ -5042,7 +5042,7 @@ snapshots:
 
   sass-embedded@1.89.2:
     dependencies:
-      '@bufbuild/protobuf': 2.6.0
+      '@bufbuild/protobuf': 2.6.1
       buffer-builder: 0.2.0
       colorjs.io: 0.5.2
       immutable: 5.1.3
