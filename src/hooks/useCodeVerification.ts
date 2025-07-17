@@ -11,7 +11,7 @@ interface CodeVerificationState {
 interface UseCodeVerificationProps {
     initialTime?: number;
     codeLength?: number;
-    onVerify: () => Promise<void>;
+    onVerify: (code: string) => Promise<void>;
     onResendCode: () => Promise<void>;
 }
 
