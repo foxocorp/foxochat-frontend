@@ -126,8 +126,8 @@ export interface SidebarProps {
 	isMobile?: boolean;
 	setMobileView?: (view: "list" | "chat") => void;
 	setChatTransition?: (transition: string) => void;
-	activeTab?: "chats" | "settings";
-	onTabChange?: (tab: "chats" | "settings") => void;
+	activeTab?: "chats" | "settings" | "contacts";
+	onTabChange?: (tab: "chats" | "settings" | "contacts") => void;
 	selectedSection?: string;
 	onSelectSection?: (section: string) => void;
 }
