@@ -11,7 +11,6 @@ import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
 
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
-import { Logger } from "@/utils/logger";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -30,7 +29,7 @@ function useAuthRedirect(redirectTo = "/auth/login") {
 
 const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-	const [activeTab, setActiveTab] = useState<"chats" | "settings">("chats");
+	const [activeTab, setActiveTab] = useState<"chats" | "settings" | "contacts">("chats");
 	const [selectedSection, setSelectedSection] = useState("");
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 
@@ -144,8 +143,6 @@ const HomeComponent = () => {
 		};
 	}, [handleResize]);
 
-	Logger.info(`isMobile: ${isMobile}`);
-
 	if (isMobile) {
 		const isSettingsActive = activeTab === "settings";
 		return (
@@ -163,7 +160,9 @@ const HomeComponent = () => {
 						setChatTransition={() => {}}
 						setMobileView={setMobileView}
 						activeTab={activeTab}
-						onTabChange={setActiveTab}
+						onTabChange={tab => {
+							if (tab === "chats" || tab === "settings" || tab === "contacts") setActiveTab(tab);
+						}}
 						selectedSection={selectedSection}
 						onSelectSection={setSelectedSection}
 					/>
@@ -180,7 +179,9 @@ const HomeComponent = () => {
 						selectedSection={selectedSection}
 						onSelectSection={setSelectedSection}
 						isMobile={isMobile}
-						onTabChange={(tab) => setActiveTab(tab as "chats" | "settings")}
+						onTabChange={tab => {
+							if (tab === "chats" || tab === "settings" || tab === "contacts") setActiveTab(tab);
+						}}
 					/>
 				</div>
 				<div
@@ -207,7 +208,7 @@ const HomeComponent = () => {
 				{(!isSettingsActive || selectedSection === "") && mobileView !== "chat" && (
 					<SidebarFooter
 						active={activeTab}
-						onNav={(tab) => setActiveTab(tab as "chats" | "settings")}
+						onNav={setActiveTab}
 						isMobile={true}
 						className={isSettingsActive && selectedSection !== "" ? "footerHidden" : ""}
 					/>
@@ -222,7 +223,9 @@ const HomeComponent = () => {
 				currentUser={currentUser}
 				isMobile={false}
 				activeTab={activeTab}
-				onTabChange={setActiveTab}
+				onTabChange={tab => {
+					if (tab === "chats" || tab === "settings" || tab === "contacts") setActiveTab(tab);
+				}}
 				selectedSection={selectedSection}
 				onSelectSection={setSelectedSection}
 			/>
