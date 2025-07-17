@@ -8,9 +8,10 @@ interface ChatHeaderProps {
     currentUser: any;
     onEdit?: () => void;
     onAdd?: () => void;
+    title?: string;
 }
 
-const ChatHeader = ({ currentUser, onEdit, onAdd }: ChatHeaderProps) => {
+const ChatHeader = ({ currentUser, onEdit, onAdd, title = "Chats" }: ChatHeaderProps) => {
     return (
         <div className={styles.headerWrapper}>
             <div className={styles.sidebarTopHeader}>
@@ -27,14 +28,18 @@ const ChatHeader = ({ currentUser, onEdit, onAdd }: ChatHeaderProps) => {
                         size="medium"
                     />
                 )}
-                <span className={styles.sidebarTopTitle}>Chats</span>
+                <span className={styles.sidebarTopTitle}>{title}</span>
                 <div className={styles.sidebarTopIcons}>
-                    <button className={styles.sidebarTopIconBtn} aria-label="Edit chats" onClick={onEdit}>
-                        <EditIcon />
-                    </button>
-                    <button className={styles.sidebarTopIconBtn} aria-label="Add chat" onClick={onAdd}>
-                        <PlusIcon />
-                    </button>
+                    {onEdit && (
+                        <button className={styles.sidebarTopIconBtn} aria-label="Edit chats" onClick={onEdit}>
+                            <EditIcon />
+                        </button>
+                    )}
+                    {onAdd && (
+                        <button className={styles.sidebarTopIconBtn} aria-label="Add chat" onClick={onAdd}>
+                            <PlusIcon />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
