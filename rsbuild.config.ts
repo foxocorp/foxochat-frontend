@@ -39,15 +39,10 @@ function getGitCommitCount() {
     }
 }
 
-function getVersion() {
-    return JSON.parse(readFileSync('package.json').toString()).version;
-}
-
-const version = getVersion();
 const gitRevision = getGitRevision();
 const gitBranch = getGitBranch();
 const gitCommitCount = getGitCommitCount();
-const versionString = `${version} (${gitCommitCount}, ${gitRevision})`;
+const versionString = `(${gitCommitCount}, ${gitRevision})`;
 
 try {
     writeFileSync('./public/version', versionString);
@@ -82,7 +77,6 @@ export default defineConfig({
 					process.env.CDN_BASE_URL || "https://media.foxochat.app/attachments/",
 				apiUrl: process.env.API_URL || "https://api.foxochat.app/",
 			}),
-      __APP_VERSION__: JSON.stringify(version),
       __GIT_REVISION__: JSON.stringify(gitRevision),
       __GIT_BRANCH__: JSON.stringify(gitBranch),
       __GIT_COMMIT_COUNT__: JSON.stringify(gitCommitCount),

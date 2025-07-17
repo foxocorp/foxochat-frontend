@@ -1,21 +1,39 @@
 import { useState } from "preact/hooks";
 import { Tooltip } from "@/components/Chat/Tooltip/Tooltip";
 
-// @ts-ignore
-declare const __GIT_BRANCH__: string;
-// @ts-ignore
-declare const __GIT_REVISION__: string;
-// @ts-ignore
-declare const __GIT_COMMIT_COUNT__: string;
-// @ts-ignore
-declare const __APP_VERSION__: string;
+const version = `FoxoChat ${__GIT_BRANCH__ === "production" ? "(Stable)" : "(Beta)"} #${__GIT_COMMIT_COUNT__} · ${__GIT_REVISION__}`;
 
-const version = `FoxoChat ${__GIT_BRANCH__ === "production" ? "Stable" : "Beta"} v${__APP_VERSION__} (${__GIT_COMMIT_COUNT__}, ${__GIT_REVISION__})`;
+function getBrowserName() {
+	const ua = navigator.userAgent;
+	if (/chrome|crios|crmo/i.test(ua)) return "Chrome";
+	if (/firefox|fxios/i.test(ua)) return "Firefox";
+	if (/safari/i.test(ua) && !/chrome|crios|crmo/i.test(ua)) return "Safari";
+	if (/edg/i.test(ua)) return "Edge";
+	if (/opr\//i.test(ua)) return "Opera";
+	return "Unknown browser";
+}
+
+function getWebkitVersionString() {
+	const ua = navigator.userAgent;
+	const match = ua.match(/AppleWebKit\/(\d+(?:\.\d+)?)/i);
+	const browser = getBrowserName();
+	return match ? `${browser} (WebKit) ${match[1]}` : `${browser} (WebKit)`;
+}
 
 export default function VersionInfo() {
 	const [showTooltip, setShowTooltip] = useState(false);
+	const webkitShort = getWebkitVersionString();
+	const webkitFull = navigator.userAgent;
+	const display = (
+		<>
+			<div>{webkitShort}</div>
+			<div style={{ marginTop: 2 }}>{version}</div>
+		</>
+	);
+	const copyString = `${version}\nWebKit: ${webkitFull}`;
+
 	const handleCopy = () => {
-		void navigator.clipboard.writeText(version);
+		void navigator.clipboard.writeText(copyString);
 		setShowTooltip(true);
 		setTimeout(() => setShowTooltip(false), 1200);
 	};
@@ -38,9 +56,9 @@ export default function VersionInfo() {
 				}}
 				onClick={handleCopy}
 				onMouseDown={handleMouseDown}
-				title="Click to copy version"
+				title="Click to copy version and WebKit info"
 			>
-				{version}
+				{display}
 			</div>
 		</Tooltip>
 	);
