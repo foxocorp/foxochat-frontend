@@ -1,7 +1,6 @@
 .dropdown {
   position: absolute;
   right: 10px;
-  top: calc(100% + 8px);
   z-index: 1000;
   transform-origin: top right;
   animation: fadeInScale 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;

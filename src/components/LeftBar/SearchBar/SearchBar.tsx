@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "preact/hooks";
 import React from "react";
 import appStore from "@store/app";
 import * as styles from "./SearchBar.module.scss";
+import { apiMethods } from "@services/API/apiMethods";
+import { Logger } from "@/utils/logger";
 
 interface SearchBarProps {
   onJoinChannel?: (channelId: number | null) => void;
@@ -75,18 +77,50 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
 
     const trimmed = query.trim();
     const channelId = parseInt(trimmed, 10);
-    if (!trimmed || !Number.isInteger(channelId)) return;
+    if (!trimmed) return;
 
-    try {
-      await appStore.joinChannel(channelId);
-      await onJoinChannel?.(channelId);
+    if (Number.isInteger(channelId)) {
+      try {
+        await appStore.joinChannel(channelId);
+        await onJoinChannel?.(channelId);
+        setQuery("");
+        setSearchActive(false);
+        return;
+      } catch (error) {
+        Logger.error(String(error));
+      }
+    }
 
+    let user = null;
+    if (Number.isInteger(channelId)) {
+      try {
+        user = await apiMethods.getUserById(channelId);
+      } catch {}
+    }
+    if (!user) {
+      try {
+        user = await apiMethods.getUserByUsername(trimmed);
+      } catch {}
+    }
+    if (user) {
+      const channels = await apiMethods.userChannelsList();
+      let dm = channels.find((ch: any) => ch.type === 1 && (ch.owner?.id === user.id || (ch.members || []).some((m: any) => m.id === user.id)));
+      if (!dm) {
+        dm = await apiMethods.createChannel({
+          name: user.username,
+          display_name: user.display_name || user.username,
+          type: 1,
+          public: false,
+        });
+      }
+      await appStore.setCurrentChannel(dm.id);
+      onJoinChannel?.(dm.id);
       setQuery("");
       setSearchActive(false);
-    } catch (error) {
-      console.error("Channel join error:", error);
-      alert("Couldn't find or join this chat-list");
+      return;
     }
+
+    alert("Couldn't find channel or user");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

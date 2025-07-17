@@ -1,5 +1,6 @@
 import ChatHeader from "@components/LeftBar/ChatHeader/ChatHeader";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
+import ContactsList from "@components/LeftBar/ContactsList/ContactsList";
 import CreateDropdown from "@components/LeftBar/CreateDropdown/CreateDropdown";
 import SearchBar from "@components/LeftBar/SearchBar/SearchBar";
 import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
@@ -210,8 +211,7 @@ const SidebarComponent = ({
 		STORAGE_COLLAPSED_VALUE;
 
 	const handleFooterNav = (tab: "chats" | "settings" | "contacts") => {
-		if (tab === "contacts") return;
-		if (onTabChange) onTabChange(tab as "chats" | "settings");
+		if (onTabChange) onTabChange(tab as "chats" | "settings" | "contacts");
 	};
 
 	return (
@@ -244,22 +244,21 @@ const SidebarComponent = ({
 					}
 					style={{ zIndex: activeTab === "chats" ? 11 : 10 }}
 				>
-					<div style={{ position: "relative" }}>
-						<ChatHeader
-							currentUser={currentUser}
-							onAdd={() => setShowCreateDropdown(true)}
-							onEdit={() => {}}
+					<ChatHeader
+						currentUser={currentUser}
+						onAdd={() => setShowCreateDropdown(true)}
+						onEdit={() => {}}
+						title="Chats"
+					/>
+					{showCreateDropdown && (
+						<CreateDropdown
+							onSelect={(type) => {
+								setShowCreateModal(type);
+								setShowCreateDropdown(false);
+							}}
+							onClose={() => setShowCreateDropdown(false)}
 						/>
-						{showCreateDropdown && (
-							<CreateDropdown
-								onSelect={(type) => {
-									setShowCreateModal(type);
-									setShowCreateDropdown(false);
-								}}
-								onClose={() => setShowCreateDropdown(false)}
-							/>
-						)}
-					</div>
+					)}
 					<SearchBar
 						onJoinChannel={async (channelId: number | null) => {
 							await appStore.setCurrentChannel(channelId);
@@ -281,6 +280,23 @@ const SidebarComponent = ({
 							currentUser={currentUser}
 							{...(isMobile ? { onOpenChat: () => setMobileView("chat") } : {})}
 						/>
+					</div>
+				</div>
+				<div
+					className={
+						styles.sidebarAnimatedSection +
+						" " + styles.slideLeft +
+						(activeTab === "contacts" ? " " + styles.visible : "")
+					}
+					style={{ zIndex: activeTab === "contacts" ? 11 : 10 }}
+				>
+					<ChatHeader
+						currentUser={currentUser}
+						title="Contacts"
+					/>
+					<SearchBar />
+					<div className={styles.sidebarChats}>
+						<ContactsList chats={channels} currentUser={currentUser} />
 					</div>
 				</div>
 			</div>
