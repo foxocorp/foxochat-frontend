@@ -32,11 +32,11 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       foxochat.js:
-        specifier: ^0.1.8
-        version: 0.1.8
+        specifier: ^0.1.10
+        version: 0.1.10
       html-react-parser:
-        specifier: ^5.2.5
-        version: 5.2.5(react@19.1.0)
+        specifier: ^5.2.6
+        version: 5.2.6(react@19.1.0)
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -93,20 +93,20 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       '@rsbuild/core':
-        specifier: ^1.4.7
-        version: 1.4.7
+        specifier: ^1.4.8
+        version: 1.4.8
       '@rsbuild/plugin-preact':
         specifier: ^1.5.0
-        version: 1.5.0(@rsbuild/core@1.4.7)(preact@10.26.9)
+        version: 1.5.0(@rsbuild/core@1.4.8)(preact@10.26.9)
       '@rsbuild/plugin-sass':
         specifier: ^1.3.3
-        version: 1.3.3(@rsbuild/core@1.4.7)
+        version: 1.3.3(@rsbuild/core@1.4.8)
       '@rsbuild/plugin-svgr':
         specifier: ^1.2.1
-        version: 1.2.1(@rsbuild/core@1.4.7)(typescript@5.8.3)
+        version: 1.2.1(@rsbuild/core@1.4.8)(typescript@5.8.3)
       '@rsbuild/plugin-typed-css-modules':
         specifier: ^1.0.2
-        version: 1.0.2(@rsbuild/core@1.4.7)
+        version: 1.0.2(@rsbuild/core@1.4.8)
       '@tauri-apps/cli':
         specifier: ^2.6.2
         version: 2.6.2
@@ -117,8 +117,8 @@ importers:
         specifier: ^14.1.2
         version: 14.1.2
       '@types/node':
-        specifier: ^24.0.14
-        version: 24.0.14
+        specifier: ^24.0.15
+        version: 24.0.15
       '@types/sanitize-html':
         specifier: ^2.16.0
         version: 2.16.0
@@ -707,14 +707,14 @@ packages:
   '@bufbuild/protobuf@2.6.1':
     resolution: {integrity: sha512-DaG6XlyKpz08bmHY5SGX2gfIllaqtDJ/KwVoxsmP22COOLYwDBe7yD3DZGwXem/Xq7QOc9cuR7R3MpAv5CFfDw==}
 
-  '@emnapi/core@1.4.4':
-    resolution: {integrity: sha512-A9CnAbC6ARNMKcIcrQwq6HeHCjpcBZ5wSx4U01WXCqEKlrzB9F9315WDNHkrs2xbx7YjjSxbUYxuN6EQzpcY2g==}
+  '@emnapi/core@1.4.5':
+    resolution: {integrity: sha512-XsLw1dEOpkSX/WucdqUhPWP7hDxSvZiY+fsUC14h+FtQ2Ifni4znbBt8punRX+Uj2JG/uDb8nEHVKvrVlvdZ5Q==}
 
-  '@emnapi/runtime@1.4.4':
-    resolution: {integrity: sha512-hHyapA4A3gPaDCNfiqyZUStTMqIkKRshqPIuDOXv1hcBnD4U3l8cP0T1HMCfGRxQ6V64TGCcoswChANyOAwbQg==}
+  '@emnapi/runtime@1.4.5':
+    resolution: {integrity: sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==}
 
-  '@emnapi/wasi-threads@1.0.3':
-    resolution: {integrity: sha512-8K5IFFsQqF9wQNJptGbS6FNKgUTsSRYnTqNCG1vPP8jFdjSv18n2mQfJpkt2Oibo9iBEzcDnDxNwKTzC7svlJw==}
+  '@emnapi/wasi-threads@1.0.4':
+    resolution: {integrity: sha512-PJR+bOmMOPH8AtcTGAyYNiuJ3/Fcoj2XN/gBEWzDIKh254XO+mM9XoXHk5GNEhodxeMznbg7BlRojVbKN+gC6g==}
 
   '@fontsource/inter@5.2.6':
     resolution: {integrity: sha512-CZs9S1CrjD0jPwsNy9W6j0BhsmRSQrgwlTNkgQXTsAeDRM42LBRLo3eo9gCzfH4GvV7zpyf78Ozfl773826csw==}
@@ -722,20 +722,20 @@ packages:
   '@fontsource/roboto-mono@5.2.6':
     resolution: {integrity: sha512-fLCa3zs9XruKE8Fdbq0UWB0wqTi5dzi09QsnW7HgTwwnSVDZ3nH+X7Qg7l0yeIZs+E472cKE3RUD21ZnaXk4Zg==}
 
-  '@foxochat/api-types@0.1.24':
-    resolution: {integrity: sha512-Q7iqy1gCTsWDANsuPZbcPObGU/MIvZvRn+Lzob5SUhQak8ZleYVEeRlFNvarkVpic4ej24p2uZirAgND0ORjwQ==}
+  '@foxochatjs/api-types@0.1.26':
+    resolution: {integrity: sha512-ERRfD9iQBnX4i3NDnILezivzILqP2j5Vd0YibD/PK50A7iUNAjcGC2OoVOQfq/jvpU4zpK2jHS4Ktf/jre3WQg==}
 
-  '@foxochat/api@0.1.20':
-    resolution: {integrity: sha512-KBeCOPUTCTtQyjhFKxrl49nO7E34onN1aMm9x65jdXWpRv0+dGeXExh6jG5BYlCmDgVeKjRy6PKqzpBZt2EGyw==}
+  '@foxochatjs/api@0.1.22':
+    resolution: {integrity: sha512-s4EAm24OQxjbnPpqw3BT1AamXlWOI2XWny6Q4efo67lRNxLttyx7UgS5+ODVYJ88t1wHS7rstvKfHgt+QKLwbQ==}
 
-  '@foxochat/gateway-types@0.1.10':
-    resolution: {integrity: sha512-iL7jG3qlddtRISWs15MjEYYCIjnwofLth4ajRshv8mOg4q1xtv00CIAUKQJvsIC+0SxxQTjvIQZXNUfkiZ9VJQ==}
+  '@foxochatjs/gateway-types@0.1.11':
+    resolution: {integrity: sha512-lrqXLT71RXYVdnEHrZqfRcYP/s00SurynchuWSdy6lVRtTdgMjmvB/jojQ+9ci58MdbGN1G+ID39/33snGN6UA==}
 
-  '@foxochat/gateway@0.1.11':
-    resolution: {integrity: sha512-uLWZPcqKE/ZWlpb1Kb5IX/oZpUCfCNWoAEHFO1LySasAJFx839vUX7F8LvcSpTvg6eu6GUSoXjZX2ctsjm7MMw==}
+  '@foxochatjs/gateway@0.1.12':
+    resolution: {integrity: sha512-R0rKRzFSoz3Kep4Xuxw6nQvhu71EBtqickyG61yJ49AQiJa6W1HkQbXPfBac353ck4phBwT71xYFNxz2WX6vfQ==}
 
-  '@foxochat/rest@0.1.15':
-    resolution: {integrity: sha512-O6inYggf1G0ckwfj9jshQUhhJi278Fw7CwGHSun0lneQ2m1Mx3kg9MVdx8ymSkDFiG2loYjXIC+ESUybXTvfNw==}
+  '@foxochatjs/rest@0.1.16':
+    resolution: {integrity: sha512-DFc9ae7FzEVejTwVBc8MEHsY7cYdSpQcFGA5MlXpn0A5FXsrg3YqKW/3VZlr35tinWEfwAwaqqNZS5wsOkj6rw==}
 
   '@jridgewell/gen-mapping@0.3.12':
     resolution: {integrity: sha512-OuLGC46TjB5BbN1dH8JULVVZY4WTdkF7tV9Ys6wLL1rubZnCMstOhNHueU5bLCrnRuDhKPDM4g6sw4Bel5Gzqg==}
@@ -913,8 +913,8 @@ packages:
       rollup:
         optional: true
 
-  '@rsbuild/core@1.4.7':
-    resolution: {integrity: sha512-mYvMYlCKUQAfz7x7GJnD6lBsVBfUSEAfrZLxkDQ0F3w7If9cQpHWLWZWdRmcFFy3Pzns1Edxn0st1nAmcFhRJQ==}
+  '@rsbuild/core@1.4.8':
+    resolution: {integrity: sha512-IJhpLl8lrp5ynlf04V5l7rMrVTNuGLG36ZDadHiBIC5qLRGSS3rMF8cVLSkSA6qM1OiRlPpMgwQbqFYh325RvQ==}
     engines: {node: '>=16.10.0'}
     hasBin: true
 
@@ -1226,8 +1226,8 @@ packages:
   '@types/mdurl@2.0.0':
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
 
-  '@types/node@24.0.14':
-    resolution: {integrity: sha512-4zXMWD91vBLGRtHK3YbIoFMia+1nqEz72coM42C5ETjnNCa/heoj7NT1G67iAfOqMmcfhuCZ4uNpyz8EjlAejw==}
+  '@types/node@24.0.15':
+    resolution: {integrity: sha512-oaeTSbCef7U/z7rDeJA138xpG3NuKc64/rZ2qmUFkFJmnMsAPaluIifqyWd8hSSMxyP9oie3dLAqYPblag9KgA==}
 
   '@types/prismjs@1.26.5':
     resolution: {integrity: sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ==}
@@ -1516,8 +1516,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.186:
-    resolution: {integrity: sha512-lur7L4BFklgepaJxj4DqPk7vKbTEl0pajNlg2QjE5shefmlmBLm2HvQ7PMf1R/GvlevT/581cop33/quQcfX3A==}
+  electron-to-chromium@1.5.187:
+    resolution: {integrity: sha512-cl5Jc9I0KGUoOoSbxvTywTa40uspGJt/BDBoDLoxJRSBpWh4FFXBsjNRHfQrONsV/OoEjDfHUmZQa2d6Ze4YgA==}
 
   emojis-list@3.0.0:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
@@ -1602,8 +1602,8 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  foxochat.js@0.1.8:
-    resolution: {integrity: sha512-oVemMN8q7OQXPRaJ/+ETvHIqG5Z2957SOHSHyvfWWXk62v1VwOMHQ498E+cVhrOkbWoAbgZIfktp0cd/EkIYTg==}
+  foxochat.js@0.1.10:
+    resolution: {integrity: sha512-snUL8RCcgNvuk3UZ2FTqMmreasqbXAtyx1S9bto6EG7K2rxR393eJDqPtA38o2bzBCniX/DPTVp1gI35sJZAxA==}
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -1697,8 +1697,8 @@ packages:
   html-entities@2.6.0:
     resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
 
-  html-react-parser@5.2.5:
-    resolution: {integrity: sha512-bRPdv8KTqG9CEQPMNGksDqmbiRfVQeOidry8pVetdh/1jQ1Edx4KX5m0lWvDD89Pt4CqTYjK1BLz6NoNVxN/Uw==}
+  html-react-parser@5.2.6:
+    resolution: {integrity: sha512-qcpPWLaSvqXi+TndiHbCa+z8qt0tVzjMwFGFBAa41ggC+ZA5BHaMIeMJla9g3VSp4SmiZb9qyQbmbpHYpIfPOg==}
     peerDependencies:
       '@types/react': 0.14 || 15 || 16 || 17 || 18 || 19
       react: 0.14 || 15 || 16 || 17 || 18 || 19
@@ -2454,11 +2454,11 @@ packages:
     resolution: {integrity: sha512-ZprKx+bBLXv067WTCALv8SSz5l2+XhpYCsVtSqlMnkAXMWDq+/ekVbl1ghqP9rUHTzv6sm/DwCOiYutU/yp1fw==}
     engines: {node: '>=10'}
 
-  style-to-js@1.1.16:
-    resolution: {integrity: sha512-/Q6ld50hKYPH3d/r6nr117TZkHR0w0kGGIVfpG9N6D8NymRPM9RqCUv4pRpJ62E5DqOYx2AFpbZMyCPnjQCnOw==}
+  style-to-js@1.1.17:
+    resolution: {integrity: sha512-xQcBGDxJb6jjFCTzvQtfiPn6YvvP2O8U1MDIPNfJQlWMYfktPy+iGsHE7cssjs7y84d9fQaK4UF3RIJaAHSoYA==}
 
-  style-to-object@1.0.8:
-    resolution: {integrity: sha512-xT47I/Eo0rwJmaXC4oilDGDWLohVhR6o/xAQcPQN8q6QBuZVL8qMYL85kLmST5cPjAorwvqIA4qXTRQoYHaL6g==}
+  style-to-object@1.0.9:
+    resolution: {integrity: sha512-G4qppLgKu/k6FwRpHiGiKPaPTFcG3g4wNVX/Qsfu+RqQM30E7Tyu/TEgxcL9PNLF5pdRLwQdE3YKKf+KF2Dzlw==}
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -3381,18 +3381,18 @@ snapshots:
 
   '@bufbuild/protobuf@2.6.1': {}
 
-  '@emnapi/core@1.4.4':
+  '@emnapi/core@1.4.5':
     dependencies:
-      '@emnapi/wasi-threads': 1.0.3
+      '@emnapi/wasi-threads': 1.0.4
       tslib: 2.8.1
     optional: true
 
-  '@emnapi/runtime@1.4.4':
+  '@emnapi/runtime@1.4.5':
     dependencies:
       tslib: 2.8.1
     optional: true
 
-  '@emnapi/wasi-threads@1.0.3':
+  '@emnapi/wasi-threads@1.0.4':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -3401,31 +3401,31 @@ snapshots:
 
   '@fontsource/roboto-mono@5.2.6': {}
 
-  '@foxochat/api-types@0.1.24':
+  '@foxochatjs/api-types@0.1.26':
     dependencies:
       '@swc/helpers': 0.5.17
 
-  '@foxochat/api@0.1.20':
+  '@foxochatjs/api@0.1.22':
     dependencies:
-      '@foxochat/api-types': 0.1.24
-      '@foxochat/rest': 0.1.15
+      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/rest': 0.1.16
       '@swc/helpers': 0.5.17
 
-  '@foxochat/gateway-types@0.1.10':
+  '@foxochatjs/gateway-types@0.1.11':
     dependencies:
-      '@foxochat/api-types': 0.1.24
+      '@foxochatjs/api-types': 0.1.26
       '@swc/helpers': 0.5.17
 
-  '@foxochat/gateway@0.1.11':
+  '@foxochatjs/gateway@0.1.12':
     dependencies:
-      '@foxochat/api-types': 0.1.24
-      '@foxochat/gateway-types': 0.1.10
+      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/gateway-types': 0.1.11
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
-  '@foxochat/rest@0.1.15':
+  '@foxochatjs/rest@0.1.16':
     dependencies:
-      '@foxochat/api-types': 0.1.24
+      '@foxochatjs/api-types': 0.1.26
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.12':
@@ -3474,8 +3474,8 @@ snapshots:
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
-      '@emnapi/core': 1.4.4
-      '@emnapi/runtime': 1.4.4
+      '@emnapi/core': 1.4.5
+      '@emnapi/runtime': 1.4.5
       '@tybys/wasm-util': 0.10.0
     optional: true
 
@@ -3596,7 +3596,7 @@ snapshots:
     optionalDependencies:
       rollup: 2.79.2
 
-  '@rsbuild/core@1.4.7':
+  '@rsbuild/core@1.4.8':
     dependencies:
       '@rspack/core': 1.4.8(@swc/helpers@0.5.17)
       '@rspack/lite-tapable': 1.0.1
@@ -3604,37 +3604,37 @@ snapshots:
       core-js: 3.44.0
       jiti: 2.4.2
 
-  '@rsbuild/plugin-preact@1.5.0(@rsbuild/core@1.4.7)(preact@10.26.9)':
+  '@rsbuild/plugin-preact@1.5.0(@rsbuild/core@1.4.8)(preact@10.26.9)':
     dependencies:
       '@prefresh/core': 1.5.5(preact@10.26.9)
       '@prefresh/utils': 1.2.1
-      '@rsbuild/core': 1.4.7
+      '@rsbuild/core': 1.4.8
       '@rspack/plugin-preact-refresh': 1.1.2(@prefresh/core@1.5.5(preact@10.26.9))(@prefresh/utils@1.2.1)
       '@swc/plugin-prefresh': 8.0.4
     transitivePeerDependencies:
       - preact
 
-  '@rsbuild/plugin-react@1.3.4(@rsbuild/core@1.4.7)':
+  '@rsbuild/plugin-react@1.3.4(@rsbuild/core@1.4.8)':
     dependencies:
-      '@rsbuild/core': 1.4.7
+      '@rsbuild/core': 1.4.8
       '@rspack/plugin-react-refresh': 1.4.3(react-refresh@0.17.0)
       react-refresh: 0.17.0
     transitivePeerDependencies:
       - webpack-hot-middleware
 
-  '@rsbuild/plugin-sass@1.3.3(@rsbuild/core@1.4.7)':
+  '@rsbuild/plugin-sass@1.3.3(@rsbuild/core@1.4.8)':
     dependencies:
-      '@rsbuild/core': 1.4.7
+      '@rsbuild/core': 1.4.8
       deepmerge: 4.3.1
       loader-utils: 2.0.4
       postcss: 8.5.6
       reduce-configs: 1.1.0
       sass-embedded: 1.89.2
 
-  '@rsbuild/plugin-svgr@1.2.1(@rsbuild/core@1.4.7)(typescript@5.8.3)':
+  '@rsbuild/plugin-svgr@1.2.1(@rsbuild/core@1.4.8)(typescript@5.8.3)':
     dependencies:
-      '@rsbuild/core': 1.4.7
-      '@rsbuild/plugin-react': 1.3.4(@rsbuild/core@1.4.7)
+      '@rsbuild/core': 1.4.8
+      '@rsbuild/plugin-react': 1.3.4(@rsbuild/core@1.4.8)
       '@svgr/core': 8.1.0(typescript@5.8.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       '@svgr/plugin-svgo': 8.1.0(@svgr/core@8.1.0(typescript@5.8.3))(typescript@5.8.3)
@@ -3645,9 +3645,9 @@ snapshots:
       - typescript
       - webpack-hot-middleware
 
-  '@rsbuild/plugin-typed-css-modules@1.0.2(@rsbuild/core@1.4.7)':
+  '@rsbuild/plugin-typed-css-modules@1.0.2(@rsbuild/core@1.4.8)':
     optionalDependencies:
-      '@rsbuild/core': 1.4.7
+      '@rsbuild/core': 1.4.8
 
   '@rspack/binding-darwin-arm64@1.4.8':
     optional: true
@@ -3911,7 +3911,7 @@ snapshots:
 
   '@types/mdurl@2.0.0': {}
 
-  '@types/node@24.0.14':
+  '@types/node@24.0.15':
     dependencies:
       undici-types: 7.8.0
 
@@ -3927,7 +3927,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.0.14
+      '@types/node': 24.0.15
 
   acorn@8.15.0: {}
 
@@ -4037,7 +4037,7 @@ snapshots:
   browserslist@4.25.1:
     dependencies:
       caniuse-lite: 1.0.30001727
-      electron-to-chromium: 1.5.186
+      electron-to-chromium: 1.5.187
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.1)
 
@@ -4218,7 +4218,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  electron-to-chromium@1.5.186: {}
+  electron-to-chromium@1.5.187: {}
 
   emojis-list@3.0.0: {}
 
@@ -4343,13 +4343,13 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  foxochat.js@0.1.8:
+  foxochat.js@0.1.10:
     dependencies:
-      '@foxochat/api': 0.1.20
-      '@foxochat/api-types': 0.1.24
-      '@foxochat/gateway': 0.1.11
-      '@foxochat/gateway-types': 0.1.10
-      '@foxochat/rest': 0.1.15
+      '@foxochatjs/api': 0.1.22
+      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/gateway': 0.1.12
+      '@foxochatjs/gateway-types': 0.1.11
+      '@foxochatjs/rest': 0.1.16
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
@@ -4455,13 +4455,13 @@ snapshots:
 
   html-entities@2.6.0: {}
 
-  html-react-parser@5.2.5(react@19.1.0):
+  html-react-parser@5.2.6(react@19.1.0):
     dependencies:
       domhandler: 5.0.3
       html-dom-parser: 5.1.1
       react: 19.1.0
       react-property: 2.0.2
-      style-to-js: 1.1.16
+      style-to-js: 1.1.17
 
   htmlparser2@10.0.0:
     dependencies:
@@ -5210,11 +5210,11 @@ snapshots:
 
   strip-comments@2.0.1: {}
 
-  style-to-js@1.1.16:
+  style-to-js@1.1.17:
     dependencies:
-      style-to-object: 1.0.8
+      style-to-object: 1.0.9
 
-  style-to-object@1.0.8:
+  style-to-object@1.0.9:
     dependencies:
       inline-style-parser: 0.2.4
 
