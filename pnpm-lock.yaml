@@ -32,8 +32,8 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       foxochat.js:
-        specifier: ^0.1.10
-        version: 0.1.10
+        specifier: ^0.1.11
+        version: 0.1.11
       html-react-parser:
         specifier: ^5.2.6
         version: 5.2.6(react@19.1.0)
@@ -722,8 +722,8 @@ packages:
   '@fontsource/roboto-mono@5.2.6':
     resolution: {integrity: sha512-fLCa3zs9XruKE8Fdbq0UWB0wqTi5dzi09QsnW7HgTwwnSVDZ3nH+X7Qg7l0yeIZs+E472cKE3RUD21ZnaXk4Zg==}
 
-  '@foxochatjs/api-types@0.1.26':
-    resolution: {integrity: sha512-ERRfD9iQBnX4i3NDnILezivzILqP2j5Vd0YibD/PK50A7iUNAjcGC2OoVOQfq/jvpU4zpK2jHS4Ktf/jre3WQg==}
+  '@foxochatjs/api-types@0.1.27':
+    resolution: {integrity: sha512-rlrDMpFv3IgkR5XqCcFqF+O6/ahxIyQjecdpi1/TtaDn1hXY2SvtQpKHBZgHw3fQ0SZSE8W0SFHtD9hheN6kYQ==}
 
   '@foxochatjs/api@0.1.22':
     resolution: {integrity: sha512-s4EAm24OQxjbnPpqw3BT1AamXlWOI2XWny6Q4efo67lRNxLttyx7UgS5+ODVYJ88t1wHS7rstvKfHgt+QKLwbQ==}
@@ -1602,8 +1602,8 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  foxochat.js@0.1.10:
-    resolution: {integrity: sha512-snUL8RCcgNvuk3UZ2FTqMmreasqbXAtyx1S9bto6EG7K2rxR393eJDqPtA38o2bzBCniX/DPTVp1gI35sJZAxA==}
+  foxochat.js@0.1.11:
+    resolution: {integrity: sha512-8P5UatDryKDMlZZC19OEulsNFZ85OniN2sRe8ZJRBV+RVL0tFyWfiNsxrUkeN9I6+Dzbdw/4aIbRzeUizEbqgw==}
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
@@ -3401,31 +3401,31 @@ snapshots:
 
   '@fontsource/roboto-mono@5.2.6': {}
 
-  '@foxochatjs/api-types@0.1.26':
+  '@foxochatjs/api-types@0.1.27':
     dependencies:
       '@swc/helpers': 0.5.17
 
   '@foxochatjs/api@0.1.22':
     dependencies:
-      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/api-types': 0.1.27
       '@foxochatjs/rest': 0.1.16
       '@swc/helpers': 0.5.17
 
   '@foxochatjs/gateway-types@0.1.11':
     dependencies:
-      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/api-types': 0.1.27
       '@swc/helpers': 0.5.17
 
   '@foxochatjs/gateway@0.1.12':
     dependencies:
-      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/api-types': 0.1.27
       '@foxochatjs/gateway-types': 0.1.11
       '@swc/helpers': 0.5.17
       eventemitter3: 5.0.1
 
   '@foxochatjs/rest@0.1.16':
     dependencies:
-      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/api-types': 0.1.27
       '@swc/helpers': 0.5.17
 
   '@jridgewell/gen-mapping@0.3.12':
@@ -4343,10 +4343,10 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  foxochat.js@0.1.10:
+  foxochat.js@0.1.11:
     dependencies:
       '@foxochatjs/api': 0.1.22
-      '@foxochatjs/api-types': 0.1.26
+      '@foxochatjs/api-types': 0.1.27
       '@foxochatjs/gateway': 0.1.12
       '@foxochatjs/gateway-types': 0.1.11
       '@foxochatjs/rest': 0.1.16
