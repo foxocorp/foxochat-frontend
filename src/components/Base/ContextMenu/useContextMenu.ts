@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'preact/hooks';
-import { ContextMenuItem } from './ContextMenu';
+import type { ContextMenuItem } from '@interfaces/interfaces';
 
 export interface UseContextMenu {
   isOpen: boolean;

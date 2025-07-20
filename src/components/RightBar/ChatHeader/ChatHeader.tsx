@@ -1,16 +1,12 @@
 import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
-import type { ChatHeaderProps } from "@interfaces/interfaces";
+import type { ChatHeaderPropsWithCounts } from "@interfaces/interfaces";
+import { ChannelType } from "foxochat.js";
 import ArrowBackIcon from "@/assets/icons/right-bar/chat/chatHeader/arrow-back.svg?react";
 import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg?react";
 import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg?react";
 import * as style from "./ChatHeader.module.scss";
 import { observer } from "mobx-react";
-
-interface ChatHeaderPropsWithCounts extends ChatHeaderProps {
-  participantsCount: number;
-  onlineCount: number;
-}
 
 const ChatHeader = ({
   chat,
@@ -21,8 +17,9 @@ const ChatHeader = ({
   participantsCount,
   onlineCount,
 }: ChatHeaderPropsWithCounts) => {
-  const { name, display_name, icon, created_at } = chat;
+  const { name, display_name, icon, created_at, type } = chat;
   const nameToDisplay = display_name || name;
+  const isDM = type === ChannelType.DM;
 
     return (
         <div className={style.chatHeader}>
@@ -46,9 +43,11 @@ const ChatHeader = ({
             )}
             <div className={style.chatHeaderInfo}>
                 <p className={style.chatHeaderUsername}>{nameToDisplay}</p>
-                <div className={style.chatHeaderMembers}>
-                    <span>• {participantsCount} Members • {onlineCount} Online</span>
-                </div>
+                {!isDM && participantsCount !== undefined && onlineCount !== undefined && (
+                    <div className={style.chatHeaderMembers}>
+                        <span>• {participantsCount} Members • {onlineCount} Online</span>
+                    </div>
+                )}
             </div>
             <div className={style.headerActions}>
                 <button

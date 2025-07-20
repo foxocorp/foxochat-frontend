@@ -1,13 +1,9 @@
 import { memo } from "preact/compat";
 import { ChannelType } from "foxochat.js";
+import type { TypeOrStatusBadgeProps } from "@interfaces/interfaces";
 import * as styles from "./ChatItem.module.scss";
 import ChannelIcon from "@/assets/icons/left-bar/chat-list/channel.svg";
 import GroupIcon from "@/assets/icons/left-bar/chat-list/group.svg";
-
-interface TypeOrStatusBadgeProps {
-  type: ChannelType;
-  isOnline?: boolean;
-}
 
 export const TypeOrStatusBadge = memo(({ type, isOnline }: TypeOrStatusBadgeProps) => {
   if (type === ChannelType.DM) {

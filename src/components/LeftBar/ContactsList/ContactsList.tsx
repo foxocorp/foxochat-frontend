@@ -1,20 +1,16 @@
 import appStore from "@store/app";
-import type { APIChannel, APIUser } from "foxochat.js";
 import { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
+import type { ContactsListProps } from "@interfaces/interfaces";
 import ChatItem from "../ChatList/ChatItem/ChatItem";
+import EmptyContacts from "./EmptyContacts";
 import * as stylesSidebar from "../Sidebar.module.scss";
 
-interface ContactsListProps {
-	chats: APIChannel[];
-	currentUser: APIUser;
-}
-
-const ContactsListComponent = ({ chats, currentUser }: ContactsListProps) => {
+const ContactsListComponent = ({ chats, currentUser, onCreateChat }: ContactsListProps) => {
 	const dmChannels = chats.filter((ch) => ch.type === ChannelType.DM);
 
 	if (dmChannels.length === 0) {
-		return <div style={{ padding: 24, color: "#888" }}>No contacts yet</div>;
+		return <EmptyContacts onCreateChat={onCreateChat} />;
 	}
 
 	return (

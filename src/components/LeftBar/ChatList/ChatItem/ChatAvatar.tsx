@@ -1,14 +1,9 @@
 import { memo } from "preact/compat";
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
-import type { ChatAvatarProps } from "@/interfaces/interfaces";
+import type { ExtendedChatAvatarProps } from "@/interfaces/interfaces";
 import { config } from "@/lib/config/endpoints";
 import * as styles from "./ChatItem.module.scss";
 import { TypeOrStatusBadge } from "./TypeOrStatusBadge";
-
-interface ExtendedChatAvatarProps extends ChatAvatarProps {
-	isOnline?: boolean | undefined;
-	currentUserId?: number | null;
-}
 
 export const ChatAvatar = memo(
 	({ chat, isOnline }: ExtendedChatAvatarProps) => {

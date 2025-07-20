@@ -1,23 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { JSX } from 'preact';
-import * as styles from './ContextMenu.module.scss';
 import { createPortal } from 'preact/compat';
-
-export interface ContextMenuItem {
-  icon?: JSX.Element;
-  label?: string;
-  onClick?: () => void;
-  danger?: boolean;
-  disabled?: boolean;
-  divider?: boolean;
-}
-
-export interface ContextMenuProps {
-  x: number;
-  y: number;
-  items: ContextMenuItem[];
-  onClose: () => void;
-}
+import type { ContextMenuProps } from '@interfaces/interfaces';
+import * as styles from './ContextMenu.module.scss';
 
 const ANIMATION_DURATION = 180;
 

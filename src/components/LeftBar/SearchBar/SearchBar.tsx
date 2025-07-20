@@ -1,13 +1,10 @@
 import { useState, useRef, useEffect } from "preact/hooks";
 import React from "react";
 import appStore from "@store/app";
+import type { SearchBarProps } from "@interfaces/interfaces";
 import * as styles from "./SearchBar.module.scss";
 import { apiMethods } from "@services/API/apiMethods";
 import { Logger } from "@/utils/logger";
-
-interface SearchBarProps {
-  onJoinChannel?: (channelId: number | null) => void;
-}
 
 const platformMatchers: Record<string, RegExp> = {
   windows: /windows nt/i,

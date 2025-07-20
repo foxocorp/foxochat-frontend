@@ -2,17 +2,10 @@ import { Button } from "@components/Base/Buttons/Button";
 import { useCodeVerification } from "@hooks/useCodeVerification";
 import { useEffect, useState } from "preact/hooks";
 import React from "react";
+import type { EmailConfirmationModalProps } from "@interfaces/interfaces";
 
 import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg";
 import * as style from "./EmailConfirmationModal.module.scss";
-
-interface EmailConfirmationModalProps {
-	isOpen: boolean;
-	email: string;
-	onClose: () => void;
-	onVerify: (code: string) => Promise<void>;
-	onResendCode: () => Promise<void>;
-}
 
 export const EmailConfirmationModal = ({
 	isOpen,

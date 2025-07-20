@@ -1,12 +1,9 @@
-import type {
-	ComponentChild,
-	ComponentChildren,
-	ContainerNode,
-	JSX,
-} from "preact";
-import type React from "react";
-import type { Dispatch } from "react";
+import type { ComponentChild, ComponentChildren } from "preact";
+import type React from "preact/compat";
+import type { ContainerNode } from "preact";
+import type { JSX } from "preact";
 
+/* === Type Aliases === */
 type APIChannel = any;
 type APIMember = any;
 type APIMessage = any;
@@ -32,6 +29,7 @@ export interface ChatListProps {
 	isCollapsed?: boolean;
 	channels?: APIChannel[];
 	onOpenChat?: () => void;
+	onCreateChat?: (e: MouseEvent) => void;
 }
 
 export interface ChatHeaderProps {
@@ -43,7 +41,7 @@ export interface ChatHeaderProps {
 	displayName?: string | null | undefined;
 	username: string;
 	channelId: number;
-	setShowOverview: Dispatch<boolean>;
+	setShowOverview: (value: boolean) => void;
 }
 
 export interface ChatItemProps {
@@ -231,7 +229,6 @@ export interface AttachmentsProps {
 }
 
 export interface MessageContentProps {
-	content: string | null;
 	htmlContent: string;
 	isMessageAuthor: boolean;
 	showAuthorName: boolean;
@@ -264,6 +261,8 @@ export interface CreateDropdownProps {
 	onSelect: (type: "group" | "channel") => void;
 	onClose: () => void;
 	registerCloseHandler?: (close: () => void) => void;
+	x?: number | undefined;
+	y?: number | undefined;
 }
 
 export interface ButtonProps {
@@ -428,4 +427,113 @@ export interface ColorPickerProps {
 	resetText?: string;
 	onReset?: () => void;
 	showReset?: boolean;
+}
+
+/**
+ * Context Menu Interfaces
+ */
+export interface ContextMenuItem {
+	icon?: JSX.Element;
+	label?: string;
+	onClick?: () => void;
+	danger?: boolean;
+	disabled?: boolean;
+	divider?: boolean;
+}
+
+export interface ContextMenuProps {
+	x: number;
+	y: number;
+	items: ContextMenuItem[];
+	onClose: () => void;
+}
+
+/**
+ * Email Confirmation Modal Interface
+ */
+export interface EmailConfirmationModalProps {
+	isOpen: boolean;
+	email: string;
+	onClose: () => void;
+	onVerify: (code: string) => Promise<void>;
+	onResendCode: () => Promise<void>;
+}
+
+/**
+ * Chat Header With Counts Interface
+ */
+export interface ChatHeaderPropsWithCounts extends ChatHeaderProps {
+	participantsCount?: number;
+	onlineCount?: number;
+}
+
+/**
+ * Left Bar Chat Header Interface
+ */
+export interface LeftBarChatHeaderProps {
+	currentUser: any;
+	onEdit?: () => void;
+	onAdd?: (e: MouseEvent) => void;
+	title?: string;
+}
+
+/**
+ * Search Bar Interface
+ */
+export interface SearchBarProps {
+	onJoinChannel?: (channelId: number | null) => void;
+}
+
+/**
+ * Empty Chat Interface
+ */
+export interface EmptyChatProps {
+	channel?: {
+		type: ChannelType;
+		name: string;
+		display_name?: string;
+		username?: string;
+		avatar?: { uuid: string };
+		created_at: number;
+		status?: number;
+	};
+}
+
+/**
+ * Type Or Status Badge Interface
+ */
+export interface TypeOrStatusBadgeProps {
+	type: ChannelType;
+	isOnline?: boolean;
+}
+
+/**
+ * Extended Chat Avatar Interface
+ */
+export interface ExtendedChatAvatarProps extends ChatAvatarProps {
+	isOnline?: boolean | undefined;
+	currentUserId?: number | null;
+}
+
+/**
+ * Chat Item With Mobile Interface
+ */
+export interface ChatItemWithMobileProps extends ExtendedChatItemProps {
+	onOpenChat?: () => void;
+}
+
+/**
+ * Empty Contacts Interface
+ */
+export interface EmptyContactsProps {
+	onCreateChat?: ((e: MouseEvent) => void) | undefined;
+}
+
+/**
+ * Contacts List Interface
+ */
+export interface ContactsListProps {
+	chats: APIChannel[];
+	currentUser: APIUser;
+	onCreateChat?: (e: MouseEvent) => void;
 }
