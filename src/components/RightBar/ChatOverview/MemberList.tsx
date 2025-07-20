@@ -76,47 +76,50 @@ const MemberListComponent = ({ members, loading, error }: MemberListProps) => {
         <div className={styles.memberList}>
             <h3 className={styles.title}>Members</h3>
             <div className={styles.members}>
-                {sortedMembers.filter(m => m.user).map((member) => {
-                    const isCurrentUser = member.user.id === appStore.currentUserId;
-                    const currentStatus = appStore.userStatuses.get(member.user.id) ?? member.user.status;
-                    const isUserOnline = isOnline(currentStatus);
+                {(() => {
+                    const seen = new Set();
+                    return sortedMembers.filter(m => m.user && !seen.has(m.user.id) && seen.add(m.user.id)).map((member) => {
+                        const isCurrentUser = member.user.id === appStore.currentUserId;
+                        const currentStatus = appStore.userStatuses.get(member.user.id) ?? member.user.status;
+                        const isUserOnline = isOnline(currentStatus);
 
-                    return (
-                        <div
-                            key={member.user.id}
-                            className={styles.member}
-                        >
-                            <div className={styles.avatar}>
-                                {member.user.avatar ? (
-                                    <img
-                                        src={`${config.cdnBaseUrl}${member.user.avatar.uuid}`}
-                                        alt={member.user.username}
-                                        className={styles.avatarImage}
-                                    />
-                                ) : (
-                                    <DefaultAvatar
-                                        createdAt={member.user.created_at}
-                                        username={member.user.username}
-                                        size="medium"
-                                    />
-                                )}
-                                {isUserOnline && (
-                                    <div className={classNames(styles.statusIndicator, styles.online)}/>
-                                )}
-                            </div>
-                            <div className={styles.memberInfo}>
-                                <div className={styles.displayName}>
-                                    {member.user.display_name || member.user.username}
-                                    {isCurrentUser && <span className={styles.youLabel}> (you)</span>}
+                        return (
+                            <div
+                                key={member.user.id}
+                                className={styles.member}
+                            >
+                                <div className={styles.avatar}>
+                                    {member.user.avatar ? (
+                                        <img
+                                            src={`${config.cdnBaseUrl}${member.user.avatar.uuid}`}
+                                            alt={member.user.username}
+                                            className={styles.avatarImage}
+                                        />
+                                    ) : (
+                                        <DefaultAvatar
+                                            createdAt={member.user.created_at}
+                                            username={member.user.username}
+                                            size="medium"
+                                        />
+                                    )}
+                                    {isUserOnline && (
+                                        <div className={classNames(styles.statusIndicator, styles.online)}/>
+                                    )}
                                 </div>
-                                <div
-                                    className={classNames(styles.status, isUserOnline ? styles.online : styles.offline)}>
-                                    {isUserOnline ? "online" : `last seen ${formatLastSeen(member.user.status_updated_at || 0, currentTime)}`}
+                                <div className={styles.memberInfo}>
+                                    <div className={styles.displayName}>
+                                        {member.user.display_name || member.user.username}
+                                        {isCurrentUser && <span className={styles.youLabel}> (you)</span>}
+                                    </div>
+                                    <div
+                                        className={classNames(styles.status, isUserOnline ? styles.online : styles.offline)}>
+                                        {isUserOnline ? "online" : `last seen ${formatLastSeen(member.user.status_updated_at || 0, currentTime)}`}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    });
+                })()}
             </div>
         </div>
     );
