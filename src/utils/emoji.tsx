@@ -52,8 +52,6 @@ export const renderEmojisToJSX = (
 ): (string | JSX.Element)[] => {
 	const result: (string | JSX.Element)[] = [];
 	let cursor = 0;
-	const html = document.documentElement;
-	const useSystemEmoji = html.classList.contains("native-emoji");
 	const useLargeEmoji = appStore.appearanceSettings.largeEmoji;
 
 	let emojiCount = 0;
@@ -65,7 +63,9 @@ export const renderEmojisToJSX = (
 	}
 
 	while (cursor < text.length) {
-		let matchedEmoji = emojis.find(emoji => text.startsWith(emoji.char, cursor));
+		let matchedEmoji = emojis.find((emoji) =>
+			text.startsWith(emoji.char, cursor),
+		);
 		if (matchedEmoji) {
 			const key = `${matchedEmoji.code}-${cursor}`;
 			let emojiClass = "emoji";
@@ -83,10 +83,18 @@ export const renderEmojisToJSX = (
 					<span
 						key={key}
 						className={emojiClass + " emoji-native"}
-						style={size ? { fontSize: `${size}px`, width: `${size}px`, height: `${size}px` } : undefined}
+						style={
+							size
+								? {
+										fontSize: `${size}px`,
+										width: `${size}px`,
+										height: `${size}px`,
+									}
+								: undefined
+						}
 					>
 						{matchedEmoji.char}
-					</span>
+					</span>,
 				);
 			} else {
 				const actualCode = stripFE0F(matchedEmoji.code);
@@ -97,8 +105,10 @@ export const renderEmojisToJSX = (
 						className={emojiClass + " emoji-image"}
 						alt={matchedEmoji.char}
 						draggable={false}
-						style={size ? { width: `${size}px`, height: `${size}px` } : undefined}
-					/>
+						style={
+							size ? { width: `${size}px`, height: `${size}px` } : undefined
+						}
+					/>,
 				);
 			}
 			cursor += matchedEmoji.char.length;

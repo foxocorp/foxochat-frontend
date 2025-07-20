@@ -7,7 +7,6 @@ import type {
     APIUser,
     ChannelType,
     MemberKey,
-    RESTGetAPIMessageListQuery,
     RESTPostAPIMessageBody,
     RESTPutAPIMessageAttachmentsBody,
     RESTPatchAPIUserBody,
