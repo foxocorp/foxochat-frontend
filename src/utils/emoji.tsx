@@ -48,6 +48,7 @@ export function isOnlyEmojis(text: string): {
 export const renderEmojisToJSX = (
 	text: string,
 	forceSmall?: boolean,
+	size?: number,
 ): (string | JSX.Element)[] => {
 	const result: (string | JSX.Element)[] = [];
 	let cursor = 0;
@@ -64,42 +65,44 @@ export const renderEmojisToJSX = (
 	}
 
 	while (cursor < text.length) {
-		let matched = false;
-		for (const emoji of emojis) {
-			if (text.startsWith(emoji.char, cursor)) {
-				const key = `${emoji.code}-${cursor}`;
-				let emojiClass = "emoji";
-				if (forceSmall || !useLargeEmoji) {
-					emojiClass += " emoji-small";
-				} else if (onlyEmojis && emojiCount > 0 && emojiCount < 4) {
-					emojiClass += " emoji-large";
-				} else {
-					emojiClass += " emoji-small";
-				}
-				if (useSystemEmoji || isAppleDevice()) {
-					result.push(
-						<span key={key} className={emojiClass + " emoji-native"}>
-							{emoji.char}
-						</span>,
-					);
-				} else {
-					const actualCode = stripFE0F(emoji.code);
-					result.push(
-						<img
-							key={key}
-							src={`/assets/img/emoji/${actualCode}.png`}
-							className={emojiClass + " emoji-image"}
-							alt={emoji.char}
-							draggable={false}
-						/>,
-					);
-				}
-				cursor += emoji.char.length;
-				matched = true;
-				break;
+		let matchedEmoji = emojis.find(emoji => text.startsWith(emoji.char, cursor));
+		if (matchedEmoji) {
+			const key = `${matchedEmoji.code}-${cursor}`;
+			let emojiClass = "emoji";
+			if (size) {
+				emojiClass += " emoji-custom";
+			} else if (forceSmall || !useLargeEmoji) {
+				emojiClass += " emoji-small";
+			} else if (onlyEmojis && emojiCount > 0 && emojiCount < 4) {
+				emojiClass += " emoji-large";
+			} else {
+				emojiClass += " emoji-small";
 			}
-		}
-		if (!matched) {
+			if (isAppleDevice()) {
+				result.push(
+					<span
+						key={key}
+						className={emojiClass + " emoji-native"}
+						style={size ? { fontSize: `${size}px`, width: `${size}px`, height: `${size}px` } : undefined}
+					>
+						{matchedEmoji.char}
+					</span>
+				);
+			} else {
+				const actualCode = stripFE0F(matchedEmoji.code);
+				result.push(
+					<img
+						key={key}
+						src={`/assets/img/emoji/${actualCode}.png`}
+						className={emojiClass + " emoji-image"}
+						alt={matchedEmoji.char}
+						draggable={false}
+						style={size ? { width: `${size}px`, height: `${size}px` } : undefined}
+					/>
+				);
+			}
+			cursor += matchedEmoji.char.length;
+		} else {
 			const char = text[cursor];
 			if (char !== undefined) result.push(char);
 			cursor++;
