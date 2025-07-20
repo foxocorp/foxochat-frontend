@@ -1,0 +1,99 @@
+.emptyContacts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  color: var(--primary-text-color);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.emptyContactsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.mainText {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  color: var(--gray-color);
+  margin-bottom: 8px;
+}
+
+.subText {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  color: var(--branded-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.title {
+  font-weight: 700;
+  font-size: 26px;
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.description {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  color: var(--gray-color);
+  line-height: 1.5;
+  max-width: 250px;
+  margin-bottom: 16px;
+}
+
+.status {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  color: var(--branded-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--branded-color);
+  margin-bottom: 8px;
+}
+
+.statusText {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  color: var(--light-gray-color);
+}
+
+@media (max-width: 768px) {
+  .emptyContacts {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .description {
+    font-size: 13px;
+    max-width: 200px;
+  }
+
+  .status {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .statusText {
+    font-size: 13px;
+  }
+} 
