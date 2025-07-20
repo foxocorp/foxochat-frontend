@@ -96,6 +96,13 @@
   	--emoji-size: 16px;
 }
 
+.chatUsername {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--gray-color);
+  margin-left: 4px;
+}
+
 .chatMessage {
   color: var(--gray-color);
   margin-top: 3px;

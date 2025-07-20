@@ -1,16 +1,13 @@
 import ContextMenu from "@components/Base/ContextMenu/ContextMenu";
 import { useContextMenu } from "@components/Base/ContextMenu/useContextMenu";
-import type { ExtendedChatItemProps } from "@interfaces/interfaces";
+import type { ChatItemWithMobileProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
 import { renderEmojisToJSX } from "@utils/emoji";
 import { ChannelType } from "foxochat.js";
-import { toJS } from "mobx";
 import { observer } from "mobx-react";
 import type React from "preact/compat";
 import { useEffect, useMemo, useState } from "preact/hooks";
-import ChannelIcon from "@/assets/icons/left-bar/chat-list/channel.svg";
-import GroupIcon from "@/assets/icons/left-bar/chat-list/group.svg";
 import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/edit.svg";
 import MarkAsReadIcon from "@/assets/icons/right-bar/chat/chat-overview/mark-as-read.svg";
 import MuteIcon from "@/assets/icons/right-bar/chat/chat-overview/mute.svg";
@@ -23,10 +20,6 @@ import { fetchFileAndGenerateThumbHash } from "@/utils/functions";
 import { ChatAvatar } from "./ChatAvatar";
 import * as styles from "./ChatItem.module.scss";
 
-interface ChatItemWithMobileProps extends ExtendedChatItemProps {
-	onOpenChat?: () => void;
-}
-
 const ChatItemComponent = ({
 	chat,
 	isActive,
@@ -35,7 +28,6 @@ const ChatItemComponent = ({
 	onOpenChat,
 }: ChatItemWithMobileProps) => {
 	const lastMessage = chat.last_message;
-	const rawChat = toJS(chat);
 	const nameToDisplay = chat.display_name || chat.name;
 
 	const isCurrentUserAuthor = lastMessage?.author?.user?.id === currentUser;
@@ -110,7 +102,12 @@ const ChatItemComponent = ({
 	};
 
 	const renderMessagePreview = () => {
-		if (!lastMessage) return "No messages";
+		if (!lastMessage) {
+			if (isDM) {
+				return chat.name || "Unknown";
+			}
+			return "No messages yet";
+		}
 		if (previewType === "file")
 			return (
 				<>
@@ -145,35 +142,27 @@ const ChatItemComponent = ({
 		);
 	};
 
-	const getIcon = () => {
-		switch (rawChat.type) {
-			case ChannelType.Group:
-				return (
-					<img
-						src={GroupIcon}
-						alt="Group icon"
-						className={styles.channelTypeIcon}
-					/>
-				);
-			case ChannelType.Channel:
-				return (
-					<img
-						src={ChannelIcon}
-						alt="Channel icon"
-						className={styles.channelTypeIcon}
-					/>
-				);
-			default:
-				return null;
-		}
-	};
-
 	const contextMenu = useContextMenu();
 
 	const isOwner = chat.owner?.id === currentUser;
 	const isDM = chat.type === ChannelType.DM;
 
-	const isOnline = isDM ? Math.random() > 0.5 : false;
+	const getIsOnline = () => {
+		if (!isDM) return false;
+
+		const otherUserId = chat.recipients?.[0]?.user?.id;
+		if (!otherUserId) return false;
+
+		const userStatus = appStore.userStatuses.get(otherUserId);
+		if (userStatus !== undefined) {
+			return userStatus === 1;
+		}
+
+		const user = appStore.users.find((u) => u.id === otherUserId);
+		return user?.status === 1;
+	};
+
+	const isOnline = getIsOnline();
 
 	const handleClick = () => {
 		void appStore.setCurrentChannel(chat.id);
@@ -262,6 +251,9 @@ const ChatItemComponent = ({
 							<span className={styles.chatName}>
 								{renderEmojisToJSX(nameToDisplay, true)}
 							</span>
+							{isDM && chat.display_name && chat.display_name !== chat.name && (
+								<span className={styles.chatUsername}>@{chat.name}</span>
+							)}
 						</div>
 						<div className={styles.chatMessageRow}>
 							<span className={styles.chatMessagePreview}>

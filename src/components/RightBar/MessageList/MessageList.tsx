@@ -66,7 +66,7 @@ const MessageListComponent = ({
 				onScroll={onScroll}
 				className={styles.messageList}
 			>
-				<EmptyChat />
+				<EmptyChat channel={channel} />
 			</div>
 		);
 	}

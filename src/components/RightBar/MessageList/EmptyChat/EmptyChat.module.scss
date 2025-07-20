@@ -1,8 +1,8 @@
 .emptyChat {
   display: flex;
+  flex-direction: row-reverse;
   justify-content: center;
   align-items: center;
-  flex-direction: row-reverse;
   height: 100%;
   width: 100%;
   color: var(--primary-text-color);
@@ -19,7 +19,6 @@
   display: flex;
   font-weight: 700;
   padding: 10px;
-  --emoji-size: 100px;
 }
 
 .title {
@@ -37,9 +36,114 @@
   color: var(--lightgray-color);
 }
 
+.contactCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgb(21 21 21 / 0.9);
+  border: 1px solid rgb(var(--primary-color-rgb), 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.avatarContainer {
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.contactName {
+  font-weight: 700;
+  font-size: 26px;
+  margin-bottom: 6px;
+  color: var(--primary-text-color);
+}
+
+.status {
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 12px;
+  color: var(--branded-color);
+
+  &.online {
+    color: var(--branded-color);
+  }
+
+  &.offline {
+    color: var(--gray-color);
+  }
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.detailLabel {
+  font-size: 14px;
+  color: var(--gray-color);
+  font-weight: 400;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: var(--light-gray-color);
+  font-weight: 400;
+}
+
 @media (max-width: 768px) {
   .emptyChat {
     padding: 16px;
+  }
+
+  .contactCard {
+    padding: 24px;
+    max-width: 280px;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .contactName {
+    font-size: 22px;
+  }
+
+  .status {
+    font-size: 13px;
+  }
+
+  .detailLabel,
+  .detailValue {
+    font-size: 13px;
   }
 
   .icon {
