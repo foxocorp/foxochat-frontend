@@ -81,7 +81,7 @@ const SidebarComponent = ({
 	const isResizing = useRef(false);
 	const startX = useRef(0);
 	const startWidthRef = useRef(width);
-	const channels = useMemo(() => appStore.channels, [appStore.channels.length]);
+	const channels = useMemo(() => appStore.channels, [appStore.channels]);
 
 	const renderError = (_field: "name", error: boolean, message: string) => {
 		if (!error) return null;
@@ -216,6 +216,29 @@ const SidebarComponent = ({
 		if (onTabChange) onTabChange(tab as "chats" | "settings" | "contacts");
 	}, [onTabChange]);
 
+	const handleAddClick = useCallback((e: MouseEvent) => {
+		setDropdownPosition({ x: e.clientX, y: e.clientY });
+		setShowCreateDropdown(true);
+	}, []);
+
+	const handleCreateChat = useCallback((e: MouseEvent) => {
+		setDropdownPosition({ x: e.clientX, y: e.clientY });
+		setShowCreateDropdown(true);
+	}, []);
+
+	const handleCreateSelect = useCallback((type: "group" | "channel") => {
+		setShowCreateModal(type);
+		setShowCreateDropdown(false);
+	}, []);
+
+	const handleCreateClose = useCallback(() => {
+		setShowCreateDropdown(false);
+	}, []);
+
+	const handleModalClose = useCallback(() => {
+		setShowCreateModal(null);
+	}, []);
+
 	const MemoChatHeader = memo(ChatHeader);
 	const MemoSidebarFooter = memo(SidebarFooter);
 	const MemoSearchBar = memo(SearchBar);
@@ -254,20 +277,14 @@ const SidebarComponent = ({
 				>
 					<MemoChatHeader
 						currentUser={currentUser}
-						onAdd={(e) => {
-							setDropdownPosition({ x: e.clientX, y: e.clientY });
-							setShowCreateDropdown(true);
-						}}
+						onAdd={handleAddClick}
 						onEdit={() => {}}
 						title="Chats"
 					/>
 					{showCreateDropdown && (
 						<MemoCreateDropdown
-							onSelect={(type) => {
-								setShowCreateModal(type);
-								setShowCreateDropdown(false);
-							}}
-							onClose={() => setShowCreateDropdown(false)}
+							onSelect={handleCreateSelect}
+							onClose={handleCreateClose}
 							x={dropdownPosition?.x}
 							y={dropdownPosition?.y}
 						/>
@@ -291,10 +308,7 @@ const SidebarComponent = ({
 						<ChatList
 							chats={[...channels]}
 							currentUser={currentUser}
-							onCreateChat={(e) => {
-								setDropdownPosition({ x: e.clientX, y: e.clientY });
-								setShowCreateDropdown(true);
-							}}
+							onCreateChat={handleCreateChat}
 							{...(isMobile ? { onOpenChat: () => setMobileView("chat") } : {})}
 						/>
 					</div>
@@ -309,19 +323,13 @@ const SidebarComponent = ({
 				>
 					<MemoChatHeader
 						currentUser={currentUser}
-						onAdd={(e) => {
-							setDropdownPosition({ x: e.clientX, y: e.clientY });
-							setShowCreateDropdown(true);
-						}}
+						onAdd={handleAddClick}
 						title="Contacts"
 					/>
 					{showCreateDropdown && (
 						<MemoCreateDropdown
-							onSelect={(type) => {
-								setShowCreateModal(type);
-								setShowCreateDropdown(false);
-							}}
-							onClose={() => setShowCreateDropdown(false)}
+							onSelect={handleCreateSelect}
+							onClose={handleCreateClose}
 							x={dropdownPosition?.x}
 							y={dropdownPosition?.y}
 						/>
@@ -331,10 +339,7 @@ const SidebarComponent = ({
 						<ContactsList 
 							chats={channels} 
 							currentUser={currentUser} 
-							onCreateChat={(e) => {
-								setDropdownPosition({ x: e.clientX, y: e.clientY });
-								setShowCreateDropdown(true);
-							}} 
+							onCreateChat={handleCreateChat} 
 						/>
 					</div>
 				</div>
@@ -352,7 +357,7 @@ const SidebarComponent = ({
 			{showCreateModal && (
 				<CreateChannelModal
 					type={showCreateModal}
-					onClose={() => setShowCreateModal(null)}
+					onClose={handleModalClose}
 					onCreate={handleCreate}
 					renderError={renderError}
 					nameError={nameError}

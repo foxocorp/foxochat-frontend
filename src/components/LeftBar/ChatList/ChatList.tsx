@@ -14,6 +14,10 @@ const ChatListComponent = ({ chats, isCollapsed = false, onOpenChat, onCreateCha
 		});
 	}, [chats]);
 
+	const filteredChannels = useMemo(() => {
+		return sortedChannels.filter(chat => chat && chat.id != null);
+	}, [sortedChannels]);
+
 	const handleOpenChat = useCallback(onOpenChat || (() => {}), [onOpenChat]);
 	const handleCreateChat = useCallback(onCreateChat || (() => {}), [onCreateChat]);
 
@@ -33,11 +37,10 @@ const ChatListComponent = ({ chats, isCollapsed = false, onOpenChat, onCreateCha
 
 	return (
 		<div className={`${styles.chatList} ${isCollapsed ? styles.collapsed : ""}`}>
-			{sortedChannels.filter(chat => chat && chat.id != null).map((chat) => (
+			{filteredChannels.map((chat) => (
 				<ChatItem
 					key={chat.id}
 					chat={chat}
-					isActive={chat.id === appStore.currentChannelId}
 					currentUser={appStore.currentUserId}
 					isCollapsed={isCollapsed}
 					onOpenChat={handleOpenChat}

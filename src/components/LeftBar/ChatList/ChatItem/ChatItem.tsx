@@ -7,7 +7,7 @@ import { renderEmojisToJSX } from "@utils/emoji";
 import { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
 import type React from "preact/compat";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState, useCallback } from "preact/hooks";
 import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/edit.svg";
 import MarkAsReadIcon from "@/assets/icons/right-bar/chat/chat-overview/mark-as-read.svg";
 import MuteIcon from "@/assets/icons/right-bar/chat/chat-overview/mute.svg";
@@ -22,15 +22,17 @@ import * as styles from "./ChatItem.module.scss";
 
 const ChatItemComponent = ({
 	chat,
-	isActive,
 	isCollapsed = false,
 	currentUser,
 	onOpenChat,
-}: ChatItemWithMobileProps) => {
+}: Omit<ChatItemWithMobileProps, 'isActive'>) => {
 	const lastMessage = chat.last_message;
 	const nameToDisplay = chat.display_name || chat.name;
 
 	const isCurrentUserAuthor = lastMessage?.author?.user?.id === currentUser;
+	const isOwner = chat.owner?.id === currentUser;
+	const isDM = chat.type === ChannelType.DM;
+	const isActive = useMemo(() => chat.id === appStore.currentChannelId, [chat.id, appStore.currentChannelId]);
 
 	const authorName = isCurrentUserAuthor ? (
 		<span className={styles.chatMessageAuthor}>You:</span>
@@ -42,7 +44,7 @@ const ChatItemComponent = ({
 
 	const [thumbUrl, setThumbUrl] = useState<string | null>(null);
 
-	const getPreviewType = () => {
+	const previewType = useMemo(() => {
 		if (!lastMessage) return "none";
 		if (lastMessage.attachments && lastMessage.attachments.length > 0) {
 			const first = lastMessage.attachments[0];
@@ -56,9 +58,7 @@ const ChatItemComponent = ({
 		}
 		if (/```|\n {4}|\n\t/.test(lastMessage.content)) return "markdown";
 		return "text";
-	};
-
-	const previewType = getPreviewType();
+	}, [lastMessage]);
 
 	useEffect(() => {
 		if (previewType === "image" && lastMessage?.attachments?.length) {
@@ -96,12 +96,12 @@ const ChatItemComponent = ({
 		return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	}, [lastMessage]);
 
-	const getStatusIcon = () => {
+	const statusIcon = useMemo(() => {
 		if (!isCurrentUserAuthor || !lastMessage) return null;
 		return <CheckMarkRead className={styles.statusIcon} />;
-	};
+	}, [isCurrentUserAuthor, lastMessage]);
 
-	const renderMessagePreview = () => {
+	const messagePreview = useMemo(() => {
 		if (!lastMessage) {
 			if (isDM) {
 				return chat.name || "Unknown";
@@ -140,14 +140,11 @@ const ChatItemComponent = ({
 				{lastMessage.content.length > 30 ? "..." : ""}
 			</>
 		);
-	};
+	}, [lastMessage, isDM, chat.name, previewType, thumbUrl, authorName]);
 
 	const contextMenu = useContextMenu();
 
-	const isOwner = chat.owner?.id === currentUser;
-	const isDM = chat.type === ChannelType.DM;
-
-	const getIsOnline = () => {
+	const isOnline = useMemo(() => {
 		if (!isDM) return false;
 
 		const otherUserId = chat.recipients?.[0]?.user?.id;
@@ -160,17 +157,15 @@ const ChatItemComponent = ({
 
 		const user = appStore.users.find((u) => u.id === otherUserId);
 		return user?.status === 1;
-	};
+	}, [isDM, chat.recipients, appStore.userStatuses, appStore.users]);
 
-	const isOnline = getIsOnline();
-
-	const handleClick = () => {
+	const handleClick = useCallback(() => {
 		void appStore.setCurrentChannel(chat.id);
 		window.history.replaceState(null, "", `/channels/#${chat.id}`);
 		if (onOpenChat) onOpenChat();
-	};
+	}, [chat.id, onOpenChat]);
 
-	const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+	const handleContextMenu = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		const items = [
 			{
@@ -229,7 +224,7 @@ const ChatItemComponent = ({
 					},
 		];
 		contextMenu.open(e.clientX, e.clientY, items);
-	};
+	}, [isOwner, isDM, chat.id, contextMenu]);
 
 	return (
 		<>
@@ -257,11 +252,11 @@ const ChatItemComponent = ({
 						</div>
 						<div className={styles.chatMessageRow}>
 							<span className={styles.chatMessagePreview}>
-								{renderMessagePreview()}
+								{messagePreview}
 							</span>
 							<span className={styles.chatMeta}>
 								<span className={styles.chatTime}>{formattedTime}</span>
-								<span className={styles.chatStatus}>{getStatusIcon()}</span>
+								<span className={styles.chatStatus}>{statusIcon}</span>
 							</span>
 						</div>
 					</div>

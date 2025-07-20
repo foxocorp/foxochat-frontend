@@ -383,7 +383,9 @@ export class AppStore {
 			return;
 		}
 
-		this.currentChannelId = channelId;
+		runInAction(() => {
+			this.currentChannelId = channelId;
+		});
 
 		if (previousChannelId !== null) {
 			const disposer = this.channelDisposers.get(previousChannelId);
