@@ -7,7 +7,7 @@ import * as styles from "./CreateDropdown.module.scss";
 
 const ANIMATION_DURATION = 200;
 
-const CreateDropdown = ({ onSelect, onClose, registerCloseHandler }: CreateDropdownProps) => {
+const CreateDropdown = ({ onSelect, onClose, registerCloseHandler, x, y }: CreateDropdownProps) => {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const [isClosing, setIsClosing] = useState(false);
 
@@ -58,10 +58,17 @@ const CreateDropdown = ({ onSelect, onClose, registerCloseHandler }: CreateDropd
 		return () => clearTimeout(timer);
 	}, [isClosing]);
 
+	const dropdownStyle = {
+		left: x !== undefined ? `${x}px` : 'auto',
+		top: y !== undefined ? `${y}px` : 'auto',
+		right: x === undefined ? '10px' : 'auto',
+	};
+
 	return (
 		<div
 			ref={dropdownRef}
 			className={`${styles.dropdown} ${isClosing ? styles.closing : ""}`}
+			style={dropdownStyle}
 		>
 			<div className={styles.menu}>
 				<button

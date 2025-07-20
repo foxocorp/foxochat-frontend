@@ -35,16 +35,26 @@
   text-align: center;
   --emoji-size: 120px;
   font-size: 0;
+  padding: 20px;
 }
 
 .main-text {
+  font-weight: 300;
   font-size: 14px;
-  margin-top: 8px;
-  margin-bottom: 4px;
-  color: rgb(var(--primary-color-rgb), .75);
+  text-align: center;
+  color: var(--gray-color);
+  margin-bottom: 8px;
 }
 
 .sub-text {
+  font-weight: 300;
   font-size: 14px;
+  text-align: center;
   color: var(--branded-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+  }
 }
