@@ -11,7 +11,8 @@ import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
 import type { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState, useCallback, useMemo } from "preact/hooks";
+import { memo } from "preact/compat";
 import SettingsHome from "@components/Settings/Home/SettingsHome";
 import * as styles from "./Sidebar.module.scss";
 
@@ -37,6 +38,7 @@ const SidebarComponent = ({
 	const [showCreateModal, setShowCreateModal] = useState<
 		"group" | "channel" | null
 	>(null);
+	const [dropdownPosition, setDropdownPosition] = useState<{ x: number; y: number } | null>(null);
 	const initialMaxWidth = Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.8);
 	const currentWidthRef = useRef<number>(0);
 	const [nameError, setNameError] = useState<boolean>(false);
@@ -79,7 +81,7 @@ const SidebarComponent = ({
 	const isResizing = useRef(false);
 	const startX = useRef(0);
 	const startWidthRef = useRef(width);
-	const channels = appStore.channels;
+	const channels = useMemo(() => appStore.channels, [appStore.channels.length]);
 
 	const renderError = (_field: "name", error: boolean, message: string) => {
 		if (!error) return null;
@@ -210,9 +212,15 @@ const SidebarComponent = ({
 		parseInt(localStorage.getItem("sidebarWidth") ?? "", 10) ===
 		STORAGE_COLLAPSED_VALUE;
 
-	const handleFooterNav = (tab: "chats" | "settings" | "contacts") => {
+	const handleFooterNav = useCallback((tab: "chats" | "settings" | "contacts") => {
 		if (onTabChange) onTabChange(tab as "chats" | "settings" | "contacts");
-	};
+	}, [onTabChange]);
+
+	const MemoChatHeader = memo(ChatHeader);
+	const MemoSidebarFooter = memo(SidebarFooter);
+	const MemoSearchBar = memo(SearchBar);
+	const MemoCreateDropdown = memo(CreateDropdown);
+	const MemoSettingsHome = memo(SettingsHome);
 
 	return (
 		<div
@@ -229,7 +237,7 @@ const SidebarComponent = ({
 					}
 					style={{ zIndex: activeTab === "settings" ? 11 : 10 }}
 				>
-					<SettingsHome
+					<MemoSettingsHome
 						selected={selectedSection}
 						onSelect={onSelectSection || (() => {})}
 						currentUser={currentUser}
@@ -244,22 +252,27 @@ const SidebarComponent = ({
 					}
 					style={{ zIndex: activeTab === "chats" ? 11 : 10 }}
 				>
-					<ChatHeader
+					<MemoChatHeader
 						currentUser={currentUser}
-						onAdd={() => setShowCreateDropdown(true)}
+						onAdd={(e) => {
+							setDropdownPosition({ x: e.clientX, y: e.clientY });
+							setShowCreateDropdown(true);
+						}}
 						onEdit={() => {}}
 						title="Chats"
 					/>
 					{showCreateDropdown && (
-						<CreateDropdown
+						<MemoCreateDropdown
 							onSelect={(type) => {
 								setShowCreateModal(type);
 								setShowCreateDropdown(false);
 							}}
 							onClose={() => setShowCreateDropdown(false)}
+							x={dropdownPosition?.x}
+							y={dropdownPosition?.y}
 						/>
 					)}
-					<SearchBar
+					<MemoSearchBar
 						onJoinChannel={async (channelId: number | null) => {
 							await appStore.setCurrentChannel(channelId);
 							if (channelId && window.location.pathname === "/channels") {
@@ -278,6 +291,10 @@ const SidebarComponent = ({
 						<ChatList
 							chats={[...channels]}
 							currentUser={currentUser}
+							onCreateChat={(e) => {
+								setDropdownPosition({ x: e.clientX, y: e.clientY });
+								setShowCreateDropdown(true);
+							}}
 							{...(isMobile ? { onOpenChat: () => setMobileView("chat") } : {})}
 						/>
 					</div>
@@ -290,18 +307,40 @@ const SidebarComponent = ({
 					}
 					style={{ zIndex: activeTab === "contacts" ? 11 : 10 }}
 				>
-					<ChatHeader
+					<MemoChatHeader
 						currentUser={currentUser}
+						onAdd={(e) => {
+							setDropdownPosition({ x: e.clientX, y: e.clientY });
+							setShowCreateDropdown(true);
+						}}
 						title="Contacts"
 					/>
-					<SearchBar />
+					{showCreateDropdown && (
+						<MemoCreateDropdown
+							onSelect={(type) => {
+								setShowCreateModal(type);
+								setShowCreateDropdown(false);
+							}}
+							onClose={() => setShowCreateDropdown(false)}
+							x={dropdownPosition?.x}
+							y={dropdownPosition?.y}
+						/>
+					)}
+					<MemoSearchBar />
 					<div className={styles.sidebarChats}>
-						<ContactsList chats={channels} currentUser={currentUser} />
+						<ContactsList 
+							chats={channels} 
+							currentUser={currentUser} 
+							onCreateChat={(e) => {
+								setDropdownPosition({ x: e.clientX, y: e.clientY });
+								setShowCreateDropdown(true);
+							}} 
+						/>
 					</div>
 				</div>
 			</div>
 			{!isMobile && (
-				<SidebarFooter
+				<MemoSidebarFooter
 					active={activeTab}
 					onNav={handleFooterNav}
 					isMobile={false}
