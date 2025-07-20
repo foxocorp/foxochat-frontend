@@ -3,6 +3,7 @@ import PersonIcon from "@/assets/icons/left-bar/group.svg";
 import { CreateDropdownProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import { useEffect, useRef, useState } from "preact/hooks";
+import { createPortal } from "preact/compat";
 import * as styles from "./CreateDropdown.module.scss";
 
 const ANIMATION_DURATION = 200;
@@ -64,7 +65,7 @@ const CreateDropdown = ({ onSelect, onClose, registerCloseHandler, x, y }: Creat
 		right: x === undefined ? '10px' : 'auto',
 	};
 
-	return (
+	const dropdownContent = (
 		<div
 			ref={dropdownRef}
 			className={`${styles.dropdown} ${isClosing ? styles.closing : ""}`}
@@ -94,6 +95,8 @@ const CreateDropdown = ({ onSelect, onClose, registerCloseHandler, x, y }: Creat
 			</div>
 		</div>
 	);
+
+	return createPortal(dropdownContent, document.body);
 };
 
 export default memo(CreateDropdown);
