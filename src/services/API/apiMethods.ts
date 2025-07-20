@@ -68,13 +68,33 @@ export const apiMethods = {
     }) => client.api.channel.create(body),
     deleteChannel: (channelId: number) => client.api.channel.delete(channelId),
     editChannel: (channelId: number, body: { name?: string }) => client.api.channel.edit(channelId, body),
-    getChannel: (channelId: number) => client.api.channel.get(channelId),
+    getChannel: (
+        channelId: number,
+        query: { withAvatar?: boolean; withBanner?: boolean; withOwner?: boolean } = { withAvatar: true, withBanner: true, withOwner: true }
+    ) => client.api.channel.get(channelId, query),
     joinChannel: (channelId: number) => client.api.channel.join(channelId),
     leaveChannel: (channelId: number) => client.api.channel.leave(channelId),
-    getChannelMember: (channelId: number, memberKey: MemberKey) => client.api.channel.member(channelId, memberKey),
-    listChannelMembers: (channelId: number) => client.api.channel.members(channelId),
-    listMessages: (channelId: number, query?: RESTGetAPIMessageListQuery): Promise<APIMessage[]> => client.api.message.list(channelId, query),
-    getMessage: (channelId: number, messageId: number) => client.api.message.get(channelId, messageId),
+    getChannelMember: (
+        channelId: number,
+        memberKey: MemberKey,
+        query: { withUser?: boolean; withChannel?: boolean } = { withUser: true, withChannel: true }
+    ) => client.api.channel.member(channelId, memberKey, query),
+    listChannelMembers: (
+        channelId: number,
+        query: { withUser?: boolean; withChannel?: boolean } = { withUser: true, withChannel: true }
+    ) => client.api.channel.members(channelId, query),
+    listMessages: (
+        channelId: number,
+        query: { withAuthor?: boolean; withAttachments?: boolean; withUser?: boolean } = {}
+    ) => {
+        const defaultQuery = { withAuthor: true, withAttachments: true, withUser: true, ...query };
+        return client.api.message.list(channelId, defaultQuery);
+    },
+    getMessage: (
+        channelId: number,
+        messageId: number,
+        query: { withChannel?: boolean; withAttachments?: boolean; withAuthor?: boolean; withUser?: boolean } = { withChannel: true, withAttachments: true, withAuthor: true, withUser: true }
+    ) => client.api.message.get(channelId, messageId, query),
 
     createMessage: async (
         channelId: number,
