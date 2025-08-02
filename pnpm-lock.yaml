@@ -32,7 +32,7 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       foxochat.js:
-        specifier: ^0.1.11
+        specifier: ^0.1.12
         version: 0.1.12
       html-react-parser:
         specifier: ^5.2.6

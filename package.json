@@ -20,7 +20,7 @@
 		"@types/prismjs": "^1.26.5",
 		"clsx": "^2.1.1",
 		"dayjs": "^1.11.13",
-		"foxochat.js": "^0.1.11",
+		"foxochat.js": "^0.1.12",
 		"html-react-parser": "^5.2.6",
 		"markdown-it": "^14.1.0",
 		"mobx": "^6.13.7",
