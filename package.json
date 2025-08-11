@@ -28,7 +28,7 @@
 		"preact": "^10.26.9",
 		"preact-iso": "^2.9.2",
 		"prismjs": "^1.30.0",
-		"react-color-palette": "^7.3.0",
+		"react-color-palette": "^7.3.1",
 		"react-virtualized-auto-sizer": "^1.0.26",
 		"react-window": "^1.8.11",
 		"sanitize-html": "^2.17.0",
