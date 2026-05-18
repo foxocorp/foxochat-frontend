@@ -19,7 +19,7 @@
 		"@tauri-apps/plugin-updater": "^2.9.0",
 		"@types/prismjs": "^1.26.5",
 		"clsx": "^2.1.1",
-		"dayjs": "^1.11.13",
+		"dayjs": "^1.11.20",
 		"foxochat.js": "^0.1.12",
 		"html-react-parser": "^5.2.6",
 		"markdown-it": "^14.1.0",
