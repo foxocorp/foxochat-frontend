@@ -26,7 +26,7 @@
 		"mobx": "^6.13.7",
 		"mobx-react": "^9.2.0",
 		"preact": "^10.26.9",
-		"preact-iso": "^2.9.2",
+		"preact-iso": "^2.12.0",
 		"prismjs": "^1.30.0",
 		"react-color-palette": "^7.3.0",
 		"react-virtualized-auto-sizer": "^1.0.26",
