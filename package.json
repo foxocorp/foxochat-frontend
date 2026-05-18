@@ -35,7 +35,7 @@
 		"thumbhash": "^0.1.1",
 		"unicode-emoji-json": "^0.8.0",
 		"web-push": "^3.6.7",
-		"workbox-expiration": "^7.3.0",
+		"workbox-expiration": "^7.4.1",
 		"workbox-precaching": "^7.3.0",
 		"workbox-routing": "^7.3.0",
 		"workbox-strategies": "^7.3.0"
