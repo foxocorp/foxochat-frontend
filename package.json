@@ -23,7 +23,7 @@
 		"foxochat.js": "^0.1.12",
 		"html-react-parser": "^5.2.6",
 		"markdown-it": "^14.1.0",
-		"mobx": "^6.13.7",
+		"mobx": "^6.15.3",
 		"mobx-react": "^9.2.0",
 		"preact": "^10.26.9",
 		"preact-iso": "^2.9.2",
